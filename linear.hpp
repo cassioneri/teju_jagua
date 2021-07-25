@@ -3,6 +3,8 @@
 
 #include "common.hpp"
 
+namespace linear {
+
 std::tuple<u128, u128, u128> constexpr
 get_M2_U_and_V(u128 R, u128 P5F) {
 
@@ -42,7 +44,9 @@ get_M2_U_and_V(u128 R, u128 P5F) {
 }
 
 std::pair<u128, u32> constexpr
-get_M_and_K(u128 M2, u128 V, u128 R, u128 P5F) {
+get_M_and_K(u128 R, u128 P5F) {
+
+  auto const [M2, U, V] = get_M2_U_and_V(R, P5F);
 
   u128 p2k = 1;
   u128 m   = 0;
@@ -78,3 +82,5 @@ bool check(u128 M, u32 K, u128 R, u128 P5F) {
   }
   return true;
 }
+
+} // namespace linear

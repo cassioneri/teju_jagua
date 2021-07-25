@@ -11,20 +11,22 @@ int main() {
     if (F <= 0)
       continue;
 
-    auto const P5F    = pow5(F);
+    auto const P5F        = pow5(F);
 
     if (P5F < 2*P2P)
       continue;
 
-    auto const E2     = E1 - P - 1;
-    auto const P2E2MF = pow2(E2 - F);
+    auto const E2      = E1 - P - 1;
+    auto const P2E2MF  = pow2(E2 - F);
 
-    auto const Q      = P2E2MF / P5F;
-    auto const R      = P2E2MF % P5F;
-    auto const [M, K] = linear::get_M_and_K(R, P5F);
+    auto const Q       = P2E2MF / P5F;
+    auto const R       = P2E2MF % P5F;
 
-    auto const M0_MAX = (2*P2P - 1);
-    auto const CHECK  = linear::check(M, K, R, P5F);
+    auto const [M2, V] = linear::get_M2_and_V(R, P5F);
+    auto const [M, K]  = linear::get_M_and_K(M2, V, R, P5F);
+
+    auto const M0_MAX  = (2*P2P - 1);
+    auto const CHECK   = linear::check(M, K, R, P5F);
 
     std::cout <<
       E1     << '\t' <<

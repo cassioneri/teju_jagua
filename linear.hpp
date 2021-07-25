@@ -5,8 +5,8 @@
 
 namespace linear {
 
-std::tuple<u128, u128, u128> constexpr
-get_M2_U_and_V(u128 R, u128 P5F) {
+std::tuple<u128, u128> constexpr
+get_M2_and_V(u128 R, u128 P5F) {
 
   u128 U  = 0;
   u128 V  = 1;
@@ -40,13 +40,11 @@ get_M2_U_and_V(u128 R, u128 P5F) {
       M2 = m2;
     }
   }
-  return {M2, U, V};
+  return {M2, V};
 }
 
 std::pair<u128, u32> constexpr
-get_M_and_K(u128 R, u128 P5F) {
-
-  auto const [M2, U, V] = get_M2_U_and_V(R, P5F);
+get_M_and_K(u128 M2, u128 V, u128 R, u128 P5F) {
 
   u128 p2k = 1;
   u128 m   = 0;

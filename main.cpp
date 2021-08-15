@@ -1,44 +1,59 @@
 #include "linear.hpp"
 
+// g++ -O3 -std=c++20 main.cpp
+
+constexpr bool is_debug = true;
+
 int main() {
 
-  std::cout << "E1\tF\t5^F\tE2\t2^E2-F\tQ\tR\tM\tK\tCHECK\n";
+  if (is_debug)
+    std::cout << "E2\tF\t5^F\tE\t2^E\tQ\tR\tM\tT\tU\tK\tCHECK\n";
+  else
+    std::cout << "#include \"common.hpp\"\n"
+      "U_and_K_t U_and_K[] = {\n";
 
-  for (int E1 = E1_min; E1 <= E1_max; ++E1) {
+  constexpr auto E2_max = E0 + static_cast<int>(P2L);
 
-    auto const F      = log10_pow2(E1 - P);
+  for (int E2 = E0; E2 <= E2_max; ++E2) {
 
-    if (F <= 0)
+    if (E2 <= 0)
       continue;
 
-    auto const P5F        = pow5(F);
+    auto const F   = log10_pow2(E2);
+    auto const P5F = pow5(F);
 
-    if (P5F < 2*P2P)
+    if (P5F <= 4*P2P)
       continue;
 
-    auto const E2      = E1 - P - 1;
-    auto const P2E2MF  = pow2(E2 - F);
+    auto const E       = E2 - 1 - F;
+    auto const P2E     = pow2(E);
+    auto const Q       = P2E / P5F;
+    auto const R       = P2E % P5F;
+    auto const M_and_T = linear::get_M_and_T(R, P5F);
+    auto const U_and_K = linear::get_U_and_K(R, P5F, M_and_T);
+    auto const CHECK   = linear::check(R, P5F, U_and_K);
 
-    auto const Q       = P2E2MF / P5F;
-    auto const R       = P2E2MF % P5F;
-
-    auto const [M2, V] = linear::get_M2_and_V(R, P5F);
-    auto const [M, K]  = linear::get_M_and_K(M2, V, R, P5F);
-
-    auto const M0_MAX  = (2*P2P - 1);
-    auto const CHECK   = linear::check(M, K, R, P5F);
-
-    std::cout <<
-      E1     << '\t' <<
-      F      << '\t' <<
-      P5F    << '\t' <<
-      E2     << '\t' <<
-      P2E2MF << '\t' <<
-      Q      << '\t' <<
-      R      << '\t' <<
-      M      << '\t' <<
-      K      << '\t' <<
-      CHECK  << '\n';
+    if (is_debug)
+      std::cout <<
+        E2        << '\t' <<
+        F         << '\t' <<
+        P5F       << '\t' <<
+        E         << '\t' <<
+        P2E       << '\t' <<
+        Q         << '\t' <<
+        R         << '\t' <<
+        M_and_T.M << '\t' <<
+        M_and_T.T << '\t' <<
+        U_and_K.U << '\t' <<
+        U_and_K.K << '\t' <<
+        CHECK     << '\n';
+    else
+      std::cout <<
+        "{ " << U_and_K.U << ",\t" << U_and_K.K << "},\n";
   }
+
+  if (!is_debug)
+    std::cout << "{}};\n";
+
   return 0;
 }

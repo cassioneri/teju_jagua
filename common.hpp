@@ -6,6 +6,26 @@ using u32  = uint32_t;
 using u64  = uint64_t;
 using u128 = __uint128_t;
 
+// float
+constexpr auto P   =   23;
+constexpr auto E0  = -149;
+constexpr auto L   =    8;
+
+// double
+// constexpr auto P   =    52;
+// constexpr auto E0  = -1074;
+// constexpr auto L   =    11;
+
+struct M_and_T_t {
+  u128 M;
+  u128 T;
+};
+
+struct U_and_K_t {
+  u128 U;
+  u32  K;
+};
+
 u128 constexpr
 pow5(u32 e) {
   if (e == 0)
@@ -24,10 +44,8 @@ log10_pow2(s32 p) {
   return 566611 * p / 1882241;
 }
 
-constexpr auto P      =   23;
-constexpr auto E1_min = -126;
-constexpr auto E1_max =  127;
-constexpr auto P2P    = pow2(P);
+constexpr auto P2P = pow2(P);
+constexpr auto P2L = static_cast<u32>(pow2(L));
 
 std::ostream&
 operator <<(std::ostream& o, u128 n) {

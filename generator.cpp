@@ -1,6 +1,8 @@
 // g++ -O3 -std=c++20 generator.cpp -o generator
 
 #include <cstdint>
+#include <iomanip>
+#include <ios>
 #include <iostream>
 
 using s32  = int32_t;
@@ -169,7 +171,7 @@ int main() {
       "\n"
       "#include \"config32.h\"\n"
       "\n"
-      "AMARU_UBIGINT params[] = {\n";
+      "AMARU_DOUBLE params[] = {\n";
 
   constexpr auto E2_max = E0 + static_cast<int>(P2L);
 
@@ -208,8 +210,8 @@ int main() {
         CHECK     << '\n';
 
     else
-      std::cout <<
-        "    " << (u128(Q) << U_and_K.K) + U_and_K.U << ",\n";
+      std::cout << std::hex << "    0x" << std::setw(16) <<
+        std::setfill('0') << (u128(Q) << U_and_K.K) + U_and_K.U << ",\n";
   }
 
   if (!is_debug)

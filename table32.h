@@ -2,7 +2,7 @@
 
 #include "config32.h"
 
-AMARU_UBIGINT params[] = {
+AMARU_DOUBLE params[] = {
     49517601571415210,
     99035203142830421,
     198070406285660843,

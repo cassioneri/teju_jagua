@@ -1,26 +1,27 @@
 # pragma once
 
-#include "common.h"
+#include <stdint.h>
 
-#ifndef AMARU_SIZE
+#ifndef AMARU_FLOAT
   #error "Include config<SIZE>.h before amaru.h."
 #endif
 
 typedef struct {
-  int        sign;
-  int        exponent;
-  AMARU_UINT mantissa;
+  int          sign;
+  int          exponent;
+  AMARU_SINGLE mantissa;
 } AMARU_REP;
 
-void AMARU_TO_DECIMAL(AMARU_TYPE in, AMARU_REP* out);
+AMARU_REP AMARU_TO_DECIMAL(AMARU_FLOAT value);
 
-#undef AMARU_SIZE
+#undef AMARU_FLOAT
+
 #undef AMARU_EXPONENT_SIZE
 #undef AMARU_MANTISSA_SIZE
+#undef AMARU_SHIFT
 
-#undef AMARU_TYPE
-#undef AMARU_UINT
-#undef AMARU_UBIGINT
+#undef AMARU_SINGLE
+#undef AMARU_DOUBLE
 #undef AMARU_REP
-
 #undef AMARU_TO_DECIMAL
+#undef AMARU_TABLE

@@ -1,11 +1,11 @@
-#define AMARU_SIZE          32
+#define AMARU_FLOAT         float
+
 #define AMARU_EXPONENT_SIZE 8
 #define AMARU_MANTISSA_SIZE 23
-#define AMARU_SPEC          binary32
-#define AMARU_TYPE          float
-#define AMARU_UINT          uint32_t
-#define AMARU_UBIGINT       uint64_t
+#define AMARU_SHIFT         56
+
+#define AMARU_SINGLE        uint32_t
+#define AMARU_DOUBLE        uint64_t
 #define AMARU_REP           rep32_t
 #define AMARU_TO_DECIMAL    to_decimal32
 #define AMARU_TABLE         "table32.h"
-#define AMARU_SHIFT         56

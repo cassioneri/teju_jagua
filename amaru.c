@@ -15,14 +15,14 @@
 #define AMARU_P2_MANTISSA_SIZE \
   (((AMARU_SINGLE) 1) << AMARU_MANTISSA_SIZE)
 
-inline static int32_t log10_pow2(int32_t exponent) {
+inline static int log10_pow2(int exponent) {
   return exponent >= 0 ?
-    (int32_t) (((uint64_t) 1292913986) * ((uint64_t) exponent) >> 32) :
+    (int) (((uint64_t) 1292913986) * ((uint64_t) exponent) >> 32) :
     log10_pow2(-exponent) - 1;
 }
 
-static inline uint32_t remove_trailing_zeros(AMARU_SINGLE* value) {
-  uint32_t count = 0;
+static inline unsigned remove_trailing_zeros(AMARU_SINGLE* value) {
+  unsigned count = 0;
   do {
     ++count;
     *value /= 10;
@@ -46,20 +46,28 @@ static inline AMARU_REP to_decimal_medium(AMARU_REP const binary) {
   return decimal;
 }
 
+static inline AMARU_SINGLE
+scale_mantissa(AMARU_DOUBLE const a, AMARU_SINGLE const x) {
+  unsigned     const n  = 8*sizeof(AMARU_SINGLE);
+  AMARU_DOUBLE const al = (AMARU_SINGLE) a;
+  AMARU_DOUBLE const ah = a >> n;
+  return ((al*x >> n) + ah*x) >> (AMARU_SHIFT - n);
+}
+
 static inline AMARU_REP to_decimal_large(AMARU_REP const binary) {
 
   AMARU_REP decimal;
 
-  decimal.sign     = binary.sign;
-  decimal.exponent = log10_pow2(binary.exponent);
+  decimal.sign         = binary.sign;
+  decimal.exponent     = log10_pow2(binary.exponent);
 
-  __uint128_t const f = params[binary.exponent - 37];
-  AMARU_SINGLE  const m = 2*binary.mantissa + 1;
-  __uint128_t       p = f*m;
-  AMARU_SINGLE  const b = p >> AMARU_SHIFT;
-                    p = p - 2*f;
-  AMARU_SINGLE  const a = (p >> AMARU_SHIFT) + 1;
-  AMARU_SINGLE        c = (b/10)*10;
+  AMARU_DOUBLE const f = params[binary.exponent - 37];
+
+  AMARU_SINGLE const a = scale_mantissa(f, 2*binary.mantissa - 1) + 1;
+  AMARU_SINGLE const b = scale_mantissa(f, 2*binary.mantissa + 1);
+
+  AMARU_SINGLE c = 10*(b/10);
+  AMARU_SINGLE d;
 
   if (a <= c) {
     decimal.exponent += remove_trailing_zeros(&c);
@@ -68,9 +76,8 @@ static inline AMARU_REP to_decimal_large(AMARU_REP const binary) {
   else if (a % 2 == b % 2)
     decimal.mantissa = (a + b)/2;
   else {
-    p = 4*binary.mantissa*f;
-    c = p >> AMARU_SHIFT;
-    decimal.mantissa = (a + b)/2 + (c & 1);
+    d = scale_mantissa(f, 4*binary.mantissa);
+    decimal.mantissa = (a + b)/2 + (d & 1);
   }
   return decimal;
 }
@@ -165,9 +172,9 @@ static inline AMARU_REP AMARU_TO_DECIMAL(AMARU_FLOAT value) {
 
 int main() {
 
-  AMARU_REP binary = { 1, 37, 8388608 };
-  AMARU_REP ieee, decimal;
-  AMARU_FLOAT value;
+  AMARU_REP    binary = { 1, 37, 8388608 };
+  AMARU_REP    ieee, decimal;
+  AMARU_FLOAT  value;
   AMARU_SINGLE i_value;
 
   floating_decimal_32 ryu;
@@ -177,7 +184,7 @@ int main() {
 
   uint32_t result = 0;
 
-#define AMARU_DO_RYU   1
+#define AMARU_DO_RYU   0
 #define AMARU_DO_AMARU 1
 
   do {

@@ -8,4 +8,4 @@
 #define AMARU_REP           rep32_t
 #define AMARU_TO_DECIMAL    to_decimal32
 #define AMARU_TABLE         "table32.h"
-#define AMARU_SHIFT         54
+#define AMARU_SHIFT         56

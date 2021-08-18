@@ -69,7 +69,7 @@ operator <<(std::ostream& o, u128 n) {
 // ----------------------------
 
 constexpr bool is_debug = false;
-constexpr u32  fixed_k  = 54;
+constexpr u32  fixed_k  = 56;
 
 // ----------------------------
 
@@ -83,6 +83,9 @@ get_M_and_T(u128 R, u128 P5F) {
 
   u128 M = m;
   u128 T = t;
+
+  u128 x = 4*P2P;
+  u128 y = x*R % P5F;
 
   for (u128 m0 = P2P; m0 < 2*P2P; ++m0) {
 
@@ -98,6 +101,16 @@ get_M_and_T(u128 R, u128 P5F) {
       M  = m;
       T  = t;
     }
+
+    if (x * T > M * y) {
+      M  = x;
+      T  = y;
+    }
+
+    x += 4;
+    y += 4*R;
+    while (y >= P5F)
+      y -= P5F;
   }
   return {M, T};
 }
@@ -129,9 +142,15 @@ get_U_and_K(u128 R, u128 P5F, M_and_T_t M_and_T, u32 fixed_k = 0) {
 }
 
 bool check(u128 R, u128 P5F, U_and_K_t U_and_K) {
+
   for (u32 m2 = P2P; m2 < 2*P2P; ++m2) {
+
     auto const m = 2*m2 - 1;
     if (m*R/P5F != m*U_and_K.U >> U_and_K.K)
+      return false;
+
+    auto const x = 4*m2;
+    if (x*R/P5F != x*U_and_K.U >> U_and_K.K)
       return false;
   }
   return true;

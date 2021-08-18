@@ -15,13 +15,21 @@
 #define AMARU_P2_MANTISSA_SIZE \
   (((AMARU_SINGLE) 1) << AMARU_MANTISSA_SIZE)
 
-inline static int log10_pow2(int exponent) {
+typedef struct {
+  int          sign;
+  int          exponent;
+  AMARU_SINGLE mantissa;
+} AMARU_REP;
+
+inline static
+int log10_pow2(int exponent) {
   return exponent >= 0 ?
     (int) (((uint64_t) 1292913986) * ((uint64_t) exponent) >> 32) :
     log10_pow2(-exponent) - 1;
 }
 
-static inline unsigned remove_trailing_zeros(AMARU_SINGLE* value) {
+static inline
+unsigned remove_trailing_zeros(AMARU_SINGLE* value) {
   unsigned count = 0;
   do {
     ++count;
@@ -30,23 +38,20 @@ static inline unsigned remove_trailing_zeros(AMARU_SINGLE* value) {
   return count;
 }
 
-typedef struct {
-  int          sign;
-  int          exponent;
-  AMARU_SINGLE mantissa;
-} AMARU_REP;
-
-static inline AMARU_REP to_decimal_small(AMARU_REP const binary) {
+static inline
+AMARU_REP to_decimal_small(AMARU_REP const binary) {
   AMARU_REP decimal;
   return decimal;
 }
 
-static inline AMARU_REP to_decimal_medium(AMARU_REP const binary) {
+static inline
+AMARU_REP to_decimal_medium(AMARU_REP const binary) {
   AMARU_REP decimal;
   return decimal;
 }
 
-static inline AMARU_SINGLE
+static inline
+AMARU_SINGLE
 scale_mantissa(AMARU_DOUBLE const a, AMARU_SINGLE const x) {
   unsigned     const n  = 8*sizeof(AMARU_SINGLE);
   AMARU_DOUBLE const al = (AMARU_SINGLE) a;
@@ -54,7 +59,8 @@ scale_mantissa(AMARU_DOUBLE const a, AMARU_SINGLE const x) {
   return ((al*x >> n) + ah*x) >> (AMARU_SHIFT - n);
 }
 
-static inline AMARU_REP to_decimal_large(AMARU_REP const binary) {
+static inline
+AMARU_REP to_decimal_large(AMARU_REP const binary) {
 
   AMARU_REP decimal;
 
@@ -82,7 +88,8 @@ static inline AMARU_REP to_decimal_large(AMARU_REP const binary) {
   return decimal;
 }
 
-static inline AMARU_REP value_to_ieee(AMARU_FLOAT const value) {
+static inline
+AMARU_REP value_to_ieee(AMARU_FLOAT const value) {
 
   AMARU_REP  ieee;
   AMARU_SINGLE uint;
@@ -100,7 +107,8 @@ static inline AMARU_REP value_to_ieee(AMARU_FLOAT const value) {
   return ieee;
 }
 
-static inline AMARU_FLOAT ieee_to_value(AMARU_REP const ieee) {
+static inline
+AMARU_FLOAT ieee_to_value(AMARU_REP const ieee) {
 
   AMARU_FLOAT value;
   AMARU_SINGLE uint = ieee.sign == 1 ? 0 : 1;
@@ -116,7 +124,8 @@ static inline AMARU_FLOAT ieee_to_value(AMARU_REP const ieee) {
   return value;
 }
 
-static inline AMARU_REP ieee_to_amaru(AMARU_REP const ieee) {
+static inline
+AMARU_REP ieee_to_amaru(AMARU_REP const ieee) {
 
   AMARU_REP amaru;
 
@@ -131,7 +140,8 @@ static inline AMARU_REP ieee_to_amaru(AMARU_REP const ieee) {
   return amaru;
 }
 
-static inline AMARU_REP amaru_to_ieee(AMARU_REP const amaru) {
+static inline
+AMARU_REP amaru_to_ieee(AMARU_REP const amaru) {
 
   AMARU_REP ieee;
 
@@ -145,7 +155,8 @@ static inline AMARU_REP amaru_to_ieee(AMARU_REP const amaru) {
   return ieee;
 }
 
-static inline AMARU_REP AMARU_TO_DECIMAL(AMARU_FLOAT value) {
+static inline
+AMARU_REP AMARU_TO_DECIMAL(AMARU_FLOAT value) {
 
   AMARU_REP decimal;
   AMARU_REP const ieee   = value_to_ieee(value);
@@ -182,9 +193,9 @@ int main() {
   ieee  = amaru_to_ieee(binary);
   value = ieee_to_value(ieee);
 
-  uint32_t result = 0;
+  AMARU_SINGLE result = 0;
 
-#define AMARU_DO_RYU   0
+#define AMARU_DO_RYU   1
 #define AMARU_DO_AMARU 1
 
   do {
@@ -216,6 +227,7 @@ int main() {
 
   } while (ieee.exponent != 255);
 
+  printf("%.7e\n", value);
+
   return result;
 }
-

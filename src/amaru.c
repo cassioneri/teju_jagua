@@ -1,6 +1,15 @@
 // gcc -O3 -I ~/ryu/cassio/ryu -include config32.h amaru.c -o amaru ~/ryu/cassio/ryu/libryu.a
 
-#include <ryu.h>
+//-------------------------------------------------------------------------
+
+#define AMARU_DO_RYU   1
+#define AMARU_DO_AMARU 0
+
+//-------------------------------------------------------------------------
+
+#if AMARU_DO_RYU
+  #include <ryu.h>
+#endif
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -188,15 +197,14 @@ int main() {
   AMARU_FLOAT  value;
   AMARU_SINGLE i_value;
 
-  floating_decimal_32 ryu;
+  #if AMARU_DO_RYU
+    floating_decimal_32 ryu;
+  #endif
 
   ieee  = amaru_to_ieee(binary);
   value = ieee_to_value(ieee);
 
   AMARU_SINGLE result = 0;
-
-#define AMARU_DO_RYU   1
-#define AMARU_DO_AMARU 1
 
   do {
 

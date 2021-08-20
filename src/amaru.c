@@ -3,7 +3,7 @@
 //-------------------------------------------------------------------------
 
 #define AMARU_DO_RYU   1
-#define AMARU_DO_AMARU 1
+#define AMARU_DO_AMARU 0
 
 //-------------------------------------------------------------------------
 
@@ -57,11 +57,12 @@ int log10_pow2(int exponent) {
 
 static inline
 unsigned remove_trailing_zeros(AMARU_SINGLE* value) {
+
   unsigned count = 0;
-  do {
+  while (*value % 10 == 0) {
     ++count;
     *value /= 10;
-  } while (*value % 10 == 0);
+  }
   return count;
 }
 
@@ -103,10 +104,8 @@ AMARU_REP to_decimal_large(AMARU_REP const binary) {
   AMARU_SINGLE c = 10*(b/10);
   AMARU_SINGLE d;
 
-  if (a <= c) {
-    decimal.exponent += remove_trailing_zeros(&c);
+  if (a <= c)
     decimal.mantissa = c;
-  }
   else if (a % 2 == b % 2)
     decimal.mantissa = (a + b)/2;
   else {
@@ -114,6 +113,17 @@ AMARU_REP to_decimal_large(AMARU_REP const binary) {
       4*binary.mantissa);
     decimal.mantissa = (a + b)/2 + (d & 1);
   }
+
+  if (binary.mantissa == AMARU_P2_MANTISSA_SIZE) {
+    if (f.refine) {
+      --decimal.exponent;
+      decimal.mantissa *= 10;
+    }
+    decimal.mantissa += f.correction;
+  }
+
+  decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
+
   return decimal;
 }
 

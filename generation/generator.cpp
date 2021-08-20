@@ -1,4 +1,4 @@
-// g++ -O3 -std=c++20 generator.cpp -o generator
+// g++ -O3 -std=c++20 generation/generator.cpp -o generator
 
 #include <cstdint>
 #include <iomanip>
@@ -54,9 +54,24 @@ pow2(u32 e) {
   return u128(1) << e;
 }
 
-s32 constexpr
-log10_pow2(s32 p) {
-  return 566611 * p / 1882241;
+// s32 constexpr
+// log10_pow2(s32 p) {
+//   return 566611 * p / 1882241;
+// }
+
+int log10_pow2(int exponent) {
+  return exponent >= 0 ?
+    (int) (((uint64_t) 1292913986) * ((uint64_t) exponent) >> 32) :
+    log10_pow2(-exponent) - 1;
+}
+
+unsigned remove_trailing_zeros(u32& value) {
+  unsigned count = 0;
+  do {
+    ++count;
+    value /= 10;
+  } while (value % 10 == 0);
+  return count;
 }
 
 constexpr auto P2P = pow2(P);
@@ -70,12 +85,10 @@ operator <<(std::ostream& o, u128 n) {
 
 // ----------------------------
 
-constexpr bool is_debug = false;
+constexpr bool is_debug = true;
 constexpr u32  fixed_k  = 56;
 
 // ----------------------------
-
-namespace linear {
 
 M_and_T_t constexpr
 get_M_and_T(u128 R, u128 P5F) {
@@ -109,7 +122,10 @@ get_M_and_T(u128 R, u128 P5F) {
       T  = y;
     }
 
+    // x = 4*m0
     x += 4;
+
+    // y = 4*m0 % P5F
     y += 4*R;
     while (y >= P5F)
       y -= P5F;
@@ -158,9 +174,9 @@ bool check(u128 R, u128 P5F, U_and_K_t U_and_K) {
   return true;
 }
 
-} // namespace linear
+constexpr auto E2_max = E0 + static_cast<int>(P2L);
 
-int main() {
+void generate_multipliers_table() {
 
   if (is_debug)
     std::cout << "E2\tF\t5^F\tE\t2^E\tQ\tR\tM\tT\tU\tK\tCHECK\n";
@@ -172,8 +188,6 @@ int main() {
       "#include \"config32.h\"\n"
       "\n"
       "AMARU_DOUBLE params[] = {\n";
-
-  constexpr auto E2_max = E0 + static_cast<int>(P2L);
 
   for (int E2 = E0; E2 <= E2_max; ++E2) {
 
@@ -190,9 +204,9 @@ int main() {
     auto const P2E     = pow2(E);
     auto const Q       = P2E / P5F;
     auto const R       = P2E % P5F;
-    auto const M_and_T = linear::get_M_and_T(R, P5F);
-    auto const U_and_K = linear::get_U_and_K(R, P5F, M_and_T, fixed_k);
-    auto const CHECK   = linear::check(R, P5F, U_and_K);
+    auto const M_and_T = get_M_and_T(R, P5F);
+    auto const U_and_K = get_U_and_K(R, P5F, M_and_T, fixed_k);
+    auto const CHECK   = check(R, P5F, U_and_K);
 
     if (is_debug)
       std::cout <<
@@ -216,6 +230,110 @@ int main() {
 
   if (!is_debug)
     std::cout << "};\n";
+}
 
-  return 0;
+void generate_correction_table() {
+
+  if (is_debug)
+    std::cout << "E2\tF\tExp\tEst\t Corr\n";
+  else
+    std::cout <<
+      "// This file is auto-generated. DO NOT EDIT.\n"
+      "\n"
+      "AMARU_SINGLE correction[] = {\n";
+
+  constexpr auto E2_max = E0 + static_cast<int>(P2L);
+  constexpr auto m2 = P2P;
+
+  int E2 = 44;
+  for (int E2 = E0; E2 <= E2_max; ++E2) {
+
+    if (E2 <= 0)
+      continue;
+
+    auto const F   = log10_pow2(E2);
+    auto const P5F = pow5(F);
+
+    if (P5F <= 4*P2P)
+      continue;
+
+    auto P2E2_2_F = pow2(E2 - 2 - F);
+
+    int exponent = F;
+
+    // Mantissa estimate
+    u32 estimate;
+    u32 const a = (4*m2 - 2)*P2E2_2_F/P5F + 1;
+    u32 const b = (4*m2 + 2)*P2E2_2_F/P5F;
+    u32 const c = 10*(b/10);
+    if (a <= c) {
+      std::cout << 'd';
+      estimate = c;
+    }
+    else if (a % 2 == b % 2) {
+      std::cout << 'm';
+      estimate = (a + b)/2;
+    }
+    else {
+      std::cout << 'c';
+      u32 d = 8*m2*P2E2_2_F/P5F;
+      estimate = (a + b)/2 + (d & 1);
+    }
+
+    // Mantissa correct
+    u32 correct;
+    u32 ac = (4*m2 - 1)*P2E2_2_F/P5F + 1;
+
+    if (ac <= c)
+      correct = c;
+    else if (b >= ac) {
+      auto const x = m2*pow2(E2 - F);
+      correct = b;
+      auto vc = b*P5F;
+      while (vc >= x) {
+        --correct;
+        vc -= P5F;
+      }
+      if (x - vc > (vc + P5F) - x || correct < ac) {
+        ++correct;
+        // vc += P5F;
+      }
+    }
+    else { // b < ac
+      auto const P5F_1 = P5F/5;
+      auto const x = m2*pow2(E2 - F + 1);
+      --exponent;
+      estimate *= 10;
+      correct = estimate;
+      auto vc = correct*P5F_1;
+      while (vc < x) {
+        ++correct;
+        vc += P5F_1;
+      }
+      if (vc - x > x - (vc - P5F_1)) {
+        --correct;
+        // vc -= P5F;
+      }
+      correct += 10;
+    }
+    u32 correction = correct - estimate;
+
+    if (is_debug)
+      std::cout <<
+        E2         << '\t' <<
+        F          << '\t' <<
+        exponent   << '\t' <<
+        estimate   << '\t' <<
+        correction << '\n';
+    else
+      std::cout <<
+        correction << ", ";
+  }
+
+  if (!is_debug)
+    std::cout << "};\n";
+}
+
+int main() {
+  generate_correction_table();
 }

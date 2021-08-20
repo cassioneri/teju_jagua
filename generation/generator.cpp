@@ -80,8 +80,8 @@ operator <<(std::ostream& o, u128 n) {
 
 // ----------------------------
 
-constexpr bool is_debug = true;
-constexpr u32  fixed_k  = 56;
+constexpr bool generate_converter = true;
+constexpr u32  fixed_k = 56;
 
 // ----------------------------
 
@@ -187,26 +187,27 @@ typedef struct {
 static inline
 converter_t get_converter(int E2) {
 
-    converter_t converter;
-    converter.valid = false;
+  converter_t converter;
+  converter.valid = false;
 
-    if (E2 <= 0)
-      return converter;
+  if (E2 <= 0)
+    return converter;
 
-    auto const F       = log10_pow2(E2);
-    auto const P5F     = pow5(F);
+  auto const F       = log10_pow2(E2);
+  auto const P5F     = pow5(F);
 
-    if (P5F <= 4*P2P)
-      return converter;
+  if (P5F <= 4*P2P)
+    return converter;
 
-    auto const E       = E2 - 1 - F;
-    auto const P2E     = pow2(E);
-    auto const Q       = P2E / P5F;
-    auto const R       = P2E % P5F;
-    auto const M_and_T = get_M_and_T(R, P5F);
-    auto const U_and_K = get_U_and_K(R, P5F, M_and_T, fixed_k);
-    auto const CHECK   = check(R, P5F, U_and_K);
+  auto const E       = E2 - 1 - F;
+  auto const P2E     = pow2(E);
+  auto const Q       = P2E / P5F;
+  auto const R       = P2E % P5F;
+  auto const M_and_T = get_M_and_T(R, P5F);
+  auto const U_and_K = get_U_and_K(R, P5F, M_and_T, fixed_k);
+  auto const CHECK   = check(R, P5F, U_and_K);
 
+  if (generate_converter)
     std::cerr <<
       E2        << '\t' <<
       F         << '\t' <<
@@ -218,47 +219,17 @@ converter_t get_converter(int E2) {
       M_and_T.M << '\t' <<
       M_and_T.T << '\t' <<
       U_and_K.U << '\t' <<
-      U_and_K.K << /*'\t' <<
-      CHECK     << */'\n';
+      U_and_K.K << '\t' <<
+      CHECK     << '\n';
 
-    u64 multiplier = (u128(Q) << U_and_K.K) + U_and_K.U;
+  u64 multiplier = (u128(Q) << U_and_K.K) + U_and_K.U;
 
-    converter.valid        = true;
-    converter.multiplier_l = multiplier;
-    converter.multiplier_h = multiplier >> 32;
-    converter.shift        = U_and_K.K;
+  converter.valid        = true;
+  converter.multiplier_l = multiplier;
+  converter.multiplier_h = multiplier >> 32;
+  converter.shift        = U_and_K.K;
 
-    return converter;
-}
-
-void generate_multipliers() {
-
-  converter_t converter;
-  u64 multiplier;
-
-  std::cerr << "E2\tF\t5^F\tE\t2^E\tQ\tR\tM\tT\tU\tK\tCHECK\n";
-  std::cout <<
-    "// This file is auto-generated. DO NOT EDIT.\n"
-    "\n"
-    "#include \"config32.h\"\n"
-    "\n"
-    "amaru_params_t params[] = {\n";
-
-  for (int E2 = E0; E2 <= E2_max; ++E2) {
-
-    converter = get_converter(E2);
-    if (!converter.valid)
-      continue;
-
-    multiplier =  converter.multiplier_h;
-    multiplier <<= 32;
-    multiplier += converter.multiplier_l;
-
-      std::cout << std::hex << "    0x" << std::setw(16) <<
-        std::setfill('0') << multiplier << ",\n";
-  }
-
-  std::cout << "};\n";
+  return converter;
 }
 
 corrector_t get_corrector(int E2) {
@@ -321,13 +292,14 @@ corrector_t get_corrector(int E2) {
   }
   unsigned correction = correct - estimate;
 
-  std::cerr <<
-    E2         << '\t' <<
-    F          << '\t' <<
-    exponent   << '\t' <<
-    estimate   << '\t' <<
-    correction << '\t' <<
-    refine     << '\n';
+  if (!generate_converter)
+    std::cerr <<
+      E2         << '\t' <<
+      F          << '\t' <<
+      exponent   << '\t' <<
+      estimate   << '\t' <<
+      correction << '\t' <<
+      refine     << '\n';
 
     corrector.valid      = true;
     corrector.correction = correction;
@@ -336,29 +308,41 @@ corrector_t get_corrector(int E2) {
   return corrector;
 }
 
-void generate_corrections() {
+int main() {
 
+  converter_t converter;
   corrector_t corrector;
 
-  std::cerr << "E2\tF\tExponent\tEstimate\tCorr\tRefine\n";
+  if (generate_converter)
+    std::cerr << "E2\tF\t5^F\tE\t2^E\tQ\tR\tM\tT\tU\tK\tCHECK\n";
+  else
+    std::cerr << "E2\tF\tExponent\tEstimate\tCorr\tRefine\n";
+
   std::cout <<
     "// This file is auto-generated. DO NOT EDIT.\n"
     "\n"
-    "AMARU_SINGLE correction[] = {\n";
+    "amaru_params_t params[] = {\n";
 
-  constexpr auto m2 = P2P;
+  for (int E2 = E0; E2 <= E2_max; ++E2) {
 
-  for (int E2 = E0; E2 < E2_max; ++E2) {
+    converter = get_converter(E2);
+    if (!converter.valid)
+      continue;
 
     corrector = get_corrector(E2);
     if (!corrector.valid)
       continue;
 
+    std::cout << "    { 0x" <<
+      std::hex << std::setw(8) << std::setfill('0') <<
+      converter.multiplier_h << ", 0x" <<
+      std::hex << std::setw(8) << std::setfill('0') <<
+      converter.multiplier_l << ", " <<
+      std::dec <<
+      converter.shift        << ", " <<
+      corrector.correction   << ", " <<
+      corrector.refine       << " },\n";
   }
 
   std::cout << "};\n";
-}
-
-int main() {
-  generate_corrections();
 }

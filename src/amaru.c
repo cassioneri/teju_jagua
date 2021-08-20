@@ -16,16 +16,14 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef AMARU_DOUBLE amaru_params_t;
-
 // #if AMARU_VERSION == AMARU_STANDARD
-// typedef struct {
-//   AMARU_SINGLE multiplier_l;
-//   AMARU_SINGLE multiplier_h;
-//   unsigned     shift;
-//   unsigned     correction;
-//   bool         refine;
-// } amaru_params_t;
+typedef struct {
+  AMARU_SINGLE multiplier_h;
+  AMARU_SINGLE multiplier_l;
+  unsigned     shift;
+  unsigned     correction;
+  bool         refine;
+} amaru_params_t;
 //
 // #elif AMARU_VERSION = AMARU_COMPACT
 // typedef struct {
@@ -80,12 +78,11 @@ AMARU_REP to_decimal_medium(AMARU_REP const binary) {
 }
 
 static inline
-AMARU_SINGLE
-scale_mantissa(AMARU_DOUBLE const a, AMARU_SINGLE const x) {
+AMARU_SINGLE scale(AMARU_SINGLE const ah, AMARU_SINGLE const al,
+  unsigned shift, AMARU_SINGLE const x) {
   unsigned     const n  = 8*sizeof(AMARU_SINGLE);
-  AMARU_DOUBLE const al = (AMARU_SINGLE) a;
-  AMARU_DOUBLE const ah = a >> n;
-  return ((al*x >> n) + ah*x) >> (AMARU_SHIFT - n);
+  AMARU_DOUBLE y = x;
+  return ((al*y >> n) + ah*y) >> (shift - n);
 }
 
 static inline
@@ -96,10 +93,12 @@ AMARU_REP to_decimal_large(AMARU_REP const binary) {
   decimal.sign         = binary.sign;
   decimal.exponent     = log10_pow2(binary.exponent);
 
-  AMARU_DOUBLE const f = params[binary.exponent - 37];
+  amaru_params_t const f = params[binary.exponent - 37];
 
-  AMARU_SINGLE const a = scale_mantissa(f, 2*binary.mantissa - 1) + 1;
-  AMARU_SINGLE const b = scale_mantissa(f, 2*binary.mantissa + 1);
+  AMARU_SINGLE const a = scale(f.multiplier_h, f.multiplier_l, f.shift,
+    2*binary.mantissa - 1) + 1;
+  AMARU_SINGLE const b = scale(f.multiplier_h, f.multiplier_l, f.shift,
+    2*binary.mantissa + 1);
 
   AMARU_SINGLE c = 10*(b/10);
   AMARU_SINGLE d;
@@ -111,7 +110,8 @@ AMARU_REP to_decimal_large(AMARU_REP const binary) {
   else if (a % 2 == b % 2)
     decimal.mantissa = (a + b)/2;
   else {
-    d = scale_mantissa(f, 4*binary.mantissa);
+    d = scale(f.multiplier_h, f.multiplier_l, f.shift,
+      4*binary.mantissa);
     decimal.mantissa = (a + b)/2 + (d & 1);
   }
   return decimal;

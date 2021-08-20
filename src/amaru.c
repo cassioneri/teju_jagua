@@ -2,8 +2,8 @@
 
 //-------------------------------------------------------------------------
 
-#define AMARU_DO_RYU   1
-#define AMARU_DO_AMARU 0
+#define AMARU_DO_RYU   0
+#define AMARU_DO_AMARU 1
 
 //-------------------------------------------------------------------------
 
@@ -57,7 +57,6 @@ int log10_pow2(int exponent) {
 
 static inline
 unsigned remove_trailing_zeros(AMARU_SINGLE* value) {
-
   unsigned count = 0;
   while (*value % 10 == 0) {
     ++count;
@@ -81,7 +80,7 @@ AMARU_REP to_decimal_medium(AMARU_REP const binary) {
 static inline
 AMARU_SINGLE scale(AMARU_SINGLE const ah, AMARU_SINGLE const al,
   unsigned shift, AMARU_SINGLE const x) {
-  unsigned     const n  = 8*sizeof(AMARU_SINGLE);
+  unsigned const n  = 8*sizeof(AMARU_SINGLE);
   AMARU_DOUBLE y = x;
   return ((al*y >> n) + ah*y) >> (shift - n);
 }
@@ -91,14 +90,12 @@ AMARU_REP to_decimal_large(AMARU_REP const binary) {
 
   AMARU_REP decimal;
 
-  decimal.sign         = binary.sign;
-  decimal.exponent     = log10_pow2(binary.exponent);
-
   amaru_params_t const f = params[binary.exponent - 37];
-
-  AMARU_SINGLE const a = scale(f.multiplier_h, f.multiplier_l, f.shift,
+  decimal.sign           = binary.sign;
+  decimal.exponent       = log10_pow2(binary.exponent);
+  AMARU_SINGLE const a   = scale(f.multiplier_h, f.multiplier_l, f.shift,
     2*binary.mantissa - 1) + 1;
-  AMARU_SINGLE const b = scale(f.multiplier_h, f.multiplier_l, f.shift,
+  AMARU_SINGLE const b   = scale(f.multiplier_h, f.multiplier_l, f.shift,
     2*binary.mantissa + 1);
 
   AMARU_SINGLE c = 10*(b/10);
@@ -106,12 +103,12 @@ AMARU_REP to_decimal_large(AMARU_REP const binary) {
 
   if (a <= c)
     decimal.mantissa = c;
-  else if (a % 2 == b % 2)
-    decimal.mantissa = (a + b)/2;
   else {
-    d = scale(f.multiplier_h, f.multiplier_l, f.shift,
-      4*binary.mantissa);
-    decimal.mantissa = (a + b)/2 + (d & 1);
+    decimal.mantissa = (a + b)/2;
+    if ((a ^ b) & 1) {
+      d = scale(f.multiplier_h, f.multiplier_l, f.shift, 4*binary.mantissa);
+      decimal.mantissa += d % 2;
+    }
   }
 
   if (binary.mantissa == AMARU_P2_MANTISSA_SIZE) {

@@ -54,11 +54,6 @@ pow2(u32 e) {
   return u128(1) << e;
 }
 
-// s32 constexpr
-// log10_pow2(s32 p) {
-//   return 566611 * p / 1882241;
-// }
-
 int log10_pow2(int exponent) {
   return exponent >= 0 ?
     (int) (((uint64_t) 1292913986) * ((uint64_t) exponent) >> 32) :
@@ -85,7 +80,7 @@ operator <<(std::ostream& o, u128 n) {
 
 // ----------------------------
 
-constexpr bool is_debug = true;
+constexpr bool is_debug = false;
 constexpr u32  fixed_k  = 56;
 
 // ----------------------------
@@ -174,7 +169,7 @@ bool check(u128 R, u128 P5F, U_and_K_t U_and_K) {
   return true;
 }
 
-constexpr auto E2_max = E0 + static_cast<int>(P2L);
+constexpr auto E2_max = E0 + static_cast<int>(P2L) - 2;
 
 void generate_multipliers_table() {
 
@@ -235,18 +230,16 @@ void generate_multipliers_table() {
 void generate_correction_table() {
 
   if (is_debug)
-    std::cout << "E2\tF\tExp\tEst\t Corr\n";
+    std::cout << "E2\tF\tExponent\tEstimate\tCorr\tRefine\n";
   else
     std::cout <<
       "// This file is auto-generated. DO NOT EDIT.\n"
       "\n"
       "AMARU_SINGLE correction[] = {\n";
 
-  constexpr auto E2_max = E0 + static_cast<int>(P2L);
   constexpr auto m2 = P2P;
 
-  int E2 = 44;
-  for (int E2 = E0; E2 <= E2_max; ++E2) {
+  for (int E2 = E0; E2 < E2_max; ++E2) {
 
     if (E2 <= 0)
       continue;
@@ -260,22 +253,18 @@ void generate_correction_table() {
     auto P2E2_2_F = pow2(E2 - 2 - F);
 
     int exponent = F;
+    bool refine  = false;
 
     // Mantissa estimate
     u32 estimate;
     u32 const a = (4*m2 - 2)*P2E2_2_F/P5F + 1;
     u32 const b = (4*m2 + 2)*P2E2_2_F/P5F;
     u32 const c = 10*(b/10);
-    if (a <= c) {
-      std::cout << 'd';
+    if (a <= c)
       estimate = c;
-    }
-    else if (a % 2 == b % 2) {
-      std::cout << 'm';
+    else if (a % 2 == b % 2)
       estimate = (a + b)/2;
-    }
     else {
-      std::cout << 'c';
       u32 d = 8*m2*P2E2_2_F/P5F;
       estimate = (a + b)/2 + (d & 1);
     }
@@ -287,34 +276,21 @@ void generate_correction_table() {
     if (ac <= c)
       correct = c;
     else if (b >= ac) {
-      auto const x = m2*pow2(E2 - F);
-      correct = b;
-      auto vc = b*P5F;
-      while (vc >= x) {
-        --correct;
-        vc -= P5F;
-      }
-      if (x - vc > (vc + P5F) - x || correct < ac) {
+      auto const value = 4*m2*P2E2_2_F;
+      correct = value/P5F;
+      auto vcorrect = P5F*correct;
+      if (value - vcorrect > vcorrect + P5F - value || correct < ac)
         ++correct;
-        // vc += P5F;
-      }
     }
-    else { // b < ac
-      auto const P5F_1 = P5F/5;
-      auto const x = m2*pow2(E2 - F + 1);
-      --exponent;
+    else { // needs refining grid of powers of 10.
       estimate *= 10;
-      correct = estimate;
-      auto vc = correct*P5F_1;
-      while (vc < x) {
+      auto const value = 8*m2*P2E2_2_F;
+      auto const P5F_1 = P5F/5;
+      correct = value/P5F_1;
+      auto vcorrect = P5F_1*correct;
+      if (value - vcorrect > vcorrect + P5F_1 - value)
         ++correct;
-        vc += P5F_1;
-      }
-      if (vc - x > x - (vc - P5F_1)) {
-        --correct;
-        // vc -= P5F;
-      }
-      correct += 10;
+      refine = true;
     }
     u32 correction = correct - estimate;
 
@@ -324,10 +300,12 @@ void generate_correction_table() {
         F          << '\t' <<
         exponent   << '\t' <<
         estimate   << '\t' <<
-        correction << '\n';
+        correction << '\t' <<
+        refine     << '\n';
     else
-      std::cout <<
-        correction << ", ";
+      std::cout << "    { " <<
+        correction << ", " <<
+        refine << " },\n";
   }
 
   if (!is_debug)

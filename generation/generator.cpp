@@ -171,29 +171,32 @@ bool check(u128 R, u128 P5F, U_and_K_t U_and_K) {
 
 constexpr auto E2_max = E0 + static_cast<int>(P2L) - 2;
 
-void generate_multipliers_table() {
+typedef struct {
+  bool     valid;
+  u32      multiplier_l;
+  u32      multiplier_h;
+  unsigned shift;
+} converter_t;
 
-  if (is_debug)
-    std::cout << "E2\tF\t5^F\tE\t2^E\tQ\tR\tM\tT\tU\tK\tCHECK\n";
+typedef struct {
+  unsigned correction;
+  bool     refine;
+} correction_t;
 
-  else
-    std::cout <<
-      "// This file is auto-generated. DO NOT EDIT.\n"
-      "\n"
-      "#include \"config32.h\"\n"
-      "\n"
-      "AMARU_DOUBLE params[] = {\n";
+static inline
+converter_t get_converter(int E2) {
 
-  for (int E2 = E0; E2 <= E2_max; ++E2) {
+    converter_t converter;
+    converter.valid = false;
 
     if (E2 <= 0)
-      continue;
+      return converter;
 
-    auto const F   = log10_pow2(E2);
-    auto const P5F = pow5(F);
+    auto const F       = log10_pow2(E2);
+    auto const P5F     = pow5(F);
 
     if (P5F <= 4*P2P)
-      continue;
+      return converter;
 
     auto const E       = E2 - 1 - F;
     auto const P2E     = pow2(E);
@@ -203,28 +206,58 @@ void generate_multipliers_table() {
     auto const U_and_K = get_U_and_K(R, P5F, M_and_T, fixed_k);
     auto const CHECK   = check(R, P5F, U_and_K);
 
-    if (is_debug)
-      std::cout <<
-        E2        << '\t' <<
-        F         << '\t' <<
-        P5F       << '\t' <<
-        E         << '\t' <<
-        P2E       << '\t' <<
-        Q         << '\t' <<
-        R         << '\t' <<
-        M_and_T.M << '\t' <<
-        M_and_T.T << '\t' <<
-        U_and_K.U << '\t' <<
-        U_and_K.K << '\t' <<
-        CHECK     << '\n';
+    std::cerr <<
+      E2        << '\t' <<
+      F         << '\t' <<
+      P5F       << '\t' <<
+      E         << '\t' <<
+      P2E       << '\t' <<
+      Q         << '\t' <<
+      R         << '\t' <<
+      M_and_T.M << '\t' <<
+      M_and_T.T << '\t' <<
+      U_and_K.U << '\t' <<
+      U_and_K.K << /*'\t' <<
+      CHECK     << */'\n';
 
-    else
+    u64 multiplier = (u128(Q) << U_and_K.K) + U_and_K.U;
+
+    converter.valid        = true;
+    converter.multiplier_l = multiplier;
+    converter.multiplier_h = multiplier >> 32;
+    converter.shift        = U_and_K.K;
+
+    return converter;
+}
+
+void generate_multipliers() {
+
+  converter_t converter;
+  u64 multiplier;
+
+  std::cerr << "E2\tF\t5^F\tE\t2^E\tQ\tR\tM\tT\tU\tK\tCHECK\n";
+  std::cout <<
+    "// This file is auto-generated. DO NOT EDIT.\n"
+    "\n"
+    "#include \"config32.h\"\n"
+    "\n"
+    "amaru_params_t params[] = {\n";
+
+  for (int E2 = E0; E2 <= E2_max; ++E2) {
+
+    converter = get_converter(E2);
+    if (!converter.valid)
+      continue;
+
+    multiplier =  converter.multiplier_h;
+    multiplier <<= 32;
+    multiplier += converter.multiplier_l;
+
       std::cout << std::hex << "    0x" << std::setw(16) <<
-        std::setfill('0') << (u128(Q) << U_and_K.K) + U_and_K.U << ",\n";
+        std::setfill('0') << multiplier << ",\n";
   }
 
-  if (!is_debug)
-    std::cout << "};\n";
+  std::cout << "};\n";
 }
 
 void generate_correction_table() {
@@ -313,5 +346,5 @@ void generate_correction_table() {
 }
 
 int main() {
-  generate_correction_table();
+  generate_multipliers();
 }

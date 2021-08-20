@@ -2,7 +2,7 @@
 
 #include "config32.h"
 
-AMARU_DOUBLE params[] = {
+amaru_params_t params[] = {
     0x00afebff0bcb24aa,
     0x015fd7fe17964955,
     0x02bfaffc2f2c92ab,
@@ -72,6 +72,4 @@ AMARU_DOUBLE params[] = {
     0x0081ceb32c4b43fc,
     0x01039d66589687f9,
     0x02073accb12d0ff3,
-    0x040e7599625a1fe7,
-    0x00cfb11ead453994,
 };

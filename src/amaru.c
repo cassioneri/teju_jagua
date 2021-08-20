@@ -3,7 +3,7 @@
 //-------------------------------------------------------------------------
 
 #define AMARU_DO_RYU   1
-#define AMARU_DO_AMARU 0
+#define AMARU_DO_AMARU 1
 
 //-------------------------------------------------------------------------
 
@@ -15,6 +15,26 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+
+typedef AMARU_DOUBLE amaru_params_t;
+
+// #if AMARU_VERSION == AMARU_STANDARD
+// typedef struct {
+//   AMARU_SINGLE multiplier_l;
+//   AMARU_SINGLE multiplier_h;
+//   unsigned     shift;
+//   unsigned     correction;
+//   bool         refine;
+// } amaru_params_t;
+//
+// #elif AMARU_VERSION = AMARU_COMPACT
+// typedef struct {
+//   AMARU_SINGLE multiplier_l;
+//   AMARU_SINGLE multiplier_h : ???
+//   AMARU_SINGLE correction   : 4;
+//   AMARU_SINGLE refine       : 1;
+// } amaru_params_t;
+// #endif
 
 #include AMARU_TABLE
 

@@ -80,7 +80,7 @@ operator <<(std::ostream& o, u128 n) {
 
 // ----------------------------
 
-constexpr bool is_debug = false;
+constexpr bool is_debug = true;
 constexpr u32  fixed_k  = 56;
 
 // ----------------------------
@@ -179,9 +179,10 @@ typedef struct {
 } converter_t;
 
 typedef struct {
+  bool     valid;
   unsigned correction;
   bool     refine;
-} correction_t;
+} corrector_t;
 
 static inline
 converter_t get_converter(int E2) {
@@ -260,91 +261,104 @@ void generate_multipliers() {
   std::cout << "};\n";
 }
 
-void generate_correction_table() {
+corrector_t get_corrector(int E2) {
 
-  if (is_debug)
-    std::cout << "E2\tF\tExponent\tEstimate\tCorr\tRefine\n";
-  else
-    std::cout <<
-      "// This file is auto-generated. DO NOT EDIT.\n"
-      "\n"
-      "AMARU_SINGLE correction[] = {\n";
+  constexpr auto m2 = P2P;
+
+  corrector_t corrector;
+  corrector.valid = false;
+
+  if (E2 <= 0)
+    return corrector;
+
+  auto const F   = log10_pow2(E2);
+  auto const P5F = pow5(F);
+
+  auto P2E2_2_F = pow2(E2 - 2 - F);
+
+  if (P5F <= 4*P2P)
+    return corrector;
+
+  int exponent = F;
+  bool refine  = false;
+
+  // Mantissa estimate
+  u32 estimate;
+  u32 const a = (4*m2 - 2)*P2E2_2_F/P5F + 1;
+  u32 const b = (4*m2 + 2)*P2E2_2_F/P5F;
+  u32 const c = 10*(b/10);
+  if (a <= c)
+    estimate = c;
+  else if (a % 2 == b % 2)
+    estimate = (a + b)/2;
+  else {
+    u32 d = 8*m2*P2E2_2_F/P5F;
+    estimate = (a + b)/2 + (d & 1);
+  }
+
+  // Mantissa correct
+  u32 correct;
+  u32 ac = (4*m2 - 1)*P2E2_2_F/P5F + 1;
+
+  if (ac <= c)
+    correct = c;
+  else if (b >= ac) {
+    auto const value = 4*m2*P2E2_2_F;
+    correct = value/P5F;
+    auto vcorrect = P5F*correct;
+    if (value - vcorrect > vcorrect + P5F - value || correct < ac)
+      ++correct;
+  }
+  else { // needs refining grid of powers of 10.
+    estimate *= 10;
+    auto const value = 8*m2*P2E2_2_F;
+    auto const P5F_1 = P5F/5;
+    correct = value/P5F_1;
+    auto vcorrect = P5F_1*correct;
+    if (value - vcorrect > vcorrect + P5F_1 - value)
+      ++correct;
+    refine = true;
+  }
+  unsigned correction = correct - estimate;
+
+  std::cerr <<
+    E2         << '\t' <<
+    F          << '\t' <<
+    exponent   << '\t' <<
+    estimate   << '\t' <<
+    correction << '\t' <<
+    refine     << '\n';
+
+    corrector.valid      = true;
+    corrector.correction = correction;
+    corrector.refine     = refine;
+
+  return corrector;
+}
+
+void generate_corrections() {
+
+  corrector_t corrector;
+
+  std::cerr << "E2\tF\tExponent\tEstimate\tCorr\tRefine\n";
+  std::cout <<
+    "// This file is auto-generated. DO NOT EDIT.\n"
+    "\n"
+    "AMARU_SINGLE correction[] = {\n";
 
   constexpr auto m2 = P2P;
 
   for (int E2 = E0; E2 < E2_max; ++E2) {
 
-    if (E2 <= 0)
+    corrector = get_corrector(E2);
+    if (!corrector.valid)
       continue;
 
-    auto const F   = log10_pow2(E2);
-    auto const P5F = pow5(F);
-
-    if (P5F <= 4*P2P)
-      continue;
-
-    auto P2E2_2_F = pow2(E2 - 2 - F);
-
-    int exponent = F;
-    bool refine  = false;
-
-    // Mantissa estimate
-    u32 estimate;
-    u32 const a = (4*m2 - 2)*P2E2_2_F/P5F + 1;
-    u32 const b = (4*m2 + 2)*P2E2_2_F/P5F;
-    u32 const c = 10*(b/10);
-    if (a <= c)
-      estimate = c;
-    else if (a % 2 == b % 2)
-      estimate = (a + b)/2;
-    else {
-      u32 d = 8*m2*P2E2_2_F/P5F;
-      estimate = (a + b)/2 + (d & 1);
-    }
-
-    // Mantissa correct
-    u32 correct;
-    u32 ac = (4*m2 - 1)*P2E2_2_F/P5F + 1;
-
-    if (ac <= c)
-      correct = c;
-    else if (b >= ac) {
-      auto const value = 4*m2*P2E2_2_F;
-      correct = value/P5F;
-      auto vcorrect = P5F*correct;
-      if (value - vcorrect > vcorrect + P5F - value || correct < ac)
-        ++correct;
-    }
-    else { // needs refining grid of powers of 10.
-      estimate *= 10;
-      auto const value = 8*m2*P2E2_2_F;
-      auto const P5F_1 = P5F/5;
-      correct = value/P5F_1;
-      auto vcorrect = P5F_1*correct;
-      if (value - vcorrect > vcorrect + P5F_1 - value)
-        ++correct;
-      refine = true;
-    }
-    u32 correction = correct - estimate;
-
-    if (is_debug)
-      std::cout <<
-        E2         << '\t' <<
-        F          << '\t' <<
-        exponent   << '\t' <<
-        estimate   << '\t' <<
-        correction << '\t' <<
-        refine     << '\n';
-    else
-      std::cout << "    { " <<
-        correction << ", " <<
-        refine << " },\n";
   }
 
-  if (!is_debug)
-    std::cout << "};\n";
+  std::cout << "};\n";
 }
 
 int main() {
-  generate_multipliers();
+  generate_corrections();
 }

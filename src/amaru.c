@@ -33,7 +33,7 @@ typedef struct {
   (((unsigned) 1) << AMARU_MANTISSA_SIZE)
 
 typedef struct {
-  int          sign;
+  bool         negative;
   int          exponent;
   AMARU_SINGLE mantissa;
 } AMARU_REP;
@@ -80,7 +80,7 @@ AMARU_REP to_decimal_large(AMARU_REP const binary) {
 
   AMARU_REP decimal;
 
-  decimal.sign     = binary.sign;
+  decimal.negative = binary.negative;
   decimal.exponent = log10_pow2(binary.exponent);
 
   amaru_params_t const f = params[binary.exponent - 37];
@@ -140,7 +140,7 @@ AMARU_REP value_to_ieee(AMARU_FLOAT const value) {
   ieee.exponent = uint & (AMARU_P2_MANTISSA_SIZE - 1);
   uint >>= AMARU_EXPONENT_SIZE;
 
-  ieee.sign = uint ? -1 : 1;
+  ieee.negative = uint;
 
   return ieee;
 }
@@ -149,7 +149,7 @@ static inline
 AMARU_FLOAT ieee_to_value(AMARU_REP const ieee) {
 
   AMARU_FLOAT value;
-  AMARU_SINGLE uint = ieee.sign == 1 ? 0 : 1;
+  AMARU_SINGLE uint = ieee.negative;
 
   uint <<= AMARU_EXPONENT_SIZE;
   uint |= ieee.exponent;
@@ -167,7 +167,7 @@ AMARU_REP ieee_to_amaru(AMARU_REP const ieee) {
 
   AMARU_REP amaru;
 
-  amaru.sign = ieee.sign;
+  amaru.negative = ieee.negative;
 
   amaru.exponent = AMARU_E0 + (ieee.exponent <= 1 ? 0 :
     ieee.exponent - 1);
@@ -188,7 +188,7 @@ AMARU_REP amaru_to_ieee(AMARU_REP const amaru) {
   ieee.exponent = amaru.exponent - AMARU_E0 +
     (amaru.mantissa >= AMARU_P2_MANTISSA_SIZE ? 1 : 0);
 
-  ieee.sign = amaru.sign;
+  ieee.negative = amaru.negative;
 
   return ieee;
 }
@@ -214,14 +214,14 @@ AMARU_REP AMARU_TO_DECIMAL(AMARU_FLOAT value) {
   else if (binary.exponent >= 37)
     decimal = to_decimal_large(binary);
 
-  decimal.sign = binary.sign;
+  decimal.negative = binary.negative;
 
   return decimal;
 }
 
 int main() {
 
-  AMARU_REP    binary = { 1, 37, 8388608 };
+  AMARU_REP    binary = { false, 37, 8388608 };
   AMARU_REP    ieee, decimal;
   AMARU_FLOAT  value;
   AMARU_SINGLE i_value;

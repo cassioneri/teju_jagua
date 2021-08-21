@@ -7,7 +7,7 @@
 #endif
 
 typedef struct {
-  int          sign;
+  bool         negative;
   int          exponent;
   AMARU_SINGLE mantissa;
 } AMARU_REP;

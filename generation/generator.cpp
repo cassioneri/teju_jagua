@@ -55,9 +55,10 @@ pow2(u32 e) {
   return u128(1) << e;
 }
 
+inline static
 int log10_pow2(int exponent) {
   return exponent >= 0 ?
-    (int) (((uint64_t) 1292913986) * ((uint64_t) exponent) >> 32) :
+    (int) (1292913986 * ((uint64_t) exponent) >> 32) :
     log10_pow2(-exponent) - 1;
 }
 

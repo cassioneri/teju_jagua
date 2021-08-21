@@ -1,6 +1,4 @@
-// gcc -O3 -I include -I ~/ryu/cassio/ryu -include config32.h src/amaru.c -o amaru ~/ryu/cassio/ryu/libryu.a
-
-//-------------------------------------------------------------------------
+// gcc -O3 -I include -I ~/ryu/cassio/ryu -include config32.h src/amaru.c -o amaru ~/ryu/cassio/ryu/libryu.a -Wall -Wextra
 
 #define AMARU_DO_RYU   0
 #define AMARU_DO_AMARU 1
@@ -41,8 +39,15 @@ typedef struct {
 inline static
 int log10_pow2(int exponent) {
   return exponent >= 0 ?
-    (int) (((uint64_t) 1292913986) * ((uint64_t) exponent) >> 32) :
+    (int) (1292913986 * ((uint64_t) exponent) >> 32) :
     log10_pow2(-exponent) - 1;
+}
+
+inline static
+int log5_pow2(int exponent) {
+  return exponent >= 0 ?
+    (int) (1849741732 * ((uint64_t) exponent) >> 32) :
+    log5_pow2(-exponent) - 1;
 }
 
 static inline
@@ -83,7 +88,7 @@ AMARU_REP to_decimal_large(AMARU_REP const binary) {
   decimal.negative = binary.negative;
   decimal.exponent = log10_pow2(binary.exponent);
 
-  amaru_params_t const f = params[binary.exponent - 37];
+  amaru_params_t const f = params[binary.exponent - AMARU_LARGE];
   AMARU_SINGLE   const a = scale(f.multiplier_h, f.multiplier_l, f.shift,
     2*binary.mantissa - 1) + 1;
 
@@ -208,10 +213,10 @@ AMARU_REP AMARU_TO_DECIMAL(AMARU_FLOAT value) {
 //   else if (binary.exponent < 0)
 //     decimal = to_decimal_small(binary);
 //
-//   else if (binary.exponent < 37)
+//   else if (binary.exponent < AMARU_LARGE)
 //     decimal = to_decimal_medium(binary);
 
-  else if (binary.exponent >= 37)
+  else if (binary.exponent > AMARU_LARGE)
     decimal = to_decimal_large(binary);
 
   decimal.negative = binary.negative;
@@ -221,7 +226,7 @@ AMARU_REP AMARU_TO_DECIMAL(AMARU_FLOAT value) {
 
 int main() {
 
-  AMARU_REP    binary = { false, 37, 8388608 };
+  AMARU_REP    binary = { false, AMARU_LARGE, AMARU_P2_MANTISSA_SIZE };
   AMARU_REP    ieee, decimal;
   AMARU_FLOAT  value;
   AMARU_SINGLE i_value;

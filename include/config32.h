@@ -3,6 +3,7 @@
 #define AMARU_EXPONENT_SIZE 8
 #define AMARU_MANTISSA_SIZE 23
 #define AMARU_SHIFT         56
+#define AMARU_LARGE         37
 
 #define AMARU_SINGLE        uint32_t
 #define AMARU_DOUBLE        uint64_t

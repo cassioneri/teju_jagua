@@ -1,4 +1,4 @@
-// gcc -O3 -I ~/ryu/cassio/ryu -include config32.h amaru.c -o amaru ~/ryu/cassio/ryu/libryu.a
+// gcc -O3 -I include -I ~/ryu/cassio/ryu -include config32.h src/amaru.c -o amaru ~/ryu/cassio/ryu/libryu.a
 
 //-------------------------------------------------------------------------
 
@@ -16,7 +16,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// #if AMARU_VERSION == AMARU_STANDARD
 typedef struct {
   AMARU_SINGLE multiplier_h;
   AMARU_SINGLE multiplier_l;
@@ -24,23 +23,14 @@ typedef struct {
   unsigned     correction;
   bool         refine;
 } amaru_params_t;
-//
-// #elif AMARU_VERSION = AMARU_COMPACT
-// typedef struct {
-//   AMARU_SINGLE multiplier_l;
-//   AMARU_SINGLE multiplier_h : ???
-//   AMARU_SINGLE correction   : 4;
-//   AMARU_SINGLE refine       : 1;
-// } amaru_params_t;
-// #endif
 
 #include AMARU_TABLE
 
 #define AMARU_E0 \
-  (-(1u << (AMARU_EXPONENT_SIZE - 1)) - AMARU_MANTISSA_SIZE + 2)
+  (-(1 << (AMARU_EXPONENT_SIZE - 1)) - AMARU_MANTISSA_SIZE + 2)
 
 #define AMARU_P2_MANTISSA_SIZE \
-  (((AMARU_SINGLE) 1) << AMARU_MANTISSA_SIZE)
+  (((unsigned) 1) << AMARU_MANTISSA_SIZE)
 
 typedef struct {
   int          sign;
@@ -65,17 +55,17 @@ unsigned remove_trailing_zeros(AMARU_SINGLE* value) {
   return count;
 }
 
-static inline
-AMARU_REP to_decimal_small(AMARU_REP const binary) {
-  AMARU_REP decimal;
-  return decimal;
-}
+// static inline
+// AMARU_REP to_decimal_small(AMARU_REP const binary) {
+//   AMARU_REP decimal;
+//   return decimal;
+// }
 
-static inline
-AMARU_REP to_decimal_medium(AMARU_REP const binary) {
-  AMARU_REP decimal;
-  return decimal;
-}
+// static inline
+// AMARU_REP to_decimal_medium(AMARU_REP const binary) {
+//   AMARU_REP decimal;
+//   return decimal;
+// }
 
 static inline
 AMARU_SINGLE scale(AMARU_SINGLE const ah, AMARU_SINGLE const al,
@@ -90,36 +80,48 @@ AMARU_REP to_decimal_large(AMARU_REP const binary) {
 
   AMARU_REP decimal;
 
+  decimal.sign     = binary.sign;
+  decimal.exponent = log10_pow2(binary.exponent);
+
   amaru_params_t const f = params[binary.exponent - 37];
-  decimal.sign           = binary.sign;
-  decimal.exponent       = log10_pow2(binary.exponent);
-  AMARU_SINGLE const a   = scale(f.multiplier_h, f.multiplier_l, f.shift,
+  AMARU_SINGLE   const a = scale(f.multiplier_h, f.multiplier_l, f.shift,
     2*binary.mantissa - 1) + 1;
-  AMARU_SINGLE const b   = scale(f.multiplier_h, f.multiplier_l, f.shift,
-    2*binary.mantissa + 1);
 
-  AMARU_SINGLE c = 10*(b/10);
-  AMARU_SINGLE d;
+  if (binary.mantissa != AMARU_P2_MANTISSA_SIZE) {
 
-  if (a <= c)
-    decimal.mantissa = c;
-  else {
-    decimal.mantissa = (a + b)/2;
-    if ((a ^ b) & 1) {
-      d = scale(f.multiplier_h, f.multiplier_l, f.shift, 4*binary.mantissa);
-      decimal.mantissa += d % 2;
+    AMARU_SINGLE const b = scale(f.multiplier_h, f.multiplier_l, f.shift,
+      2*binary.mantissa + 1);
+
+    AMARU_SINGLE const c = 10*(b/10);
+
+    if (a <= c) {
+      decimal.mantissa = c;
+      decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
+    }
+
+    else {
+      decimal.mantissa = (a + b)/2;
+      if ((a ^ b) & 1) {
+        AMARU_SINGLE const d = scale(f.multiplier_h, f.multiplier_l,
+          f.shift, 4*binary.mantissa);
+        decimal.mantissa += d % 2;
+        return decimal;
+      }
     }
   }
 
-  if (binary.mantissa == AMARU_P2_MANTISSA_SIZE) {
+  else {
+
+    decimal.mantissa = a;
+
     if (f.refine) {
       --decimal.exponent;
       decimal.mantissa *= 10;
     }
-    decimal.mantissa += f.correction;
-  }
 
-  decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
+    decimal.mantissa += f.correction;
+    decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
+  }
 
   return decimal;
 }
@@ -203,13 +205,13 @@ AMARU_REP AMARU_TO_DECIMAL(AMARU_FLOAT value) {
     decimal.mantissa = 0;
   }
 
-  else if (binary.exponent < 0)
-    decimal = to_decimal_small(binary);
+//   else if (binary.exponent < 0)
+//     decimal = to_decimal_small(binary);
+//
+//   else if (binary.exponent < 37)
+//     decimal = to_decimal_medium(binary);
 
-  else if (binary.exponent < 37)
-    decimal = to_decimal_medium(binary);
-
-  else
+  else if (binary.exponent >= 37)
     decimal = to_decimal_large(binary);
 
   decimal.sign = binary.sign;

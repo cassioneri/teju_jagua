@@ -1,4 +1,5 @@
-// g++ -O3 -std=c++20 generation/generator.cpp -o generator
+// g++ -O3 -std=c++20 generation/generator.cpp -o generator -Wall -Wextra
+// ./generator > include/table32.h
 
 #include <cstdint>
 #include <iomanip>
@@ -253,21 +254,16 @@ corrector_t get_corrector(int E2) {
   int exponent = F;
   bool refine  = false;
 
-  // Mantissa estimate
-  u32 estimate;
   u32 const a = (4*m2 - 2)*P2E2_2_F/P5F + 1;
   u32 const b = (4*m2 + 2)*P2E2_2_F/P5F;
   u32 const c = 10*(b/10);
-  if (a <= c)
-    estimate = c;
-  else if (a % 2 == b % 2)
-    estimate = (a + b)/2;
-  else {
-    u32 d = 8*m2*P2E2_2_F/P5F;
-    estimate = (a + b)/2 + (d & 1);
-  }
+
+  // Mantissa estimate
+
+  u32 estimate = a;
 
   // Mantissa correct
+
   u32 correct;
   u32 ac = (4*m2 - 1)*P2E2_2_F/P5F + 1;
 
@@ -301,9 +297,9 @@ corrector_t get_corrector(int E2) {
       correction << '\t' <<
       refine     << '\n';
 
-    corrector.valid      = true;
-    corrector.correction = correction;
-    corrector.refine     = refine;
+  corrector.valid      = true;
+  corrector.correction = correction;
+  corrector.refine     = refine;
 
   return corrector;
 }

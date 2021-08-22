@@ -1,6 +1,6 @@
 // gcc -O3 -I include -I ~/ryu/cassio/ryu -include config32.h src/amaru.c -o amaru ~/ryu/cassio/ryu/libryu.a -Wall -Wextra
 
-#define AMARU_DO_RYU   0
+#define AMARU_DO_RYU   1
 #define AMARU_DO_AMARU 1
 
 //-------------------------------------------------------------------------

@@ -174,32 +174,20 @@ bool check(u128 R, u128 P5F, U_and_K_t U_and_K) {
 constexpr auto E2_max = E0 + static_cast<int>(P2L) - 2;
 
 typedef struct {
-  bool     valid;
   u32      multiplier_l;
   u32      multiplier_h;
   unsigned shift;
 } converter_t;
 
 typedef struct {
-  bool     valid;
   unsigned correction;
   bool     refine;
 } corrector_t;
 
 static inline
-converter_t get_converter(int E2) {
+converter_t get_converter(int E2, int F) {
 
-  converter_t converter;
-  converter.valid = false;
-
-  if (E2 <= 0)
-    return converter;
-
-  auto const F       = log10_pow2(E2);
-  auto const P5F     = pow5(F);
-
-  if (P5F <= 4*P2P)
-    return converter;
+  auto const P5F = pow5(F);
 
   auto const E       = E2 - 1 - F;
   auto const P2E     = pow2(E);
@@ -211,7 +199,6 @@ converter_t get_converter(int E2) {
 
   if (generate_converter)
     std::cerr <<
-      E2        << '\t' <<
       F         << '\t' <<
       P5F       << '\t' <<
       E         << '\t' <<
@@ -226,7 +213,7 @@ converter_t get_converter(int E2) {
 
   u64 multiplier = (u128(Q) << U_and_K.K) + U_and_K.U;
 
-  converter.valid        = true;
+  converter_t converter;
   converter.multiplier_l = multiplier;
   converter.multiplier_h = multiplier >> 32;
   converter.shift        = U_and_K.K;
@@ -234,23 +221,13 @@ converter_t get_converter(int E2) {
   return converter;
 }
 
-corrector_t get_corrector(int E2) {
+corrector_t get_corrector(int E2, int F) {
 
   constexpr auto m2 = P2P;
-
-  corrector_t corrector;
-  corrector.valid = false;
-
-  if (E2 <= 0)
-    return corrector;
-
-  auto const F   = log10_pow2(E2);
+  auto const P2E2_2_F = pow2(E2 - 2 - F);
   auto const P5F = pow5(F);
 
-  auto P2E2_2_F = pow2(E2 - 2 - F);
-
-  if (P5F <= 4*P2P)
-    return corrector;
+  corrector_t corrector;
 
   int exponent = F;
   bool refine  = false;
@@ -291,14 +268,12 @@ corrector_t get_corrector(int E2) {
 
   if (!generate_converter)
     std::cerr <<
-      E2         << '\t' <<
       F          << '\t' <<
       exponent   << '\t' <<
       estimate   << '\t' <<
       correction << '\t' <<
       refine     << '\n';
 
-  corrector.valid      = true;
   corrector.correction = correction;
   corrector.refine     = refine;
 
@@ -322,13 +297,18 @@ int main() {
 
   for (int E2 = E0; E2 <= E2_max; ++E2) {
 
-    converter = get_converter(E2);
-    if (!converter.valid)
+    if (E2 <= 0)
       continue;
 
-    corrector = get_corrector(E2);
-    if (!corrector.valid)
+    auto const F   = log10_pow2(E2);
+    auto const P5F = pow5(F);
+
+    if (P5F <= 4*P2P)
       continue;
+
+    std::cerr << E2 << '\t';
+    converter = get_converter(E2, F);
+    corrector = get_corrector(E2, F);
 
     std::cout << "    { 0x" <<
       std::hex << std::setw(8) << std::setfill('0') <<

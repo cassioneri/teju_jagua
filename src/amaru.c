@@ -14,14 +14,6 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef struct {
-  AMARU_SINGLE multiplier_h;
-  AMARU_SINGLE multiplier_l;
-  unsigned     shift;
-  unsigned     correction;
-  bool         refine;
-} amaru_params_t;
-
 #include AMARU_TABLE
 
 #define AMARU_E0 \

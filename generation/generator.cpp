@@ -77,16 +77,16 @@ constexpr u32  fixed_k = 56;
 // ----------------------------
 
 M_and_T_t constexpr
-get_M_and_T(u128 R, u128 P5F) {
+get_M_and_T(u128 P2E, u128 P5F) {
 
   u128 m = 2*P2P - 1;
-  u128 t = m*R % P5F;
+  u128 t = m*P2E % P5F;
 
   u128 M = m;
   u128 T = t;
 
   u128 x = 4*P2P;
-  u128 y = x*R % P5F;
+  u128 y = x*P2E % P5F;
 
   for (u128 m0 = P2P; m0 < 2*P2P; ++m0) {
 
@@ -94,7 +94,7 @@ get_M_and_T(u128 R, u128 P5F) {
     m  += 2;
 
     // t = m % 5^F
-    t  += 2*R;
+    t  += 2*P2E;
     while (t >= P5F)
       t -= P5F;
 
@@ -112,7 +112,7 @@ get_M_and_T(u128 R, u128 P5F) {
     x += 4;
 
     // y = 4*m0 % P5F
-    y += 4*R;
+    y += 4*P2E;
     while (y >= P5F)
       y -= P5F;
   }
@@ -120,11 +120,11 @@ get_M_and_T(u128 R, u128 P5F) {
 }
 
 U_and_K_t constexpr
-get_U_and_K(u128 R, u128 P5F, M_and_T_t M_and_T, u32 fixed_k = 0) {
+get_U_and_K(u128 P2E, u128 P5F, M_and_T_t M_and_T, u32 fixed_k = 0) {
 
   u128 p2k = 1;
   u128 u   = 0;
-  u128 v   = R;
+  u128 v   = P2E;
 
   for (u32 k = 0; k < 128; ++k) {
 
@@ -145,16 +145,16 @@ get_U_and_K(u128 R, u128 P5F, M_and_T_t M_and_T, u32 fixed_k = 0) {
   return {0, 0};
 }
 
-bool check(u128 R, u128 P5F, U_and_K_t U_and_K) {
+bool check(u128 P2E, u128 P5F, U_and_K_t U_and_K) {
 
   for (u32 m2 = P2P; m2 < 2*P2P; ++m2) {
 
     auto const m = 2*m2 - 1;
-    if (m*R/P5F != m*U_and_K.U >> U_and_K.K)
+    if (m*P2E/P5F != m*U_and_K.U >> U_and_K.K)
       return false;
 
     auto const x = 4*m2;
-    if (x*R/P5F != x*U_and_K.U >> U_and_K.K)
+    if (x*P2E/P5F != x*U_and_K.U >> U_and_K.K)
       return false;
   }
   return true;
@@ -165,7 +165,7 @@ constexpr auto E2_max = E0 + static_cast<int>(P2L) - 2;
 static
 void generate_converter_params() {
 
-  std::cerr << "E2\tF\t5^F\t2^E\tQ\tR\tM\tT\tU\tK\tCHECK\n";
+  std::cerr << "E2\tF\t5^F\t2^E\tM\tT\tU\tK\tCHECK\n";
   std::cout <<
     "struct {\n"
     "  AMARU_SINGLE const high;\n"
@@ -185,28 +185,23 @@ void generate_converter_params() {
       continue;
 
     auto const P2E     = pow2(E2 - 1 - F);
-    auto const Q       = P2E / P5F;
-    auto const R       = P2E % P5F;
-    auto const M_and_T = get_M_and_T(R, P5F);
-    auto const U_and_K = get_U_and_K(R, P5F, M_and_T, fixed_k);
-    auto const CHECK   = check(R, P5F, U_and_K);
+    auto const M_and_T = get_M_and_T(P2E, P5F);
+    auto const U_and_K = get_U_and_K(P2E, P5F, M_and_T, fixed_k);
+    auto const CHECK   = check(P2E, P5F, U_and_K);
 
     std::cerr <<
       E2        << '\t' <<
       F         << '\t' <<
       P2E       << '\t' <<
       P5F       << '\t' <<
-      Q         << '\t' <<
-      R         << '\t' <<
       M_and_T.M << '\t' <<
       M_and_T.T << '\t' <<
       U_and_K.U << '\t' <<
       U_and_K.K << '\t' <<
       CHECK     << '\n';
 
-    u64 const multiplier = (u128(Q) << U_and_K.K) + U_and_K.U;
-    u32 const high       = multiplier >> 32;
-    u32 const low        = multiplier;
+    u32 const high       = U_and_K.U >> 32;
+    u32 const low        = U_and_K.U;
     u32 const shift      = U_and_K.K;
 
     std::cout << "  { " <<

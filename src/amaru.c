@@ -88,14 +88,15 @@ AMARU_REP to_decimal_large(AMARU_REP const binary) {
   decimal.negative = binary.negative;
   decimal.exponent = log10_pow2(binary.exponent);
 
-  amaru_params_t const f = params[binary.exponent - AMARU_LARGE];
-  AMARU_SINGLE   const a = scale(f.multiplier_h, f.multiplier_l, f.shift,
-    2*binary.mantissa - 1) + 1;
+  unsigned     const index = binary.exponent - AMARU_LARGE;
+  AMARU_SINGLE const high  = converters[index].high;
+  AMARU_SINGLE const low   = converters[index].low;
+  unsigned     const shift = converters[index].shift;
+  AMARU_SINGLE const a     = scale(high, low, shift, 2*binary.mantissa - 1) + 1;
 
   if (binary.mantissa != AMARU_P2_MANTISSA_SIZE) {
 
-    AMARU_SINGLE const b = scale(f.multiplier_h, f.multiplier_l, f.shift,
-      2*binary.mantissa + 1);
+    AMARU_SINGLE const b = scale(high, low, shift, 2*binary.mantissa + 1);
 
     AMARU_SINGLE const c = 10*(b/10);
 
@@ -107,8 +108,7 @@ AMARU_REP to_decimal_large(AMARU_REP const binary) {
     else {
       decimal.mantissa = (a + b)/2;
       if ((a ^ b) & 1) {
-        AMARU_SINGLE const d = scale(f.multiplier_h, f.multiplier_l,
-          f.shift, 4*binary.mantissa);
+        AMARU_SINGLE const d = scale(high, low, shift, 4*binary.mantissa);
         decimal.mantissa += d % 2;
         return decimal;
       }
@@ -118,13 +118,13 @@ AMARU_REP to_decimal_large(AMARU_REP const binary) {
   else {
 
     decimal.mantissa = a;
-
-    if (f.refine) {
+    unsigned const correction = correctors[index].correction;
+    bool     const refine     = correctors[index].refine;
+    if (refine) {
       --decimal.exponent;
       decimal.mantissa *= 10;
     }
-
-    decimal.mantissa += f.correction;
+    decimal.mantissa += correction;
     decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
   }
 

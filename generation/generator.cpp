@@ -31,17 +31,6 @@ struct U_and_K_t {
   u32  K;
 };
 
-struct params_t {
-  u32  Q;
-  u128 U;
-  u32  K;
-};
-
-struct rep32_t {
-  u32 mantissa;
-  u32 exponent;
-};
-
 u128 constexpr
 pow5(u32 e) {
   if (e == 0)
@@ -173,127 +162,16 @@ bool check(u128 R, u128 P5F, U_and_K_t U_and_K) {
 
 constexpr auto E2_max = E0 + static_cast<int>(P2L) - 2;
 
-typedef struct {
-  u32      multiplier_l;
-  u32      multiplier_h;
-  unsigned shift;
-} converter_t;
+static
+void generate_converter_params() {
 
-typedef struct {
-  unsigned correction;
-  bool     refine;
-} corrector_t;
-
-static inline
-converter_t get_converter(int E2, int F) {
-
-  auto const P5F = pow5(F);
-
-  auto const E       = E2 - 1 - F;
-  auto const P2E     = pow2(E);
-  auto const Q       = P2E / P5F;
-  auto const R       = P2E % P5F;
-  auto const M_and_T = get_M_and_T(R, P5F);
-  auto const U_and_K = get_U_and_K(R, P5F, M_and_T, fixed_k);
-  auto const CHECK   = check(R, P5F, U_and_K);
-
-  if (generate_converter)
-    std::cerr <<
-      F         << '\t' <<
-      P5F       << '\t' <<
-      E         << '\t' <<
-      P2E       << '\t' <<
-      Q         << '\t' <<
-      R         << '\t' <<
-      M_and_T.M << '\t' <<
-      M_and_T.T << '\t' <<
-      U_and_K.U << '\t' <<
-      U_and_K.K << '\t' <<
-      CHECK     << '\n';
-
-  u64 multiplier = (u128(Q) << U_and_K.K) + U_and_K.U;
-
-  converter_t converter;
-  converter.multiplier_l = multiplier;
-  converter.multiplier_h = multiplier >> 32;
-  converter.shift        = U_and_K.K;
-
-  return converter;
-}
-
-corrector_t get_corrector(int E2, int F) {
-
-  constexpr auto m2 = P2P;
-  auto const P2E2_2_F = pow2(E2 - 2 - F);
-  auto const P5F = pow5(F);
-
-  corrector_t corrector;
-
-  int exponent = F;
-  bool refine  = false;
-
-  u32 const a = (4*m2 - 2)*P2E2_2_F/P5F + 1;
-  u32 const b = (4*m2 + 2)*P2E2_2_F/P5F;
-  u32 const c = 10*(b/10);
-
-  // Mantissa estimate
-
-  u32 estimate = a;
-
-  // Mantissa correct
-
-  u32 correct;
-  u32 ac = (4*m2 - 1)*P2E2_2_F/P5F + 1;
-
-  if (ac <= c)
-    correct = c;
-  else if (b >= ac) {
-    auto const value = 4*m2*P2E2_2_F;
-    correct = value/P5F;
-    auto vcorrect = P5F*correct;
-    if (value - vcorrect > vcorrect + P5F - value || correct < ac)
-      ++correct;
-  }
-  else { // needs refining grid of powers of 10.
-    estimate *= 10;
-    auto const value = 8*m2*P2E2_2_F;
-    auto const P5F_1 = P5F/5;
-    correct = value/P5F_1;
-    auto vcorrect = P5F_1*correct;
-    if (value - vcorrect > vcorrect + P5F_1 - value)
-      ++correct;
-    refine = true;
-  }
-  unsigned correction = correct - estimate;
-
-  if (!generate_converter)
-    std::cerr <<
-      F          << '\t' <<
-      exponent   << '\t' <<
-      estimate   << '\t' <<
-      correction << '\t' <<
-      refine     << '\n';
-
-  corrector.correction = correction;
-  corrector.refine     = refine;
-
-  return corrector;
-}
-
-int main() {
-
-  converter_t converter;
-  corrector_t corrector;
-
-  if (generate_converter)
-    std::cerr << "E2\tF\t5^F\tE\t2^E\tQ\tR\tM\tT\tU\tK\tCHECK\n";
-  else
-    std::cerr << "E2\tF\tExponent\tEstimate\tCorr\tRefine\n";
-
+  std::cerr << "E2\tF\t5^F\t2^E\tQ\tR\tM\tT\tU\tK\tCHECK\n";
   std::cout <<
-    "// This file is auto-generated. DO NOT EDIT.\n"
-    "\n"
-    "amaru_params_t params[] = {\n";
+    "struct {\n"
+    "  AMARU_SINGLE const high;\n"
+    "  AMARU_SINGLE const low;\n"
+    "  unsigned     const shift;\n"
+    "} converters[] = {\n";
 
   for (int E2 = E0; E2 <= E2_max; ++E2) {
 
@@ -306,20 +184,120 @@ int main() {
     if (P5F <= 4*P2P)
       continue;
 
-    std::cerr << E2 << '\t';
-    converter = get_converter(E2, F);
-    corrector = get_corrector(E2, F);
+    auto const P2E     = pow2(E2 - 1 - F);
+    auto const Q       = P2E / P5F;
+    auto const R       = P2E % P5F;
+    auto const M_and_T = get_M_and_T(R, P5F);
+    auto const U_and_K = get_U_and_K(R, P5F, M_and_T, fixed_k);
+    auto const CHECK   = check(R, P5F, U_and_K);
 
-    std::cout << "    { 0x" <<
-      std::hex << std::setw(8) << std::setfill('0') <<
-      converter.multiplier_h << ", 0x" <<
-      std::hex << std::setw(8) << std::setfill('0') <<
-      converter.multiplier_l << ", " <<
+    std::cerr <<
+      E2        << '\t' <<
+      F         << '\t' <<
+      P2E       << '\t' <<
+      P5F       << '\t' <<
+      Q         << '\t' <<
+      R         << '\t' <<
+      M_and_T.M << '\t' <<
+      M_and_T.T << '\t' <<
+      U_and_K.U << '\t' <<
+      U_and_K.K << '\t' <<
+      CHECK     << '\n';
+
+    u64 const multiplier = (u128(Q) << U_and_K.K) + U_and_K.U;
+    u32 const high       = multiplier >> 32;
+    u32 const low        = multiplier;
+    u32 const shift      = U_and_K.K;
+
+    std::cout << "  { " <<
+      "0x"  << std::hex << std::setw(8) << std::setfill('0') <<
+      high  << ", " <<
+      "0x"  << std::hex << std::setw(8) << std::setfill('0') <<
+      low   << ", " <<
       std::dec <<
-      converter.shift        << ", " <<
-      corrector.correction   << ", " <<
-      corrector.refine       << " },\n";
+      shift << " },\n";
   }
-
   std::cout << "};\n";
+}
+
+static
+void generate_corrector_params() {
+
+  std::cerr << "E2\tF\tEstimate\tCorrection\tRefine\n";
+  std::cout <<
+    "struct {\n"
+    "  unsigned const correction;\n"
+    "  bool     const refine;\n"
+    "} correctors[] = {\n";
+
+  for (int E2 = E0; E2 <= E2_max; ++E2) {
+
+    if (E2 <= 0)
+      continue;
+
+    auto const F   = log10_pow2(E2);
+    auto const P5F = pow5(F);
+
+    if (P5F <= 4*P2P)
+      continue;
+
+    auto const P2E   = pow2(E2 - 1 - F);
+    auto const P2E_1 = P2E >> 1;
+
+    bool refine  = false;
+
+    u32 const a = (4*P2P - 2)*P2E_1/P5F + 1;
+    u32 const b = (4*P2P + 2)*P2E_1/P5F;
+    u32 const c = 10*(b/10);
+
+    // Mantissa estimate
+
+    u32 estimate = a;
+
+    // Mantissa correct
+
+    u32 correct;
+    u32 ac = (4*P2P - 1)*P2E_1/P5F + 1;
+
+    if (ac <= c)
+      correct = c;
+    else if (b >= ac) {
+      auto const value = 4*P2P*P2E_1;
+      correct = value/P5F;
+      auto vcorrect = P5F*correct;
+      if (value - vcorrect > vcorrect + P5F - value || correct < ac)
+        ++correct;
+    }
+    else { // needs refining grid of powers of 10.
+      estimate *= 10;
+      auto const value = 8*P2P*P2E_1;
+      auto const P5F_1 = P5F/5;
+      correct = value/P5F_1;
+      auto vcorrect = P5F_1*correct;
+      if (value - vcorrect > vcorrect + P5F_1 - value)
+        ++correct;
+      refine = true;
+    }
+    unsigned const correction = correct - estimate;
+
+    std::cerr <<
+      E2        << '\t' <<
+      F         << '\t' <<
+      estimate   << '\t' <<
+      correction << '\t' <<
+      refine     << '\n';
+
+    std::cout << "  { " <<
+       correction   << ", " <<
+       refine       << " },\n";
+  }
+  std::cout << "};\n";
+}
+
+int main() {
+  std::cout << "// This file is auto-generated. DO NOT EDIT.\n\n";
+  generate_converter_params();
+  std::cerr << '\n';
+  std::cout << '\n';
+  generate_corrector_params();
 }

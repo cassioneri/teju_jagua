@@ -12,14 +12,14 @@ using u64  = uint64_t;
 using u128 = __uint128_t;
 
 // float
-constexpr auto P   =   23;
-constexpr auto E0  = -149;
-constexpr auto L   =    8;
+constexpr auto P  =   23;
+constexpr auto E0 = -149;
+constexpr auto L  =    8;
 
 // double
-// constexpr auto P   =    52;
-// constexpr auto E0  = -1074;
-// constexpr auto L   =    11;
+// constexpr auto P  =    52;
+// constexpr auto E0 = -1074;
+// constexpr auto L  =    11;
 
 struct M_and_T_t {
   u128 M;
@@ -69,12 +69,11 @@ operator <<(std::ostream& o, u128 n) {
   return m == n ? o << m : o << "####################";
 }
 
-// ----------------------------
+//----------------------------
 
-constexpr bool generate_converter = true;
 constexpr u32  fixed_k = 56;
 
-// ----------------------------
+//----------------------------
 
 M_and_T_t constexpr
 get_M_and_T(u128 P2E, u128 P5F) {
@@ -200,9 +199,9 @@ void generate_converter_params() {
       U_and_K.K << '\t' <<
       CHECK     << '\n';
 
-    u32 const high       = U_and_K.U >> 32;
-    u32 const low        = U_and_K.U;
-    u32 const shift      = U_and_K.K;
+    u32 const high  = U_and_K.U >> 32;
+    u32 const low   = U_and_K.U;
+    u32 const shift = U_and_K.K;
 
     std::cout << "  { " <<
       "0x"  << std::hex << std::setw(8) << std::setfill('0') <<
@@ -276,15 +275,15 @@ void generate_corrector_params() {
     unsigned const correction = correct - estimate;
 
     std::cerr <<
-      E2        << '\t' <<
-      F         << '\t' <<
+      E2         << '\t' <<
+      F          << '\t' <<
       estimate   << '\t' <<
       correction << '\t' <<
       refine     << '\n';
 
     std::cout << "  { " <<
-       correction   << ", " <<
-       refine       << " },\n";
+       correction << ", " <<
+       refine     << " },\n";
   }
   std::cout << "};\n";
 }

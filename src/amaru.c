@@ -65,11 +65,11 @@ unsigned remove_trailing_zeros(AMARU_SINGLE* value) {
 // }
 
 static inline
-AMARU_SINGLE scale(AMARU_SINGLE const ah, AMARU_SINGLE const al,
+AMARU_SINGLE scale(AMARU_SINGLE const high, AMARU_SINGLE const low,
   unsigned shift, AMARU_SINGLE const x) {
   unsigned const n  = 8*sizeof(AMARU_SINGLE);
   AMARU_DOUBLE y = x;
-  return ((al*y >> n) + ah*y) >> (shift - n);
+  return ((low*y >> n) + high*y) >> (shift - n);
 }
 
 static inline

@@ -71,7 +71,7 @@ operator <<(std::ostream& o, u128 n) {
 
 //----------------------------
 
-constexpr u32  fixed_k = 56;
+constexpr u32  fixed_k = 0;
 
 //----------------------------
 
@@ -97,12 +97,12 @@ get_M_and_T(u128 P2E, u128 P5F) {
     while (t >= P5F)
       t -= P5F;
 
-    if (m * T > M * t) {
+    if (m * (P5F - T) > M * (P5F - t)) {
       M  = m;
       T  = t;
     }
 
-    if (x * T > M * y) {
+    if (x * (P5F - T) > M * (P5F - y)) {
       M  = x;
       T  = y;
     }
@@ -115,7 +115,7 @@ get_M_and_T(u128 P2E, u128 P5F) {
     while (y >= P5F)
       y -= P5F;
   }
-  return {M, T};
+  return {M, P5F - T};
 }
 
 U_and_K_t constexpr
@@ -127,15 +127,15 @@ get_U_and_K(u128 P2E, u128 P5F, M_and_T_t M_and_T, u32 fixed_k = 0) {
 
   for (u32 k = 0; k < 128; ++k) {
 
-    if ((fixed_k == 0 && p2k * M_and_T.T >= v * M_and_T.M) ||
+    if ((fixed_k == 0 && p2k * M_and_T.T >= (P5F - v) * M_and_T.M) ||
       (fixed_k != 0 && k == fixed_k))
-      return {u, k};
+      return {u + 1, k};
 
     p2k *= 2;
     u   *= 2;
     v   *= 2;
 
-    while (v >= P5F) {
+    while (v > P5F) {
       u += 1;
       v -= P5F;
     }
@@ -164,7 +164,7 @@ constexpr auto E2_max = E0 + static_cast<int>(P2L) - 2;
 static
 void generate_converter_params() {
 
-  std::cerr << "E2\tF\t5^F\t2^E\tM\tT\tU\tK\tCHECK\n";
+  std::cerr << "E2\tF\t2^E\t5^F\tM\tT\tU\tK\tCHECK\n";
   std::cout <<
     "struct {\n"
     "  AMARU_SINGLE const high;\n"
@@ -180,7 +180,8 @@ void generate_converter_params() {
     auto const F   = log10_pow2(E2);
     auto const P5F = pow5(F);
 
-    if (P5F <= 4*P2P)
+    if (F <=0)
+//     if (P5F <= 4*P2P)
       continue;
 
     auto const P2E     = pow2(E2 - 1 - F);
@@ -232,7 +233,8 @@ void generate_corrector_params() {
     auto const F   = log10_pow2(E2);
     auto const P5F = pow5(F);
 
-    if (P5F <= 4*P2P)
+    if (F <=0)
+//     if (P5F <= 4*P2P)
       continue;
 
     auto const P2E   = pow2(E2 - 1 - F);

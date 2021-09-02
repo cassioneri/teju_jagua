@@ -9,6 +9,7 @@
   #include <ryu.h>
 #endif
 
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -73,7 +74,8 @@ AMARU_UINT_SINGLE scale(AMARU_UINT_SINGLE const high,
 }
 
 static inline
-AMARU_REP to_decimal_large(AMARU_REP const binary) {
+AMARU_REP to_decimal_positive(AMARU_REP const binary,
+  bool const /*check_mid*/) {
 
   AMARU_REP decimal;
 
@@ -206,13 +208,16 @@ AMARU_REP AMARU_TO_DECIMAL(AMARU_FP value) {
   }
 
 //   else if (binary.exponent < 0)
-//     decimal = to_decimal_small(binary);
+//    decimal = to_decimal_negative(binary);
 //
-//   else if (binary.exponent < AMARU_LARGE)
-//     decimal = to_decimal_medium(binary);
+//   else if (binary.exponent < 4)
+//    decimal = to_decimal_same_mantissa(binary);
 
-  else if (binary.exponent > AMARU_LARGE)
-    decimal = to_decimal_large(binary);
+  else if (binary.exponent < AMARU_LARGE)
+    decimal = to_decimal_positive(binary, true);
+
+  else
+    decimal = to_decimal_positive(binary, false);
 
   decimal.negative = binary.negative;
 
@@ -227,15 +232,16 @@ int main() {
 
   unsigned result = 0;
 
-  do {
+  while (isfinite(value)) {
 
     #if AMARU_DO_RYU
+      ieee = value_to_ieee(value);
       floating_decimal_32 ryu = f2d(ieee.mantissa, ieee.exponent);
       result += ryu.mantissa;
     #endif
 
     #if AMARU_DO_AMARU
-      AMARU_REP decimal = to_decimal_large(binary);
+      AMARU_REP decimal = AMARU_TO_DECIMAL(value);
       result += decimal.mantissa;
     #endif
 
@@ -249,15 +255,7 @@ int main() {
     ++i_value;
     memcpy(&value, &i_value, sizeof(value));
 
-    ieee = value_to_ieee(value);
-
-    #if AMARU_DO_AMARU
-      binary = ieee_to_amaru(ieee);
-    #endif
-
-  } while (ieee.exponent != 255);
-
-  printf("%.7e\n", value);
+  }
 
   return result;
 }

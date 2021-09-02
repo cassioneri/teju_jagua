@@ -1,9 +1,9 @@
 // This file is auto-generated. DO NOT EDIT.
 
 struct {
-  AMARU_UINT_SINGLE const high;
-  AMARU_UINT_SINGLE const low;
-  unsigned          const shift;
+AMARU_UINT_SINGLE const high;
+AMARU_UINT_SINGLE const low;
+unsigned          const shift;
 } converters[] = {
   { 0x00000000, 0x0ccccccd, 28 },
   { 0x00000000, 0x0ccccccd, 27 },

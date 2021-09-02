@@ -23,9 +23,9 @@
   (((unsigned) 1) << AMARU_MANTISSA_SIZE)
 
 typedef struct {
-  bool         negative;
-  int          exponent;
-  AMARU_SINGLE mantissa;
+  bool              negative;
+  int               exponent;
+  AMARU_UINT_SINGLE mantissa;
 } AMARU_REP;
 
 inline static
@@ -43,7 +43,7 @@ int log5_pow2(int exponent) {
 }
 
 static inline
-unsigned remove_trailing_zeros(AMARU_SINGLE* value) {
+unsigned remove_trailing_zeros(AMARU_UINT_SINGLE* value) {
   unsigned count = 0;
   while (*value % 10 == 0) {
     ++count;
@@ -65,10 +65,10 @@ unsigned remove_trailing_zeros(AMARU_SINGLE* value) {
 // }
 
 static inline
-AMARU_SINGLE scale(AMARU_SINGLE const high, AMARU_SINGLE const low,
-  unsigned shift, AMARU_SINGLE const x) {
-  unsigned const n  = 8*sizeof(AMARU_SINGLE);
-  AMARU_DOUBLE y = x;
+AMARU_UINT_SINGLE scale(AMARU_UINT_SINGLE const high,
+  AMARU_UINT_SINGLE const low, unsigned shift, AMARU_UINT_SINGLE const x) {
+  unsigned const n  = 8*sizeof(AMARU_UINT_SINGLE);
+  AMARU_UINT_DOUBLE y = x;
   return ((low*y >> n) + high*y) >> (shift - n);
 }
 
@@ -80,17 +80,19 @@ AMARU_REP to_decimal_large(AMARU_REP const binary) {
   decimal.negative = binary.negative;
   decimal.exponent = log10_pow2(binary.exponent);
 
-  unsigned     const index = binary.exponent - AMARU_LARGE;
-  AMARU_SINGLE const high  = converters[index].high;
-  AMARU_SINGLE const low   = converters[index].low;
-  unsigned     const shift = converters[index].shift;
-  AMARU_SINGLE const a     = scale(high, low, shift, 2*binary.mantissa - 1) + 1;
+  unsigned          const index = binary.exponent - 4;
+  AMARU_UINT_SINGLE const high  = converters[index].high;
+  AMARU_UINT_SINGLE const low   = converters[index].low;
+  unsigned          const shift = converters[index].shift;
+  AMARU_UINT_SINGLE const a     = scale(high, low, shift,
+    2*binary.mantissa - 1) + 1;
 
   if (binary.mantissa != AMARU_P2_MANTISSA_SIZE) {
 
-    AMARU_SINGLE const b = scale(high, low, shift, 2*binary.mantissa + 1);
+    AMARU_UINT_SINGLE const b = scale(high, low, shift,
+      2*binary.mantissa + 1);
 
-    AMARU_SINGLE const c = 10*(b/10);
+    AMARU_UINT_SINGLE const c = 10*(b/10);
 
     if (a <= c) {
       decimal.mantissa = c;
@@ -100,7 +102,8 @@ AMARU_REP to_decimal_large(AMARU_REP const binary) {
     else {
       decimal.mantissa = (a + b)/2;
       if ((a ^ b) & 1) {
-        AMARU_SINGLE const d = scale(high, low, shift, 4*binary.mantissa);
+        AMARU_UINT_SINGLE const d = scale(high, low, shift,
+          4*binary.mantissa);
         decimal.mantissa += d % 2;
         return decimal;
       }
@@ -124,10 +127,10 @@ AMARU_REP to_decimal_large(AMARU_REP const binary) {
 }
 
 static inline
-AMARU_REP value_to_ieee(AMARU_FLOAT const value) {
+AMARU_REP value_to_ieee(AMARU_FP const value) {
 
-  AMARU_REP  ieee;
-  AMARU_SINGLE uint;
+  AMARU_REP         ieee;
+  AMARU_UINT_SINGLE uint;
 
   memcpy(&uint, &value, sizeof(value));
 
@@ -143,10 +146,10 @@ AMARU_REP value_to_ieee(AMARU_FLOAT const value) {
 }
 
 static inline
-AMARU_FLOAT ieee_to_value(AMARU_REP const ieee) {
+AMARU_FP ieee_to_value(AMARU_REP const ieee) {
 
-  AMARU_FLOAT value;
-  AMARU_SINGLE uint = ieee.negative;
+  AMARU_FP          value;
+  AMARU_UINT_SINGLE uint = ieee.negative;
 
   uint <<= AMARU_EXPONENT_SIZE;
   uint |= ieee.exponent;
@@ -191,7 +194,7 @@ AMARU_REP amaru_to_ieee(AMARU_REP const amaru) {
 }
 
 static inline
-AMARU_REP AMARU_TO_DECIMAL(AMARU_FLOAT value) {
+AMARU_REP AMARU_TO_DECIMAL(AMARU_FP value) {
 
   AMARU_REP decimal;
   AMARU_REP const ieee   = value_to_ieee(value);
@@ -218,29 +221,21 @@ AMARU_REP AMARU_TO_DECIMAL(AMARU_FLOAT value) {
 
 int main() {
 
-  AMARU_REP    binary = { false, AMARU_LARGE, AMARU_P2_MANTISSA_SIZE };
-  AMARU_REP    ieee, decimal;
-  AMARU_FLOAT  value;
-  AMARU_SINGLE i_value;
+  AMARU_REP binary = { false, 37, AMARU_P2_MANTISSA_SIZE };
+  AMARU_REP ieee   = amaru_to_ieee(binary);
+  AMARU_FP  value  = ieee_to_value(ieee);
 
-  #if AMARU_DO_RYU
-    floating_decimal_32 ryu;
-  #endif
-
-  ieee  = amaru_to_ieee(binary);
-  value = ieee_to_value(ieee);
-
-  AMARU_SINGLE result = 0;
+  unsigned result = 0;
 
   do {
 
     #if AMARU_DO_RYU
-      ryu = f2d(ieee.mantissa, ieee.exponent);
+      floating_decimal_32 ryu = f2d(ieee.mantissa, ieee.exponent);
       result += ryu.mantissa;
     #endif
 
     #if AMARU_DO_AMARU
-      decimal = to_decimal_large(binary);
+      AMARU_REP decimal = to_decimal_large(binary);
       result += decimal.mantissa;
     #endif
 
@@ -249,6 +244,7 @@ int main() {
         printf("%d*2^%d:\t%.7e\t%d %d\t%d %d\n", binary.mantissa, binary.exponent, value, ryu.mantissa, ryu.exponent, decimal.mantissa, decimal.exponent);
     #endif
 
+    AMARU_UINT_SINGLE i_value;
     memcpy(&i_value, &value, sizeof(value));
     ++i_value;
     memcpy(&value, &i_value, sizeof(value));

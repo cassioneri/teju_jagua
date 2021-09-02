@@ -67,15 +67,23 @@ unsigned remove_trailing_zeros(AMARU_UINT_SINGLE* value) {
 
 static inline
 AMARU_UINT_SINGLE scale(AMARU_UINT_SINGLE const high,
-  AMARU_UINT_SINGLE const low, unsigned shift, AMARU_UINT_SINGLE const x) {
-  unsigned const n  = 8*sizeof(AMARU_UINT_SINGLE);
-  AMARU_UINT_DOUBLE y = x;
-  return ((low*y >> n) + high*y) >> (shift - n);
+  AMARU_UINT_SINGLE const low, unsigned const shift,
+  AMARU_UINT_SINGLE const m) {
+  unsigned const    n = 8*sizeof(AMARU_UINT_SINGLE);
+  AMARU_UINT_DOUBLE x = m;
+  return ((low*x >> n) + high*x) >> (shift - n);
+}
+
+static inline
+AMARU_UINT_SINGLE is_multiple_P5F(AMARU_UINT_SINGLE const /*high*/,
+  AMARU_UINT_SINGLE const /*low*/, unsigned const /*shift*/,
+  AMARU_UINT_SINGLE const /*m*/) {
+  return false;
 }
 
 static inline
 AMARU_REP to_decimal_positive(AMARU_REP const binary,
-  bool const /*check_mid*/) {
+  bool const check_mid) {
 
   AMARU_REP decimal;
 
@@ -86,45 +94,57 @@ AMARU_REP to_decimal_positive(AMARU_REP const binary,
   AMARU_UINT_SINGLE const high  = converters[index].high;
   AMARU_UINT_SINGLE const low   = converters[index].low;
   unsigned          const shift = converters[index].shift;
-  AMARU_UINT_SINGLE const a     = scale(high, low, shift,
-    2*binary.mantissa - 1) + 1;
 
   if (binary.mantissa != AMARU_P2_MANTISSA_SIZE) {
 
-    AMARU_UINT_SINGLE const b = scale(high, low, shift,
-      2*binary.mantissa + 1);
-
+    AMARU_UINT_SINGLE       m = 2*binary.mantissa + 1;
+    AMARU_UINT_SINGLE const b = scale(high, low, shift, m);
     AMARU_UINT_SINGLE const c = 10*(b/10);
 
-    if (a <= c) {
-      decimal.mantissa = c;
-      decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
+    bool return_multiple_of_10;
+
+    if (c == b) {
+      bool const is_mid = check_mid &&
+        is_multiple_P5F(high, low, shift, m);
+      return_multiple_of_10 = !is_mid || binary.mantissa % 2 == 0;
     }
 
     else {
-      decimal.mantissa = (a + b)/2;
-      if ((a ^ b) & 1) {
-        AMARU_UINT_SINGLE const d = scale(high, low, shift,
-          4*binary.mantissa);
-        decimal.mantissa += d % 2;
-        return decimal;
-      }
+
+      m -= 2;
+      bool const is_mid = check_mid &&
+        is_multiple_P5F(high, low, shift, m);
+      AMARU_UINT_SINGLE const a = scale(high, low, shift, m) + !is_mid;
+
+      return_multiple_of_10 = c > a ||
+        (c == a && (!is_mid || binary.mantissa % 2 == 0));
     }
+
+    if (return_multiple_of_10) {
+      decimal.mantissa = c;
+      decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
+      return decimal;
+    }
+
+    AMARU_UINT_SINGLE const d = scale(high, low, shift,
+      4*binary.mantissa);
+    decimal.mantissa = (d + 1) / 2;
+    return decimal;
   }
 
-  else {
+  unsigned          const correction = correctors[index].correction;
+  bool              const refine     = correctors[index].refine;
+  AMARU_UINT_SINGLE const m          = 2*binary.mantissa - 1;
+  bool              const is_mid     = check_mid &&
+    is_multiple_P5F(high, low, shift, m);
 
-    decimal.mantissa = a;
-    unsigned const correction = correctors[index].correction;
-    bool     const refine     = correctors[index].refine;
-    if (refine) {
-      --decimal.exponent;
-      decimal.mantissa *= 10;
-    }
-    decimal.mantissa += correction;
-    decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
+  decimal.mantissa = scale(high, low, shift, m) + !is_mid;
+  if (refine) {
+    --decimal.exponent;
+    decimal.mantissa *= 10;
   }
-
+  decimal.mantissa += correction;
+  decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
   return decimal;
 }
 
@@ -246,6 +266,7 @@ int main() {
     #endif
 
     #if AMARU_DO_RYU && AMARU_DO_AMARU
+      binary = ieee_to_amaru(ieee);
       if (ryu.mantissa != decimal.mantissa || ryu.exponent != decimal.exponent)
         printf("%d*2^%d:\t%.7e\t%d %d\t%d %d\n", binary.mantissa, binary.exponent, value, ryu.mantissa, ryu.exponent, decimal.mantissa, decimal.exponent);
     #endif

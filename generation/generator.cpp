@@ -167,8 +167,8 @@ void generate_converter_params() {
   std::cerr << "E2\tF\t2^E\t5^F\tM\tT\tU\tK\tCHECK\n";
   std::cout <<
     "struct {\n"
-    "AMARU_UINT_SINGLE const high;\n"
-    "AMARU_UINT_SINGLE const low;\n"
+    "AMARU_UINT_SINGLE const upper;\n"
+    "AMARU_UINT_SINGLE const lower;\n"
     "unsigned          const shift;\n"
     "} converters[] = {\n";
 

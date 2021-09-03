@@ -66,17 +66,17 @@ unsigned remove_trailing_zeros(AMARU_UINT_SINGLE* value) {
 // }
 
 static inline
-AMARU_UINT_SINGLE scale(AMARU_UINT_SINGLE const high,
-  AMARU_UINT_SINGLE const low, unsigned const shift,
+AMARU_UINT_SINGLE scale(AMARU_UINT_SINGLE const upper,
+  AMARU_UINT_SINGLE const lower, unsigned const shift,
   AMARU_UINT_SINGLE const m) {
-  unsigned const    n = 8*sizeof(AMARU_UINT_SINGLE);
-  AMARU_UINT_DOUBLE x = m;
-  return ((low*x >> n) + high*x) >> (shift - n);
+  unsigned          const n = 8*sizeof(AMARU_UINT_SINGLE);
+  AMARU_UINT_DOUBLE const x = m;
+  return ((lower*x >> n) + upper*x) >> (shift - n);
 }
 
 static inline
-AMARU_UINT_SINGLE is_multiple_P5F(AMARU_UINT_SINGLE const /*high*/,
-  AMARU_UINT_SINGLE const /*low*/, unsigned const /*shift*/,
+AMARU_UINT_SINGLE is_multiple_P5F(AMARU_UINT_SINGLE const /*upper*/,
+  AMARU_UINT_SINGLE const /*lower*/, unsigned const /*shift*/,
   AMARU_UINT_SINGLE const /*m*/) {
   return false;
 }
@@ -91,21 +91,21 @@ AMARU_REP to_decimal_positive(AMARU_REP const binary,
   decimal.exponent = log10_pow2(binary.exponent);
 
   unsigned          const index = binary.exponent - 4;
-  AMARU_UINT_SINGLE const high  = converters[index].high;
-  AMARU_UINT_SINGLE const low   = converters[index].low;
+  AMARU_UINT_SINGLE const upper = converters[index].upper;
+  AMARU_UINT_SINGLE const lower = converters[index].lower;
   unsigned          const shift = converters[index].shift;
 
   if (binary.mantissa != AMARU_P2_MANTISSA_SIZE) {
 
     AMARU_UINT_SINGLE       m = 2*binary.mantissa + 1;
-    AMARU_UINT_SINGLE const b = scale(high, low, shift, m);
+    AMARU_UINT_SINGLE const b = scale(upper, lower, shift, m);
     AMARU_UINT_SINGLE const c = 10*(b/10);
 
     bool return_multiple_of_10;
 
     if (c == b) {
       bool const is_mid = check_mid &&
-        is_multiple_P5F(high, low, shift, m);
+        is_multiple_P5F(upper, lower, shift, m);
       return_multiple_of_10 = !is_mid || binary.mantissa % 2 == 0;
     }
 
@@ -113,8 +113,8 @@ AMARU_REP to_decimal_positive(AMARU_REP const binary,
 
       m -= 2;
       bool const is_mid = check_mid &&
-        is_multiple_P5F(high, low, shift, m);
-      AMARU_UINT_SINGLE const a = scale(high, low, shift, m) + !is_mid;
+        is_multiple_P5F(upper, lower, shift, m);
+      AMARU_UINT_SINGLE const a = scale(upper, lower, shift, m) + !is_mid;
 
       return_multiple_of_10 = c > a ||
         (c == a && (!is_mid || binary.mantissa % 2 == 0));
@@ -126,7 +126,7 @@ AMARU_REP to_decimal_positive(AMARU_REP const binary,
       return decimal;
     }
 
-    AMARU_UINT_SINGLE const d = scale(high, low, shift,
+    AMARU_UINT_SINGLE const d = scale(upper, lower, shift,
       4*binary.mantissa);
     decimal.mantissa = (d + 1) / 2;
     return decimal;
@@ -136,9 +136,9 @@ AMARU_REP to_decimal_positive(AMARU_REP const binary,
   bool              const refine     = correctors[index].refine;
   AMARU_UINT_SINGLE const m          = 2*binary.mantissa - 1;
   bool              const is_mid     = check_mid &&
-    is_multiple_P5F(high, low, shift, m);
+    is_multiple_P5F(upper, lower, shift, m);
 
-  decimal.mantissa = scale(high, low, shift, m) + !is_mid;
+  decimal.mantissa = scale(upper, lower, shift, m) + !is_mid;
   if (refine) {
     --decimal.exponent;
     decimal.mantissa *= 10;

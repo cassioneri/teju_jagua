@@ -248,13 +248,12 @@ void generate_corrector_params() {
 
     bool refine  = false;
 
-    u32 const a = (4*P2P - 2)*P2E_1/P5F + 1;
     u32 const b = (4*P2P + 2)*P2E_1/P5F;
     u32 const c = 10*(b/10);
 
     // Mantissa estimate
 
-    u32 estimate = a;
+    u32 estimate = (4*P2P - 2)*P2E_1/P5F;
 
     // Mantissa correct
 

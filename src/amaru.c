@@ -36,15 +36,6 @@ int log10_pow2(int exponent) {
     log10_pow2(-exponent) - 1;
 }
 
-/// TODO: Remove
-__uint128_t
-pow5(uint32_t e) {
-  if (e == 0)
-    return 1;
-  __uint128_t const p1 = pow5(e / 2);
-  return p1 * p1 * (e % 2 == 0 ? 1 : 5);
-}
-
 inline static
 int log5_pow2(int exponent) {
   return exponent >= 0 ?
@@ -101,30 +92,25 @@ AMARU_UINT_SINGLE is_multiple_P5F(AMARU_UINT_SINGLE const upper,
   AMARU_UINT_SINGLE const lower, unsigned shift,
   AMARU_UINT_SINGLE const m) {
 
-  unsigned    const n = 8*sizeof(AMARU_UINT_SINGLE);
-  __uint128_t const x = (~((__uint128_t)0)) >> (128 - shift);
-  __uint128_t const u = (((__uint128_t) upper) << n) + lower;
-  __uint128_t const p = u*m;
-  return (p & x) < u;
+  unsigned          const n   = 8*sizeof(AMARU_UINT_SINGLE);
+  AMARU_UINT_DOUBLE const p2n = ((AMARU_UINT_DOUBLE) 1) << n;
+  AMARU_UINT_DOUBLE const w   = ~((AMARU_UINT_DOUBLE) 0);
 
-//   unsigned          const n = 8*sizeof(AMARU_UINT_SINGLE);
-//   AMARU_UINT_DOUBLE const w = ~((AMARU_UINT_SINGLE) 0);
-//
-//   AMARU_UINT_DOUBLE pl = ((AMARU_UINT_DOUBLE) lower)*m;
-//   AMARU_UINT_DOUBLE pu = ((AMARU_UINT_DOUBLE) upper)*m;
-//
-//   if (shift >= 2*n) {
-//     pu = (pu + (pl >> n)) & (w >> (3*n - shift));
-//     if (pu >> n != 0)
-//       return false;
-//     pl = (AMARU_UINT_SINGLE) pl;
-//     shift = 2*n;
-//   }
-//
-//   AMARU_UINT_DOUBLE const x  = (pu << n) + pl;
-//   AMARU_UINT_DOUBLE const y  = (((AMARU_UINT_DOUBLE) upper) << n) + lower;
-//
-//   return (x & (w >> (2*n - shift))) < y;
+  AMARU_UINT_DOUBLE pl = ((AMARU_UINT_DOUBLE) lower)*m;
+  AMARU_UINT_DOUBLE pu = ((AMARU_UINT_DOUBLE) upper)*m;
+
+  if (shift > 2*n) {
+    pu = pu + pl/p2n;
+    pl = pl%p2n;
+    if ((pu & (w >> (3*n - shift))) >= p2n)
+      return false;
+    shift = 2*n;
+  }
+
+  AMARU_UINT_DOUBLE const p = pu*p2n + pl;
+  AMARU_UINT_DOUBLE const u = (((AMARU_UINT_DOUBLE) upper)*p2n) + lower;
+
+  return (p & (w >> (2*n - shift))) < u;
 }
 
 static inline
@@ -182,11 +168,8 @@ AMARU_REP to_decimal_positive(AMARU_REP const binary,
   unsigned          const correction = correctors[index].correction;
   bool              const refine     = correctors[index].refine;
   AMARU_UINT_SINGLE const m          = 2*binary.mantissa - 1;
-  bool              const is_mid     = check_mid &&
-//     is_multiple_P5F(upper, lower, shift, m);
-    m % pow5(decimal.exponent) == 0;
+  decimal.mantissa                   = scale(upper, lower, shift, m);
 
-  decimal.mantissa = scale(upper, lower, shift, m) + !is_mid;
   if (refine) {
     --decimal.exponent;
     decimal.mantissa *= 10;

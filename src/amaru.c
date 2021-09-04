@@ -36,6 +36,15 @@ int log10_pow2(int exponent) {
     log10_pow2(-exponent) - 1;
 }
 
+/// TODO: Remove
+__uint128_t
+pow5(uint32_t e) {
+  if (e == 0)
+    return 1;
+  __uint128_t const p1 = pow5(e / 2);
+  return p1 * p1 * (e % 2 == 0 ? 1 : 5);
+}
+
 inline static
 int log5_pow2(int exponent) {
   return exponent >= 0 ?
@@ -67,18 +76,55 @@ unsigned remove_trailing_zeros(AMARU_UINT_SINGLE* value) {
 
 static inline
 AMARU_UINT_SINGLE scale(AMARU_UINT_SINGLE const upper,
-  AMARU_UINT_SINGLE const lower, unsigned const shift,
+  AMARU_UINT_SINGLE const lower, unsigned shift,
   AMARU_UINT_SINGLE const m) {
-  unsigned          const n = 8*sizeof(AMARU_UINT_SINGLE);
-  AMARU_UINT_DOUBLE const x = m;
-  return ((lower*x >> n) + upper*x) >> (shift - n);
+
+  unsigned          const n   = 8*sizeof(AMARU_UINT_SINGLE);
+
+  AMARU_UINT_DOUBLE const pl  = ((AMARU_UINT_DOUBLE) lower)*m;
+  AMARU_UINT_DOUBLE const pmu = ((AMARU_UINT_DOUBLE) upper)*m + (pl >> n);
+
+  AMARU_UINT_SINGLE const x[] = {
+    (AMARU_UINT_SINGLE) pl,
+    (AMARU_UINT_SINGLE) pmu,
+    (AMARU_UINT_SINGLE) (pmu >> n)
+  };
+
+  AMARU_UINT_SINGLE const *y = x + shift / n;
+  shift = shift % n;
+
+  return (y[0] >> shift) + (y[1] << (n - shift));
 }
 
 static inline
-AMARU_UINT_SINGLE is_multiple_P5F(AMARU_UINT_SINGLE const /*upper*/,
-  AMARU_UINT_SINGLE const /*lower*/, unsigned const /*shift*/,
-  AMARU_UINT_SINGLE const /*m*/) {
-  return false;
+AMARU_UINT_SINGLE is_multiple_P5F(AMARU_UINT_SINGLE const upper,
+  AMARU_UINT_SINGLE const lower, unsigned shift,
+  AMARU_UINT_SINGLE const m) {
+
+  unsigned    const n = 8*sizeof(AMARU_UINT_SINGLE);
+  __uint128_t const x = (~((__uint128_t)0)) >> (128 - shift);
+  __uint128_t const u = (((__uint128_t) upper) << n) + lower;
+  __uint128_t const p = u*m;
+  return (p & x) < u;
+
+//   unsigned          const n = 8*sizeof(AMARU_UINT_SINGLE);
+//   AMARU_UINT_DOUBLE const w = ~((AMARU_UINT_SINGLE) 0);
+//
+//   AMARU_UINT_DOUBLE pl = ((AMARU_UINT_DOUBLE) lower)*m;
+//   AMARU_UINT_DOUBLE pu = ((AMARU_UINT_DOUBLE) upper)*m;
+//
+//   if (shift >= 2*n) {
+//     pu = (pu + (pl >> n)) & (w >> (3*n - shift));
+//     if (pu >> n != 0)
+//       return false;
+//     pl = (AMARU_UINT_SINGLE) pl;
+//     shift = 2*n;
+//   }
+//
+//   AMARU_UINT_DOUBLE const x  = (pu << n) + pl;
+//   AMARU_UINT_DOUBLE const y  = (((AMARU_UINT_DOUBLE) upper) << n) + lower;
+//
+//   return (x & (w >> (2*n - shift))) < y;
 }
 
 static inline
@@ -102,10 +148,11 @@ AMARU_REP to_decimal_positive(AMARU_REP const binary,
     AMARU_UINT_SINGLE const c = 10*(b/10);
 
     bool return_multiple_of_10;
+    unsigned const E = binary.exponent - 1 - decimal.exponent;
 
     if (c == b) {
       bool const is_mid = check_mid &&
-        is_multiple_P5F(upper, lower, shift, m);
+         is_multiple_P5F(upper, lower, shift + E, m);
       return_multiple_of_10 = !is_mid || binary.mantissa % 2 == 0;
     }
 
@@ -113,7 +160,7 @@ AMARU_REP to_decimal_positive(AMARU_REP const binary,
 
       m -= 2;
       bool const is_mid = check_mid &&
-        is_multiple_P5F(upper, lower, shift, m);
+        is_multiple_P5F(upper, lower, shift + E, m);
       AMARU_UINT_SINGLE const a = scale(upper, lower, shift, m) + !is_mid;
 
       return_multiple_of_10 = c > a ||
@@ -136,7 +183,8 @@ AMARU_REP to_decimal_positive(AMARU_REP const binary,
   bool              const refine     = correctors[index].refine;
   AMARU_UINT_SINGLE const m          = 2*binary.mantissa - 1;
   bool              const is_mid     = check_mid &&
-    is_multiple_P5F(upper, lower, shift, m);
+//     is_multiple_P5F(upper, lower, shift, m);
+    m % pow5(decimal.exponent) == 0;
 
   decimal.mantissa = scale(upper, lower, shift, m) + !is_mid;
   if (refine) {
@@ -229,7 +277,7 @@ AMARU_REP AMARU_TO_DECIMAL(AMARU_FP value) {
 
 //   else if (binary.exponent < 0)
 //    decimal = to_decimal_negative(binary);
-//
+
 //   else if (binary.exponent < 4)
 //    decimal = to_decimal_same_mantissa(binary);
 
@@ -246,11 +294,13 @@ AMARU_REP AMARU_TO_DECIMAL(AMARU_FP value) {
 
 int main() {
 
-  AMARU_REP binary = { false, 37, AMARU_P2_MANTISSA_SIZE };
+  unsigned  result = 0;
+  int       e2     = 4;
+  AMARU_REP binary = { false, e2, AMARU_P2_MANTISSA_SIZE };
   AMARU_REP ieee   = amaru_to_ieee(binary);
   AMARU_FP  value  = ieee_to_value(ieee);
 
-  unsigned result = 0;
+  printf("%d\n", e2);
 
   while (isfinite(value)) {
 
@@ -267,6 +317,10 @@ int main() {
 
     #if AMARU_DO_RYU && AMARU_DO_AMARU
       binary = ieee_to_amaru(ieee);
+      if (binary.exponent != e2) {
+        e2 = binary.exponent;
+        printf("%d\n", e2);
+      }
       if (ryu.mantissa != decimal.mantissa || ryu.exponent != decimal.exponent)
         printf("%d*2^%d:\t%.7e\t%d %d\t%d %d\n", binary.mantissa, binary.exponent, value, ryu.mantissa, ryu.exponent, decimal.mantissa, decimal.exponent);
     #endif

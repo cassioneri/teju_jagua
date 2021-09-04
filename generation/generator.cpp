@@ -92,7 +92,7 @@ get_M_and_T(u128 P2E, u128 P5F) {
     // m = 2*m0 + 1
     m  += 2;
 
-    // t = m % 5^F
+    // t = m%5^F
     t  += 2*P2E;
     while (t >= P5F)
       t -= P5F;
@@ -121,15 +121,23 @@ get_M_and_T(u128 P2E, u128 P5F) {
 U_and_K_t constexpr
 get_U_and_K(u128 P2E, u128 P5F, M_and_T_t M_and_T, u32 fixed_k = 0) {
 
-  u128 p2k = 1;
-  u128 u   = 0;
-  u128 v   = P2E;
+  u128 const Q = (2*P2P -1)/P5F;
+
+  // k = 0.
+  u128 p2k = 1;       // 2^k
+  u128 u   = P2E/P5F; // 2^(E + k)/5^F
+  u128 v   = P2E%P5F; // 2^(E + k)%5^F
 
   for (u32 k = 0; k < 128; ++k) {
 
-    if ((fixed_k == 0 && p2k * M_and_T.T >= (P5F - v) * M_and_T.M) ||
-      (fixed_k != 0 && k == fixed_k))
-      return {u + 1, k};
+    if (fixed_k == 0) {
+      if (p2k * M_and_T.T >= (P5F - v) * M_and_T.M && u >= Q*(P5F - v))
+        return {u + 1, k};
+    }
+    else {
+      if (k == fixed_k)
+        return {u + 1, k};
+    }
 
     p2k *= 2;
     u   *= 2;
@@ -180,8 +188,7 @@ void generate_converter_params() {
     auto const F   = log10_pow2(E2);
     auto const P5F = pow5(F);
 
-    if (F <=0)
-//     if (P5F <= 4*P2P)
+    if (F <= 0)
       continue;
 
     auto const P2E     = pow2(E2 - 1 - F);
@@ -233,8 +240,7 @@ void generate_corrector_params() {
     auto const F   = log10_pow2(E2);
     auto const P5F = pow5(F);
 
-    if (F <=0)
-//     if (P5F <= 4*P2P)
+    if (F <= 0)
       continue;
 
     auto const P2E   = pow2(E2 - 1 - F);

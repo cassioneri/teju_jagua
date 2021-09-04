@@ -12,11 +12,8 @@ typedef struct {
 
 AMARU_REP AMARU_TO_DECIMAL(AMARU_FP value);
 
-#undef AMARU_FP
-
 #undef AMARU_EXPONENT_SIZE
 #undef AMARU_MANTISSA_SIZE
-#undef AMARU_SHIFT
 #undef AMARU_LARGE
 
 #undef AMARU_FP

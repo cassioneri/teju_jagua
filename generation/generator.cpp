@@ -175,9 +175,9 @@ void generate_converter_params() {
   std::cerr << "E2\tF\t2^E\t5^F\tM\tT\tU\tK\tCHECK\n";
   std::cout <<
     "struct {\n"
-    "AMARU_UINT_SINGLE const upper;\n"
-    "AMARU_UINT_SINGLE const lower;\n"
-    "unsigned          const shift;\n"
+    "AMARU_SUINT const upper;\n"
+    "AMARU_SUINT const lower;\n"
+    "unsigned    const n_bits;\n"
     "} converters[] = {\n";
 
   for (int E2 = E0; E2 <= E2_max; ++E2) {
@@ -187,9 +187,6 @@ void generate_converter_params() {
 
     auto const F   = log10_pow2(E2);
     auto const P5F = pow5(F);
-
-    if (F <= 0)
-      continue;
 
     auto const P2E     = pow2(E2 - 1 - F);
     auto const M_and_T = get_M_and_T(P2E, P5F);
@@ -207,17 +204,17 @@ void generate_converter_params() {
       U_and_K.K << '\t' <<
       CHECK     << '\n';
 
-    u32 const high  = U_and_K.U >> 32;
-    u32 const low   = U_and_K.U;
-    u32 const shift = U_and_K.K;
+    u32 const high   = U_and_K.U >> 32;
+    u32 const low    = U_and_K.U;
+    u32 const n_bits = U_and_K.K;
 
     std::cout << "  { " <<
-      "0x"  << std::hex << std::setw(8) << std::setfill('0') <<
-      high  << ", " <<
-      "0x"  << std::hex << std::setw(8) << std::setfill('0') <<
-      low   << ", " <<
+      "0x"   << std::hex << std::setw(8) << std::setfill('0') <<
+      high   << ", " <<
+      "0x"   << std::hex << std::setw(8) << std::setfill('0') <<
+      low    << ", " <<
       std::dec <<
-      shift << " },\n";
+      n_bits << " },\n";
   }
   std::cout << "};\n";
 }
@@ -232,53 +229,66 @@ void generate_corrector_params() {
     "  bool     const refine;\n"
     "} correctors[] = {\n";
 
-  for (int E2 = E0; E2 <= E2_max; ++E2) {
+  for (int E2 = E0; E2 < E2_max; ++E2) {
 
+    //if (E2 != 64)
     if (E2 <= 0)
       continue;
 
-    auto const F   = log10_pow2(E2);
-    auto const P5F = pow5(F);
+    u32 a, b, estimate, correct;
+    bool a_is_mid, shorten, refine;
 
-    if (F <= 0)
-      continue;
+    auto F = log10_pow2(E2);
 
-    auto const P2E   = pow2(E2 - 1 - F);
-    auto const P2E_1 = P2E >> 1;
+    if (E2 == 0) {
+      estimate = P2P - 1;
+      a_is_mid = false;
+      a        = P2P;
+      b        = P2P;
+    }
 
-    bool refine  = false;
+    else if (E2 == 1) {
+      estimate = 2*P2P - 1;
+      a_is_mid = false;
+      a        = 2*P2P;
+      b        = 2*P2P + 1;
+    }
 
-    u32 const b = (4*P2P + 2)*P2E_1/P5F;
+    else {
+
+      auto const P5F = pow5(F);
+      auto const P2E = pow2(E2 - 2 - F);
+      estimate       = (4*P2P - 2)*P2E/P5F;
+      a_is_mid       = (4*P2P - 1)%P5F == 0;
+      a              = (4*P2P - 1)*P2E/P5F + !a_is_mid;
+      b              = (4*P2P + 2)*P2E/P5F;
+    }
+
     u32 const c = 10*(b/10);
 
-    // Mantissa estimate
-
-    u32 estimate = (4*P2P - 2)*P2E_1/P5F;
-
-    // Mantissa correct
-
-    u32 correct;
-    u32 ac = (4*P2P - 1)*P2E_1/P5F + 1;
-
-    if (ac <= c)
-      correct = c;
-    else if (b >= ac) {
-      auto const value = 4*P2P*P2E_1;
-      correct = value/P5F;
-      auto vcorrect = P5F*correct;
-      if (value - vcorrect > vcorrect + P5F - value || correct < ac)
-        ++correct;
-    }
-    else { // needs refining grid of powers of 10.
+    if (b < a) {
+      refine    = true;
+      F        -= 1;
       estimate *= 10;
-      auto const value = 8*P2P*P2E_1;
-      auto const P5F_1 = P5F/5;
-      correct = value/P5F_1;
-      auto vcorrect = P5F_1*correct;
-      if (value - vcorrect > vcorrect + P5F_1 - value)
-        ++correct;
-      refine = true;
+      shorten   = false;
     }
+    else {
+      refine    = false;
+      shorten   = c == b || c >= a;
+    }
+
+    if (shorten)
+      correct = c;
+
+    else{
+      auto const P5F      = pow5(F);
+      auto const value    = P2P*pow2(E2 - F);
+      correct             = value/P5F;
+      auto const vcorrect = correct*P5F;
+      if (value - vcorrect > vcorrect + P5F - value || correct < a)
+        ++correct;
+    }
+
     unsigned const correction = correct - estimate;
 
     std::cerr <<

@@ -1,10 +1,13 @@
 // This file is auto-generated. DO NOT EDIT.
 
 struct {
-AMARU_UINT_SINGLE const upper;
-AMARU_UINT_SINGLE const lower;
-unsigned          const shift;
+AMARU_SUINT const upper;
+AMARU_SUINT const lower;
+unsigned    const n_bits;
 } converters[] = {
+  { 0x00000000, 0x04000001, 26 },
+  { 0x00000000, 0x08000001, 26 },
+  { 0x00000000, 0x10000001, 26 },
   { 0x00000000, 0x0ccccccd, 28 },
   { 0x00000000, 0x0ccccccd, 27 },
   { 0x00000000, 0x0ccccccd, 26 },
@@ -115,6 +118,9 @@ struct {
 } correctors[] = {
   { 1, 0 },
   { 2, 0 },
+  { 4, 0 },
+  { 1, 0 },
+  { 2, 0 },
   { 2, 0 },
   { 1, 0 },
   { 1, 0 },
@@ -214,5 +220,4 @@ struct {
   { 3, 0 },
   { 1, 0 },
   { 1, 0 },
-  { 3, 0 },
 };

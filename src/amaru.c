@@ -9,6 +9,7 @@
   #include <ryu.h>
 #endif
 
+#include <limits.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -17,26 +18,44 @@
 
 #include AMARU_TABLE
 
-#define AMARU_E0 \
-  (-(1 << (AMARU_EXPONENT_SIZE - 1)) - AMARU_MANTISSA_SIZE + 2)
-
-#define AMARU_P2_MANTISSA_SIZE \
-  (((unsigned) 1) << AMARU_MANTISSA_SIZE)
+typedef AMARU_FP    fp_t;
+typedef AMARU_SUINT suint_t;
+typedef AMARU_DUINT duint_t;
 
 typedef struct {
-  bool              negative;
-  int               exponent;
-  AMARU_UINT_SINGLE mantissa;
+  bool   negative;
+  int    exponent;
+  suint_t mantissa;
 } AMARU_REP;
 
-inline static
+typedef AMARU_REP rep_t;
+
+static unsigned const exponent_size      = AMARU_EXPONENT_SIZE;
+static unsigned const mantissa_size      = AMARU_MANTISSA_SIZE;
+static int      const large_exponent     = AMARU_LARGE_EXPONENT;
+static suint_t  const pow2_mantissa_size = ((suint_t) 1) << mantissa_size;
+static unsigned const word_size          = CHAR_BIT*sizeof(suint_t);
+static int      const E0                 =
+  -(1 << (exponent_size - 1)) - mantissa_size + 2;
+
+#undef AMARU_EXPONENT_SIZE
+#undef AMARU_MANTISSA_SIZE
+#undef AMARU_LARGE_EXPONENT
+#undef AMARU_FP
+#undef AMARU_SUINT
+#undef AMARU_DUINT
+#undef AMARU_REP
+#undef AMARU_TO_DECIMAL
+#undef AMARU_TABLE
+
+static inline
 int log10_pow2(int exponent) {
   return exponent >= 0 ?
     (int) (1292913986 * ((uint64_t) exponent) >> 32) :
     log10_pow2(-exponent) - 1;
 }
 
-inline static
+static inline
 int log5_pow2(int exponent) {
   return exponent >= 0 ?
     (int) (1849741732 * ((uint64_t) exponent) >> 32) :
@@ -44,7 +63,7 @@ int log5_pow2(int exponent) {
 }
 
 static inline
-unsigned remove_trailing_zeros(AMARU_UINT_SINGLE* value) {
+unsigned remove_trailing_zeros(suint_t* value) {
   unsigned count = 0;
   while (*value % 10 == 0) {
     ++count;
@@ -53,145 +72,156 @@ unsigned remove_trailing_zeros(AMARU_UINT_SINGLE* value) {
   return count;
 }
 
-// static inline
-// AMARU_REP to_decimal_small(AMARU_REP const binary) {
-//   AMARU_REP decimal;
-//   return decimal;
-// }
-
-// static inline
-// AMARU_REP to_decimal_medium(AMARU_REP const binary) {
-//   AMARU_REP decimal;
-//   return decimal;
-// }
+static inline
+duint_t lower_bits(duint_t n, unsigned n_bits) {
+  return ((~((duint_t) 0)) >> (2*word_size - n_bits)) & n;
+}
 
 static inline
-AMARU_UINT_SINGLE scale(AMARU_UINT_SINGLE const upper,
-  AMARU_UINT_SINGLE const lower, unsigned shift,
-  AMARU_UINT_SINGLE const m) {
+duint_t add(duint_t upper, duint_t lower) {
+  return (((duint_t) upper) << word_size) + lower;
+}
 
-  unsigned          const n   = 8*sizeof(AMARU_UINT_SINGLE);
+static inline
+suint_t scale(suint_t const upper, suint_t const lower, unsigned n_bits,
+  suint_t const m) {
 
-  AMARU_UINT_DOUBLE const pl  = ((AMARU_UINT_DOUBLE) lower)*m;
-  AMARU_UINT_DOUBLE const pmu = ((AMARU_UINT_DOUBLE) upper)*m + (pl >> n);
+  unsigned const n   = 8*sizeof(suint_t);
 
-  AMARU_UINT_SINGLE const x[] = {
-    (AMARU_UINT_SINGLE) pl,
-    (AMARU_UINT_SINGLE) pmu,
-    (AMARU_UINT_SINGLE) (pmu >> n)
+  duint_t  const pl  = ((duint_t) lower)*m;
+  duint_t  const pmu = ((duint_t) upper)*m + (pl >> n);
+
+  suint_t const x[] = {
+    (suint_t) pl,
+    (suint_t) pmu,
+    (suint_t) (pmu >> n)
   };
 
-  AMARU_UINT_SINGLE const *y = x + shift / n;
-  shift = shift % n;
+  suint_t const *y = x + n_bits / n;
+  n_bits = n_bits % n;
 
-  return (y[0] >> shift) + (y[1] << (n - shift));
+  return (y[0] >> n_bits) + (y[1] << (n - n_bits));
 }
 
 static inline
-AMARU_UINT_SINGLE is_multiple_P5F(AMARU_UINT_SINGLE const upper,
-  AMARU_UINT_SINGLE const lower, unsigned shift,
-  AMARU_UINT_SINGLE const m) {
+suint_t is_multiple_of_pow5(suint_t const upper, suint_t const lower,
+  unsigned const n_bits, suint_t const m) {
 
-  unsigned          const n   = 8*sizeof(AMARU_UINT_SINGLE);
-  AMARU_UINT_DOUBLE const p2n = ((AMARU_UINT_DOUBLE) 1) << n;
-  AMARU_UINT_DOUBLE const w   = ~((AMARU_UINT_DOUBLE) 0);
+  duint_t const lower_product = ((duint_t) lower)*m;
+  duint_t const upper_product = ((duint_t) upper)*m;
 
-  AMARU_UINT_DOUBLE pl = ((AMARU_UINT_DOUBLE) lower)*m;
-  AMARU_UINT_DOUBLE pu = ((AMARU_UINT_DOUBLE) upper)*m;
+  if (n_bits >= 2*word_size) {
 
-  if (shift > 2*n) {
-    pu = pu + pl/p2n;
-    pl = pl%p2n;
-    if ((pu & (w >> (3*n - shift))) >= p2n)
+    // Product has 3 limbs of size word_size.
+
+    duint_t const upper_limbs = upper_product + (lower_product >> word_size);
+
+    if (lower_bits(upper_limbs, n_bits - word_size) >> word_size > 0)
       return false;
-    shift = 2*n;
+
+    duint_t const lower_limb = (suint_t) lower_product;
+    duint_t const product    = add(upper_limbs, lower_limb);
+    duint_t const multiplier = add(upper, lower);
+    return product < multiplier;
   }
 
-  AMARU_UINT_DOUBLE const p = pu*p2n + pl;
-  AMARU_UINT_DOUBLE const u = (((AMARU_UINT_DOUBLE) upper)*p2n) + lower;
+  duint_t const product    = add(upper_product, lower_product);
+  duint_t const multiplier = add(upper, lower);
 
-  return (p & (w >> (2*n - shift))) < u;
+  return lower_bits(product, n_bits) < multiplier;
 }
 
 static inline
-AMARU_REP to_decimal_positive(AMARU_REP const binary,
-  bool const check_mid) {
+rep_t to_decimal_mantissa_is_value(rep_t const binary) {
+  rep_t decimal;
+  decimal.negative  = binary.negative;
+  decimal.exponent  = 0;
+  decimal.mantissa  = binary.mantissa << binary.exponent;
+  decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
+  return decimal;
+}
 
-  AMARU_REP decimal;
+static inline
+rep_t to_decimal_positive(rep_t const binary, bool const check_mid) {
+
+  rep_t decimal;
 
   decimal.negative = binary.negative;
   decimal.exponent = log10_pow2(binary.exponent);
 
-  unsigned          const index = binary.exponent - 4;
-  AMARU_UINT_SINGLE const upper = converters[index].upper;
-  AMARU_UINT_SINGLE const lower = converters[index].lower;
-  unsigned          const shift = converters[index].shift;
+  unsigned const index  = binary.exponent - 1;
+  suint_t  const upper  = converters[index].upper;
+  suint_t  const lower  = converters[index].lower;
+  unsigned const n_bits = converters[index].n_bits;
 
-  if (binary.mantissa != AMARU_P2_MANTISSA_SIZE) {
+  if (binary.mantissa != pow2_mantissa_size) {
 
-    AMARU_UINT_SINGLE       m = 2*binary.mantissa + 1;
-    AMARU_UINT_SINGLE const b = scale(upper, lower, shift, m);
-    AMARU_UINT_SINGLE const c = 10*(b/10);
+    suint_t       m = 2*binary.mantissa + 1;
+    suint_t const b = scale(upper, lower, n_bits, m);
+    suint_t const c = 10*(b/10);
 
-    bool return_multiple_of_10;
+    bool shorten;
     unsigned const E = binary.exponent - 1 - decimal.exponent;
 
     if (c == b) {
       bool const is_mid = check_mid &&
-         is_multiple_P5F(upper, lower, shift + E, m);
-      return_multiple_of_10 = !is_mid || binary.mantissa % 2 == 0;
+         is_multiple_of_pow5(upper, lower, n_bits + E, m);
+      shorten = !is_mid || binary.mantissa % 2 == 0;
     }
 
     else {
 
       m -= 2;
       bool const is_mid = check_mid &&
-        is_multiple_P5F(upper, lower, shift + E, m);
-      AMARU_UINT_SINGLE const a = scale(upper, lower, shift, m) + !is_mid;
+        is_multiple_of_pow5(upper, lower, n_bits + E, m);
+      suint_t const a = scale(upper, lower, n_bits, m) + !is_mid;
 
-      return_multiple_of_10 = c > a ||
-        (c == a && (!is_mid || binary.mantissa % 2 == 0));
+      shorten = c > a || (c == a && (!is_mid || binary.mantissa % 2 == 0));
     }
 
-    if (return_multiple_of_10) {
-      decimal.mantissa = c;
+    if (shorten) {
+      decimal.mantissa  = c;
       decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
-      return decimal;
     }
 
-    AMARU_UINT_SINGLE const d = scale(upper, lower, shift,
-      4*binary.mantissa);
-    decimal.mantissa = (d + 1) / 2;
-    return decimal;
+    else {
+      suint_t const d  = scale(upper, lower, n_bits, 4*binary.mantissa);
+      decimal.mantissa = (d + 1) / 2;
+    }
   }
 
-  unsigned          const correction = correctors[index].correction;
-  bool              const refine     = correctors[index].refine;
-  AMARU_UINT_SINGLE const m          = 2*binary.mantissa - 1;
-  decimal.mantissa                   = scale(upper, lower, shift, m);
+  else {
 
-  if (refine) {
-    --decimal.exponent;
-    decimal.mantissa *= 10;
+    unsigned const correction = correctors[index].correction;
+    bool     const refine     = correctors[index].refine;
+    suint_t  const m          = 2*binary.mantissa - 1;
+    decimal.mantissa          = scale(upper, lower, n_bits, m);
+
+    if (refine) {
+      --decimal.exponent;
+      decimal.mantissa *= 10;
+    }
+
+    decimal.mantissa += correction;
+    decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
   }
-  decimal.mantissa += correction;
-  decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
+
   return decimal;
 }
 
 static inline
-AMARU_REP value_to_ieee(AMARU_FP const value) {
+rep_t value_to_ieee(fp_t const value) {
 
-  AMARU_REP         ieee;
-  AMARU_UINT_SINGLE uint;
+  rep_t   ieee;
+  suint_t uint;
 
   memcpy(&uint, &value, sizeof(value));
 
-  ieee.mantissa = uint & (AMARU_P2_MANTISSA_SIZE - 1);
-  uint >>= AMARU_MANTISSA_SIZE;
+  ieee.mantissa = uint & (pow2_mantissa_size - 1);
+  uint >>= mantissa_size;
 
-  ieee.exponent = uint & (AMARU_P2_MANTISSA_SIZE - 1);
-  uint >>= AMARU_EXPONENT_SIZE;
+  ieee.exponent = uint & (pow2_mantissa_size - 1);
+  uint >>= exponent_size;
 
   ieee.negative = uint;
 
@@ -199,15 +229,15 @@ AMARU_REP value_to_ieee(AMARU_FP const value) {
 }
 
 static inline
-AMARU_FP ieee_to_value(AMARU_REP const ieee) {
+fp_t ieee_to_value(rep_t const ieee) {
 
-  AMARU_FP          value;
-  AMARU_UINT_SINGLE uint = ieee.negative;
+  fp_t    value;
+  suint_t uint = ieee.negative;
 
-  uint <<= AMARU_EXPONENT_SIZE;
+  uint <<= exponent_size;
   uint |= ieee.exponent;
 
-  uint <<= AMARU_MANTISSA_SIZE;
+  uint <<= mantissa_size;
   uint |= ieee.mantissa;
 
   memcpy(&value, &uint, sizeof(uint));
@@ -216,30 +246,29 @@ AMARU_FP ieee_to_value(AMARU_REP const ieee) {
 }
 
 static inline
-AMARU_REP ieee_to_amaru(AMARU_REP const ieee) {
+rep_t ieee_to_amaru(rep_t const ieee) {
 
-  AMARU_REP amaru;
+  rep_t amaru;
 
   amaru.negative = ieee.negative;
 
-  amaru.exponent = AMARU_E0 + (ieee.exponent <= 1 ? 0 :
-    ieee.exponent - 1);
+  amaru.exponent = E0 + (ieee.exponent <= 1 ? 0 : ieee.exponent - 1);
 
   amaru.mantissa = ieee.mantissa + (ieee.exponent == 0 ? 0 :
-    AMARU_P2_MANTISSA_SIZE);
+    pow2_mantissa_size);
 
   return amaru;
 }
 
 static inline
-AMARU_REP amaru_to_ieee(AMARU_REP const amaru) {
+rep_t amaru_to_ieee(rep_t const amaru) {
 
-  AMARU_REP ieee;
+  rep_t ieee;
 
-  ieee.mantissa = amaru.mantissa & (AMARU_P2_MANTISSA_SIZE - 1);
+  ieee.mantissa = amaru.mantissa & (pow2_mantissa_size - 1);
 
-  ieee.exponent = amaru.exponent - AMARU_E0 +
-    (amaru.mantissa >= AMARU_P2_MANTISSA_SIZE ? 1 : 0);
+  ieee.exponent = amaru.exponent - E0 +
+    (amaru.mantissa >= pow2_mantissa_size ? 1 : 0);
 
   ieee.negative = amaru.negative;
 
@@ -247,13 +276,13 @@ AMARU_REP amaru_to_ieee(AMARU_REP const amaru) {
 }
 
 static inline
-AMARU_REP AMARU_TO_DECIMAL(AMARU_FP value) {
+rep_t AMARU_TO_DECIMAL(fp_t value) {
 
-  AMARU_REP decimal;
-  AMARU_REP const ieee   = value_to_ieee(value);
-  AMARU_REP const binary = ieee_to_amaru(ieee);
+  rep_t decimal;
+  rep_t const ieee   = value_to_ieee(value);
+  rep_t const binary = ieee_to_amaru(ieee);
 
-  if (binary.exponent == AMARU_E0 && binary.mantissa == 0) {
+  if (binary.exponent == E0 && binary.mantissa == 0) {
     decimal.exponent = 0;
     decimal.mantissa = 0;
   }
@@ -261,10 +290,7 @@ AMARU_REP AMARU_TO_DECIMAL(AMARU_FP value) {
 //   else if (binary.exponent < 0)
 //    decimal = to_decimal_negative(binary);
 
-//   else if (binary.exponent < 4)
-//    decimal = to_decimal_same_mantissa(binary);
-
-  else if (binary.exponent < AMARU_LARGE)
+  else if (binary.exponent < large_exponent)
     decimal = to_decimal_positive(binary, true);
 
   else
@@ -277,11 +303,11 @@ AMARU_REP AMARU_TO_DECIMAL(AMARU_FP value) {
 
 int main() {
 
-  unsigned  result = 0;
-  int       e2     = 4;
-  AMARU_REP binary = { false, e2, AMARU_P2_MANTISSA_SIZE };
-  AMARU_REP ieee   = amaru_to_ieee(binary);
-  AMARU_FP  value  = ieee_to_value(ieee);
+  unsigned result = 0;
+  int      e2     = 1;
+  rep_t    binary = { false, e2, pow2_mantissa_size };
+  rep_t    ieee   = amaru_to_ieee(binary);
+  fp_t     value  = ieee_to_value(ieee);
 
   printf("%d\n", e2);
 
@@ -294,7 +320,7 @@ int main() {
     #endif
 
     #if AMARU_DO_AMARU
-      AMARU_REP decimal = AMARU_TO_DECIMAL(value);
+      rep_t decimal = AMARU_TO_DECIMAL(value);
       result += decimal.mantissa;
     #endif
 
@@ -308,11 +334,10 @@ int main() {
         printf("%d*2^%d:\t%.7e\t%d %d\t%d %d\n", binary.mantissa, binary.exponent, value, ryu.mantissa, ryu.exponent, decimal.mantissa, decimal.exponent);
     #endif
 
-    AMARU_UINT_SINGLE i_value;
+    suint_t i_value;
     memcpy(&i_value, &value, sizeof(value));
     ++i_value;
     memcpy(&value, &i_value, sizeof(value));
-
   }
 
   return result;

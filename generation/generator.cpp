@@ -51,15 +51,6 @@ int log10_pow2(int exponent) {
     log10_pow2(-exponent) - 1;
 }
 
-unsigned remove_trailing_zeros(u32& value) {
-  unsigned count = 0;
-  do {
-    ++count;
-    value /= 10;
-  } while (value % 10 == 0);
-  return count;
-}
-
 constexpr auto P2P = pow2(P);
 constexpr auto P2L = static_cast<u32>(pow2(L));
 
@@ -170,15 +161,15 @@ bool check(u128 P2E, u128 P5F, U_and_K_t U_and_K) {
 constexpr auto E2_max = E0 + static_cast<int>(P2L) - 2;
 
 static
-void generate_converter_params() {
+void generate_scaler_params() {
 
   std::cerr << "E2\tF\t2^E\t5^F\tM\tT\tU\tK\tCHECK\n";
   std::cout <<
-    "struct {\n"
-    "AMARU_SUINT const upper;\n"
-    "AMARU_SUINT const lower;\n"
-    "unsigned    const n_bits;\n"
-    "} converters[] = {\n";
+    "static struct {\n"
+    "  suint_t  const upper;\n"
+    "  suint_t  const lower;\n"
+    "  unsigned const n_bits;\n"
+    "} scalers[] = {\n";
 
   for (int E2 = E0; E2 <= E2_max; ++E2) {
 
@@ -224,7 +215,7 @@ void generate_corrector_params() {
 
   std::cerr << "E2\tF\tEstimate\tCorrection\tRefine\n";
   std::cout <<
-    "struct {\n"
+    "static struct {\n"
     "  unsigned const correction;\n"
     "  bool     const refine;\n"
     "} correctors[] = {\n";
@@ -307,7 +298,7 @@ void generate_corrector_params() {
 
 int main() {
   std::cout << "// This file is auto-generated. DO NOT EDIT.\n\n";
-  generate_converter_params();
+  generate_scaler_params();
   std::cerr << '\n';
   std::cout << '\n';
   generate_corrector_params();

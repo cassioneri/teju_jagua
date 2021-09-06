@@ -1,10 +1,10 @@
 // This file is auto-generated. DO NOT EDIT.
 
 struct {
-AMARU_SUINT const upper;
-AMARU_SUINT const lower;
-unsigned    const n_bits;
-} converters[] = {
+suint_t  const upper;
+suint_t  const lower;
+unsigned const n_bits;
+} scalers[] = {
   { 0x00000000, 0x04000001, 26 },
   { 0x00000000, 0x08000001, 26 },
   { 0x00000000, 0x10000001, 26 },

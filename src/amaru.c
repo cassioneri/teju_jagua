@@ -1,6 +1,6 @@
 // gcc -O3 -I include -I ~/ryu/cassio/ryu -include config32.h src/amaru.c -o amaru ~/ryu/cassio/ryu/libryu.a -Wall -Wextra
 
-#define AMARU_DO_RYU   1
+#define AMARU_DO_RYU   0
 #define AMARU_DO_AMARU 1
 
 //-------------------------------------------------------------------------
@@ -16,15 +16,15 @@
 #include <stdio.h>
 #include <string.h>
 
+typedef AMARU_FP    fp_t;
+typedef AMARU_SUINT suint_t;
+typedef AMARU_DUINT duint_t;
+
 #include AMARU_TABLE
 
 #define AMARU_POW2(e)       (((suint_t)1) << e)
 #define AMARU_LOG5_POW2(e)  ((int)(1849741732*((uint64_t) e) >> 32))
 #define AMARU_LOG10_POW2(e) ((int)(1292913986*((uint64_t) e) >> 32))
-
-typedef AMARU_FP    fp_t;
-typedef AMARU_SUINT suint_t;
-typedef AMARU_DUINT duint_t;
 
 typedef struct {
   bool    negative;
@@ -103,16 +103,6 @@ suint_t is_multiple_of_pow5(suint_t const upper, suint_t const lower,
 }
 
 static inline
-rep_t to_decimal_mantissa_is_value(rep_t const binary) {
-  rep_t decimal;
-  decimal.negative  = binary.negative;
-  decimal.exponent  = 0;
-  decimal.mantissa  = binary.mantissa << binary.exponent;
-  decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
-  return decimal;
-}
-
-static inline
 rep_t to_decimal_positive_exponent(rep_t const binary) {
 
   rep_t decimal;
@@ -121,9 +111,9 @@ rep_t to_decimal_positive_exponent(rep_t const binary) {
   decimal.exponent = AMARU_LOG10_POW2(binary.exponent);
 
   unsigned const index  = binary.exponent - 1;
-  suint_t  const upper  = converters[index].upper;
-  suint_t  const lower  = converters[index].lower;
-  unsigned const n_bits = converters[index].n_bits;
+  suint_t  const upper  = scalers[index].upper;
+  suint_t  const lower  = scalers[index].lower;
+  unsigned const n_bits = scalers[index].n_bits;
 
   if (binary.mantissa != AMARU_POW2(mantissa_size)) {
 
@@ -157,7 +147,7 @@ rep_t to_decimal_positive_exponent(rep_t const binary) {
 
     else {
       suint_t const d  = scale(upper, lower, n_bits, 4*binary.mantissa);
-      decimal.mantissa = (d + 1) / 2;
+      decimal.mantissa = (d + 1)/2;
     }
   }
 

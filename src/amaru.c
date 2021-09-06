@@ -27,8 +27,8 @@ typedef AMARU_SUINT suint_t;
 typedef AMARU_DUINT duint_t;
 
 typedef struct {
-  bool   negative;
-  int    exponent;
+  bool    negative;
+  int     exponent;
   suint_t mantissa;
 } rep_t;
 
@@ -61,22 +61,19 @@ duint_t add(duint_t upper, duint_t lower) {
 }
 
 static inline
-suint_t scale(suint_t const upper, suint_t const lower, unsigned n_bits,
-  suint_t const m) {
+suint_t scale(suint_t const upper, suint_t const lower,
+  unsigned const n_bits, suint_t const m) {
 
-  duint_t  const pl  = ((duint_t) lower)*m;
-  duint_t  const pmu = ((duint_t) upper)*m + (pl >> word_size);
+  duint_t const upper_prod  = ((duint_t) upper)*m;
+  duint_t const lower_prod  = ((duint_t) lower)*m;
 
-  suint_t const x[] = {
-    (suint_t) pl,
-    (suint_t) pmu,
-    (suint_t) (pmu >> word_size)
-  };
+  duint_t const upper_limbs = upper_prod + (lower_prod >> word_size);
 
-  suint_t const *y = x + n_bits / word_size;
-  n_bits = n_bits % word_size;
+  if (n_bits >= word_size)
+    return upper_limbs >> (n_bits - word_size);
 
-  return (y[0] >> n_bits) + (y[1] << (word_size - n_bits));
+  suint_t const lower_limb  = (suint_t) lower_prod;
+  return (lower_limb >> n_bits) | (upper_limbs << (word_size - n_bits));
 }
 
 static inline
@@ -94,15 +91,15 @@ suint_t is_multiple_of_pow5(suint_t const upper, suint_t const lower,
       return false;
 
     duint_t const lower_limb = (suint_t) lower_prod;
-    duint_t const product    = add(upper_limbs, lower_limb);
+    duint_t const prod       = add(upper_limbs, lower_limb);
     duint_t const multiplier = add(upper, lower);
-    return product < multiplier;
+    return prod < multiplier;
   }
 
-  duint_t const product    = add(upper_prod, lower_prod);
+  duint_t const prod       = add(upper_prod, lower_prod);
   duint_t const multiplier = add(upper, lower);
 
-  return lower_bits(product, n_bits) < multiplier;
+  return lower_bits(prod, n_bits) < multiplier;
 }
 
 static inline

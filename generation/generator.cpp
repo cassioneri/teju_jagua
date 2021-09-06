@@ -6,165 +6,313 @@
 #include <iomanip>
 #include <ios>
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <utility>
 
-using s32  = int32_t;
-using u32  = uint32_t;
-using u64  = uint64_t;
-using u128 = __uint128_t;
+#include <boost/multiprecision/cpp_int.hpp>
+
+using bigint_t = __uint128_t;
+//using bigint_t = boost::multiprecision::uint256_t;
 
 // float
 constexpr auto P  =   23;
-constexpr auto E0 = -149;
 constexpr auto L  =    8;
+constexpr auto E0 = -149;
+using     suint_t = uint32_t;
+
+using pair_t     = std::pair<bigint_t, bigint_t>;
+using affine_t   = pair_t;
+using rational_t = pair_t;
+using interval_t = pair_t;
+
+rational_t
+find_maximiser(affine_t const& numerator, affine_t const& denominator,
+  bigint_t const& delta, interval_t const& interval) {
+
+  bigint_t m         = interval.first;
+  auto     value     = numerator   .first*m + numerator  .second;
+  auto     remainder = (denominator.first*m + denominator.second)%delta;
+
+  rational_t maximiser = { value, delta - remainder };
+
+  while (m < interval.second) {
+
+    value     += numerator  .first;
+    remainder += denominator.first;
+    while (remainder >= delta)
+      remainder -= delta;
+
+    if (value*maximiser.second > maximiser.first*(delta - remainder))
+      maximiser = { value, delta - remainder };
+
+    ++m;
+  }
+
+  return maximiser;
+}
+
+#if 0
+
+rational_t
+find_log_pow2_coefficient(unsigned base, unsigned max_exponent) {
+
+  unsigned   p            = 0;
+  bigint_t   pow_2_p      = 1; // 2^p
+  rational_t coefficient  = { 0, 1 };
+  unsigned   n            = 0; // floor(log_base(2^p)) = floor(coefficient*p)
+
+  bigint_t   pow_base_np1 = 1; // base^(n + 1)
+
+  while (p < max_exponent) {
+
+    p       += 1;
+    pow_2_p *= 2;
+
+    if (pow_2_p >= pow_base_np1) {
+
+      n            += 1;
+      pow_base_np1 *= base;
+
+      if (n * coefficient.denominator > coefficient.numerator * p)
+        coefficient = { n, p };
+    }
+  };
+
+  return coefficient;
+}
+#endif
+
+struct fast_rational_t {
+  bigint_t numerator;
+  unsigned exponent2;
+};
+
+fast_rational_t
+find_fast_coefficient(rational_t const& coefficient,
+  rational_t const& maximiser, unsigned max_exponent2) {
+
+  auto const& numerator   = coefficient.first;
+  auto const& denominator = coefficient.second;
+
+  unsigned k         = 0;
+  bigint_t pow_2_k   = 1;
+  bigint_t u         = numerator/denominator;
+  bigint_t remainder = numerator%denominator;
+
+  while (k < max_exponent2) {
+
+    if (maximiser.first*(denominator - remainder) <
+      pow_2_k*maximiser.second) {
+      return { u + 1, k };
+    }
+
+    k         += 1;
+    pow_2_k   *= 2;
+    u         *= 2;
+    remainder *= 2;
+    while (remainder >= denominator) {
+      u         += 1;
+      remainder -= denominator;
+    }
+  }
+
+  return { 0, 0 }; // Failed.
+}
+
+#if 0
+
+template <typename T>
+auto constexpr max = std::numeric_limits<T>::max();
+
+struct log_pow2_t {
+
+  log_pow2_t(unsigned base, unsigned max_eponent,
+    unsigned size = max<unsigned>())
+  :
+  base_       {base       },
+  max_eponent_{max_eponent},
+  size_       {size       },
+  {
+    unsigned n    = 1;
+
+    bigint_t c    = 0;
+    unsigned s    = 0;
+    bigint_t p2_n = 2;
+    bigint_t pb_n = base;
+
+    while (n < max_eponent) {
+
+      auto const m = n*c >> s;
+
+      if (2*p2_p >= pb_np1) {
+        if () {
+          c = 2*c;
+        }
+        else {
+          c = 2*c + 1;
+        }
+        s += 1;
+      }
+      p    += 1;
+      p2_p *= 2;
+    }
+  }
+
+private:
+
+  unsigned base_;
+  unsigned max_eponent_;
+  unsigned size_;
+  bigint_t coefficient_;
+  unsigned shift_;
+};
+#endif
+
+#if 0
+
+struct fp_params_t {
+
+  fp_params_t(unsigned exponent_size, unsigned mantissa_size,
+    unsigned min_exponent, std::string float_type, std::string uint_type,
+    std::string duint_type)
+    :
+    size_{1 + exponent_size + mantissa_size},
+    exponent_size_{exponent_size},
+    mantissa_size_{mantissa_size},
+    min_exponent_{min_exponent},
+    max_exponent_{min_exponent + int(pow2(exponent_size)) - 2},
+    large_exponent_{min_exponent},
+    {
+
+    }
+  }
+
+  unsigned size_;
+  unsigned exponent_size_;
+  unsigned mantissa_size_;
+  int      min_exponent_;
+  int      max_exponent_;
+  int      large_exponent;
+  unsigned word_size;
+};
+
+
+enum {
+  exponent_size  = AMARU_EXPONENT_SIZE,
+  mantissa_size  = AMARU_MANTISSA_SIZE,
+  large_exponent = AMARU_LOG5_POW2(mantissa_size + 2),
+  word_size      = CHAR_BIT*sizeof(suint_t),
+  exponent_min   = -(1 << (exponent_size - 1)) - mantissa_size + 2
+};
+
+#define AMARU_EXPONENT_SIZE  8
+#define AMARU_MANTISSA_SIZE  23
+#define AMARU_FP             float
+#define AMARU_SUINT          uint32_t
+#define AMARU_DUINT          uint64_t
+#define AMARU_REP            rep32_t
+#define AMARU_TO_DECIMAL     to_decimal32
+#define AMARU_TABLE          "table32.h"
+
+
 
 // double
 // constexpr auto P  =    52;
 // constexpr auto E0 = -1074;
 // constexpr auto L  =    11;
+// using     suint_t = uint64_t;
 
-struct M_and_T_t {
-  u128 M;
-  u128 T;
-};
+#endif
 
-struct U_and_K_t {
-  u128 U;
-  u32  K;
-};
-
-u128 constexpr
-pow5(u32 e) {
+bigint_t pow5(unsigned e) {
   if (e == 0)
     return 1;
   auto const p1 = pow5(e / 2);
   return p1 * p1 * (e % 2 == 0 ? 1 : 5);
 }
 
-u128 constexpr
-pow2(u32 e) {
-  return u128(1) << e;
+bigint_t pow2(unsigned e) {
+  return bigint_t{1} << e;
 }
 
-inline static
 int log10_pow2(int exponent) {
   return exponent >= 0 ?
     (int) (1292913986 * ((uint64_t) exponent) >> 32) :
-    log10_pow2(-exponent) - 1;
+    -log10_pow2(-exponent) - 1;
 }
 
-constexpr auto P2P = pow2(P);
-constexpr auto P2L = static_cast<u32>(pow2(L));
+auto const P2P = static_cast<suint_t>(pow2(P));
+auto const P2L = static_cast<unsigned>(pow2(L));
 
 std::ostream&
-operator <<(std::ostream& o, u128 n) {
-  u64 const m = n;
+operator <<(std::ostream& o, __uint128_t n) {
+  uint64_t const m = n;
   return m == n ? o << m : o << "####################";
 }
 
 //----------------------------
 
-constexpr u32  fixed_k = 0;
+constexpr unsigned fixed_k = 0;
 
 //----------------------------
 
-M_and_T_t constexpr
-get_M_and_T(u128 P2E, u128 P5F) {
+rational_t
+get_M_and_T(rational_t const& coefficient) {
 
-  u128 m = 2*P2P - 1;
-  u128 t = m*P2E % P5F;
+  auto const& alpha = coefficient.first;
+  auto const& delta = coefficient.second;
 
-  u128 M = m;
-  u128 T = t;
+  auto const maximiser1 = [&]() {
+    affine_t   numerator   = { 2, -1 };
+    affine_t   denominator = { 2*alpha, -alpha };
+    interval_t interval    = { P2P, 2*P2P + 1 };
+    return find_maximiser(numerator, denominator, delta, interval);
+  }();
 
-  u128 x = 4*P2P;
-  u128 y = x*P2E % P5F;
+  auto const maximiser2 = [&]() {
+    affine_t   numerator   = { 4, 0 };
+    affine_t   denominator = { 4*alpha, 0 };
+    interval_t interval    = { P2P, 2*P2P };
+    return find_maximiser(numerator, denominator, delta, interval);
+  }();
 
-  for (u128 m0 = P2P; m0 < 2*P2P; ++m0) {
-
-    // m = 2*m0 + 1
-    m  += 2;
-
-    // t = m%5^F
-    t  += 2*P2E;
-    while (t >= P5F)
-      t -= P5F;
-
-    if (m * (P5F - T) > M * (P5F - t)) {
-      M  = m;
-      T  = t;
-    }
-
-    if (x * (P5F - T) > M * (P5F - y)) {
-      M  = x;
-      T  = y;
-    }
-
-    // x = 4*m0
-    x += 4;
-
-    // y = 4*m0 % P5F
-    y += 4*P2E;
-    while (y >= P5F)
-      y -= P5F;
-  }
-  return {M, P5F - T};
+  return (maximiser1.first*maximiser2.second >
+    maximiser2.first*maximiser1.second) ? maximiser1 : maximiser2;
 }
 
-U_and_K_t constexpr
-get_U_and_K(u128 P2E, u128 P5F, M_and_T_t M_and_T, u32 fixed_k = 0) {
-
-  u128 const Q = (2*P2P -1)/P5F;
-
-  // k = 0.
-  u128 p2k = 1;       // 2^k
-  u128 u   = P2E/P5F; // 2^(E + k)/5^F
-  u128 v   = P2E%P5F; // 2^(E + k)%5^F
-
-  for (u32 k = 0; k < 128; ++k) {
-
-    if (fixed_k == 0) {
-      if (p2k * M_and_T.T >= (P5F - v) * M_and_T.M && u >= Q*(P5F - v))
-        return {u + 1, k};
-    }
-    else {
-      if (k == fixed_k)
-        return {u + 1, k};
-    }
-
-    p2k *= 2;
-    u   *= 2;
-    v   *= 2;
-
-    while (v > P5F) {
-      u += 1;
-      v -= P5F;
-    }
-  }
-
-  return {0, 0};
+fast_rational_t
+get_U_and_K(rational_t const& coefficient, rational_t const& M_and_T,
+  unsigned /*fixed_k*/ = 0) {
+  return find_fast_coefficient(coefficient, M_and_T, 1024);
 }
 
-bool check(u128 P2E, u128 P5F, U_and_K_t U_and_K) {
+bool check(rational_t const& coefficient, fast_rational_t const& U_and_K) {
 
-  for (u32 m2 = P2P; m2 < 2*P2P; ++m2) {
+  auto const& alpha = coefficient.first;
+  auto const& delta = coefficient.second;
+  auto const& U     = U_and_K.numerator;
+  auto const& K     = U_and_K.exponent2;
+
+  for (bigint_t m2 = P2P; m2 < 2*P2P; ++m2) {
 
     auto const m = 2*m2 - 1;
-    if (m*P2E/P5F != m*U_and_K.U >> U_and_K.K)
+    if (m*alpha/delta != m*U >> K)
       return false;
 
     auto const x = 4*m2;
-    if (x*P2E/P5F != x*U_and_K.U >> U_and_K.K)
+    if (x*alpha/delta != x*U >> K)
       return false;
   }
   return true;
 }
 
-constexpr auto E2_max = E0 + static_cast<int>(P2L) - 2;
+auto const E2_max = E0 + static_cast<int>(P2L) - 2;
 
 static
 void generate_scaler_params() {
 
-  std::cerr << "E2\tF\t2^E\t5^F\tM\tT\tU\tK\tCHECK\n";
+  std::cerr << "E2\tF\talpha\tdelta\tM\tT\tU\tK\tCHECK\n";
   std::cout <<
     "static struct {\n"
     "  suint_t  const upper;\n"
@@ -172,33 +320,34 @@ void generate_scaler_params() {
     "  unsigned const n_bits;\n"
     "} scalers[] = {\n";
 
-  for (int E2 = E0; E2 <= E2_max; ++E2) {
+  for (int E2 = E0; E2 < E2_max; ++E2) {
 
     if (E2 <= 0)
       continue;
 
-    auto const F   = log10_pow2(E2);
-    auto const P5F = pow5(F);
+    auto const F           = log10_pow2(E2);
+    auto const coefficient = E2 > 0
+       ? rational_t{ pow2(E2 - 1 - F), pow5(F) }
+       : rational_t{ pow5(F), pow2(E2 - 1 - F) };
 
-    auto const P2E     = pow2(E2 - 1 - F);
-    auto const M_and_T = get_M_and_T(P2E, P5F);
-    auto const U_and_K = get_U_and_K(P2E, P5F, M_and_T, fixed_k);
-    auto const CHECK   = check(P2E, P5F, U_and_K);
+    auto const M_and_T     = get_M_and_T(coefficient);
+    auto const U_and_K     = get_U_and_K(coefficient, M_and_T, fixed_k);
+    auto const CHECK       = check(coefficient, U_and_K);
 
     std::cerr <<
-      E2        << '\t' <<
-      F         << '\t' <<
-      P2E       << '\t' <<
-      P5F       << '\t' <<
-      M_and_T.M << '\t' <<
-      M_and_T.T << '\t' <<
-      U_and_K.U << '\t' <<
-      U_and_K.K << '\t' <<
-      CHECK     << '\n';
+      E2                 << '\t' <<
+      F                  << '\t' <<
+      coefficient.first  << '\t' <<
+      coefficient.second << '\t' <<
+      M_and_T.first      << '\t' <<
+      M_and_T.second     << '\t' <<
+      U_and_K.numerator  << '\t' <<
+      U_and_K.exponent2  << '\t' <<
+      CHECK              << '\n';
 
-    u32 const high   = U_and_K.U >> 32;
-    u32 const low    = U_and_K.U;
-    u32 const n_bits = U_and_K.K;
+    auto const high   = static_cast<uint32_t>(U_and_K.numerator >> 32);
+    auto const low    = static_cast<uint32_t>(U_and_K.numerator);
+    auto const n_bits = U_and_K.exponent2;
 
     std::cout << "  { " <<
       "0x"   << std::hex << std::setw(8) << std::setfill('0') <<
@@ -206,7 +355,8 @@ void generate_scaler_params() {
       "0x"   << std::hex << std::setw(8) << std::setfill('0') <<
       low    << ", " <<
       std::dec <<
-      n_bits << " },\n";
+      n_bits << " }, // "
+      << E2 << "\n";
   }
   std::cout << "};\n";
 }
@@ -223,11 +373,10 @@ void generate_corrector_params() {
 
   for (int E2 = E0; E2 < E2_max; ++E2) {
 
-    //if (E2 != 64)
     if (E2 <= 0)
       continue;
 
-    u32 a, b, estimate, correct;
+    suint_t a, b, estimate, correct;
     bool a_is_mid, shorten, refine;
 
     auto F = log10_pow2(E2);
@@ -248,15 +397,17 @@ void generate_corrector_params() {
 
     else {
 
-      auto const P5F = pow5(F);
-      auto const P2E = pow2(E2 - 2 - F);
-      estimate       = (4*P2P - 2)*P2E/P5F;
-      a_is_mid       = (4*P2P - 1)%P5F == 0;
-      a              = (4*P2P - 1)*P2E/P5F + !a_is_mid;
-      b              = (4*P2P + 2)*P2E/P5F;
+      auto const alpha = E2 > 0 ? pow2(E2 - 2 - F) : pow5(-F);
+      auto const delta = E2 > 0 ? pow5(F)          : pow2(-E2 + 1 + F);
+
+      estimate = static_cast<suint_t>((4*P2P - 2)*alpha/delta);
+      a_is_mid = (4*P2P - 1)%delta == 0;
+      a        = static_cast<suint_t>((4*P2P - 1)*alpha/delta) +
+        !a_is_mid;
+      b        = static_cast<suint_t>((4*P2P + 2)*alpha/delta);
     }
 
-    u32 const c = 10*(b/10);
+    auto const c = 10*(b/10);
 
     if (b < a) {
       refine    = true;
@@ -273,11 +424,12 @@ void generate_corrector_params() {
       correct = c;
 
     else{
-      auto const P5F      = pow5(F);
-      auto const value    = P2P*pow2(E2 - F);
-      correct             = value/P5F;
-      auto const vcorrect = correct*P5F;
-      if (value - vcorrect > vcorrect + P5F - value || correct < a)
+      auto const alpha_adj = E2 > 0 ? pow2(E2 - F) : pow5(-F);
+      auto const delta_adj = E2 > 0 ? pow5(F)      : pow2(-E2 + F);
+      auto const value     = P2P*alpha_adj;
+      correct              = static_cast<suint_t>(value/delta_adj);
+      auto const vcorrect  = correct*delta_adj;
+      if (value - vcorrect > vcorrect + delta_adj - value || correct < a)
         ++correct;
     }
 
@@ -292,13 +444,44 @@ void generate_corrector_params() {
 
     std::cout << "  { " <<
        correction << ", " <<
-       refine     << " },\n";
+       refine     << " }, // " <<
+       E2 << "\n";
   }
   std::cout << "};\n";
 }
 
+struct table_file_t {
+
+  table_file_t(char const* file_name) : stream_{file_name } {
+
+    //std::cout << "Creating ./" << file_name << '\n';
+
+    stream_ <<
+      "// This file is auto-generated. DO NOT EDIT.\n"
+      "\n"
+      "typedef struct {\n"
+      "  bool    negative;\n"
+      "  int     exponent;\n"
+      "  suint_t mantissa;\n"
+      "} rep_t;\n"
+      "\n"
+      "enum {"
+      "  exponent_size  = AMARU_EXPONENT_SIZE,\n"
+      "  mantissa_size  = AMARU_MANTISSA_SIZE,\n"
+      "  large_exponent = AMARU_LOG5_POW2(mantissa_size + 2),\n"
+      "  word_size      = CHAR_BIT*sizeof(suint_t),\n"
+      "  exponent_min   = -(1 << (exponent_size - 1)) - mantissa_size + 2\n"
+      "};\n";
+  }
+
+private:
+
+  std::ofstream stream_;
+};
+
 int main() {
-  std::cout << "// This file is auto-generated. DO NOT EDIT.\n\n";
+
+  auto table_file = table_file_t{"table32.h"};
   generate_scaler_params();
   std::cerr << '\n';
   std::cout << '\n';

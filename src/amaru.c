@@ -113,6 +113,13 @@ suint_t is_multiple_of_pow5(suint_t const upper, suint_t const lower,
 }
 
 static inline
+rep_t to_decimal_zero_exponent(rep_t const binary) {
+  rep_t decimal = binary;
+  decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
+  return decimal;
+}
+
+static inline
 rep_t to_decimal_positive_exponent(rep_t const binary) {
 
   rep_t decimal;
@@ -120,10 +127,12 @@ rep_t to_decimal_positive_exponent(rep_t const binary) {
   decimal.negative = binary.negative;
   decimal.exponent = AMARU_LOG10_POW2(binary.exponent);
 
-  unsigned const index  = binary.exponent - 1;
-  suint_t  const upper  = scalers[index].upper;
-  suint_t  const lower  = scalers[index].lower;
-  unsigned const n_bits = scalers[index].n_bits;
+  unsigned const index     = binary.exponent - 1; //+ 149;
+  suint_t  const upper     = scalers[index].upper;
+  suint_t  const lower     = scalers[index].lower;
+  unsigned const n_bits    = scalers[index].n_bits;
+  bool     const check_mid = binary.exponent > 0 &&
+    decimal.exponent <= large_exponent;
 
   if (binary.mantissa != AMARU_POW2(mantissa_size)) {
 
@@ -135,7 +144,7 @@ rep_t to_decimal_positive_exponent(rep_t const binary) {
     unsigned const e = binary.exponent - decimal.exponent - 1;
 
     if (c == b) {
-      bool const is_mid = decimal.exponent <= large_exponent &&
+      bool const is_mid = check_mid &&
          is_multiple_of_pow5(upper, lower, n_bits + e, m);
       shorten = !is_mid || binary.mantissa % 2 == 0;
     }
@@ -143,10 +152,9 @@ rep_t to_decimal_positive_exponent(rep_t const binary) {
     else {
 
       m = 2*binary.mantissa - 1;
-      bool const is_mid = decimal.exponent <= large_exponent &&
+      bool const is_mid = check_mid &&
         is_multiple_of_pow5(upper, lower, n_bits + e, m);
       suint_t const a = scale(upper, lower, n_bits, m) + !is_mid;
-
       shorten = c > a || (c == a && (!is_mid || binary.mantissa % 2 == 0));
     }
 
@@ -257,6 +265,9 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
 //   else if (binary.exponent < 0)
 //    decimal = to_decimal_negative_exponent(binary);
 
+  else if (binary.exponent == 0)
+   decimal = to_decimal_zero_exponent(binary);
+
   else
     decimal = to_decimal_positive_exponent(binary);
 
@@ -268,7 +279,7 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
 int main() {
 
   unsigned result = 0;
-  int      e2     = 1;
+  int      e2     = 1; //-142;
   rep_t    binary = { false, e2, AMARU_POW2(mantissa_size) };
   rep_t    ieee   = amaru_to_ieee(binary);
   fp_t     value  = ieee_to_value(ieee);

@@ -1,6 +1,6 @@
 // gcc -O3 -I include -I ~/ryu/cassio/ryu -include config32.h src/amaru.c -o amaru ~/ryu/cassio/ryu/libryu.a -Wall -Wextra
 
-#define AMARU_DO_RYU   0
+#define AMARU_DO_RYU   1
 #define AMARU_DO_AMARU 1
 
 //-------------------------------------------------------------------------
@@ -42,11 +42,21 @@ enum {
 
 static inline
 unsigned remove_trailing_zeros(suint_t* value) {
+
+  suint_t const m = (~((suint_t)0))/10 + 1;
+
   unsigned count = 0;
-  while (*value % 10 == 0) {
+  suint_t  x     = *value;
+  duint_t  p     = ((duint_t) m)*x;
+  suint_t  r     = (suint_t) p;
+
+  while (r < m) {
     ++count;
-    *value /= 10;
+    x = (suint_t) (p >> word_size);
+    p = ((duint_t) m)*x;
+    r = (suint_t) p;
   }
+  *value = x;
   return count;
 }
 

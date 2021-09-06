@@ -1,9 +1,9 @@
 // This file is auto-generated. DO NOT EDIT.
 
-struct {
-suint_t  const upper;
-suint_t  const lower;
-unsigned const n_bits;
+static struct {
+  suint_t  const upper;
+  suint_t  const lower;
+  unsigned const n_bits;
 } scalers[] = {
   { 0x00000000, 0x04000001, 26 },
   { 0x00000000, 0x08000001, 26 },
@@ -112,9 +112,9 @@ unsigned const n_bits;
   { 0x0040e759, 0x9625a1ff, 53 },
 };
 
-struct {
-  unsigned const correction;
-  bool     const refine;
+static struct {
+  unsigned const char correction : 7;
+  unsigned const char refine     : 1;
 } correctors[] = {
   { 1, 0 },
   { 2, 0 },

@@ -1,6 +1,7 @@
 // g++ -O3 -std=c++20 generation/generator.cpp -o generator -Wall -Wextra
 // ./generator > include/table32.h
 
+#include <climits>
 #include <cstdint>
 #include <iomanip>
 #include <ios>
@@ -216,8 +217,8 @@ void generate_corrector_params() {
   std::cerr << "E2\tF\tEstimate\tCorrection\tRefine\n";
   std::cout <<
     "static struct {\n"
-    "  unsigned const correction;\n"
-    "  bool     const refine;\n"
+    "  unsigned const char correction : " << CHAR_BIT - 1 << ";\n"
+    "  unsigned const char refine     : 1;\n"
     "} correctors[] = {\n";
 
   for (int E2 = E0; E2 < E2_max; ++E2) {

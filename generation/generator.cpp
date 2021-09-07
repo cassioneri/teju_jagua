@@ -309,11 +309,47 @@ bool check(rational_t const& coefficient, fast_rational_t const& U_and_K) {
 
 auto const E2_max = E0 + static_cast<int>(P2L) - 2;
 
+struct table_file_t {
+
+  table_file_t(char const* file_name) : stream_{file_name } {
+
+    //std::cout << "Creating ./" << file_name << '\n';
+
+    stream_ <<
+      "// This file is auto-generated. DO NOT EDIT.\n"
+      "\n"
+      "#include <stdint.h>\n"
+      "\n"
+      "typedef float    fp_t;\n"
+      "typedef uint32_t suint_t;\n"
+      "typedef uint64_t duint_t;\n"
+      "\n"
+      "typedef struct {\n"
+      "  bool    negative;\n"
+      "  int     exponent;\n"
+      "  suint_t mantissa;\n"
+      "} rep_t;\n"
+      "\n"
+      "enum {\n"
+      "  exponent_size  = " << L << ",\n"
+      "  mantissa_size  = " << P << ",\n"
+      "  large_exponent = 10,\n" // LOG5_POW2(mantissa_size + 2)"
+      "  word_size      = 32,\n"
+      "  exponent_min   = " << E0 << "\n"
+      "};\n"
+      "\n"
+      "#define AMARU_LOG10_POW2(e) ((int)(1292913986*((duint_t) e) >> 32))\n"
+      "\n";
+  }
+
+  std::ofstream stream_;
+};
+
 static
-void generate_scaler_params() {
+void generate_scaler_params(table_file_t& file) {
 
   std::cerr << "E2\tF\talpha\tdelta\tM\tT\tU\tK\tCHECK\n";
-  std::cout <<
+  file.stream_ <<
     "static struct {\n"
     "  suint_t  const upper;\n"
     "  suint_t  const lower;\n"
@@ -349,7 +385,7 @@ void generate_scaler_params() {
     auto const low    = static_cast<uint32_t>(U_and_K.numerator);
     auto const n_bits = U_and_K.exponent2;
 
-    std::cout << "  { " <<
+    file.stream_ << "  { " <<
       "0x"   << std::hex << std::setw(8) << std::setfill('0') <<
       high   << ", " <<
       "0x"   << std::hex << std::setw(8) << std::setfill('0') <<
@@ -358,14 +394,14 @@ void generate_scaler_params() {
       n_bits << " }, // "
       << E2 << "\n";
   }
-  std::cout << "};\n";
+  file.stream_ << "};\n";
 }
 
 static
-void generate_corrector_params() {
+void generate_corrector_params(table_file_t& file) {
 
   std::cerr << "E2\tF\tEstimate\tCorrection\tRefine\n";
-  std::cout <<
+  file.stream_ <<
     "static struct {\n"
     "  unsigned const char correction : " << CHAR_BIT - 1 << ";\n"
     "  unsigned const char refine     : 1;\n"
@@ -442,48 +478,19 @@ void generate_corrector_params() {
       correction << '\t' <<
       refine     << '\n';
 
-    std::cout << "  { " <<
+    file.stream_ << "  { " <<
        correction << ", " <<
        refine     << " }, // " <<
        E2 << "\n";
   }
-  std::cout << "};\n";
+  file.stream_ << "};\n";
 }
-
-struct table_file_t {
-
-  table_file_t(char const* file_name) : stream_{file_name } {
-
-    //std::cout << "Creating ./" << file_name << '\n';
-
-    stream_ <<
-      "// This file is auto-generated. DO NOT EDIT.\n"
-      "\n"
-      "typedef struct {\n"
-      "  bool    negative;\n"
-      "  int     exponent;\n"
-      "  suint_t mantissa;\n"
-      "} rep_t;\n"
-      "\n"
-      "enum {"
-      "  exponent_size  = AMARU_EXPONENT_SIZE,\n"
-      "  mantissa_size  = AMARU_MANTISSA_SIZE,\n"
-      "  large_exponent = AMARU_LOG5_POW2(mantissa_size + 2),\n"
-      "  word_size      = CHAR_BIT*sizeof(suint_t),\n"
-      "  exponent_min   = -(1 << (exponent_size - 1)) - mantissa_size + 2\n"
-      "};\n";
-  }
-
-private:
-
-  std::ofstream stream_;
-};
 
 int main() {
 
-  auto table_file = table_file_t{"table32.h"};
-  generate_scaler_params();
+  auto table_file = table_file_t{"./include/table32.h"};
+  generate_scaler_params(table_file);
   std::cerr << '\n';
-  std::cout << '\n';
-  generate_corrector_params();
+  table_file.stream_ << '\n';
+  generate_corrector_params(table_file);
 }

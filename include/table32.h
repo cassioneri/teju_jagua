@@ -1,3 +1,27 @@
+// This file is auto-generated. DO NOT EDIT.
+
+#include <stdint.h>
+
+typedef float    fp_t;
+typedef uint32_t suint_t;
+typedef uint64_t duint_t;
+
+typedef struct {
+  bool    negative;
+  int     exponent;
+  suint_t mantissa;
+} rep_t;
+
+enum {
+  exponent_size  = 8,
+  mantissa_size  = 23,
+  large_exponent = 10,
+  word_size      = 32,
+  exponent_min   = -149
+};
+
+#define AMARU_LOG10_POW2(e) ((int)(1292913986*((duint_t) e) >> 32))
+
 static struct {
   suint_t  const upper;
   suint_t  const lower;

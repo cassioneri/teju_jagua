@@ -1,4 +1,4 @@
-// gcc -O3 -I include -I ~/ryu/cassio/ryu -include config32.h src/amaru.c -o amaru ~/ryu/cassio/ryu/libryu.a -Wall -Wextra
+// gcc -O3 -I include -I ~/ryu/cassio/ryu src/amaru.c -o amaru ~/ryu/cassio/ryu/libryu.a -Wall -Wextra
 
 #define AMARU_DO_RYU   1
 #define AMARU_DO_AMARU 1
@@ -9,36 +9,15 @@
   #include <ryu.h>
 #endif
 
-#include <limits.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-typedef AMARU_FP    fp_t;
-typedef AMARU_SUINT suint_t;
-typedef AMARU_DUINT duint_t;
+#include "table32.h"
 
-#include AMARU_TABLE
-
-#define AMARU_POW2(e)       (((suint_t)1) << e)
-#define AMARU_LOG5_POW2(e)  ((int)(1849741732*((uint64_t) e) >> 32))
-#define AMARU_LOG10_POW2(e) ((int)(1292913986*((uint64_t) e) >> 32))
-
-typedef struct {
-  bool    negative;
-  int     exponent;
-  suint_t mantissa;
-} rep_t;
-
-enum {
-  exponent_size  = AMARU_EXPONENT_SIZE,
-  mantissa_size  = AMARU_MANTISSA_SIZE,
-  large_exponent = AMARU_LOG5_POW2(mantissa_size + 2),
-  word_size      = CHAR_BIT*sizeof(suint_t),
-  exponent_min   = -(1 << (exponent_size - 1)) - mantissa_size + 2
-};
+#define AMARU_POW2(e) (((suint_t)1) << e)
 
 static inline
 unsigned remove_trailing_zeros(suint_t* value) {

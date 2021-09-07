@@ -1,4 +1,4 @@
-// This file is auto-generated. DO NOT EDIT.
+// This file is auto-generated. DO NOT EDIT IT.
 
 #include <stdint.h>
 
@@ -8,7 +8,7 @@ typedef uint64_t duint_t;
 
 typedef struct {
   bool    negative;
-  int     exponent;
+  int32_t exponent;
   suint_t mantissa;
 } rep_t;
 
@@ -20,20 +20,18 @@ enum {
   exponent_min   = -149
 };
 
-#define AMARU_LOG10_POW2(e) ((int)(1292913986*((duint_t) e) >> 32))
-
 static struct {
   suint_t  const upper;
   suint_t  const lower;
-  unsigned const n_bits;
+  uint32_t const n_bits;
 } scalers[] = {
-  { 0x00000000, 0x08000001, 27 }, // 1
-  { 0x00000000, 0x10000001, 27 }, // 2
-  { 0x00000000, 0x20000001, 27 }, // 3
+  { 0x00000000, 0x04000001, 26 }, // 1
+  { 0x00000000, 0x08000001, 26 }, // 2
+  { 0x00000000, 0x10000001, 26 }, // 3
   { 0x00000000, 0x0ccccccd, 28 }, // 4
   { 0x00000000, 0x0ccccccd, 27 }, // 5
-  { 0x00000000, 0x66666667, 29 }, // 6
-  { 0x00000000, 0x51eb851f, 31 }, // 7
+  { 0x00000000, 0x0ccccccd, 26 }, // 6
+  { 0x00000000, 0x028f5c29, 26 }, // 7
   { 0x00000000, 0x51eb851f, 30 }, // 8
   { 0x00000000, 0x51eb851f, 29 }, // 9
   { 0x00000000, 0x10624dd3, 29 }, // 10
@@ -134,8 +132,8 @@ static struct {
 };
 
 static struct {
-  unsigned const char correction : 7;
-  unsigned const char refine     : 1;
+  uint32_t const char correction : 7;
+  uint32_t const char refine     : 1;
 } correctors[] = {
   { 1, 0 }, // 1
   { 2, 0 }, // 2

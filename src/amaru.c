@@ -17,7 +17,14 @@
 
 #include "table32.h"
 
-#define AMARU_POW2(e) (((suint_t)1) << e)
+#define AMARU_POW2(e)       (((suint_t)1) << e)
+#define AMARU_LOG10_POW2(e) ((int)(1292913987*((duint_t) e) >> 32))
+
+static inline
+int log10_pow2(int exponent) {
+  return exponent >= 0 ? AMARU_LOG10_POW2(exponent) :
+    - AMARU_LOG10_POW2(-exponent) - 1;
+}
 
 static inline
 unsigned remove_trailing_zeros(suint_t* value) {

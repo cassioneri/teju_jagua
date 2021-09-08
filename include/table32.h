@@ -132,8 +132,8 @@ static struct {
 };
 
 static struct {
-  uint32_t const char correction : 7;
-  uint32_t const char refine     : 1;
+  unsigned const char correction : 7;
+  unsigned const char refine     : 1;
 } correctors[] = {
   { 1, 0 }, // 1
   { 2, 0 }, // 2

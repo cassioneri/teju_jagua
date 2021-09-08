@@ -275,8 +275,8 @@ void generate_corrector_params(table_file_t& file) {
   std::cerr << "E2\tF\tEstimate\tCorrection\tRefine\n";
   file.stream_ <<
     "static struct {\n"
-    "  uint32_t const char correction : " << CHAR_BIT - 1 << ";\n"
-    "  uint32_t const char refine     : 1;\n"
+    "  unsigned const char correction : " << CHAR_BIT - 1 << ";\n"
+    "  unsigned const char refine     : 1;\n"
     "} correctors[] = {\n";
 
   for (int32_t E2 = E0; E2 < E2_max; ++E2) {

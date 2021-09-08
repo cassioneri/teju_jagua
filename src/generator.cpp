@@ -141,7 +141,7 @@ get_M_and_T(rational_t const& coefficient) {
   auto const maximiser1 = [&]() {
     affine_t   numerator   = { 2, 1 };
     affine_t   denominator = { 2*alpha, alpha };
-    interval_t interval    = { P2P - 1, 2*P2P + 1 };
+    interval_t interval    = { P2P - 1, 2*P2P };
     return find_maximiser(numerator, denominator, delta, interval);
   }();
 

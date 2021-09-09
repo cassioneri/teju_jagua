@@ -18,7 +18,7 @@
 #include "table32.h"
 
 #define AMARU_MANTISSA_MIN  (((suint_t)1) << mantissa_size)
-#define AMARU_LOG10_POW2(e) ((int32_t)(1292913987*((uint32_t) e) >> 32))
+#define AMARU_LOG10_POW2(e) ((int32_t)(1292913987*((uint64_t) e) >> 32))
 
 static inline
 int32_t log10_pow2(int32_t exponent) {
@@ -101,11 +101,81 @@ suint_t is_multiple_of_pow5(suint_t const upper, suint_t const lower,
 }
 
 static inline
-rep_t to_decimal_positive_exponent(rep_t const binary) {
+rep_t value_to_ieee(fp_t const value) {
+
+  rep_t   ieee;
+  suint_t uint;
+
+  memcpy(&uint, &value, sizeof(value));
+
+  ieee.mantissa = lower_bits(uint, mantissa_size);
+  uint >>= mantissa_size;
+
+  ieee.exponent = lower_bits(uint, exponent_size);
+  uint >>= exponent_size;
+
+  ieee.negative = uint;
+
+  return ieee;
+}
+
+static inline
+fp_t ieee_to_value(rep_t const ieee) {
+
+  suint_t uint;
+  uint   = ieee.negative;
+  uint <<= exponent_size;
+  uint  |= ieee.exponent;
+  uint <<= mantissa_size;
+  uint  |= ieee.mantissa;
+
+  fp_t value;
+  memcpy(&value, &uint, sizeof(uint));
+
+  return value;
+}
+
+static inline
+rep_t ieee_to_amaru(rep_t const ieee) {
+
+  rep_t amaru;
+
+  amaru.negative = ieee.negative;
+  amaru.exponent = exponent_min +
+    (ieee.exponent <= 1 ? 0 : ieee.exponent - 1);
+  amaru.mantissa = ieee.mantissa +
+    (ieee.exponent == 0 ? 0 : AMARU_MANTISSA_MIN);
+
+  return amaru;
+}
+
+static inline
+rep_t amaru_to_ieee(rep_t const amaru) {
+
+  rep_t ieee;
+
+  ieee.mantissa = lower_bits(amaru.mantissa, mantissa_size);
+  ieee.exponent = amaru.exponent - exponent_min +
+    (amaru.mantissa >= AMARU_MANTISSA_MIN ? 1 : 0);
+  ieee.negative = amaru.negative;
+
+  return ieee;
+}
+
+rep_t AMARU_TO_DECIMAL(fp_t value) {
+
+  rep_t const ieee   = value_to_ieee(value);
+  rep_t const binary = ieee_to_amaru(ieee);
 
   rep_t decimal;
-
   decimal.negative = binary.negative;
+
+  if (binary.exponent == exponent_min && binary.mantissa == 0) {
+    decimal.exponent = 0;
+    decimal.mantissa = 0;
+    return decimal;
+  }
+
   decimal.exponent = AMARU_LOG10_POW2(binary.exponent);
 
   uint32_t const index     = binary.exponent + 149;
@@ -169,94 +239,6 @@ rep_t to_decimal_positive_exponent(rep_t const binary) {
     decimal.mantissa += correction;
     decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
   }
-
-  return decimal;
-}
-
-static inline
-rep_t value_to_ieee(fp_t const value) {
-
-  rep_t   ieee;
-  suint_t uint;
-
-  memcpy(&uint, &value, sizeof(value));
-
-  ieee.mantissa = lower_bits(uint, mantissa_size);
-  uint >>= mantissa_size;
-
-  ieee.exponent = lower_bits(uint, exponent_size);
-  uint >>= exponent_size;
-
-  ieee.negative = uint;
-
-  return ieee;
-}
-
-static inline
-fp_t ieee_to_value(rep_t const ieee) {
-
-  suint_t uint;
-  uint   = ieee.negative;
-  uint <<= exponent_size;
-  uint  |= ieee.exponent;
-  uint <<= mantissa_size;
-  uint  |= ieee.mantissa;
-
-  fp_t value;
-  memcpy(&value, &uint, sizeof(uint));
-
-  return value;
-}
-
-static inline
-rep_t ieee_to_amaru(rep_t const ieee) {
-
-  rep_t amaru;
-
-  amaru.negative = ieee.negative;
-  amaru.exponent = exponent_min +
-    (ieee.exponent <= 1 ? 0 : ieee.exponent - 1);
-  amaru.mantissa = ieee.mantissa +
-    (ieee.exponent == 0 ? 0 : AMARU_MANTISSA_MIN);
-
-  return amaru;
-}
-
-static inline
-rep_t amaru_to_ieee(rep_t const amaru) {
-
-  rep_t ieee;
-
-  ieee.mantissa = lower_bits(amaru.mantissa, mantissa_size);
-  ieee.exponent = amaru.exponent - exponent_min +
-    (amaru.mantissa >= AMARU_MANTISSA_MIN ? 1 : 0);
-  ieee.negative = amaru.negative;
-
-  return ieee;
-}
-
-static inline
-rep_t AMARU_TO_DECIMAL(fp_t value) {
-
-  rep_t decimal;
-  rep_t const ieee   = value_to_ieee(value);
-  rep_t const binary = ieee_to_amaru(ieee);
-
-  if (binary.exponent == exponent_min && binary.mantissa == 0) {
-    decimal.exponent = 0;
-    decimal.mantissa = 0;
-  }
-
-//   else if (binary.exponent < 0)
-//    decimal = to_decimal_negative_exponent(binary);
-//
-//  else if (binary.exponent == 0)
-//   decimal = to_decimal_zero_exponent(binary);
-
-  else
-    decimal = to_decimal_positive_exponent(binary);
-
-  decimal.negative = binary.negative;
 
   return decimal;
 }

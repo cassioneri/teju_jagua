@@ -101,13 +101,6 @@ suint_t is_multiple_of_pow5(suint_t const upper, suint_t const lower,
 }
 
 static inline
-rep_t to_decimal_zero_exponent(rep_t const binary) {
-  rep_t decimal = binary;
-  decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
-  return decimal;
-}
-
-static inline
 rep_t to_decimal_positive_exponent(rep_t const binary) {
 
   rep_t decimal;

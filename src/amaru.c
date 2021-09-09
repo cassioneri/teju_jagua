@@ -17,21 +17,21 @@
 
 #include "table32.h"
 
-#define AMARU_POW2(e)       (((suint_t)1) << e)
-#define AMARU_LOG10_POW2(e) ((int)(1292913987*((duint_t) e) >> 32))
+#define AMARU_MANTISSA_MIN  (((suint_t)1) << mantissa_size)
+#define AMARU_LOG10_POW2(e) ((int32_t)(1292913987*((uint32_t) e) >> 32))
 
 static inline
-int log10_pow2(int exponent) {
+int32_t log10_pow2(int32_t exponent) {
   return exponent >= 0 ? AMARU_LOG10_POW2(exponent) :
     - AMARU_LOG10_POW2(-exponent) - 1;
 }
 
 static inline
-unsigned remove_trailing_zeros(suint_t* value) {
+uint32_t remove_trailing_zeros(suint_t* value) {
 
   suint_t const m = (~((suint_t)0))/10 + 1;
 
-  unsigned count = 0;
+  uint32_t count = 0;
   suint_t  x     = *value;
   duint_t  p     = ((duint_t) m)*x;
   suint_t  r     = (suint_t) p;
@@ -49,7 +49,7 @@ unsigned remove_trailing_zeros(suint_t* value) {
 bool d_is_mid = false;
 
 static inline
-duint_t lower_bits(duint_t n, unsigned n_bits) {
+duint_t lower_bits(duint_t n, uint32_t n_bits) {
   return ((~((duint_t) 0)) >> (2*word_size - n_bits)) & n;
 }
 
@@ -60,7 +60,7 @@ duint_t add(duint_t upper, duint_t lower) {
 
 static inline
 suint_t scale(suint_t const upper, suint_t const lower,
-  unsigned const n_bits, suint_t const m) {
+  uint32_t const n_bits, suint_t const m) {
 
   duint_t const upper_prod  = ((duint_t) upper)*m;
   duint_t const lower_prod  = ((duint_t) lower)*m;
@@ -76,7 +76,7 @@ suint_t scale(suint_t const upper, suint_t const lower,
 
 static inline
 suint_t is_multiple_of_pow5(suint_t const upper, suint_t const lower,
-  unsigned const n_bits, suint_t const m) {
+  uint32_t const n_bits, suint_t const m) {
 
   duint_t const lower_prod = ((duint_t) lower)*m;
   duint_t const upper_prod = ((duint_t) upper)*m;
@@ -108,14 +108,14 @@ rep_t to_decimal_positive_exponent(rep_t const binary) {
   decimal.negative = binary.negative;
   decimal.exponent = AMARU_LOG10_POW2(binary.exponent);
 
-  unsigned const index     = binary.exponent + 149;
+  uint32_t const index     = binary.exponent + 149;
   suint_t  const upper     = scalers[index].upper;
   suint_t  const lower     = scalers[index].lower;
-  unsigned const n_bits    = scalers[index].n_bits;
+  uint32_t const n_bits    = scalers[index].n_bits;
   bool     const check_mid = binary.exponent > 0 &&
     decimal.exponent <= large_exponent;
 
-  if (binary.mantissa != AMARU_POW2(mantissa_size)) {
+  if (binary.mantissa != AMARU_MANTISSA_MIN) {
 
     suint_t       m = 2*binary.mantissa + 1;
     suint_t const b = scale(upper, lower, n_bits, m);
@@ -156,7 +156,7 @@ rep_t to_decimal_positive_exponent(rep_t const binary) {
 
   else {
 
-    unsigned const correction = correctors[index].correction;
+    uint32_t const correction = correctors[index].correction;
     bool     const refine     = correctors[index].refine;
     suint_t  const m          = 2*binary.mantissa - 1;
     decimal.mantissa          = scale(upper, lower, n_bits, m);
@@ -217,7 +217,7 @@ rep_t ieee_to_amaru(rep_t const ieee) {
   amaru.exponent = exponent_min +
     (ieee.exponent <= 1 ? 0 : ieee.exponent - 1);
   amaru.mantissa = ieee.mantissa +
-    (ieee.exponent == 0 ? 0 : AMARU_POW2(mantissa_size));
+    (ieee.exponent == 0 ? 0 : AMARU_MANTISSA_MIN);
 
   return amaru;
 }
@@ -229,7 +229,7 @@ rep_t amaru_to_ieee(rep_t const amaru) {
 
   ieee.mantissa = lower_bits(amaru.mantissa, mantissa_size);
   ieee.exponent = amaru.exponent - exponent_min +
-    (amaru.mantissa >= AMARU_POW2(mantissa_size) ? 1 : 0);
+    (amaru.mantissa >= AMARU_MANTISSA_MIN ? 1 : 0);
   ieee.negative = amaru.negative;
 
   return ieee;
@@ -263,10 +263,10 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
 
 int main() {
 
-  unsigned result = 0;
-  int      e2     = -149;
-  rep_t    binary = { false, e2, AMARU_POW2(mantissa_size) };
-//  int      e2     = -146;
+  uint32_t result = 0;
+  int32_t  e2     = -149;
+  rep_t    binary = { false, e2, AMARU_MANTISSA_MIN };
+//  int32_t  e2     = -146;
 //  rep_t    binary = { false, e2, 12055414 };
   rep_t    ieee   = amaru_to_ieee(binary);
   fp_t     value  = ieee_to_value(ieee);

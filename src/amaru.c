@@ -75,8 +75,8 @@ suint_t scale(suint_t const upper, suint_t const lower,
 }
 
 static inline
-suint_t is_multiple_of_pow5(suint_t const upper, suint_t const lower,
-  uint32_t const n_bits, suint_t const m) {
+suint_t is_multiple_of_pow5(suint_t const m, suint_t const upper,
+  suint_t const lower, uint32_t const n_bits) {
 
   duint_t const lower_prod = ((duint_t) lower)*m;
   duint_t const upper_prod = ((duint_t) upper)*m;
@@ -182,11 +182,11 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
   suint_t  const upper     = scalers[index].upper;
   suint_t  const lower     = scalers[index].lower;
   uint32_t const n_bits    = scalers[index].n_bits;
-  bool     const check_mid = binary.exponent > 0 &&
-    decimal.exponent <= large_exponent;
 
   if (binary.mantissa != AMARU_MANTISSA_MIN) {
 
+    bool    const check_mid = binary.exponent > 0 &&
+      decimal.exponent <= large_exponent;
     suint_t       m = 2*binary.mantissa + 1;
     suint_t const b = scale(upper, lower, n_bits, m);
     suint_t const c = 10*(b/10);
@@ -196,15 +196,15 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
 
     if (c == b) {
       bool const is_mid = check_mid &&
-         is_multiple_of_pow5(upper, lower, n_bits + e, m);
+         is_multiple_of_pow5(m, upper, lower, n_bits + e);
       shorten = !is_mid || binary.mantissa % 2 == 0;
     }
 
     else {
 
-      m = 2*binary.mantissa - 1;
+      m = m - 2; // = 2*binary.mantissa - 1;
       bool const is_mid = check_mid &&
-        is_multiple_of_pow5(upper, lower, n_bits + e, m);
+        is_multiple_of_pow5(m, upper, lower, n_bits + e);
       suint_t const a = scale(upper, lower, n_bits, m) + !is_mid;
       shorten = c > a || (c == a && (!is_mid || binary.mantissa % 2 == 0));
     }

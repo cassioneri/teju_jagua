@@ -10,8 +10,8 @@
 
 #include <boost/multiprecision/cpp_int.hpp>
 
-using bigint_t = __uint128_t;
-//using bigint_t = boost::multiprecision::uint256_t;
+//using bigint_t = __uint128_t;
+using bigint_t = boost::multiprecision::uint256_t;
 
 // float
 auto  constexpr P  = uint32_t(23);
@@ -76,8 +76,8 @@ fast_rational_t inline
 find_fast_coefficient(rational_t const& coefficient,
   rational_t const& maximiser, uint32_t max_exponent2) {
 
-  bigint_t const& num  = coefficient.num;
-  bigint_t const& den  = coefficient.den;
+  bigint_t const& num = coefficient.num;
+  bigint_t const& den = coefficient.den;
 
   uint32_t k    = 0;
   bigint_t pow2 = 1; // 2^k
@@ -230,13 +230,11 @@ void generate_scaler_params(table_file_t& file) {
 
   for (int32_t E2 = E0; E2 < E2_max; ++E2) {
 
-    if (E2 <= 0)
-      continue;
-
     auto const F           = log10_pow2(E2);
-    auto const coefficient = E2 > 0
-       ? rational_t{ pow2(E2 - 1 - F), pow5(F) }
-       : rational_t{ pow5(F), pow2(E2 - 1 - F) };
+    auto const E           = E2 - 1 - F;
+    auto const coefficient = E >= 0
+       ? rational_t{ pow2( E), pow5( F) }
+       : rational_t{ pow5(-F), pow2(-E) };
 
     auto const M_and_T = get_M_and_T(coefficient);
     auto const U_and_K = get_U_and_K(coefficient, M_and_T, fixed_k);
@@ -281,9 +279,6 @@ void generate_corrector_params(table_file_t& file) {
 
   for (int32_t E2 = E0; E2 < E2_max; ++E2) {
 
-    if (E2 <= 0)
-      continue;
-
     bigint_t a, b, estimate, correct;
     bool a_is_mid, shorten, refine;
 
@@ -306,7 +301,7 @@ void generate_corrector_params(table_file_t& file) {
     else {
 
       auto const alpha = E2 > 0 ? pow2(E2 - 2 - F) : pow5(-F);
-      auto const delta = E2 > 0 ? pow5(F)          : pow2(-E2 + 1 + F);
+      auto const delta = E2 > 0 ? pow5(F)          : pow2(-E2 + 2 + F);
 
       estimate = (4*P2P - 2)*alpha/delta;
       a_is_mid = (4*P2P - 1)%delta == 0;

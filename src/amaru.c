@@ -46,6 +46,8 @@ unsigned remove_trailing_zeros(suint_t* value) {
   return count;
 }
 
+bool d_is_mid = false;
+
 static inline
 duint_t lower_bits(duint_t n, unsigned n_bits) {
   return ((~((duint_t) 0)) >> (2*word_size - n_bits)) & n;
@@ -113,7 +115,7 @@ rep_t to_decimal_positive_exponent(rep_t const binary) {
   decimal.negative = binary.negative;
   decimal.exponent = AMARU_LOG10_POW2(binary.exponent);
 
-  unsigned const index     = binary.exponent - 1; //+ 149;
+  unsigned const index     = binary.exponent + 149;
   suint_t  const upper     = scalers[index].upper;
   suint_t  const lower     = scalers[index].lower;
   unsigned const n_bits    = scalers[index].n_bits;
@@ -127,7 +129,7 @@ rep_t to_decimal_positive_exponent(rep_t const binary) {
     suint_t const c = 10*(b/10);
 
     bool shorten;
-    unsigned const e = binary.exponent - decimal.exponent - 1;
+    int32_t const e = binary.exponent - decimal.exponent - 1;
 
     if (c == b) {
       bool const is_mid = check_mid &&
@@ -150,7 +152,11 @@ rep_t to_decimal_positive_exponent(rep_t const binary) {
     }
 
     else {
-      suint_t const d  = scale(upper, lower, n_bits, 4*binary.mantissa);
+      m = 4*binary.mantissa;
+      suint_t const d  = scale(upper, lower, n_bits, m);
+      bool const is_mid = e <= 0 && ((((((suint_t) 1) << -e) - 1) & m) == 0);
+      if (is_mid)
+        d_is_mid = true;
       decimal.mantissa = (d + 1)/2;
     }
   }
@@ -250,9 +256,9 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
 
 //   else if (binary.exponent < 0)
 //    decimal = to_decimal_negative_exponent(binary);
-
-  else if (binary.exponent == 0)
-   decimal = to_decimal_zero_exponent(binary);
+//
+//  else if (binary.exponent == 0)
+//   decimal = to_decimal_zero_exponent(binary);
 
   else
     decimal = to_decimal_positive_exponent(binary);
@@ -265,14 +271,18 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
 int main() {
 
   unsigned result = 0;
-  int      e2     = 1; //-142;
+  int      e2     = -149;
   rep_t    binary = { false, e2, AMARU_POW2(mantissa_size) };
+//  int      e2     = -146;
+//  rep_t    binary = { false, e2, 12055414 };
   rep_t    ieee   = amaru_to_ieee(binary);
   fp_t     value  = ieee_to_value(ieee);
 
   printf("%d\n", e2);
 
   while (isfinite(value)) {
+
+    d_is_mid = false;
 
     #if AMARU_DO_RYU
       ieee = value_to_ieee(value);
@@ -291,8 +301,8 @@ int main() {
         e2 = binary.exponent;
         printf("%d\n", e2);
       }
-      if (ryu.mantissa != decimal.mantissa || ryu.exponent != decimal.exponent)
-        printf("%d*2^%d:\t%.7e\t%d %d\t%d %d\n", binary.mantissa, binary.exponent, value, ryu.mantissa, ryu.exponent, decimal.mantissa, decimal.exponent);
+      if ((ryu.mantissa != decimal.mantissa || ryu.exponent != decimal.exponent) && !d_is_mid)
+        printf("%d*2^%d:\t%.7e\t%d %d\t%d %d %d\n", binary.mantissa, binary.exponent, value, ryu.mantissa, ryu.exponent, decimal.mantissa, decimal.exponent, d_is_mid);
     #endif
 
     suint_t i_value;

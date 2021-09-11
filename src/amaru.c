@@ -21,12 +21,6 @@
 #define AMARU_LOG10_POW2(e) ((int32_t)(1292913987*((uint64_t) e) >> 32))
 
 static inline
-int32_t log10_pow2(int32_t exponent) {
-  return exponent >= 0 ? AMARU_LOG10_POW2(exponent) :
-    - AMARU_LOG10_POW2(-exponent) - 1;
-}
-
-static inline
 uint32_t remove_trailing_zeros(suint_t* value) {
 
   suint_t const m = (~((suint_t)0))/10 + 1;

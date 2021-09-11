@@ -46,8 +46,6 @@ uint32_t remove_trailing_zeros(suint_t* value) {
   return count;
 }
 
-bool d_is_mid = false;
-
 static inline
 duint_t lower_bits(duint_t n, uint32_t n_bits) {
   return ((~((duint_t) 0)) >> (2*word_size - n_bits)) & n;
@@ -216,11 +214,17 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
 
     else {
       m = 4*binary.mantissa;
-      suint_t const d  = scale(upper, lower, n_bits, m);
-      bool const is_mid = e <= 0 && ((((((suint_t) 1) << -e) - 1) & m) == 0);
-      if (is_mid)
-        d_is_mid = true;
-      decimal.mantissa = (d + 1)/2;
+      suint_t const d = scale(upper, lower, n_bits, m);
+      decimal.mantissa = d/2;
+      if (d%2 == 1) {
+        if (decimal.mantissa%2 == 1)
+          decimal.mantissa += 1;
+        else {
+          const bool d_is_exact = 0 > e && e > -mantissa_size - 2 &&
+            ((((((suint_t) 1) << -e) - 1) & m) == 0);
+          decimal.mantissa += !d_is_exact;
+        }
+      }
     }
   }
 
@@ -247,17 +251,15 @@ int main() {
 
   uint32_t result = 0;
   int32_t  e2     = -149;
-  rep_t    binary = { false, e2, AMARU_MANTISSA_MIN };
-//  int32_t  e2     = -146;
-//  rep_t    binary = { false, e2, 12055414 };
+  rep_t    binary = { false, e2, 1 };
+//  int32_t  e2     = -32;
+//  rep_t    binary = { false, e2, AMARU_MANTISSA_MIN}; // AMARU_MANTISSA_MIN
   rep_t    ieee   = amaru_to_ieee(binary);
   fp_t     value  = ieee_to_value(ieee);
 
   printf("%d\n", e2);
 
   while (isfinite(value)) {
-
-    d_is_mid = false;
 
     #if AMARU_DO_RYU
       ieee = value_to_ieee(value);
@@ -276,8 +278,8 @@ int main() {
         e2 = binary.exponent;
         printf("%d\n", e2);
       }
-      if ((ryu.mantissa != decimal.mantissa || ryu.exponent != decimal.exponent) && !d_is_mid)
-        printf("%d*2^%d:\t%.7e\t%d %d\t%d %d %d\n", binary.mantissa, binary.exponent, value, ryu.mantissa, ryu.exponent, decimal.mantissa, decimal.exponent, d_is_mid);
+      if ((ryu.mantissa != decimal.mantissa || ryu.exponent != decimal.exponent))
+        printf("%d*2^%d:\t%.7e\t%d %d\t%d %d\n", binary.mantissa, binary.exponent, value, ryu.mantissa, ryu.exponent, decimal.mantissa, decimal.exponent);
     #endif
 
     suint_t i_value;

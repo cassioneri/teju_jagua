@@ -133,7 +133,7 @@ constexpr uint32_t fixed_k = 0;
 //----------------------------
 
 rational_t
-get_M_and_T(rational_t const& coefficient) {
+get_M_and_T(rational_t const& coefficient, bool start_at_1 = false) {
 
   auto const& alpha = coefficient.num;
   auto const& delta = coefficient.den;
@@ -141,14 +141,14 @@ get_M_and_T(rational_t const& coefficient) {
   auto const maximiser1 = [&]() {
     affine_t   numerator   = { 2, 1 };
     affine_t   denominator = { 2*alpha, alpha };
-    interval_t interval    = { P2P - 1, 2*P2P };
+    interval_t interval    = { start_at_1 ? 1 : P2P - 1, 2*P2P };
     return find_maximiser(numerator, denominator, delta, interval);
   }();
 
   auto const maximiser2 = [&]() {
     affine_t   numerator   = { 4, 0 };
     affine_t   denominator = { 4*alpha, 0 };
-    interval_t interval    = { P2P, 2*P2P };
+    interval_t interval    = { start_at_1 ? 1 : P2P, 2*P2P };
     return find_maximiser(numerator, denominator, delta, interval);
   }();
 
@@ -161,14 +161,15 @@ get_U_and_K(rational_t const& coefficient, rational_t const& M_and_T,
   return find_fast_coefficient(coefficient, M_and_T, 1024);
 }
 
-bool check(rational_t const& coefficient, fast_rational_t const& U_and_K) {
+bool check(rational_t const& coefficient, fast_rational_t const& U_and_K,
+  bool start_at_1 = false) {
 
   auto const& alpha = coefficient.num;
   auto const& delta = coefficient.den;
   auto const& U     = U_and_K.factor;
   auto const& K     = U_and_K.n_bits;
 
-  for (bigint_t m2 = P2P; m2 < 2*P2P; ++m2) {
+  for (bigint_t m2 = start_at_1 ? 1 : P2P; m2 < 2*P2P; ++m2) {
 
     auto const m = 2*m2 - 1;
     if (m*alpha/delta != m*U >> K)
@@ -228,7 +229,7 @@ void generate_scaler_params(table_file_t& file) {
     "  uint32_t const n_bits;\n"
     "} scalers[] = {\n";
 
-  for (int32_t E2 = E0; E2 < E2_max; ++E2) {
+  for (int32_t E2 = E0; E2 < E0 + E2_max; ++E2) {
 
     auto const F           = log10_pow2(E2);
     auto const E           = E2 - 1 - F;
@@ -236,9 +237,9 @@ void generate_scaler_params(table_file_t& file) {
        ? rational_t{ pow2( E), pow5( F) }
        : rational_t{ pow5(-F), pow2(-E) };
 
-    auto const M_and_T = get_M_and_T(coefficient);
+    auto const M_and_T = get_M_and_T(coefficient, E2 == E0);
     auto const U_and_K = get_U_and_K(coefficient, M_and_T, fixed_k);
-    auto const CHECK   = check(coefficient, U_and_K);
+    auto const CHECK   = check(coefficient, U_and_K, E2 == E0);
 
     std::cerr <<
       E2               << '\t' <<

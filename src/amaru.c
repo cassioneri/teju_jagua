@@ -175,30 +175,32 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
   suint_t  const lower     = scalers[index].lower;
   uint32_t const n_bits    = scalers[index].n_bits;
 
-  if (binary.mantissa != AMARU_MANTISSA_MIN) {
+  //if (binary.mantissa != AMARU_MANTISSA_MIN) {
 
-    bool    const check_mid = binary.exponent > 0 &&
-      decimal.exponent <= large_exponent;
-    suint_t       m = 2*binary.mantissa + 1;
-    suint_t const b = scale(upper, lower, n_bits, m);
-    suint_t const c = 10*(b/10);
+    suint_t const mantissa2 = 2*binary.mantissa;
+    suint_t       m         = mantissa2 + 1; // = 2*binary.mantissa + 1
+    suint_t const b2        = scale(upper, lower, n_bits, m);
+    suint_t const b         = b2/2;
+    suint_t const c         = 10*(b/10);
 
     bool shorten;
-    int32_t const e = binary.exponent - decimal.exponent - 1;
+    int32_t const e = binary.exponent - decimal.exponent;
 
     if (c == b) {
-      bool const is_mid = check_mid &&
-         is_multiple_of_pow5(m, upper, lower, n_bits + e);
-      shorten = !is_mid || binary.mantissa % 2 == 0;
+      bool const is_exact = binary.exponent > 0 &&
+        decimal.exponent <= large_exponent && b2%2 == 0 &&
+        is_multiple_of_pow5(m, upper, lower, n_bits + e);
+      shorten = !is_exact || binary.mantissa%2 == 0;
     }
 
     else {
-
-      m = m - 2; // = 2*binary.mantissa - 1;
-      bool const is_mid = check_mid &&
+      m = m - 2; // = 2*binary.mantissa - 1
+      suint_t const a2 = scale(upper, lower, n_bits, m);
+      bool const is_exact = binary.exponent > 0 &&
+        decimal.exponent <= large_exponent && a2%2 == 0 &&
         is_multiple_of_pow5(m, upper, lower, n_bits + e);
-      suint_t const a = scale(upper, lower, n_bits, m) + !is_mid;
-      shorten = c > a || (c == a && (!is_mid || binary.mantissa % 2 == 0));
+      suint_t const a = a2/2 + !is_exact;
+      shorten = c > a || (c == a && (!is_exact || binary.mantissa%2 == 0));
     }
 
     if (shorten) {
@@ -207,7 +209,7 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
     }
 
     else {
-      m = 4*binary.mantissa;
+      m = mantissa2; // = 2*binary.mantissa
       suint_t const d = scale(upper, lower, n_bits, m);
       decimal.mantissa = d/2;
       if (d%2 == 1) {
@@ -220,23 +222,23 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
         }
       }
     }
-  }
-
-  else {
-
-    uint32_t const correction = correctors[index].correction;
-    bool     const refine     = correctors[index].refine;
-    suint_t  const m          = 2*binary.mantissa - 1;
-    decimal.mantissa          = scale(upper, lower, n_bits, m);
-
-    if (refine) {
-      --decimal.exponent;
-      decimal.mantissa *= 10;
-    }
-
-    decimal.mantissa += correction;
-    decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
-  }
+//  }
+//
+//  else {
+//
+//    uint32_t const correction = correctors[index].correction;
+//    bool     const refine     = correctors[index].refine;
+//    suint_t  const m          = 2*binary.mantissa - 1;
+//    decimal.mantissa          = scale(upper, lower, n_bits, m);
+//
+//    if (refine) {
+//      --decimal.exponent;
+//      decimal.mantissa *= 10;
+//    }
+//
+//    decimal.mantissa += correction;
+//    decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
+//  }
 
   return decimal;
 }
@@ -246,7 +248,7 @@ int main() {
   uint32_t result = 0;
   int32_t  e2     = -149;
   rep_t    binary = { false, e2, 1 };
-//  int32_t  e2     = -32;
+//  int32_t  e2     = -10;
 //  rep_t    binary = { false, e2, AMARU_MANTISSA_MIN}; // AMARU_MANTISSA_MIN
   rep_t    ieee   = amaru_to_ieee(binary);
   fp_t     value  = ieee_to_value(ieee);
@@ -272,7 +274,9 @@ int main() {
         e2 = binary.exponent;
         printf("%d\n", e2);
       }
-      if ((ryu.mantissa != decimal.mantissa || ryu.exponent != decimal.exponent))
+      //if (ryu.mantissa != decimal.mantissa || ryu.exponent != decimal.exponent)
+      if ((ryu.mantissa != decimal.mantissa || ryu.exponent != decimal.exponent)
+          && binary.mantissa != AMARU_MANTISSA_MIN)
         printf("%d*2^%d:\t%.7e\t%d %d\t%d %d\n", binary.mantissa, binary.exponent, value, ryu.mantissa, ryu.exponent, decimal.mantissa, decimal.exponent);
     #endif
 

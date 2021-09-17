@@ -1,4 +1,4 @@
-// g++ -O3 -std=c++20 src/generator.cpp -o generator -Wall -Wextra
+// g++ -O3 -std=c++11 src/generator.cpp -o generator -Wall -Wextra
 
 #include <climits>
 #include <cstdint>
@@ -14,16 +14,19 @@
 using bigint_t = boost::multiprecision::uint256_t;
 
 // float
-auto  constexpr P  = uint32_t(23);
-auto  constexpr L  = uint32_t(8);
-auto  constexpr E0 = int32_t(-149);
-using suint_t      = uint32_t;
+auto  constexpr size    = uint32_t(32);
+auto  constexpr P       = uint32_t(23);
+auto  constexpr L       = uint32_t(8);
+auto  constexpr E0      = int32_t(-149);
+using suint_t           = uint32_t;
 
 // double
 // constexpr auto P  =    52;
 // constexpr auto E0 = -1074;
 // constexpr auto L  =    11;
 // using     suint_t = uint64_t;
+
+auto  constexpr fixed_k = uint32_t(0);
 
 struct affine_t {
   bigint_t slope;
@@ -49,7 +52,7 @@ struct interval_t {
 };
 
 rational_t inline
-find_maximiser(affine_t const& num, affine_t const& den, bigint_t const& delta,
+get_maximiser(affine_t const& num, affine_t const& den, bigint_t const& delta,
   interval_t const& interval) {
 
   bigint_t   m   = interval.begin;
@@ -73,8 +76,8 @@ find_maximiser(affine_t const& num, affine_t const& den, bigint_t const& delta,
 }
 
 fast_rational_t inline
-find_fast_coefficient(rational_t const& coefficient,
-  rational_t const& maximiser, uint32_t max_exponent2) {
+get_fast_coefficient(rational_t const& coefficient,
+  rational_t const& maximiser, uint32_t /*fixed_k*/ = 0) {
 
   bigint_t const& num = coefficient.num;
   bigint_t const& den = coefficient.den;
@@ -84,7 +87,7 @@ find_fast_coefficient(rational_t const& coefficient,
   bigint_t u    = num/den;
   bigint_t rem  = num%den;
 
-  while (k < max_exponent2) {
+  while (k <= 2*size) {
 
     if (maximiser < rational_t{pow2, den - rem})
       return { u + 1, k };
@@ -126,57 +129,45 @@ operator <<(std::ostream& o, __uint128_t n) {
   return m == n ? o << m : o << "####################";
 }
 
-//----------------------------
-
-constexpr uint32_t fixed_k = 0;
-
-//----------------------------
-
 rational_t
-get_M_and_T(rational_t const& coefficient, bool start_at_1 = false) {
+get_maximiser(rational_t const& coefficient, bool start_at_1 = false) {
 
   auto const& alpha = coefficient.num;
   auto const& delta = coefficient.den;
 
   auto const maximiser1 = [&]() {
-    affine_t   numerator   = { 2, 1 };
-    affine_t   denominator = { 2*alpha, alpha };
-    interval_t interval    = { start_at_1 ? 1 : P2P - 1, 2*P2P };
-    return find_maximiser(numerator, denominator, delta, interval);
+    affine_t   num      = { 2, 1 };
+    affine_t   den      = { 2*alpha, alpha };
+    interval_t interval = { start_at_1 ? 1 : P2P - 1, 2*P2P };
+    return get_maximiser(num, den, delta, interval);
   }();
 
   auto const maximiser2 = [&]() {
-    affine_t   numerator   = { 4, 0 };
-    affine_t   denominator = { 4*alpha, 0 };
-    interval_t interval    = { start_at_1 ? 1 : P2P, 2*P2P };
-    return find_maximiser(numerator, denominator, delta, interval);
+    affine_t   num      = { 2, 0 };
+    affine_t   den      = { 2*alpha, 0 };
+    interval_t interval = { start_at_1 ? 1 : P2P, 2*P2P };
+    return get_maximiser(num, den, delta, interval);
   }();
 
   return maximiser2 < maximiser1 ? maximiser1 : maximiser2;
 }
 
-fast_rational_t
-get_U_and_K(rational_t const& coefficient, rational_t const& M_and_T,
-  uint32_t /*fixed_k*/ = 0) {
-  return find_fast_coefficient(coefficient, M_and_T, 1024);
-}
+bool check(rational_t const& coefficient,
+  fast_rational_t const& fast_coefficient, bool start_at_1 = false) {
 
-bool check(rational_t const& coefficient, fast_rational_t const& U_and_K,
-  bool start_at_1 = false) {
-
-  auto const& alpha = coefficient.num;
-  auto const& delta = coefficient.den;
-  auto const& U     = U_and_K.factor;
-  auto const& K     = U_and_K.n_bits;
+  auto const& alpha  = coefficient.num;
+  auto const& delta  = coefficient.den;
+  auto const& factor = fast_coefficient.factor;
+  auto const& n_bits = fast_coefficient.n_bits;
 
   for (bigint_t m2 = start_at_1 ? 1 : P2P; m2 < 2*P2P; ++m2) {
 
     auto const m = 2*m2 - 1;
-    if (m*alpha/delta != m*U >> K)
+    if (m*alpha/delta != m*factor >> n_bits)
       return false;
 
-    auto const x = 4*m2;
-    if (x*alpha/delta != x*U >> K)
+    auto const x = 2*m2;
+    if (x*alpha/delta != x*factor >> n_bits)
       return false;
   }
   return true;
@@ -221,7 +212,7 @@ struct table_file_t {
 static
 void generate_scaler_params(table_file_t& file) {
 
-  std::cerr << "E2\tF\talpha\tdelta\tM\tT\tU\tK\tCHECK\n";
+  std::cerr << "e2\tf\talpha\tdelta\tnum\tden\tfactor\tn_bits\tCHECK\n";
   file.stream_ <<
     "static struct {\n"
     "  suint_t  const upper;\n"
@@ -229,41 +220,44 @@ void generate_scaler_params(table_file_t& file) {
     "  uint32_t const n_bits;\n"
     "} scalers[] = {\n";
 
-  for (int32_t E2 = E0; E2 < E0 + E2_max; ++E2) {
+  for (int32_t e2 = E0; e2 < E2_max; ++e2) {
 
-    auto const F           = log10_pow2(E2);
-    auto const E           = E2 - 1 - F;
-    auto const coefficient = E >= 0
-       ? rational_t{ pow2( E), pow5( F) }
-       : rational_t{ pow5(-F), pow2(-E) };
+    auto const f           = log10_pow2(e2);
+    auto const e           = e2 - f;
+    auto const coefficient = f >= 0
+       ? rational_t{ pow2( e), pow5( f) }
+       : rational_t{ pow5(-f), pow2(-e) };
 
-    auto const M_and_T = get_M_and_T(coefficient, E2 == E0);
-    auto const U_and_K = get_U_and_K(coefficient, M_and_T, fixed_k);
-    auto const CHECK   = check(coefficient, U_and_K, E2 == E0);
+    auto const start_at_1       = e2 == E0;
+    auto const maximiser        = get_maximiser(coefficient, start_at_1);
+    auto const fast_coefficient = get_fast_coefficient(coefficient, maximiser,
+      fixed_k);
+    auto const valid            = check(coefficient, fast_coefficient,
+      start_at_1);
 
     std::cerr <<
-      E2               << '\t' <<
-      F                << '\t' <<
-      coefficient.num  << '\t' <<
-      coefficient.den  << '\t' <<
-      M_and_T.num      << '\t' <<
-      M_and_T.den      << '\t' <<
-      U_and_K.factor   << '\t' <<
-      U_and_K.n_bits   << '\t' <<
-      CHECK            << '\n';
+      e2                      << '\t' <<
+      f                       << '\t' <<
+      coefficient.num         << '\t' <<
+      coefficient.den         << '\t' <<
+      maximiser.num           << '\t' <<
+      maximiser.den           << '\t' <<
+      fast_coefficient.factor << '\t' <<
+      fast_coefficient.n_bits << '\t' <<
+      valid                   << '\n';
 
-    auto const high   = static_cast<uint32_t>(U_and_K.factor >> 32);
-    auto const low    = static_cast<uint32_t>(U_and_K.factor);
-    auto const n_bits = U_and_K.n_bits;
+    auto const high   = static_cast<uint32_t>(fast_coefficient.factor >> 32);
+    auto const low    = static_cast<uint32_t>(fast_coefficient.factor);
+    auto const n_bits = fast_coefficient.n_bits;
 
     file.stream_ << "  { " <<
-      "0x"   << std::hex << std::setw(8) << std::setfill('0') <<
-      high   << ", " <<
-      "0x"   << std::hex << std::setw(8) << std::setfill('0') <<
-      low    << ", " <<
+      "0x"     << std::hex << std::setw(8) << std::setfill('0') <<
+      high     << ", " <<
+      "0x"     << std::hex << std::setw(8) << std::setfill('0') <<
+      low      << ", " <<
       std::dec <<
-      n_bits << " }, // "
-      << E2 << "\n";
+      n_bits   << " }, // " <<
+      e2       << "\n";
   }
   file.stream_ << "};\n";
 }
@@ -357,6 +351,6 @@ int main() {
    auto table_file = table_file_t{"./include/table32.h"};
    generate_scaler_params(table_file);
    std::cerr << '\n';
-   table_file.stream_ << '\n';
-   generate_corrector_params(table_file);
+   //table_file.stream_ << '\n';
+   //generate_corrector_params(table_file);
 }

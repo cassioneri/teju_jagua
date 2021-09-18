@@ -1,5 +1,6 @@
 // g++ -O3 -std=c++11 src/generator.cpp -o generator -Wall -Wextra
 
+#include <algorithm>
 #include <climits>
 #include <cstdint>
 #include <iomanip>
@@ -138,7 +139,7 @@ get_maximiser(rational_t const& coefficient, bool start_at_1 = false) {
   auto const maximiser1 = [&]() {
     affine_t   num      = { 2, 1 };
     affine_t   den      = { 2*alpha, alpha };
-    interval_t interval = { start_at_1 ? 1 : P2P - 1, 2*P2P };
+    interval_t interval = { start_at_1 ? 1 : P2P - 1, 2*P2P + 1};
     return get_maximiser(num, den, delta, interval);
   }();
 
@@ -149,7 +150,17 @@ get_maximiser(rational_t const& coefficient, bool start_at_1 = false) {
     return get_maximiser(num, den, delta, interval);
   }();
 
-  return maximiser2 < maximiser1 ? maximiser1 : maximiser2;
+  auto const maximiser3 = [&]() {
+    bigint_t   const m1   = 10*P2P;
+    bigint_t   const r1   = m1*alpha%delta;
+    rational_t const max1 = { m1, delta - r1 };
+    bigint_t   const m2   = 10*P2P;
+    bigint_t   const r2   = m2*alpha%delta;
+    rational_t const max2 = { m2, delta - r2 };
+    return std::max(max1, max2);
+  }();
+
+  return std::max(maximiser1, std::max(maximiser2, maximiser3));
 }
 
 bool check(rational_t const& coefficient,

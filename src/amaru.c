@@ -174,17 +174,17 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
   suint_t  const upper     = scalers[index].upper;
   suint_t  const lower     = scalers[index].lower;
   uint32_t const n_bits    = scalers[index].n_bits;
+  suint_t  const mantissa2 = 2*binary.mantissa;
 
-  //if (binary.mantissa != AMARU_MANTISSA_MIN) {
+  suint_t       m  = mantissa2 + 1; // = 2*binary.mantissa + 1
+  suint_t const b2 = scale(upper, lower, n_bits, m);
+  suint_t const b  = b2/2;
+  bool shorten;
 
-    suint_t const mantissa2 = 2*binary.mantissa;
-    suint_t       m         = mantissa2 + 1; // = 2*binary.mantissa + 1
-    suint_t const b2        = scale(upper, lower, n_bits, m);
-    suint_t const b         = b2/2;
-    suint_t const c         = 10*(b/10);
+//  if (binary.mantissa != AMARU_MANTISSA_MIN || binary.exponent == exponent_min) {
 
-    bool shorten;
-    int32_t const e = binary.exponent - decimal.exponent;
+    suint_t const c  = 10*(b/10);
+    int32_t const e  = binary.exponent - decimal.exponent;
 
     if (c == b) {
       bool const is_exact = binary.exponent > 0 &&
@@ -223,23 +223,23 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
       }
     }
 //  }
-//
 //  else {
+//    m = 2*m - 3; // = 4*binary.mantissa - 1
+//    suint_t const a4 = scale(upper, lower, n_bits, m);
+//    suint_t const a  = a4/4;
+//    if (b >= a) {
+//      suint_t const c   = 10*(b/10);
+//      shorten           = c >= a;
+//      if (shorten) {
+//        decimal.mantissa  = c;
+//        decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
+//      }
+//    }
+//    if (!shorten) {
 //
-//    uint32_t const correction = correctors[index].correction;
-//    bool     const refine     = correctors[index].refine;
-//    suint_t  const m          = 2*binary.mantissa - 1;
-//    decimal.mantissa          = scale(upper, lower, n_bits, m);
-//
-//    if (refine) {
-//      --decimal.exponent;
-//      decimal.mantissa *= 10;
 //    }
 //
-//    decimal.mantissa += correction;
-//    decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
 //  }
-
   return decimal;
 }
 

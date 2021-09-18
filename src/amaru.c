@@ -17,7 +17,8 @@
 
 #include "table32.h"
 
-#define AMARU_MANTISSA_MIN  (((suint_t)1) << mantissa_size)
+#define AMARU_POW2(e)       (((suint_t)1) << e)
+#define AMARU_MANTISSA_MIN  AMARU_POW2(mantissa_size)
 #define AMARU_LOG10_POW2(e) ((int32_t)(1292913987*((uint64_t) e) >> 32))
 
 static inline
@@ -183,8 +184,8 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
 
 //  if (binary.mantissa != AMARU_MANTISSA_MIN || binary.exponent == exponent_min) {
 
-    suint_t const c  = 10*(b/10);
-    int32_t const e  = binary.exponent - decimal.exponent;
+    suint_t const c = 10*(b/10);
+    int32_t const e = binary.exponent - decimal.exponent;
 
     if (c == b) {
       bool const is_exact = binary.exponent > 0 &&
@@ -217,7 +218,7 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
           decimal.mantissa += 1;
         else {
           const bool d_is_exact = 0 > e && e > -mantissa_size - 2 &&
-            ((((((suint_t) 1) << -e) - 1) & m) == 0);
+            m % AMARU_POW2(-e) == 0;
           decimal.mantissa += !d_is_exact;
         }
       }
@@ -236,9 +237,7 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
 //      }
 //    }
 //    if (!shorten) {
-//
 //    }
-//
 //  }
   return decimal;
 }

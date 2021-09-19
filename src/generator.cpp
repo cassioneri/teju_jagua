@@ -85,8 +85,8 @@ get_fast_coefficient(rational_t const& coefficient,
 
   uint32_t k    = 0;
   bigint_t pow2 = 1; // 2^k
-  bigint_t u    = num/den;
-  bigint_t rem  = num%den;
+  bigint_t u    = num / den;
+  bigint_t rem  = num % den;
 
   while (k <= 2*size) {
 
@@ -118,8 +118,7 @@ bigint_t pow5(uint32_t e) {
 }
 
 int32_t log10_pow2(int32_t exponent) {
-  return exponent >= 0 ?     int32_t(1292913987*uint64_t(exponent) >> 32) :
-    -log10_pow2(-exponent) - 1;
+  return int32_t(1292913987 * uint64_t(exponent) >> 32);
 }
 
 auto const P2P = pow2(P);
@@ -138,24 +137,24 @@ get_maximiser(rational_t const& coefficient, bool start_at_1 = false) {
 
   auto const maximiser1 = [&]() {
     affine_t   num      = { 2, 1 };
-    affine_t   den      = { 2*alpha, alpha };
-    interval_t interval = { start_at_1 ? 1 : P2P - 1, 2*P2P + 1};
+    affine_t   den      = { 2 * alpha, alpha };
+    interval_t interval = { start_at_1 ? 1 : P2P, 2*P2P };
     return get_maximiser(num, den, delta, interval);
   }();
 
   auto const maximiser2 = [&]() {
     affine_t   num      = { 2, 0 };
-    affine_t   den      = { 2*alpha, 0 };
+    affine_t   den      = { 2 * alpha, 0 };
     interval_t interval = { start_at_1 ? 1 : P2P, 2*P2P };
     return get_maximiser(num, den, delta, interval);
   }();
 
   auto const maximiser3 = [&]() {
-    bigint_t   const m1   = 10*P2P;
-    bigint_t   const r1   = m1*alpha%delta;
+    bigint_t   const m1   = 4 * P2P - 1;
+    bigint_t   const r1   = m1 * alpha % delta;
     rational_t const max1 = { m1, delta - r1 };
-    bigint_t   const m2   = 10*P2P;
-    bigint_t   const r2   = m2*alpha%delta;
+    bigint_t   const m2   = 20 * P2P;
+    bigint_t   const r2   = m2 * alpha % delta;
     rational_t const max2 = { m2, delta - r2 };
     return std::max(max1, max2);
   }();
@@ -171,14 +170,14 @@ bool check(rational_t const& coefficient,
   auto const& factor = fast_coefficient.factor;
   auto const& n_bits = fast_coefficient.n_bits;
 
-  for (bigint_t m2 = start_at_1 ? 1 : P2P; m2 < 2*P2P; ++m2) {
+  for (bigint_t m2 = start_at_1 ? 1 : P2P; m2 < 2 * P2P; ++m2) {
 
-    auto const m = 2*m2 - 1;
-    if (m*alpha/delta != m*factor >> n_bits)
+    auto const m = 2 * m2 - 1;
+    if (m * alpha / delta != m * factor >> n_bits)
       return false;
 
-    auto const x = 2*m2;
-    if (x*alpha/delta != x*factor >> n_bits)
+    auto const x = 2 * m2;
+    if (x * alpha / delta != x * factor >> n_bits)
       return false;
   }
   return true;
@@ -223,7 +222,7 @@ struct table_file_t {
 static
 void generate_scaler_params(table_file_t& file) {
 
-  std::cerr << "e2\tf\talpha\tdelta\tnum\tden\tfactor\tn_bits\tCHECK\n";
+  std::cerr << "e2\tf\talpha\tdelta\tnum\tden\tfactor\tn_bits\tcheck\n";
   file.stream_ <<
     "static struct {\n"
     "  suint_t  const upper;\n"
@@ -273,95 +272,7 @@ void generate_scaler_params(table_file_t& file) {
   file.stream_ << "};\n";
 }
 
-static
-void generate_corrector_params(table_file_t& file) {
-
-  std::cerr << "E2\tF\tEstimate\tCorrection\tRefine\n";
-  file.stream_ <<
-    "static struct {\n"
-    "  unsigned const char correction : " << CHAR_BIT - 1 << ";\n"
-    "  unsigned const char refine     : 1;\n"
-    "} correctors[] = {\n";
-
-  for (int32_t E2 = E0; E2 < E2_max; ++E2) {
-
-    bigint_t a, b, estimate, correct;
-    bool a_is_mid, shorten, refine;
-
-    auto F = log10_pow2(E2);
-
-    if (E2 == 0) {
-      estimate = P2P - 1;
-      a_is_mid = false;
-      a        = P2P;
-      b        = P2P;
-    }
-
-    else if (E2 == 1) {
-      estimate = 2*P2P - 1;
-      a_is_mid = false;
-      a        = 2*P2P;
-      b        = 2*P2P + 1;
-    }
-
-    else {
-
-      auto const alpha = E2 > 0 ? pow2(E2 - 2 - F) : pow5(-F);
-      auto const delta = E2 > 0 ? pow5(F)          : pow2(-E2 + 2 + F);
-
-      estimate = (4*P2P - 2)*alpha/delta;
-      a_is_mid = (4*P2P - 1)%delta == 0;
-      a        = (4*P2P - 1)*alpha/delta + !a_is_mid;
-      b        = (4*P2P + 2)*alpha/delta;
-    }
-
-    auto const c = 10*(b/10);
-
-    if (b < a) {
-      refine    = true;
-      F        -= 1;
-      estimate *= 10;
-      shorten   = false;
-    }
-    else {
-      refine    = false;
-      shorten   = c == b || c >= a;
-    }
-
-    if (shorten)
-      correct = c;
-
-    else{
-      auto const alpha_adj = E2 > 0 ? pow2(E2 - F) : pow5(-F);
-      auto const delta_adj = E2 > 0 ? pow5(F)      : pow2(-E2 + F);
-      auto const value     = P2P*alpha_adj;
-      correct              = value/delta_adj;
-      auto const vcorrect  = correct*delta_adj;
-      if (value - vcorrect > vcorrect + delta_adj - value || correct < a)
-        ++correct;
-    }
-
-    auto const correction = correct - estimate;
-
-    std::cerr <<
-      E2         << '\t' <<
-      F          << '\t' <<
-      estimate   << '\t' <<
-      correction << '\t' <<
-      refine     << '\n';
-
-    file.stream_ << "  { " <<
-       correction << ", " <<
-       refine     << " }, // " <<
-       E2 << "\n";
-  }
-  file.stream_ << "};\n";
-}
-
 int main() {
    auto table_file = table_file_t{"./include/table32.h"};
    generate_scaler_params(table_file);
-   std::cerr << '\n';
-   //table_file.stream_ << '\n';
-   //generate_corrector_params(table_file);
 }

@@ -22,23 +22,20 @@
 #define AMARU_LOG10_POW2(e) ((int32_t)(1292913987*((uint64_t) e) >> 32))
 
 static inline
-uint32_t remove_trailing_zeros(suint_t* value) {
+rep_t remove_trailing_zeros(rep_t decimal) {
 
   suint_t const m = (~((suint_t)0)) / 10 + 1;
 
-  uint32_t count = 0;
-  suint_t  x     = *value;
-  duint_t  p     = ((duint_t) m) * x;
-  suint_t  r     = (suint_t) p;
+  duint_t p = ((duint_t) m) * decimal.mantissa;
+  suint_t r = (suint_t) p;
 
   while (r < m) {
-    ++count;
-    x = (suint_t) (p >> word_size);
-    p = ((duint_t) m) * x;
-    r = (suint_t) p;
+    ++decimal.exponent;
+    decimal.mantissa = (suint_t) (p >> word_size);
+    p                = ((duint_t) m) * decimal.mantissa;
+    r                = (suint_t) p;
   }
-  *value = x;
-  return count;
+  return decimal;
 }
 
 static inline
@@ -171,7 +168,7 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
 
   decimal.exponent = AMARU_LOG10_POW2(binary.exponent);
 
-  uint32_t const index     = binary.exponent + 149;
+  uint32_t const index     = binary.exponent - exponent_min;
   suint_t  const upper     = scalers[index].upper;
   suint_t  const lower     = scalers[index].lower;
   uint32_t const n_bits    = scalers[index].n_bits;
@@ -205,8 +202,8 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
     }
 
     if (shorten) {
-      decimal.mantissa  = s;
-      decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
+      decimal.mantissa = s;
+      return remove_trailing_zeros(decimal);
     }
 
     else {
@@ -228,9 +225,10 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
     if (b >= a) {
       suint_t const s = 10 * (b / 10);
       if (s >= a) {
-        decimal.mantissa  = s;
-        decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
+        decimal.mantissa = s;
+        return remove_trailing_zeros(decimal);
       }
+
       else {
         m = mantissa2; // = 2 * binary.mantissa
         suint_t const c_hat = scale(upper, lower, n_bits, m);
@@ -244,7 +242,7 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
     }
     else {
       --decimal.exponent;
-      m = 20 * binary.mantissa;
+      m = 20 * binary.mantissa; // = 20 * binary.mantissa
       suint_t const c_hat = scale(upper, lower, n_bits, m);
       decimal.mantissa = c_hat / 2;
       if (c_hat % 2 == 1)
@@ -258,7 +256,7 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
 int main() {
 
   uint32_t result = 0;
-  int32_t  e2     = -149;
+  int32_t  e2     = exponent_min;
   rep_t    binary = { false, e2, 1 };
 //  int32_t  e2     = 70;
 //  rep_t    binary = { false, e2, AMARU_MANTISSA_MIN}; // AMARU_MANTISSA_MIN

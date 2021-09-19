@@ -24,17 +24,17 @@
 static inline
 uint32_t remove_trailing_zeros(suint_t* value) {
 
-  suint_t const m = (~((suint_t)0))/10 + 1;
+  suint_t const m = (~((suint_t)0)) / 10 + 1;
 
   uint32_t count = 0;
   suint_t  x     = *value;
-  duint_t  p     = ((duint_t) m)*x;
+  duint_t  p     = ((duint_t) m) * x;
   suint_t  r     = (suint_t) p;
 
   while (r < m) {
     ++count;
     x = (suint_t) (p >> word_size);
-    p = ((duint_t) m)*x;
+    p = ((duint_t) m) * x;
     r = (suint_t) p;
   }
   *value = x;
@@ -55,8 +55,8 @@ static inline
 suint_t scale(suint_t const upper, suint_t const lower,
   uint32_t const n_bits, suint_t const m) {
 
-  duint_t const upper_prod  = ((duint_t) upper)*m;
-  duint_t const lower_prod  = ((duint_t) lower)*m;
+  duint_t const upper_prod  = ((duint_t) upper) * m;
+  duint_t const lower_prod  = ((duint_t) lower) * m;
 
   duint_t const upper_limbs = upper_prod + (lower_prod >> word_size);
 
@@ -71,8 +71,8 @@ static inline
 suint_t is_multiple_of_pow5(suint_t const m, suint_t const upper,
   suint_t const lower, uint32_t const n_bits) {
 
-  duint_t const lower_prod = ((duint_t) lower)*m;
-  duint_t const upper_prod = ((duint_t) upper)*m;
+  duint_t const lower_prod = ((duint_t) lower) * m;
+  duint_t const upper_prod = ((duint_t) upper) * m;
 
   if (n_bits >= 2*word_size) {
 
@@ -176,69 +176,82 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
   suint_t  const lower     = scalers[index].lower;
   uint32_t const n_bits    = scalers[index].n_bits;
   suint_t  const mantissa2 = 2*binary.mantissa;
+  int32_t  const e         = binary.exponent - decimal.exponent;
 
-  suint_t       m  = mantissa2 + 1; // = 2*binary.mantissa + 1
-  suint_t const b2 = scale(upper, lower, n_bits, m);
-  suint_t const b  = b2/2;
+  suint_t       m     = mantissa2 + 1; // = 2 * binary.mantissa + 1
+  suint_t const b_hat = scale(upper, lower, n_bits, m);
+  suint_t const b     = b_hat / 2;
   bool shorten;
 
-//  if (binary.mantissa != AMARU_MANTISSA_MIN || binary.exponent == exponent_min) {
+  if (binary.mantissa != AMARU_MANTISSA_MIN || binary.exponent == exponent_min) {
 
-    suint_t const c = 10*(b/10);
-    int32_t const e = binary.exponent - decimal.exponent;
+    suint_t const s = 10 * (b / 10);
 
-    if (c == b) {
+    if (s == b) {
       bool const is_exact = binary.exponent > 0 &&
-        decimal.exponent <= large_exponent && b2%2 == 0 &&
+        decimal.exponent <= large_exponent && b_hat % 2 == 0 &&
         is_multiple_of_pow5(m, upper, lower, n_bits + e);
       shorten = !is_exact || binary.mantissa%2 == 0;
     }
 
     else {
-      m = m - 2; // = 2*binary.mantissa - 1
-      suint_t const a2 = scale(upper, lower, n_bits, m);
+      m = m - 2; // = 2 * binary.mantissa - 1
+      suint_t const a_hat = scale(upper, lower, n_bits, m);
       bool const is_exact = binary.exponent > 0 &&
-        decimal.exponent <= large_exponent && a2%2 == 0 &&
+        decimal.exponent <= large_exponent && a_hat % 2 == 0 &&
         is_multiple_of_pow5(m, upper, lower, n_bits + e);
-      suint_t const a = a2/2 + !is_exact;
-      shorten = c > a || (c == a && (!is_exact || binary.mantissa%2 == 0));
+      suint_t const a = a_hat / 2 + !is_exact;
+      shorten = s > a || (s == a && (!is_exact || binary.mantissa % 2 == 0));
     }
 
     if (shorten) {
-      decimal.mantissa  = c;
+      decimal.mantissa  = s;
       decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
     }
 
     else {
-      m = mantissa2; // = 2*binary.mantissa
-      suint_t const d = scale(upper, lower, n_bits, m);
-      decimal.mantissa = d/2;
-      if (d%2 == 1) {
-        if (decimal.mantissa%2 == 1)
-          decimal.mantissa += 1;
-        else {
-          const bool d_is_exact = 0 > e && e > -mantissa_size - 2 &&
-            m % AMARU_POW2(-e) == 0;
-          decimal.mantissa += !d_is_exact;
-        }
+      m = mantissa2; // = 2 * binary.mantissa
+      suint_t const c_hat = scale(upper, lower, n_bits, m);
+      decimal.mantissa = c_hat / 2;
+      if (c_hat % 2 == 1)
+        decimal.mantissa += decimal.mantissa % 2 == 1 ||
+          !(0 > e && e > -mantissa_size - 2 && m % AMARU_POW2(-e) == 0);
+    }
+  }
+  else {
+    m = 2 * m - 3; // = 4 * binary.mantissa - 1
+    suint_t const a_hat    = scale(upper, lower, n_bits, m);
+    bool    const is_exact = binary.exponent > 1 &&
+      decimal.exponent <= large_exponent && a_hat % 4 == 0 &&
+      is_multiple_of_pow5(m, upper, lower, n_bits + e);
+    suint_t const a        = a_hat / 4 + !is_exact;
+    if (b >= a) {
+      suint_t const s = 10 * (b / 10);
+      if (s >= a) {
+        decimal.mantissa  = s;
+        decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
+      }
+      else {
+        m = mantissa2; // = 2 * binary.mantissa
+        suint_t const c_hat = scale(upper, lower, n_bits, m);
+        decimal.mantissa = c_hat / 2;
+        if (decimal.mantissa < a)
+          ++decimal.mantissa;
+        else if (c_hat % 2 == 1)
+          decimal.mantissa += decimal.mantissa % 2 == 1 ||
+            !(e >= -(mantissa_size + 1) && decimal.exponent <= 0);
       }
     }
-//  }
-//  else {
-//    m = 2*m - 3; // = 4*binary.mantissa - 1
-//    suint_t const a4 = scale(upper, lower, n_bits, m);
-//    suint_t const a  = a4/4;
-//    if (b >= a) {
-//      suint_t const c   = 10*(b/10);
-//      shorten           = c >= a;
-//      if (shorten) {
-//        decimal.mantissa  = c;
-//        decimal.exponent += remove_trailing_zeros(&decimal.mantissa);
-//      }
-//    }
-//    if (!shorten) {
-//    }
-//  }
+    else {
+      --decimal.exponent;
+      m = 20 * binary.mantissa;
+      suint_t const c_hat = scale(upper, lower, n_bits, m);
+      decimal.mantissa = c_hat / 2;
+      if (c_hat % 2 == 1)
+        decimal.mantissa += decimal.mantissa % 2 == 1 ||
+          !(e >= -(mantissa_size + 1) && decimal.exponent <= 0);
+    }
+  }
   return decimal;
 }
 
@@ -247,7 +260,7 @@ int main() {
   uint32_t result = 0;
   int32_t  e2     = -149;
   rep_t    binary = { false, e2, 1 };
-//  int32_t  e2     = -10;
+//  int32_t  e2     = 70;
 //  rep_t    binary = { false, e2, AMARU_MANTISSA_MIN}; // AMARU_MANTISSA_MIN
   rep_t    ieee   = amaru_to_ieee(binary);
   fp_t     value  = ieee_to_value(ieee);
@@ -273,9 +286,7 @@ int main() {
         e2 = binary.exponent;
         printf("%d\n", e2);
       }
-      //if (ryu.mantissa != decimal.mantissa || ryu.exponent != decimal.exponent)
-      if ((ryu.mantissa != decimal.mantissa || ryu.exponent != decimal.exponent)
-          && binary.mantissa != AMARU_MANTISSA_MIN)
+      if (ryu.mantissa != decimal.mantissa || ryu.exponent != decimal.exponent)
         printf("%d*2^%d:\t%.7e\t%d %d\t%d %d\n", binary.mantissa, binary.exponent, value, ryu.mantissa, ryu.exponent, decimal.mantissa, decimal.exponent);
     #endif
 

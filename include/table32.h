@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-typedef float    fp_t;
+typedef float fp_t;
 typedef uint32_t suint_t;
 typedef uint64_t duint_t;
 

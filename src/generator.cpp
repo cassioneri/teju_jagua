@@ -126,7 +126,7 @@ struct generator_t {
     std::cout << "  Header...\n";
     append_header (stream);
     std::cout << "  Scalers table...\n";
-    //append_scalers(stream);
+    append_scalers(stream);
   }
 
 private:
@@ -220,7 +220,7 @@ private:
 
     bigint_t   m   = interval.begin;
     bigint_t   val = num.slope*m + num.shift;
-    bigint_t   rem = (den.slope*m + den.shift)%delta;
+    bigint_t   rem = (den.slope*m + den.shift) % delta;
     rational_t max = { val, delta - rem };
 
     for (++m; m < interval.end; ++m) {
@@ -245,30 +245,17 @@ private:
     auto const& delta = coefficient.den;
 
     auto const maximiser1 = [&]() {
-      affine_t   num      = { 2, 1 };
-      affine_t   den      = { 2 * alpha, alpha };
-      interval_t interval = { start_at_1 ? 1 : P2P_, 2*P2P_ };
+      affine_t   num      = { 1, 0 };
+      affine_t   den      = { alpha, 0 };
+      interval_t interval = { start_at_1 ? 1 : 2*P2P_, 4*P2P_ };
       return get_affine_maximiser_linear_search(num, den, delta, interval);
     }();
 
-    auto const maximiser2 = [&]() {
-      affine_t   num      = { 2, 0 };
-      affine_t   den      = { 2 * alpha, 0 };
-      interval_t interval = { start_at_1 ? 1 : P2P_, 2*P2P_};
-      return get_affine_maximiser_linear_search(num, den, delta, interval);
-    }();
+    bigint_t   const m2         = 20 * P2P_;
+    bigint_t   const r2         = m2 * alpha % delta;
+    rational_t const maximiser2 = { m2, delta - r2 };
 
-    auto const maximiser3 = [&]() {
-      bigint_t   const m1   = 4 * P2P_ - 1;
-      bigint_t   const r1   = m1 * alpha % delta;
-      rational_t const max1 = { m1, delta - r1 };
-      bigint_t   const m2   = 20 * P2P_;
-      bigint_t   const r2   = m2 * alpha % delta;
-      rational_t const max2 = { m2, delta - r2 };
-      return std::max(max1, max2);
-    }();
-
-    return std::max(maximiser1, std::max(maximiser2, maximiser3));
+    return std::max(maximiser1, maximiser2);
   }
 
   fast_rational_t

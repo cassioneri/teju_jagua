@@ -6,21 +6,21 @@
 
 int main() {
 
-  double  const log10_2 = std::log(2.0)/std::log(10.0);
-  int64_t const lower   = (uint64_t(1) << 32) * log10_2;
-  int64_t const upper   = lower + 1;
+  auto const log10_2 = std::log(2.0)/std::log(10.0);
+  auto const lower   = __uint128_t((__uint128_t(1) << 64) * log10_2);
+  auto const upper   = lower + 1;
 
-  std::cout << "Multiplier = " << upper << '\n';
+  std::cout << "Multiplier = " << uint64_t(upper) << '\n';
 
   int32_t min = 0;
-  while ((lower * min >> 32 ) == (upper * min >> 32))
+  while ((lower * min >> 64 ) == (upper * min >> 64))
     --min;
   ++min; // Minimum is inclusive.
 
   std::cout << "Minimum    = " << min << '\n';
 
   int32_t max = 0;
-  while ((lower * max >> 32 ) == (upper * max >> 32))
+  while ((lower * max >> 64 ) == (upper * max >> 64))
     ++max;
 
   std::cout << "Valid on [" << min << ", " << max << "[.\n";

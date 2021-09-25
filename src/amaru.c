@@ -172,12 +172,12 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
   suint_t  const upper     = scalers[index].upper;
   suint_t  const lower     = scalers[index].lower;
   uint32_t const n_bits    = scalers[index].n_bits;
-  suint_t  const mantissa2 = 2*binary.mantissa;
+  suint_t  const mantissa2 = 2 * binary.mantissa;
   int32_t  const e         = binary.exponent - decimal.exponent;
 
-  suint_t       m     = mantissa2 + 1; // = 2 * binary.mantissa + 1
-  suint_t const b_hat = scale(upper, lower, n_bits, m);
-  suint_t const b     = b_hat / 2;
+  suint_t        m         = mantissa2 + 1; // = 2 * binary.mantissa + 1
+  suint_t  const b_hat     = scale(upper, lower, n_bits, m);
+  suint_t  const b         = b_hat / 2;
   bool shorten;
 
   if (binary.mantissa != AMARU_MANTISSA_MIN || binary.exponent == exponent_min) {
@@ -188,7 +188,7 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
       bool const is_exact = binary.exponent > 0 &&
         decimal.exponent <= large_exponent && b_hat % 2 == 0 &&
         is_multiple_of_pow5(m, upper, lower, n_bits + e);
-      shorten = !is_exact || binary.mantissa%2 == 0;
+      shorten = !is_exact || binary.mantissa % 2 == 0;
     }
 
     else {

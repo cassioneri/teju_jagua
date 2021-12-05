@@ -15,33 +15,56 @@ using bigint_t = boost::multiprecision::uint256_t;
 
 auto  constexpr fixed_k = uint32_t(0);
 
+/**
+ * \brief Functions of the form f(x) = a * x + b.
+ */
 struct affine_t {
-  bigint_t slope;
-  bigint_t shift;
+  bigint_t a;
+  bigint_t b;
 };
 
+/**
+ * \brief Rational number p / q.
+ */
 struct rational_t {
-  bigint_t num;
-  bigint_t den;
+  bigint_t p;
+  bigint_t q;
   bool operator <(rational_t const& other) const {
-    return num*other.den < den*other.num;
+    return p*other.q < q*other.p;
   }
 };
 
-struct fast_rational_t {
-  bigint_t factor;
-  uint32_t n_bits;
+/**
+ * \brief Fast EAF coefficients.
+ *
+ * For fixed alpha > 0 and delta > 0, we often find U > 0 and k >= 0 such that
+ *     alpha * m / delta = U * m >> k for m in a certain interval.
+ *
+ * This type stores U and lk
+ */
+struct fast_eaf_t {
+  bigint_t U;
+  uint32_t k;
 };
 
+/**
+ * \brief Integer interval [a, b[.
+ */
 struct interval_t {
-  bigint_t begin;
-  bigint_t end;
+  bigint_t a;
+  bigint_t b;
 };
 
+/**
+ * \brief Returns 2^e.
+ */
 bigint_t pow2(uint32_t e) {
   return bigint_t(1) << e;
 }
 
+/**
+ * \brief Returns 5^e.
+ */
 bigint_t pow5(uint32_t e) {
   if (e == 0)
     return 1;
@@ -49,12 +72,35 @@ bigint_t pow5(uint32_t e) {
   return p1 * p1 * (e % 2 == 0 ? 1 : 5);
 }
 
-int32_t log10_pow2(int32_t exponent) {
-  return int32_t(1292913987 * uint64_t(exponent) >> 32);
+/**
+ * \brief Returns log_10(2^e).
+ */
+int32_t log10_pow2(int32_t e) {
+  return int32_t(1292913987 * uint64_t(e) >> 32);
 }
 
+/**
+ * \brief Meta information about the floating point number type of interest.
+ *
+ * More precisely:
+ *
+ * fp_t    : The floating point number type of interest.
+ * suint_t : Unsigned integer type such that sizeof(suint_t) >= sizeof(fp_t).
+ * duint_t : Unsigned integer type such that sizeof(duint_t) >= 2*sizeof(suint_t).
+ */
 struct fp_type_t {
 
+  /**
+   * \brief Constructor.
+   *
+   * \param name       C/C++ name of fp_t (e.g., "float" or "double").
+   * \param suint_name C/C++ name of suint_t (e.g., "uint32_t" or "uint64_t").
+   * \param duint_name C/C++ name of duint_t (e.g., "uint64_t" or "uint128_t").
+   * \param P          Number of mantissa bits.
+   * \param L          Number of exponent bits.
+   * \param E0         Minimum exponent. (As described in Amaru's
+   *                   representation.)
+   */
   fp_type_t(std::string name, std::string suint_name, std::string duint_name,
     uint32_t P, uint32_t L, int32_t E0) :
     name_      {std::move(name)      },
@@ -66,36 +112,58 @@ struct fp_type_t {
     size_      { 1 + L + P           } {
     }
 
+  /**
+   * \brief Returns the C/C++ name of fp_t.
+   */
   std::string const&
   name() const {
     return name_;
   }
 
+  /**
+   * \brief Returns the C/C++ name of suint_t.
+   */
   std::string const&
   suint_name() const {
     return suint_name_;
   }
 
+  /**
+   * \brief Returns the C/C++ name of duint_t.
+   */
   std::string const&
   duint_name() const {
     return duint_name_;
   }
 
+  /**
+   * \brief Returns the number of mantissa bits.
+   */
   uint32_t
   P() const {
     return P_;
   }
 
+  /**
+   * \brief Returns the number of exponent bits.
+   */
   uint32_t
   L() const {
     return L_;
   }
 
+  /**
+   * \brief Returns the minimum exponent. (As described in Amaru's
+   * representation.)
+   */
   int32_t
   E0() const {
     return E0_;
   }
 
+  /**
+   * \brief Returns the size in bits of ft_p.
+   */
   uint32_t
   size() const {
     return size_;
@@ -113,13 +181,27 @@ private:
   uint32_t size_;
 };
 
+/**
+ * \brief Amaru's table generator.
+ */
 struct generator_t {
 
+  /**
+   * \brief Constructor.
+   *
+   * \param fp_type The meta information of the floating point number type
+   *                whose table shall be generated.
+   */
   generator_t(fp_type_t fp_type) :
     fp_type_{std::move(fp_type)},
     P2P_    {pow2(fp_type_.P())} {
   }
 
+  /**
+   * \brief Generates the table.
+   *
+   * \brief stream The output stream to receive the table.
+   */
   void
   generate(std::ostream& stream) const {
     std::cout << "Generating...\n";
@@ -131,6 +213,11 @@ struct generator_t {
 
 private:
 
+  /**
+   * \brief Streams out the table header.
+   *
+   * \brief stream The output stream.
+   */
   void
   append_header(std::ostream& stream) const {
     stream <<
@@ -158,15 +245,20 @@ private:
       "\n";
   }
 
+  /**
+   * \brief Streams out the scalers.
+   *
+   * \brief stream The output stream.
+   */
   void
   append_scalers(std::ostream& stream) const {
 
-    std::cerr << "e2\tf\talpha\tdelta\tnum\tden\tfactor\tn_bits\tcheck\n";
+    std::cerr << "e2\tf\talpha\tdelta\tnum\tden\tfactor\tshift\tcheck\n";
     stream <<
       "static struct {\n"
       "  suint_t  const upper;\n"
       "  suint_t  const lower;\n"
-      "  uint32_t const n_bits;\n"
+      "  uint32_t const shift;\n"
       "} scalers[] = {\n";
 
     auto const E2_max = fp_type_.E0() +
@@ -188,45 +280,45 @@ private:
         start_at_1);
 
       std::cerr <<
-        e2                      << '\t' <<
-        f                       << '\t' <<
-        coefficient.num         << '\t' <<
-        coefficient.den         << '\t' <<
-        maximiser.num           << '\t' <<
-        maximiser.den           << '\t' <<
-        fast_coefficient.factor << '\t' <<
-        fast_coefficient.n_bits << '\t' <<
-        valid                   << '\n';
+        e2                 << '\t' <<
+        f                  << '\t' <<
+        coefficient.p      << '\t' <<
+        coefficient.q      << '\t' <<
+        maximiser.p        << '\t' <<
+        maximiser.q        << '\t' <<
+        fast_coefficient.U << '\t' <<
+        fast_coefficient.k << '\t' <<
+        valid              << '\n';
 
-      auto const high   = static_cast<uint32_t>(fast_coefficient.factor >> 32);
-      auto const low    = static_cast<uint32_t>(fast_coefficient.factor);
-      auto const n_bits = fast_coefficient.n_bits;
+      auto const upper = static_cast<uint32_t>(fast_coefficient.U >> 32);
+      auto const lower   = static_cast<uint32_t>(fast_coefficient.U);
+      auto const shift = fast_coefficient.k;
 
       stream << "  { " <<
         "0x"     << std::hex << std::setw(8) << std::setfill('0') <<
-        high     << ", " <<
+        upper   << ", " <<
         "0x"     << std::hex << std::setw(8) << std::setfill('0') <<
-        low      << ", " <<
+        lower    << ", " <<
         std::dec <<
-        n_bits   << " }, // " <<
+        shift    << " }, // " <<
         e2       << "\n";
     }
     stream << "};\n";
   }
 
   rational_t static
-  get_affine_maximiser_linear_search(affine_t const& num, affine_t const& den,
+  get_primary_maximiser_linear_search(affine_t const& num, affine_t const& den,
     bigint_t const& delta, interval_t const& interval) {
 
-    bigint_t   m   = interval.begin;
-    bigint_t   val = num.slope*m + num.shift;
-    bigint_t   rem = (den.slope*m + den.shift) % delta;
+    bigint_t   m   = interval.a;
+    bigint_t   val = num.a*m + num.b;
+    bigint_t   rem = (den.a*m + den.b) % delta;
     rational_t max = { val, delta - rem };
 
-    for (++m; m < interval.end; ++m) {
+    for (++m; m < interval.b; ++m) {
 
-      val += num.slope;
-      rem += den.slope;
+      val += num.a;
+      rem += den.a;
       while (rem >= delta)
         rem -= delta;
 
@@ -241,14 +333,14 @@ private:
   rational_t
   get_maximiser(rational_t const& coefficient, bool start_at_1 = false) const {
 
-    auto const& alpha = coefficient.num;
-    auto const& delta = coefficient.den;
+    auto const& alpha = coefficient.p;
+    auto const& delta = coefficient.q;
 
     auto const maximiser1 = [&]() {
       affine_t   num      = { 1, 0 };
       affine_t   den      = { alpha, 0 };
       interval_t interval = { start_at_1 ? 1 : 2*P2P_, 4*P2P_ };
-      return get_affine_maximiser_linear_search(num, den, delta, interval);
+      return get_primary_maximiser_linear_search(num, den, delta, interval);
     }();
 
     bigint_t   const m2         = 20 * P2P_;
@@ -258,12 +350,12 @@ private:
     return std::max(maximiser1, maximiser2);
   }
 
-  fast_rational_t
+  fast_eaf_t
   get_fast_coefficient(rational_t const& coefficient,
     rational_t const& maximiser, uint32_t /*fixed_k*/ = 0) const {
 
-    bigint_t const& num = coefficient.num;
-    bigint_t const& den = coefficient.den;
+    bigint_t const& num = coefficient.p;
+    bigint_t const& den = coefficient.q;
 
     uint32_t k    = 0;
     bigint_t pow2 = 1; // 2^k
@@ -289,13 +381,13 @@ private:
   }
 
   bool
-  check(rational_t const& coefficient, fast_rational_t const& fast_coefficient,
+  check(rational_t const& coefficient, fast_eaf_t const& fast_coefficient,
     bool start_at_1 = false) const {
 
-    auto const& alpha  = coefficient.num;
-    auto const& delta  = coefficient.den;
-    auto const& factor = fast_coefficient.factor;
-    auto const& n_bits = fast_coefficient.n_bits;
+    auto const& alpha  = coefficient.p;
+    auto const& delta  = coefficient.q;
+    auto const& factor = fast_coefficient.U;
+    auto const& n_bits = fast_coefficient.k;
 
     for (bigint_t m2 = start_at_1 ? 1 : P2P_; m2 < 2 * P2P_; ++m2) {
 

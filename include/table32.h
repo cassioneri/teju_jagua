@@ -23,7 +23,7 @@ enum {
 static struct {
   suint_t  const upper;
   suint_t  const lower;
-  uint32_t const n_bits;
+  uint32_t const shift;
 } scalers[] = {
   { 0x0000b35d, 0xbf821ae5, 47 }, // -149
   { 0x0000b35d, 0xbf821ae5, 46 }, // -148

@@ -171,7 +171,7 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
   uint32_t const index     = binary.exponent - exponent_min;
   suint_t  const upper     = scalers[index].upper;
   suint_t  const lower     = scalers[index].lower;
-  uint32_t const n_bits    = scalers[index].n_bits;
+  uint32_t const n_bits    = scalers[index].shift;
   suint_t  const mantissa2 = 2 * binary.mantissa;
   int32_t  const e         = binary.exponent - decimal.exponent;
 

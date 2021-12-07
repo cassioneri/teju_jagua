@@ -302,6 +302,9 @@ private:
   get_primary_maximiser_linear(bigint_t const& alpha, bigint_t const& delta,
     bigint_t const& a, bigint_t const& b) {
 
+    if (alpha == 0)
+      return rational_t{b - 1, delta};
+
     bigint_t   m   = a;
     bigint_t   n   = alpha * m % delta;
     rational_t max = { m, delta - n };
@@ -320,6 +323,50 @@ private:
     return max;
   }
 
+  rational_t static
+  get_secondary_maximiser_linear(bigint_t const& alpha, bigint_t const& delta,
+    bigint_t const& a, bigint_t const& b) {
+
+    bigint_t   q   = a;
+    bigint_t   n   = (alpha * q - 1 ) % delta;
+    rational_t max = { q, 1 + n };
+
+    for (++q; q < b; ++q) {
+
+      n += alpha;
+      if (n >= delta)
+        n -= delta;
+
+      rational_t new_maximiser{ q, 1 + n };
+      if (max < new_maximiser)
+        max = std::move(new_maximiser);
+    }
+
+    return max;
+  }
+
+  rational_t static
+  get_primary_maximiser_logarithmic(bigint_t const& alpha, bigint_t const& delta,
+    bigint_t const& a, bigint_t const& b) {
+
+    if (alpha == 0)
+      return rational_t{b - 1, delta};
+
+    auto const  bm1    = b - 1;
+    auto const  alpha1 = delta % alpha;
+    auto const& delta1 = alpha;
+    auto const  a1     = alpha * a / delta + 1;
+    auto const  b1     = alpha * bm1 / delta;
+
+    auto const secondary  = get_secondary_maximiser_linear(alpha1, delta1, a1, b1);
+    auto const maximiser1 = rational_t{delta * secondary.p - secondary.q,
+      delta1 * secondary.q};
+
+    rational_t const maximiser2 = {bm1, delta - alpha * bm1 % delta};
+
+    return std::max(maximiser1, maximiser2);
+  }
+
   rational_t
   get_maximiser(rational_t const& coefficient, bool start_at_1 = false) const {
 
@@ -328,7 +375,7 @@ private:
 
     bigint_t const a      = start_at_1 ? 1 : 2 * P2P_;
     bigint_t const b      = 4 * P2P_;
-    auto const maximiser1 = get_primary_maximiser_linear(alpha, delta, a, b);
+    auto const maximiser1 = get_primary_maximiser_logarithmic(alpha, delta, a, b);
 
     bigint_t   const m2         = 20 * P2P_;
     bigint_t   const r2         = m2 * alpha % delta;

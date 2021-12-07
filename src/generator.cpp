@@ -253,7 +253,7 @@ private:
   void
   append_scalers(std::ostream& stream) const {
 
-    std::cerr << "e2\tf\talpha\tdelta\tnum\tden\tfactor\tshift\tcheck\n";
+    std::cerr << "e2\tf\talpha\tdelta\tnum\tden\tfactor\tshift\n";
     stream <<
       "static struct {\n"
       "  suint_t  const upper;\n"
@@ -277,8 +277,6 @@ private:
       auto const maximiser        = get_maximiser(coefficient, start_at_1);
       auto const fast_coefficient = get_fast_coefficient(coefficient, maximiser,
         fixed_k);
-      auto const valid            = check(coefficient, fast_coefficient,
-        start_at_1);
 
       std::cerr <<
         e2                 << '\t' <<
@@ -288,8 +286,7 @@ private:
         maximiser.p        << '\t' <<
         maximiser.q        << '\t' <<
         fast_coefficient.U << '\t' <<
-        fast_coefficient.k << '\t' <<
-        valid              << '\n';
+        fast_coefficient.k << '\n';
 
       auto const upper = static_cast<uint32_t>(fast_coefficient.U >> 32);
       auto const lower   = static_cast<uint32_t>(fast_coefficient.U);
@@ -308,55 +305,8 @@ private:
   }
 
   rational_t static
-  get_primary_maximiser_linear(bigint_t const& alpha, bigint_t const& delta,
-    bigint_t const& a, bigint_t const& b) {
-
-    if (alpha == 0)
-      return rational_t{b - 1, delta};
-
-    bigint_t   m   = a;
-    bigint_t   n   = alpha * m % delta;
-    rational_t max = { m, delta - n };
-
-    for (++m; m < b; ++m) {
-
-      n += alpha;
-      if (n >= delta)
-        n -= delta;
-
-      rational_t new_maximiser{ m, delta - n };
-      if (max < new_maximiser)
-        max = std::move(new_maximiser);
-    }
-
-    return max;
-  }
-
-  rational_t static
-  get_secondary_maximiser_linear(bigint_t const& alpha, bigint_t const& delta,
-    bigint_t const& a, bigint_t const& b) {
-
-    bigint_t   q   = a;
-    bigint_t   n   = (alpha * q - 1 ) % delta;
-    rational_t max = { q, 1 + n };
-
-    for (++q; q < b; ++q) {
-
-      n += alpha;
-      if (n >= delta)
-        n -= delta;
-
-      rational_t new_maximiser{ q, 1 + n };
-      if (max < new_maximiser)
-        max = std::move(new_maximiser);
-    }
-
-    return max;
-  }
-
-  rational_t static
-  get_primary_maximiser_logarithmic(bigint_t alpha, bigint_t const& delta,
-    bigint_t const& a, bigint_t const& b) {
+  get_maximiser(bigint_t alpha, bigint_t const& delta, bigint_t const& a,
+    bigint_t const& b) {
 
     static int level = 0;
     ++level;
@@ -382,8 +332,7 @@ private:
 
     auto const& delta1 = alpha;
     auto const  alpha1 = delta1 - delta % delta1;
-    auto const  phi_1  = get_primary_maximiser_logarithmic(alpha1, delta1,
-      a1, b1);
+    auto const  phi_1  = get_maximiser(alpha1, delta1, a1, b1);
 
     auto maximizer = rational_t{delta * phi_1.p - phi_1.q, delta1 * phi_1.q};
 
@@ -398,7 +347,7 @@ private:
 
     bigint_t const a      = start_at_1 ? 1 : 2 * P2P_;
     bigint_t const b      = 4 * P2P_;
-    auto const maximiser1 = get_primary_maximiser_logarithmic(alpha, delta, a, b);
+    auto const maximiser1 = get_maximiser(alpha, delta, a, b);
 
     bigint_t   const m2         = 20 * P2P_;
     bigint_t   const r2         = m2 * alpha % delta;
@@ -437,28 +386,6 @@ private:
     return { 0, 0 }; // Failed.
   }
 
-  bool
-  check(rational_t const& coefficient, fast_eaf_t const& fast_coefficient,
-    bool start_at_1 = false) const {
-
-//    auto const& alpha  = coefficient.p;
-//    auto const& delta  = coefficient.q;
-//    auto const& factor = fast_coefficient.U;
-//    auto const& n_bits = fast_coefficient.k;
-//
-//    for (bigint_t m2 = start_at_1 ? 1 : P2P_; m2 < 2 * P2P_; ++m2) {
-//
-//      auto const m = 2 * m2 - 1;
-//      if (m * alpha / delta != m * factor >> n_bits)
-//        return false;
-//
-//      auto const x = 2 * m2;
-//      if (x * alpha / delta != x * factor >> n_bits)
-//        return false;
-//    }
-    return true;
-  }
-
   fp_type_t fp_type_;
   bigint_t  P2P_;
 };
@@ -473,6 +400,8 @@ int main() {
     /* L          */ 8,
     /* E0         */ -149
   };
+  auto generator = generator_t{float_config};
+  auto stream    = std::ofstream{"./include/table32.h"};
 
 //  auto double_config   = fp_type_t{
 //    /* name       */ "double",
@@ -482,8 +411,8 @@ int main() {
 //    /* L          */ 11,
 //    /* E0         */ -1074
 //  };
+//  auto generator = generator_t{double_config};
+//  auto stream    = std::ofstream{"./include/table64.h"};
 
-  auto generator = generator_t{float_config};
-  auto stream    = std::ofstream{"./include/table32.h"};
   generator.generate(stream);
 }

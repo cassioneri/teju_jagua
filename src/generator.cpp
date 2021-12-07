@@ -288,7 +288,7 @@ private:
 
       stream << "  { " <<
         "0x"     << std::hex << std::setw(8) << std::setfill('0') <<
-        upper   << ", " <<
+        upper    << ", " <<
         "0x"     << std::hex << std::setw(8) << std::setfill('0') <<
         lower    << ", " <<
         std::dec <<
@@ -299,22 +299,20 @@ private:
   }
 
   rational_t static
-  get_primary_maximiser_linear(bigint_t alpha, bigint_t const& delta,
+  get_primary_maximiser_linear(bigint_t const& alpha, bigint_t const& delta,
     bigint_t const& a, bigint_t const& b) {
 
-    alpha = alpha % delta;
     bigint_t   m   = a;
-    bigint_t   n   = delta - alpha * m % delta;
-    rational_t max = { m, n };
+    bigint_t   n   = alpha * m % delta;
+    rational_t max = { m, delta - n };
 
     for (++m; m < b; ++m) {
 
-      if (n > alpha)
-        n -= alpha;
-      else
-        n += delta - alpha;
+      n += alpha;
+      if (n >= delta)
+        n -= delta;
 
-      rational_t new_maximiser{ m, n };
+      rational_t new_maximiser{ m, delta - n };
       if (max < new_maximiser)
         max = std::move(new_maximiser);
     }
@@ -325,14 +323,12 @@ private:
   rational_t
   get_maximiser(rational_t const& coefficient, bool start_at_1 = false) const {
 
-    auto const& alpha = coefficient.p;
     auto const& delta = coefficient.q;
+    auto const  alpha = coefficient.p % delta;
 
-    auto const maximiser1 = [&]() {
-      bigint_t const a = start_at_1 ? 1 : 2 * P2P_;
-      bigint_t const b = 4 * P2P_;
-      return get_primary_maximiser_linear(alpha, delta, a, b);
-    }();
+    bigint_t const a      = start_at_1 ? 1 : 2 * P2P_;
+    bigint_t const b      = 4 * P2P_;
+    auto const maximiser1 = get_primary_maximiser_linear(alpha, delta, a, b);
 
     bigint_t   const m2         = 20 * P2P_;
     bigint_t   const r2         = m2 * alpha % delta;

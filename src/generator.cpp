@@ -19,11 +19,19 @@ auto constexpr fixed_k = uint32_t(0);
  * \brief Rational number p / q.
  */
 struct rational_t {
-  bigint_t p;
-  bigint_t q;
+
+  rational_t(bigint_t p, bigint_t q) : p(std::move(p)), q(std::move(q)) {
+    auto const x = gcd(this->p, this->q);
+    this->p /= x;
+    this->q /= x;
+  }
+
   bool operator <(rational_t const& other) const {
     return p * other.q < q * other.p;
   }
+
+  bigint_t p;
+  bigint_t q;
 };
 
 /**
@@ -256,6 +264,7 @@ private:
     auto const E2_max = fp_type_.E0() +
       int32_t(uint32_t(1) << fp_type_.L()) - 2;
 
+    //int32_t e2 = -24; {
     for (int32_t e2 = fp_type_.E0(); e2 < E2_max; ++e2) {
 
       auto const f           = log10_pow2(e2);
@@ -346,25 +355,39 @@ private:
   }
 
   rational_t static
-  get_primary_maximiser_logarithmic(bigint_t const& alpha, bigint_t const& delta,
+  get_primary_maximiser_logarithmic(bigint_t alpha, bigint_t const& delta,
     bigint_t const& a, bigint_t const& b) {
 
+    static int level = 0;
+    ++level;
+
+    auto const b_minus_1 = b - 1;
+    auto const phi_0     = rational_t{b_minus_1,
+      delta - alpha * b_minus_1 % delta};
+
+    if (a == b_minus_1)
+      return --level, phi_0;
+
+    if (alpha >= delta)
+      alpha = alpha % delta;
+
     if (alpha == 0)
-      return rational_t{b - 1, delta};
+      return --level, rational_t{b_minus_1, delta};
 
-    auto const  bm1    = b - 1;
-    auto const  alpha1 = delta % alpha;
+    auto const  a1 = alpha * a / delta + 1;
+    auto const  b1 = alpha * b_minus_1 / delta + 1;
+
+    if (a1 == b1)
+      return --level, phi_0;
+
     auto const& delta1 = alpha;
-    auto const  a1     = alpha * a / delta + 1;
-    auto const  b1     = alpha * bm1 / delta;
+    auto const  alpha1 = delta1 - delta % delta1;
+    auto const  phi_1  = get_primary_maximiser_logarithmic(alpha1, delta1,
+      a1, b1);
 
-    auto const secondary  = get_secondary_maximiser_linear(alpha1, delta1, a1, b1);
-    auto const maximiser1 = rational_t{delta * secondary.p - secondary.q,
-      delta1 * secondary.q};
+    auto maximizer = rational_t{delta * phi_1.p - phi_1.q, delta1 * phi_1.q};
 
-    rational_t const maximiser2 = {bm1, delta - alpha * bm1 % delta};
-
-    return std::max(maximiser1, maximiser2);
+    return std::max(maximizer, phi_0);
   }
 
   rational_t
@@ -418,21 +441,21 @@ private:
   check(rational_t const& coefficient, fast_eaf_t const& fast_coefficient,
     bool start_at_1 = false) const {
 
-    auto const& alpha  = coefficient.p;
-    auto const& delta  = coefficient.q;
-    auto const& factor = fast_coefficient.U;
-    auto const& n_bits = fast_coefficient.k;
-
-    for (bigint_t m2 = start_at_1 ? 1 : P2P_; m2 < 2 * P2P_; ++m2) {
-
-      auto const m = 2 * m2 - 1;
-      if (m * alpha / delta != m * factor >> n_bits)
-        return false;
-
-      auto const x = 2 * m2;
-      if (x * alpha / delta != x * factor >> n_bits)
-        return false;
-    }
+//    auto const& alpha  = coefficient.p;
+//    auto const& delta  = coefficient.q;
+//    auto const& factor = fast_coefficient.U;
+//    auto const& n_bits = fast_coefficient.k;
+//
+//    for (bigint_t m2 = start_at_1 ? 1 : P2P_; m2 < 2 * P2P_; ++m2) {
+//
+//      auto const m = 2 * m2 - 1;
+//      if (m * alpha / delta != m * factor >> n_bits)
+//        return false;
+//
+//      auto const x = 2 * m2;
+//      if (x * alpha / delta != x * factor >> n_bits)
+//        return false;
+//    }
     return true;
   }
 

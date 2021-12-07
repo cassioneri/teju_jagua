@@ -1,4 +1,4 @@
-// g++ -O3 -std=c++11 src/generator.cpp -o generator -Wall -Wextra
+// g++ -O3 -std=c++11 src/generator.cpp -o generator -Wall -Wextra -lgmp
 
 #include <algorithm>
 #include <climits>
@@ -264,7 +264,6 @@ private:
     auto const E2_max = fp_type_.E0() +
       int32_t(uint32_t(1) << fp_type_.L()) - 2;
 
-    //int32_t e2 = -24; {
     for (int32_t e2 = fp_type_.E0(); e2 < E2_max; ++e2) {
 
       auto const f           = log10_pow2(e2);
@@ -308,27 +307,29 @@ private:
   get_maximiser(bigint_t alpha, bigint_t const& delta, bigint_t const& a,
     bigint_t const& b) {
 
-    static int level = 0;
-    ++level;
+//    std::cerr << "alpha = " << alpha << '\n';
+//    std::cerr << "delta = " << delta << '\n';
+//    std::cerr << "a     = " << a     << '\n';
+//    std::cerr << "b     = " << b     << '\n';
 
     auto const b_minus_1 = b - 1;
     auto const phi_0     = rational_t{b_minus_1,
       delta - alpha * b_minus_1 % delta};
 
     if (a == b_minus_1)
-      return --level, phi_0;
+      return phi_0;
 
     if (alpha >= delta)
       alpha = alpha % delta;
 
     if (alpha == 0)
-      return --level, rational_t{b_minus_1, delta};
+      return rational_t{b_minus_1, delta};
 
     auto const  a1 = alpha * a / delta + 1;
     auto const  b1 = alpha * b_minus_1 / delta + 1;
 
     if (a1 == b1)
-      return --level, phi_0;
+      return phi_0;
 
     auto const& delta1 = alpha;
     auto const  alpha1 = delta1 - delta % delta1;
@@ -345,7 +346,7 @@ private:
     auto const& delta = coefficient.q;
     auto const  alpha = coefficient.p % delta;
 
-    bigint_t const a      = start_at_1 ? 1 : 2 * P2P_;
+    bigint_t const a      = start_at_1 ? bigint_t(1) : 2 * P2P_;
     bigint_t const b      = 4 * P2P_;
     auto const maximiser1 = get_maximiser(alpha, delta, a, b);
 

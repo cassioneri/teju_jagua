@@ -13,15 +13,7 @@
 
 using bigint_t = boost::multiprecision::uint256_t;
 
-auto  constexpr fixed_k = uint32_t(0);
-
-/**
- * \brief Functions of the form f(x) = a * x + b.
- */
-struct affine_t {
-  bigint_t a;
-  bigint_t b;
-};
+auto constexpr fixed_k = uint32_t(0);
 
 /**
  * \brief Rational number p / q.
@@ -30,7 +22,7 @@ struct rational_t {
   bigint_t p;
   bigint_t q;
   bool operator <(rational_t const& other) const {
-    return p*other.q < q*other.p;
+    return p * other.q < q * other.p;
   }
 };
 
@@ -307,22 +299,22 @@ private:
   }
 
   rational_t static
-  get_primary_maximiser_linear_search(affine_t const& num, affine_t const& den,
-    bigint_t const& delta, interval_t const& interval) {
+  get_primary_maximiser_linear(bigint_t alpha, bigint_t const& delta,
+    bigint_t const& a, bigint_t const& b) {
 
-    bigint_t   m   = interval.a;
-    bigint_t   val = num.a*m + num.b;
-    bigint_t   rem = (den.a*m + den.b) % delta;
-    rational_t max = { val, delta - rem };
+    alpha = alpha % delta;
+    bigint_t   m   = a;
+    bigint_t   n   = delta - alpha * m % delta;
+    rational_t max = { m, n };
 
-    for (++m; m < interval.b; ++m) {
+    for (++m; m < b; ++m) {
 
-      val += num.a;
-      rem += den.a;
-      while (rem >= delta)
-        rem -= delta;
+      if (n > alpha)
+        n -= alpha;
+      else
+        n += delta - alpha;
 
-      rational_t new_maximiser{ val, delta - rem };
+      rational_t new_maximiser{ m, n };
       if (max < new_maximiser)
         max = std::move(new_maximiser);
     }
@@ -337,10 +329,9 @@ private:
     auto const& delta = coefficient.q;
 
     auto const maximiser1 = [&]() {
-      affine_t   num      = { 1, 0 };
-      affine_t   den      = { alpha, 0 };
-      interval_t interval = { start_at_1 ? 1 : 2*P2P_, 4*P2P_ };
-      return get_primary_maximiser_linear_search(num, den, delta, interval);
+      bigint_t const a = start_at_1 ? 1 : 2 * P2P_;
+      bigint_t const b = 4 * P2P_;
+      return get_primary_maximiser_linear(alpha, delta, a, b);
     }();
 
     bigint_t   const m2         = 20 * P2P_;

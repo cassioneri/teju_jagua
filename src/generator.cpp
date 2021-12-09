@@ -1,4 +1,4 @@
-// g++ -O3 -std=c++11 src/generator.cpp -o generator -Wall -Wextra -lgmp
+// g++ -O3 -std=c++11 src/generator.cpp -o generator -Wall -Wextra
 
 #include <algorithm>
 #include <climits>
@@ -11,7 +11,7 @@
 
 #include <boost/multiprecision/cpp_int.hpp>
 
-using bigint_t = boost::multiprecision::uint256_t;
+using bigint_t = boost::multiprecision::cpp_int;
 
 auto constexpr fixed_k = uint32_t(0);
 
@@ -21,7 +21,8 @@ auto constexpr fixed_k = uint32_t(0);
 struct rational_t {
 
   rational_t(bigint_t p, bigint_t q) : p(std::move(p)), q(std::move(q)) {
-    auto const x = gcd(this->p, this->q);
+    // Can't use auto here!
+    bigint_t const x = gcd(this->p, this->q);
     this->p /= x;
     this->q /= x;
   }
@@ -40,7 +41,7 @@ struct rational_t {
  * For fixed alpha > 0 and delta > 0, we often find U > 0 and k >= 0 such that
  *     alpha * m / delta = U * m >> k for m in a certain interval.
  *
- * This type stores U and lk
+ * This type stores U and k
  */
 struct fast_eaf_t {
   bigint_t U;
@@ -307,12 +308,8 @@ private:
   get_maximiser(bigint_t alpha, bigint_t const& delta, bigint_t const& a,
     bigint_t const& b) {
 
-//    std::cerr << "alpha = " << alpha << '\n';
-//    std::cerr << "delta = " << delta << '\n';
-//    std::cerr << "a     = " << a     << '\n';
-//    std::cerr << "b     = " << b     << '\n';
-
     auto const b_minus_1 = b - 1;
+
     auto const phi_0     = rational_t{b_minus_1,
       delta - alpha * b_minus_1 % delta};
 

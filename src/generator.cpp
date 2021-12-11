@@ -11,7 +11,7 @@
 #include <fstream>
 #include <string>
 
-using integer_t   = boost::multiprecision::cpp_int;
+using integer_t  = boost::multiprecision::cpp_int;
 using rational_t = boost::multiprecision::cpp_rational;
 
 auto constexpr fixed_k = uint32_t{0};
@@ -26,7 +26,7 @@ auto constexpr fixed_k = uint32_t{0};
  */
 struct fast_eaf_t {
   integer_t U;
-  uint32_t k;
+  uint32_t  k;
 };
 
 /**
@@ -239,7 +239,7 @@ private:
     auto const E2_max = fp_type_.exponent_min() +
       int32_t(uint32_t{1} << fp_type_.exponent_size()) - 2;
 
-    for (int32_t e2 = fp_type_.exponent_min(); e2 < E2_max; ++e2) {
+    for (auto e2 = fp_type_.exponent_min(); e2 < E2_max; ++e2) {
 
       auto const f          = log10_pow2(e2);
       auto const e          = e2 - f;
@@ -357,7 +357,7 @@ private:
   }
 
   fp_type_t fp_type_;
-  integer_t  P2P_;
+  integer_t P2P_;
 };
 
 int main() {

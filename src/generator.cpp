@@ -49,14 +49,6 @@ struct fast_eaf_t {
 };
 
 /**
- * \brief Integer interval [a, b[.
- */
-struct interval_t {
-  bigint_t a;
-  bigint_t b;
-};
-
-/**
  * \brief Returns 2^e.
  */
 bigint_t pow2(uint32_t e) {

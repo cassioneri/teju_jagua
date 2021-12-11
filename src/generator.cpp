@@ -94,23 +94,25 @@ struct fp_type_t {
   /**
    * \brief Constructor.
    *
-   * \param name       C/C++ name of fp_t (e.g., "float" or "double").
-   * \param suint_name C/C++ name of suint_t (e.g., "uint32_t" or "uint64_t").
-   * \param duint_name C/C++ name of duint_t (e.g., "uint64_t" or "uint128_t").
-   * \param P          Number of mantissa bits.
-   * \param L          Number of exponent bits.
-   * \param E0         Minimum exponent. (As described in Amaru's
-   *                   representation.)
+   * \param name            C/C++ name of fp_t (e.g., "float" or "double").
+   * \param suint_name      C/C++ name of suint_t (e.g., "uint32_t" or
+   *                        "uint64_t").
+   * \param duint_name      C/C++ name of duint_t (e.g., "uint64_t" or
+   *                        "uint128_t").
+   * \param mantissa_size   Size of mantissa in bits.
+   * \param exponent_size   Size of exponent in bits.
+   * \param exponent_min    Minimum exponent. (As described in Amaru's
+   *                        representation.)
    */
   fp_type_t(std::string name, std::string suint_name, std::string duint_name,
-    uint32_t P, uint32_t L, int32_t E0) :
-    name_      {std::move(name)      },
-    suint_name_{std::move(suint_name)},
-    duint_name_{std::move(duint_name)},
-    P_         {P                    },
-    L_         {L                    },
-    E0_        {E0                   },
-    size_      { 1 + L + P           } {
+    uint32_t mantissa_size, uint32_t exponent_size, int32_t exponent_min) :
+    name_         {std::move(name)                   },
+    suint_name_   {std::move(suint_name)             },
+    duint_name_   {std::move(duint_name)             },
+    mantissa_size_{mantissa_size                     },
+    exponent_size_{exponent_size                     },
+    exponent_min_ {exponent_min                      },
+    size_         { 1 + exponent_size + mantissa_size} {
     }
 
   /**
@@ -138,19 +140,19 @@ struct fp_type_t {
   }
 
   /**
-   * \brief Returns the number of mantissa bits.
+   * \brief Returns the size of mantissa in bits.
    */
   uint32_t
-  P() const {
-    return P_;
+  mantissa_size() const {
+    return mantissa_size_;
   }
 
   /**
-   * \brief Returns the number of exponent bits.
+   * \brief Returns size of exponent in bits.
    */
   uint32_t
-  L() const {
-    return L_;
+  exponent_size() const {
+    return exponent_size_;
   }
 
   /**
@@ -158,12 +160,12 @@ struct fp_type_t {
    * representation.)
    */
   int32_t
-  E0() const {
-    return E0_;
+  exponent_min() const {
+    return exponent_min_;
   }
 
   /**
-   * \brief Returns the size in bits of ft_p.
+   * \brief Returns the size of ft_p in bits.
    */
   uint32_t
   size() const {
@@ -172,14 +174,13 @@ struct fp_type_t {
 
 private:
 
-  std::string name_;
-  std::string suint_name_;
-  std::string duint_name_;
-
-  uint32_t P_;
-  uint32_t L_;
-  int32_t  E0_;
-  uint32_t size_;
+  std::string const name_;
+  std::string const suint_name_;
+  std::string const duint_name_;
+  uint32_t    const mantissa_size_;
+  uint32_t    const exponent_size_;
+  int32_t     const exponent_min_;
+  uint32_t    const size_;
 };
 
 /**
@@ -195,7 +196,7 @@ struct generator_t {
    */
   generator_t(fp_type_t fp_type) :
     fp_type_{std::move(fp_type)},
-    P2P_    {pow2(fp_type_.P())} {
+    P2P_    {pow2(fp_type_.mantissa_size())} {
   }
 
   /**
@@ -237,11 +238,11 @@ private:
       "} rep_t;\n"
       "\n"
       "enum {\n"
-      "  exponent_size  = " << fp_type_.L() << ",\n"
-      "  mantissa_size  = " << fp_type_.P() << ",\n"
+      "  exponent_size  = " << fp_type_.exponent_size() << ",\n"
+      "  mantissa_size  = " << fp_type_.mantissa_size() << ",\n"
       "  large_exponent = 10,\n" // LOG5_POW2(mantissa_size + 2)"
       "  word_size      = " << fp_type_.size() << ",\n"
-      "  exponent_min   = " << fp_type_.E0()   << "\n"
+      "  exponent_min   = " << fp_type_.exponent_min()   << "\n"
       "};\n"
       "\n";
   }
@@ -262,10 +263,10 @@ private:
       "  uint32_t const shift;\n"
       "} scalers[] = {\n";
 
-    auto const E2_max = fp_type_.E0() +
-      int32_t(uint32_t(1) << fp_type_.L()) - 2;
+    auto const E2_max = fp_type_.exponent_min() +
+      int32_t(uint32_t(1) << fp_type_.exponent_size()) - 2;
 
-    for (int32_t e2 = fp_type_.E0(); e2 < E2_max; ++e2) {
+    for (int32_t e2 = fp_type_.exponent_min(); e2 < E2_max; ++e2) {
 
       auto const f           = log10_pow2(e2);
       auto const e           = e2 - f;
@@ -273,7 +274,7 @@ private:
          ? rational_t{ pow2( e), pow5( f) }
          : rational_t{ pow5(-f), pow2(-e) };
 
-      auto const start_at_1       = e2 == fp_type_.E0();
+      auto const start_at_1       = e2 == fp_type_.exponent_min();
       auto const maximiser        = get_maximiser(coefficient, start_at_1);
       auto const fast_coefficient = get_fast_coefficient(coefficient, maximiser,
         fixed_k);
@@ -391,23 +392,23 @@ private:
 int main() {
 
   auto float_config = fp_type_t{
-    /* name       */ "float",
-    /* suint_name */ "uint32_t",
-    /* suint_name */ "uint64_t",
-    /* P          */ 23,
-    /* L          */ 8,
-    /* E0         */ -149
+    /* name          */ "float",
+    /* suint_name    */ "uint32_t",
+    /* suint_name    */ "uint64_t",
+    /* mantissa_size */ 23,
+    /* exponent_size */ 8,
+    /* exponent_min  */ -149
   };
   auto generator = generator_t{float_config};
   auto stream    = std::ofstream{"./include/table32.h"};
 
 //  auto double_config   = fp_type_t{
-//    /* name       */ "double",
-//    /* suint_name */ "uint64_t",
-//    /* suint_name */ "__uint128_t",
-//    /* P          */ 52,
-//    /* L          */ 11,
-//    /* E0         */ -1074
+//    /* name          */ "double",
+//    /* suint_name    */ "uint64_t",
+//    /* suint_name    */ "__uint128_t",
+//    /* mantissa_size */ 52,
+//    /* exponent_size */ 11,
+//    /* exponent_min  */ -1074
 //  };
 //  auto generator = generator_t{double_config};
 //  auto stream    = std::ofstream{"./include/table64.h"};

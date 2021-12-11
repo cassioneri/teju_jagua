@@ -11,7 +11,7 @@
 #include <fstream>
 #include <string>
 
-using bigint_t   = boost::multiprecision::cpp_int;
+using integer_t   = boost::multiprecision::cpp_int;
 using rational_t = boost::multiprecision::cpp_rational;
 
 auto constexpr fixed_k = uint32_t{0};
@@ -25,21 +25,21 @@ auto constexpr fixed_k = uint32_t{0};
  * This type stores U and k.
  */
 struct fast_eaf_t {
-  bigint_t U;
+  integer_t U;
   uint32_t k;
 };
 
 /**
  * \brief Returns 2^e.
  */
-bigint_t pow2(uint32_t e) {
-  return bigint_t{1} << e;
+integer_t pow2(uint32_t e) {
+  return integer_t{1} << e;
 }
 
 /**
  * \brief Returns 5^e.
  */
-bigint_t pow5(uint32_t e) {
+integer_t pow5(uint32_t e) {
   if (e == 0)
     return 1;
   auto const p1 = pow5(e / 2);
@@ -278,8 +278,8 @@ private:
   }
 
   rational_t static
-  get_maximum(bigint_t alpha, bigint_t const& delta, bigint_t const& a,
-    bigint_t const& b) {
+  get_maximum(integer_t alpha, integer_t const& delta, integer_t const& a,
+    integer_t const& b) {
 
     auto const b_minus_1 = b - 1;
 
@@ -313,12 +313,12 @@ private:
   }
 
   rational_t
-  get_maximum(bigint_t alpha, bigint_t const& delta, bool start_at_1 = false)
+  get_maximum(integer_t alpha, integer_t const& delta, bool start_at_1 = false)
     const {
 
     alpha               %= delta;
 
-    auto const a        = start_at_1 ? bigint_t{1} : 2 * P2P_;
+    auto const a        = start_at_1 ? integer_t{1} : 2 * P2P_;
     auto const b        = 4 * P2P_;
     auto const maximum1 = get_maximum(alpha, delta, a, b);
 
@@ -330,13 +330,13 @@ private:
   }
 
   fast_eaf_t
-  get_fast_eaf(bigint_t const& numerator, bigint_t const& denominator,
+  get_fast_eaf(integer_t const& numerator, integer_t const& denominator,
     rational_t const& maximum, uint32_t /*fixed_k*/ = 0) const {
 
     auto k    = uint32_t{0};
-    auto pow2 = bigint_t{1}; // 2^k
-    auto q    = bigint_t{numerator / denominator};
-    auto r    = bigint_t{numerator % denominator};
+    auto pow2 = integer_t{1}; // 2^k
+    auto q    = integer_t{numerator / denominator};
+    auto r    = integer_t{numerator % denominator};
 
     while (k <= 2 * fp_type_.size()) {
 
@@ -357,7 +357,7 @@ private:
   }
 
   fp_type_t fp_type_;
-  bigint_t  P2P_;
+  integer_t  P2P_;
 };
 
 int main() {

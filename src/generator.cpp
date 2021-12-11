@@ -1,5 +1,7 @@
 // g++ -O3 -std=c++11 src/generator.cpp -o generator -Wall -Wextra
 
+#include <boost/multiprecision/cpp_int.hpp>
+
 #include <algorithm>
 #include <climits>
 #include <cstdint>
@@ -9,38 +11,18 @@
 #include <fstream>
 #include <string>
 
-#include <boost/multiprecision/cpp_int.hpp>
+using bigint_t   = boost::multiprecision::cpp_int;
+using rational_t = boost::multiprecision::cpp_rational;
 
-using bigint_t = boost::multiprecision::cpp_int;
-
-auto constexpr fixed_k = uint32_t(0);
-
-/**
- * \brief Rational number p / q.
- */
-struct rational_t {
-
-  rational_t(bigint_t p, bigint_t q) : p(std::move(p)), q(std::move(q)) {
-    auto const x  = bigint_t{gcd(this->p, this->q)};
-    this->p      /= x;
-    this->q      /= x;
-  }
-
-  bool operator <(rational_t const& other) const {
-    return p * other.q < q * other.p;
-  }
-
-  bigint_t p;
-  bigint_t q;
-};
+auto constexpr fixed_k = uint32_t{0};
 
 /**
  * \brief Fast EAF coefficients.
  *
- * For fixed alpha > 0 and delta > 0, we often find U > 0 and k >= 0 such that
+ * For given alpha > 0 and delta > 0, we often find U > 0 and k >= 0 such that
  *     alpha * m / delta = U * m >> k for m in a certain interval.
  *
- * This type stores U and k
+ * This type stores U and k.
  */
 struct fast_eaf_t {
   bigint_t U;
@@ -270,14 +252,14 @@ private:
       auto const fast_eaf   = get_fast_eaf(alpha, delta, maximum, fixed_k);
 
       std::cerr <<
-        e2         << '\t' <<
-        f          << '\t' <<
-        alpha      << '\t' <<
-        delta      << '\t' <<
-        maximum.p  << '\t' <<
-        maximum.q  << '\t' <<
-        fast_eaf.U << '\t' <<
-        fast_eaf.k << '\n';
+        e2                   << '\t' <<
+        f                    << '\t' <<
+        alpha                << '\t' <<
+        delta                << '\t' <<
+        numerator(maximum)   << '\t' <<
+        denominator(maximum) << '\t' <<
+        fast_eaf.U           << '\t' <<
+        fast_eaf.k           << '\n';
 
       auto const upper = static_cast<uint32_t>(fast_eaf.U >> 32);
       auto const lower = static_cast<uint32_t>(fast_eaf.U);
@@ -323,8 +305,9 @@ private:
     auto const  alpha1  = delta1 - delta % delta1;
     auto const  phi_1   = get_maximum(alpha1, delta1, a1, b1);
 
-    auto const  maximum = rational_t{delta * phi_1.p - phi_1.q,
-      delta1 * phi_1.q};
+    auto const  maximum = rational_t{
+      delta * numerator(phi_1) - denominator(phi_1),
+      delta1 * denominator(phi_1)};
 
     return std::max(maximum, phi_0);
   }

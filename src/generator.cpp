@@ -267,18 +267,18 @@ private:
       auto const delta      = f >= 0 ? pow5( f) : pow2(-e);
 
       auto const start_at_1 = e2 == fp_type_.exponent_min();
-      auto const maximiser  = get_maximum(alpha, delta, start_at_1);
-      auto const fast_eaf   = get_fast_eaf(alpha, delta, maximiser, fixed_k);
+      auto const maximum    = get_maximum(alpha, delta, start_at_1);
+      auto const fast_eaf   = get_fast_eaf(alpha, delta, maximum, fixed_k);
 
       std::cerr <<
-        e2          << '\t' <<
-        f           << '\t' <<
-        alpha       << '\t' <<
-        delta       << '\t' <<
-        maximiser.p << '\t' <<
-        maximiser.q << '\t' <<
-        fast_eaf.U  << '\t' <<
-        fast_eaf.k  << '\n';
+        e2         << '\t' <<
+        f          << '\t' <<
+        alpha      << '\t' <<
+        delta      << '\t' <<
+        maximum.p  << '\t' <<
+        maximum.q  << '\t' <<
+        fast_eaf.U << '\t' <<
+        fast_eaf.k << '\n';
 
       auto const upper = static_cast<uint32_t>(fast_eaf.U >> 32);
       auto const lower = static_cast<uint32_t>(fast_eaf.U);

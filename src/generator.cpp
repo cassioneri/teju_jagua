@@ -21,10 +21,9 @@ auto constexpr fixed_k = uint32_t(0);
 struct rational_t {
 
   rational_t(bigint_t p, bigint_t q) : p(std::move(p)), q(std::move(q)) {
-    // Can't use auto here!
-    bigint_t const x = gcd(this->p, this->q);
-    this->p /= x;
-    this->q /= x;
+    auto const x  = bigint_t{gcd(this->p, this->q)};
+    this->p      /= x;
+    this->q      /= x;
   }
 
   bool operator <(rational_t const& other) const {
@@ -52,7 +51,7 @@ struct fast_eaf_t {
  * \brief Returns 2^e.
  */
 bigint_t pow2(uint32_t e) {
-  return bigint_t(1) << e;
+  return bigint_t{1} << e;
 }
 
 /**
@@ -256,7 +255,7 @@ private:
       "} scalers[] = {\n";
 
     auto const E2_max = fp_type_.exponent_min() +
-      int32_t(uint32_t(1) << fp_type_.exponent_size()) - 2;
+      int32_t(uint32_t{1} << fp_type_.exponent_size()) - 2;
 
     for (int32_t e2 = fp_type_.exponent_min(); e2 < E2_max; ++e2) {
 
@@ -320,11 +319,12 @@ private:
     if (a1 == b1)
       return phi_0;
 
-    auto const& delta1 = alpha;
-    auto const  alpha1 = delta1 - delta % delta1;
-    auto const  phi_1  = get_maximum(alpha1, delta1, a1, b1);
+    auto const& delta1  = alpha;
+    auto const  alpha1  = delta1 - delta % delta1;
+    auto const  phi_1   = get_maximum(alpha1, delta1, a1, b1);
 
-    auto maximum = rational_t{delta * phi_1.p - phi_1.q, delta1 * phi_1.q};
+    auto const  maximum = rational_t{delta * phi_1.p - phi_1.q,
+      delta1 * phi_1.q};
 
     return std::max(maximum, phi_0);
   }
@@ -335,38 +335,38 @@ private:
 
     alpha               %= delta;
 
-    auto const a        = start_at_1 ? bigint_t(1) : 2 * P2P_;
+    auto const a        = start_at_1 ? bigint_t{1} : 2 * P2P_;
     auto const b        = 4 * P2P_;
     auto const maximum1 = get_maximum(alpha, delta, a, b);
 
     auto const m2       = 20 * P2P_;
     auto const r2       = m2 * alpha % delta;
-    auto const maximum2 = rational_t{ m2, delta - r2 };
+    auto const maximum2 = rational_t{m2, delta - r2};
 
     return std::max(maximum1, maximum2);
   }
 
   fast_eaf_t
-  get_fast_eaf(bigint_t const& num, bigint_t const& den,
-    rational_t const& maximiser, uint32_t /*fixed_k*/ = 0) const {
+  get_fast_eaf(bigint_t const& numerator, bigint_t const& denominator,
+    rational_t const& maximum, uint32_t /*fixed_k*/ = 0) const {
 
-    uint32_t k    = 0;
-    bigint_t pow2 = 1; // 2^k
-    bigint_t u    = num / den;
-    bigint_t rem  = num % den;
+    auto k    = uint32_t{0};
+    auto pow2 = bigint_t{1}; // 2^k
+    auto q    = bigint_t{numerator / denominator};
+    auto r    = bigint_t{numerator % denominator};
 
-    while (k <= 2*fp_type_.size()) {
+    while (k <= 2 * fp_type_.size()) {
 
-      if (maximiser < rational_t{pow2, den - rem})
-        return { u + 1, k };
+      if (maximum < rational_t{pow2, denominator - r})
+        return { q + 1, k };
 
       k    += 1;
       pow2 *= 2;
-      u    *= 2;
-      rem  *= 2;
-      while (rem >= den) {
-        u   += 1;
-        rem -= den;
+      q    *= 2;
+      r    *= 2;
+      while (r >= denominator) {
+        q += 1;
+        r -= denominator;
       }
     }
 

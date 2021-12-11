@@ -268,30 +268,29 @@ private:
 
     for (int32_t e2 = fp_type_.exponent_min(); e2 < E2_max; ++e2) {
 
-      auto const f           = log10_pow2(e2);
-      auto const e           = e2 - f;
-      auto const coefficient = f >= 0
-         ? rational_t{ pow2( e), pow5( f) }
-         : rational_t{ pow5(-f), pow2(-e) };
+      auto const f          = log10_pow2(e2);
+      auto const e          = e2 - f;
 
-      auto const start_at_1       = e2 == fp_type_.exponent_min();
-      auto const maximiser        = get_maximiser(coefficient, start_at_1);
-      auto const fast_coefficient = get_fast_coefficient(coefficient, maximiser,
-        fixed_k);
+      auto const alpha      = f >= 0 ? pow2( e) : pow5(-f);
+      auto const delta      = f >= 0 ? pow5( f) : pow2(-e);
+
+      auto const start_at_1 = e2 == fp_type_.exponent_min();
+      auto const maximiser  = get_maximum(alpha, delta, start_at_1);
+      auto const fast_eaf   = get_fast_eaf(alpha, delta, maximiser, fixed_k);
 
       std::cerr <<
-        e2                 << '\t' <<
-        f                  << '\t' <<
-        coefficient.p      << '\t' <<
-        coefficient.q      << '\t' <<
-        maximiser.p        << '\t' <<
-        maximiser.q        << '\t' <<
-        fast_coefficient.U << '\t' <<
-        fast_coefficient.k << '\n';
+        e2          << '\t' <<
+        f           << '\t' <<
+        alpha       << '\t' <<
+        delta       << '\t' <<
+        maximiser.p << '\t' <<
+        maximiser.q << '\t' <<
+        fast_eaf.U  << '\t' <<
+        fast_eaf.k  << '\n';
 
-      auto const upper = static_cast<uint32_t>(fast_coefficient.U >> 32);
-      auto const lower   = static_cast<uint32_t>(fast_coefficient.U);
-      auto const shift = fast_coefficient.k;
+      auto const upper = static_cast<uint32_t>(fast_eaf.U >> 32);
+      auto const lower = static_cast<uint32_t>(fast_eaf.U);
+      auto const shift = fast_eaf.k;
 
       stream << "  { " <<
         "0x"     << std::hex << std::setw(8) << std::setfill('0') <<
@@ -306,7 +305,7 @@ private:
   }
 
   rational_t static
-  get_maximiser(bigint_t alpha, bigint_t const& delta, bigint_t const& a,
+  get_maximum(bigint_t alpha, bigint_t const& delta, bigint_t const& a,
     bigint_t const& b) {
 
     auto const b_minus_1 = b - 1;
@@ -323,44 +322,41 @@ private:
     if (alpha == 0)
       return rational_t{b_minus_1, delta};
 
-    auto const  a1 = alpha * a / delta + 1;
-    auto const  b1 = alpha * b_minus_1 / delta + 1;
+    auto const a1 = alpha * a / delta + 1;
+    auto const b1 = alpha * b_minus_1 / delta + 1;
 
     if (a1 == b1)
       return phi_0;
 
     auto const& delta1 = alpha;
     auto const  alpha1 = delta1 - delta % delta1;
-    auto const  phi_1  = get_maximiser(alpha1, delta1, a1, b1);
+    auto const  phi_1  = get_maximum(alpha1, delta1, a1, b1);
 
-    auto maximizer = rational_t{delta * phi_1.p - phi_1.q, delta1 * phi_1.q};
+    auto maximum = rational_t{delta * phi_1.p - phi_1.q, delta1 * phi_1.q};
 
-    return std::max(maximizer, phi_0);
+    return std::max(maximum, phi_0);
   }
 
   rational_t
-  get_maximiser(rational_t const& coefficient, bool start_at_1 = false) const {
+  get_maximum(bigint_t alpha, bigint_t const& delta, bool start_at_1 = false)
+    const {
 
-    auto const& delta = coefficient.q;
-    auto const  alpha = coefficient.p % delta;
+    alpha               %= delta;
 
-    bigint_t const a      = start_at_1 ? bigint_t(1) : 2 * P2P_;
-    bigint_t const b      = 4 * P2P_;
-    auto const maximiser1 = get_maximiser(alpha, delta, a, b);
+    auto const a        = start_at_1 ? bigint_t(1) : 2 * P2P_;
+    auto const b        = 4 * P2P_;
+    auto const maximum1 = get_maximum(alpha, delta, a, b);
 
-    bigint_t   const m2         = 20 * P2P_;
-    bigint_t   const r2         = m2 * alpha % delta;
-    rational_t const maximiser2 = { m2, delta - r2 };
+    auto const m2       = 20 * P2P_;
+    auto const r2       = m2 * alpha % delta;
+    auto const maximum2 = rational_t{ m2, delta - r2 };
 
-    return std::max(maximiser1, maximiser2);
+    return std::max(maximum1, maximum2);
   }
 
   fast_eaf_t
-  get_fast_coefficient(rational_t const& coefficient,
+  get_fast_eaf(bigint_t const& num, bigint_t const& den,
     rational_t const& maximiser, uint32_t /*fixed_k*/ = 0) const {
-
-    bigint_t const& num = coefficient.p;
-    bigint_t const& den = coefficient.q;
 
     uint32_t k    = 0;
     bigint_t pow2 = 1; // 2^k

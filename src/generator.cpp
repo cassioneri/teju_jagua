@@ -6,6 +6,7 @@
 #include <climits>
 #include <cstdint>
 #include <cstdio>
+#include <exception>
 #include <iomanip>
 #include <ios>
 #include <iostream>
@@ -53,6 +54,10 @@ integer_t pow5(uint32_t e) {
 int32_t log10_pow2(int32_t e) {
   return int32_t(1292913987 * uint64_t(e) >> 32);
 }
+
+struct amaru_exception : std::range_error {
+  using std::range_error::range_error;
+};
 
 /**
  * \brief Meta information about a floating point number type.
@@ -277,6 +282,10 @@ private:
 
       integer_t upper, lower;
       divide_qr(fast_eaf.U, p2size, upper, lower);
+
+      if (upper > p2size)
+        throw amaru_exception{"Multiplier is out of range."};
+
       auto const shift = fast_eaf.k;
 
       stream << "  { " <<
@@ -372,7 +381,7 @@ private:
     integer_t q, r;
     divide_qr(numerator, denominator, q, r);
 
-    while (k <= 2 * fp_type_.size()) {
+    while (k < 3 * fp_type_.size()) {
 
       if (maximum < rational_t{pow2, denominator - r})
         return { q + 1, k };
@@ -387,7 +396,7 @@ private:
       }
     }
 
-    return { 0, 0 }; // Failed.
+    throw amaru_exception{"Cannot find fast EAF."};
   }
 
   fp_type_t fp_type_;

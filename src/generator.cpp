@@ -261,14 +261,17 @@ private:
         fast_eaf.U           << '\t' <<
         fast_eaf.k           << '\n';
 
-      auto const upper = static_cast<uint32_t>(fast_eaf.U >> 32);
-      auto const lower = static_cast<uint32_t>(fast_eaf.U);
-      auto const shift = fast_eaf.k;
+      auto const p2size  = integer_t{1} << fp_type_.size();
+      auto const nibbles = fp_type_.size() / 4;
+
+      auto const upper   = fast_eaf.U / p2size;
+      auto const lower   = fast_eaf.U % p2size;
+      auto const shift   = fast_eaf.k;
 
       stream << "  { " <<
-        "0x"     << std::hex << std::setw(8) << std::setfill('0') <<
+        "0x"     << std::hex << std::setw(nibbles) << std::setfill('0') <<
         upper    << ", " <<
-        "0x"     << std::hex << std::setw(8) << std::setfill('0') <<
+        "0x"     << std::hex << std::setw(nibbles) << std::setfill('0') <<
         lower    << ", " <<
         std::dec <<
         shift    << " }, // " <<

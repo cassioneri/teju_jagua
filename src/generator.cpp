@@ -275,9 +275,9 @@ private:
       auto const p2size  = integer_t{1} << fp_type_.size();
       auto const nibbles = fp_type_.size() / 4;
 
-      auto const upper   = fast_eaf.U / p2size;
-      auto const lower   = fast_eaf.U % p2size;
-      auto const shift   = fast_eaf.k;
+      integer_t upper, lower;
+      divide_qr(fast_eaf.U, p2size, upper, lower);
+      auto const shift = fast_eaf.k;
 
       stream << "  { " <<
         "0x"     << std::hex << std::setw(nibbles) << std::setfill('0') <<
@@ -368,8 +368,9 @@ private:
 
     auto k    = uint32_t{0};
     auto pow2 = integer_t{1}; // 2^k
-    auto q    = integer_t{numerator / denominator};
-    auto r    = integer_t{numerator % denominator};
+
+    integer_t q, r;
+    divide_qr(numerator, denominator, q, r);
 
     while (k <= 2 * fp_type_.size()) {
 

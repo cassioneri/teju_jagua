@@ -54,13 +54,13 @@ int32_t log10_pow2(int32_t e) {
 }
 
 /**
- * \brief Meta information about the floating point number type of interest.
+ * \brief Meta information about a floating point number type.
  *
  * More precisely:
  *
- * fp_t    : The floating point number type of interest.
- * suint_t : Unsigned integer type such that sizeof(suint_t) >= sizeof(fp_t).
- * duint_t : Unsigned integer type such that sizeof(duint_t) >= 2*sizeof(suint_t).
+ * fp_t    The floating point number type.
+ * suint_t Unsigned integer type such that sizeof(suint_t) >= sizeof(fp_t).
+ * duint_t Unsigned integer type such that sizeof(duint_t) >= 2*sizeof(suint_t).
  */
 struct fp_type_t {
 

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <climits>
 #include <cstdint>
+#include <cstdio>
 #include <iomanip>
 #include <ios>
 #include <iostream>
@@ -188,6 +189,16 @@ struct generator_t {
 
 private:
 
+  static rational_t
+  phi(integer_t const& alpha, integer_t const& delta, integer_t const& m) {
+    return {m, delta - alpha * m % delta};
+  }
+
+  static rational_t
+  phi_p(integer_t const& alpha, integer_t const& delta, integer_t const& m) {
+    return {m, 1 + (alpha * m - 1) % delta};
+  }
+
   /**
    * \brief Streams out the table header.
    *
@@ -281,38 +292,59 @@ private:
   }
 
   rational_t static
-  get_maximum(integer_t alpha, integer_t const& delta, integer_t const& a,
-    integer_t const& b) {
+  get_maximum_primary(integer_t const& alpha, integer_t const& delta,
+    integer_t const& a, integer_t const& b) {
 
     auto const b_minus_1 = b - 1;
+    auto const maximum1  = phi(alpha, delta, b_minus_1);
 
-    auto const phi_0     = rational_t{b_minus_1,
-      delta - alpha * b_minus_1 % delta};
+    if (alpha == 0 || a == b_minus_1)
+      return maximum1;
 
-    if (a == b_minus_1)
-      return phi_0;
+    auto const a_p = alpha * a / delta + 1;
+    auto const b_p = alpha * b_minus_1 / delta + 1;
 
-    if (alpha >= delta)
-      alpha = alpha % delta;
+    if (a_p == b_p)
+      return maximum1;
 
-    if (alpha == 0)
-      return rational_t{b_minus_1, delta};
+    auto const  alpha_p = delta % alpha;
+    auto const& delta_p = alpha;
+    auto const  other   = get_maximum_secondary(alpha_p, delta_p, a_p, b_p);
 
-    auto const a1 = alpha * a / delta + 1;
-    auto const b1 = alpha * b_minus_1 / delta + 1;
+    auto const  maximum2 = rational_t{
+      delta * numerator(other) - denominator(other),
+      alpha * denominator(other)};
+
+    return std::max(maximum1, maximum2);
+  }
+
+  rational_t static
+  get_maximum_secondary(integer_t const& alpha_p, integer_t const& delta_p,
+    integer_t const& a_p, integer_t const& b_p) {
+
+    if (alpha_p == 0)
+      return b_p - 1;
+
+    auto const maximum1 = phi_p(alpha_p, delta_p, a_p);
+
+    if (a_p == b_p - 1)
+      return maximum1;
+
+    auto const a1 = (alpha_p * a_p - 1) / delta_p + 1;
+    auto const b1 = (alpha_p * (b_p - 1) - 1) / delta_p + 1;
 
     if (a1 == b1)
-      return phi_0;
+      return maximum1;
 
-    auto const& delta1  = alpha;
-    auto const  alpha1  = delta1 - delta % delta1;
-    auto const  phi_1   = get_maximum(alpha1, delta1, a1, b1);
+    auto const  alpha1 = delta_p % alpha_p;
+    auto const& delta1 = alpha_p;
+    auto const  other  = get_maximum_primary(alpha1, delta1, a1, b1);
 
-    auto const  maximum = rational_t{
-      delta * numerator(phi_1) - denominator(phi_1),
-      delta1 * denominator(phi_1)};
+    auto const  maximum2 = rational_t{
+      delta_p * numerator(other) + denominator(other),
+      alpha_p * denominator(other)};
 
-    return std::max(maximum, phi_0);
+    return std::max(maximum1, maximum2);
   }
 
   rational_t
@@ -323,11 +355,9 @@ private:
 
     auto const a        = start_at_1 ? integer_t{1} : 2 * P2P_;
     auto const b        = 4 * P2P_;
-    auto const maximum1 = get_maximum(alpha, delta, a, b);
 
-    auto const m2       = 20 * P2P_;
-    auto const r2       = m2 * alpha % delta;
-    auto const maximum2 = rational_t{m2, delta - r2};
+    auto const maximum1 = get_maximum_primary(alpha, delta, a, b);
+    auto const maximum2 = phi(alpha, delta, 20 * P2P_);
 
     return std::max(maximum1, maximum2);
   }

@@ -365,27 +365,38 @@ private:
 
 int main() {
 
-  auto float_config = fp_type_t{
-    /* name          */ "float",
-    /* suint_name    */ "uint32_t",
-    /* suint_name    */ "uint64_t",
-    /* mantissa_size */ 23,
-    /* exponent_size */ 8,
-    /* exponent_min  */ -149
-  };
-  auto generator = generator_t{float_config};
-  auto stream    = std::ofstream{"./include/table32.h"};
+  try {
 
-//  auto double_config   = fp_type_t{
-//    /* name          */ "double",
-//    /* suint_name    */ "uint64_t",
-//    /* suint_name    */ "__uint128_t",
-//    /* mantissa_size */ 52,
-//    /* exponent_size */ 11,
-//    /* exponent_min  */ -1074
-//  };
-//  auto generator = generator_t{double_config};
-//  auto stream    = std::ofstream{"./include/table64.h"};
+    auto float_config = fp_type_t{
+      /* name          */ "float",
+      /* suint_name    */ "uint32_t",
+      /* suint_name    */ "uint64_t",
+      /* mantissa_size */ 23,
+      /* exponent_size */ 8,
+      /* exponent_min  */ -149
+    };
+    auto generator = generator_t{float_config};
+    auto stream    = std::ofstream{"./include/table32.h"};
 
-  generator.generate(stream);
+  //  auto double_config   = fp_type_t{
+  //    /* name          */ "double",
+  //    /* suint_name    */ "uint64_t",
+  //    /* suint_name    */ "__uint128_t",
+  //    /* mantissa_size */ 52,
+  //    /* exponent_size */ 11,
+  //    /* exponent_min  */ -1074
+  //  };
+  //  auto generator = generator_t{double_config};
+  //  auto stream    = std::ofstream{"./include/table64.h"};
+
+    generator.generate(stream);
+  }
+
+  catch (std::exception const& e) {
+    printf("std::exception thrown: %s.\n", e.what());
+  }
+
+  catch (...) {
+    printf("Unknown exception thrown.\n");
+  }
 }

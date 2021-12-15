@@ -96,7 +96,7 @@ AMARU(rep_t const binary) {
     return decimal;
   }
 
-  decimal.exponent = amaru_log10_pow2(binary.exponent);
+  decimal.exponent = log10_pow2(binary.exponent);
 
   uint32_t const index     = binary.exponent - exponent_min;
   suint_t  const upper     = scalers[index].upper;

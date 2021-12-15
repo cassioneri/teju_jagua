@@ -13,9 +13,9 @@ typedef struct {
   bool     negative;
   int32_t  exponent;
   uint32_t mantissa;
-} ieee_float_t;
+} ieee32_t;
 
-ieee_float_t amaru_ieee_float(ieee_float_t binary);
+ieee32_t amaru_ieee32(ieee32_t binary);
 
 #ifdef __cplusplus
 }

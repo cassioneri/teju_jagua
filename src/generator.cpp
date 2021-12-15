@@ -407,7 +407,7 @@ int main() {
 
   try {
 
-    auto float_config = fp_type_t{
+    auto float_config = fp_type_t {
       /* name          */ "float",
       /* suint_name    */ "uint32_t",
       /* suint_name    */ "uint64_t",

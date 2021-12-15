@@ -1,16 +1,17 @@
 // This file is auto-generated. DO NOT EDIT IT.
 
+#include "ieee_float.h"
+
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef float fp_t;
 typedef uint32_t suint_t;
 typedef uint64_t duint_t;
-
-typedef struct {
-  bool    negative;
-  int32_t exponent;
-  suint_t mantissa;
-} rep_t;
+typedef ieee_float_t rep_t;
 
 enum {
   exponent_size  = 8,
@@ -280,3 +281,11 @@ static struct {
   { 0x00002073, 0xaccb12d1, 45 }, // 103
   { 0x00002073, 0xaccb12d1, 44 }, // 104
 };
+
+#define AMARU amaru_ieee_float
+#include "src/amaru.h"
+#undef AMARU
+
+#ifdef __cplusplus
+}
+#endif

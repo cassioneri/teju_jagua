@@ -1,12 +1,5 @@
-// gcc -O3 -I include -I ~/ryu/cassio/ryu src/amaru.c -o amaru ~/ryu/cassio/ryu/libryu.a -Wall -Wextra
-
-#define AMARU_DO_RYU   1
-#define AMARU_DO_AMARU 1
-
-//-------------------------------------------------------------------------
-
-#if AMARU_DO_RYU
-  #include <ryu.h>
+#ifndef AMARU
+#error "Invalid inclusion of amaru.h."
 #endif
 
 #include <math.h>
@@ -15,11 +8,17 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "table32.h"
+#include "common.h"
+#include "ieee.h"
 
-#define AMARU_POW2(e)       (((suint_t)1) << e)
-#define AMARU_MANTISSA_MIN  AMARU_POW2(mantissa_size)
-#define AMARU_LOG10_POW2(e) ((int32_t)(1292913987*((uint64_t) e) >> 32))
+#include <ryu.h>
+
+#define AMARU_DO_RYU   1
+#define AMARU_DO_AMARU 1
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static inline
 rep_t remove_trailing_zeros(rep_t decimal) {
@@ -36,11 +35,6 @@ rep_t remove_trailing_zeros(rep_t decimal) {
     r                = (suint_t) p;
   }
   return decimal;
-}
-
-static inline
-duint_t lower_bits(duint_t n, uint32_t n_bits) {
-  return ((~((duint_t) 0)) >> (2*word_size - n_bits)) & n;
 }
 
 static inline
@@ -75,7 +69,7 @@ suint_t is_multiple_of_pow5(suint_t const m, suint_t const upper,
 
     duint_t const upper_limbs = upper_prod + (lower_prod >> word_size);
 
-    if (lower_bits(upper_limbs, n_bits - word_size) >> word_size > 0)
+    if (AMARU_LOWER_BITS(upper_limbs, n_bits - word_size) >> word_size > 0)
       return false;
 
     duint_t const lower_limb = (suint_t) lower_prod;
@@ -87,75 +81,11 @@ suint_t is_multiple_of_pow5(suint_t const m, suint_t const upper,
   duint_t const prod       = add(upper_prod, lower_prod);
   duint_t const multiplier = add(upper, lower);
 
-  return lower_bits(prod, n_bits) < multiplier;
+  return AMARU_LOWER_BITS(prod, n_bits) < multiplier;
 }
 
-static inline
-rep_t value_to_ieee(fp_t const value) {
-
-  rep_t   ieee;
-  suint_t uint;
-
-  memcpy(&uint, &value, sizeof(value));
-
-  ieee.mantissa = lower_bits(uint, mantissa_size);
-  uint >>= mantissa_size;
-
-  ieee.exponent = lower_bits(uint, exponent_size);
-  uint >>= exponent_size;
-
-  ieee.negative = uint;
-
-  return ieee;
-}
-
-static inline
-fp_t ieee_to_value(rep_t const ieee) {
-
-  suint_t uint;
-  uint   = ieee.negative;
-  uint <<= exponent_size;
-  uint  |= ieee.exponent;
-  uint <<= mantissa_size;
-  uint  |= ieee.mantissa;
-
-  fp_t value;
-  memcpy(&value, &uint, sizeof(uint));
-
-  return value;
-}
-
-static inline
-rep_t ieee_to_amaru(rep_t const ieee) {
-
-  rep_t amaru;
-
-  amaru.negative = ieee.negative;
-  amaru.exponent = exponent_min +
-    (ieee.exponent <= 1 ? 0 : ieee.exponent - 1);
-  amaru.mantissa = ieee.mantissa +
-    (ieee.exponent == 0 ? 0 : AMARU_MANTISSA_MIN);
-
-  return amaru;
-}
-
-static inline
-rep_t amaru_to_ieee(rep_t const amaru) {
-
-  rep_t ieee;
-
-  ieee.mantissa = lower_bits(amaru.mantissa, mantissa_size);
-  ieee.exponent = amaru.exponent - exponent_min +
-    (amaru.mantissa >= AMARU_MANTISSA_MIN ? 1 : 0);
-  ieee.negative = amaru.negative;
-
-  return ieee;
-}
-
-rep_t AMARU_TO_DECIMAL(fp_t value) {
-
-  rep_t const ieee   = value_to_ieee(value);
-  rep_t const binary = ieee_to_amaru(ieee);
+rep_t
+AMARU(rep_t const binary) {
 
   rep_t decimal;
   decimal.negative = binary.negative;
@@ -166,7 +96,7 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
     return decimal;
   }
 
-  decimal.exponent = AMARU_LOG10_POW2(binary.exponent);
+  decimal.exponent = amaru_log10_pow2(binary.exponent);
 
   uint32_t const index     = binary.exponent - exponent_min;
   suint_t  const upper     = scalers[index].upper;
@@ -180,7 +110,8 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
   suint_t  const b         = b_hat / 2;
   bool shorten;
 
-  if (binary.mantissa != AMARU_MANTISSA_MIN || binary.exponent == exponent_min) {
+  if (binary.mantissa != AMARU_POW2(suint_t, mantissa_size) ||
+    binary.exponent == exponent_min) {
 
     suint_t const s = 10 * (b / 10);
 
@@ -212,7 +143,7 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
       decimal.mantissa = c_hat / 2;
       if (c_hat % 2 == 1)
         decimal.mantissa += decimal.mantissa % 2 == 1 ||
-          !(0 > e && e > -mantissa_size - 2 && m % AMARU_POW2(-e) == 0);
+          !(0 > e && e > -mantissa_size - 2 && m % AMARU_POW2(suint_t, -e) == 0);
     }
   }
   else {
@@ -253,46 +184,6 @@ rep_t AMARU_TO_DECIMAL(fp_t value) {
   return decimal;
 }
 
-int main() {
-
-  uint32_t result = 0;
-  int32_t  e2     = exponent_min;
-  rep_t    binary = { false, e2, 1 };
-//  int32_t  e2     = 70;
-//  rep_t    binary = { false, e2, AMARU_MANTISSA_MIN}; // AMARU_MANTISSA_MIN
-  rep_t    ieee   = amaru_to_ieee(binary);
-  fp_t     value  = ieee_to_value(ieee);
-
-  printf("%d\n", e2);
-
-  while (isfinite(value)) {
-
-    #if AMARU_DO_RYU
-      ieee = value_to_ieee(value);
-      floating_decimal_32 ryu = f2d(ieee.mantissa, ieee.exponent);
-      result += ryu.mantissa;
-    #endif
-
-    #if AMARU_DO_AMARU
-      rep_t decimal = AMARU_TO_DECIMAL(value);
-      result += decimal.mantissa;
-    #endif
-
-    #if AMARU_DO_RYU && AMARU_DO_AMARU
-      binary = ieee_to_amaru(ieee);
-      if (binary.exponent != e2) {
-        e2 = binary.exponent;
-        printf("%d\n", e2);
-      }
-      if (ryu.mantissa != decimal.mantissa || ryu.exponent != decimal.exponent)
-        printf("%d*2^%d:\t%.7e\t%d %d\t%d %d\n", binary.mantissa, binary.exponent, value, ryu.mantissa, ryu.exponent, decimal.mantissa, decimal.exponent);
-    #endif
-
-    suint_t i_value;
-    memcpy(&i_value, &value, sizeof(value));
-    ++i_value;
-    memcpy(&value, &i_value, sizeof(value));
-  }
-
-  return result;
+#ifdef __cplusplus
 }
+#endif

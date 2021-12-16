@@ -13,8 +13,8 @@ extern "C" {
 #endif
 
 typedef struct {
-  bool     negative;
-  int32_t  exponent;
+  bool    negative;
+  int32_t exponent;
   uint32_t mantissa;
 } ieee32_t;
 

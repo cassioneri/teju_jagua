@@ -20,6 +20,11 @@
 extern "C" {
 #endif
 
+enum {
+  ssize = CHAR_BIT * sizeof(suint_t),
+  dsize = CHAR_BIT * sizeof(duint_t),
+};
+
 static inline
 rep_t remove_trailing_zeros(rep_t decimal) {
 
@@ -30,7 +35,7 @@ rep_t remove_trailing_zeros(rep_t decimal) {
 
   while (r < m) {
     ++decimal.exponent;
-    decimal.mantissa = (suint_t) (p >> word_size);
+    decimal.mantissa = (suint_t) (p >> ssize);
     p                = ((duint_t) m) * decimal.mantissa;
     r                = (suint_t) p;
   }
@@ -39,7 +44,7 @@ rep_t remove_trailing_zeros(rep_t decimal) {
 
 static inline
 duint_t add(duint_t upper, duint_t lower) {
-  return (((duint_t) upper) << word_size) + lower;
+  return (((duint_t) upper) << ssize) + lower;
 }
 
 static inline
@@ -49,13 +54,13 @@ suint_t scale(suint_t const upper, suint_t const lower,
   duint_t const upper_prod  = ((duint_t) upper) * m;
   duint_t const lower_prod  = ((duint_t) lower) * m;
 
-  duint_t const upper_limbs = upper_prod + (lower_prod >> word_size);
+  duint_t const upper_limbs = upper_prod + (lower_prod >> ssize);
 
-  if (n_bits >= word_size)
-    return upper_limbs >> (n_bits - word_size);
+  if (n_bits >= ssize)
+    return upper_limbs >> (n_bits - ssize);
 
   suint_t const lower_limb  = (suint_t) lower_prod;
-  return (lower_limb >> n_bits) | (upper_limbs << (word_size - n_bits));
+  return (lower_limb >> n_bits) | (upper_limbs << (ssize - n_bits));
 }
 
 static inline
@@ -65,11 +70,11 @@ suint_t is_multiple_of_pow5(suint_t const m, suint_t const upper,
   duint_t const lower_prod = ((duint_t) lower) * m;
   duint_t const upper_prod = ((duint_t) upper) * m;
 
-  if (n_bits >= 2*word_size) {
+  if (n_bits >= dsize) {
 
-    duint_t const upper_limbs = upper_prod + (lower_prod >> word_size);
+    duint_t const upper_limbs = upper_prod + (lower_prod >> ssize);
 
-    if (AMARU_LOWER_BITS(upper_limbs, n_bits - word_size) >> word_size > 0)
+    if (AMARU_LOWER_BITS(upper_limbs, n_bits - ssize) >> ssize > 0)
       return false;
 
     duint_t const lower_limb = (suint_t) lower_prod;

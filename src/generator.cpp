@@ -99,7 +99,6 @@ struct fp_info_t {
     rep_              {id_ + "_t"                       },
     exponent_size_    {exponent_size                    },
     mantissa_size_    {mantissa_size                    },
-    word_size_        {1 + exponent_size + mantissa_size},
     exponent_min_     {exponent_min                     },
     // TODO (CN): Fix
     exponent_critical_{10                               } {
@@ -148,13 +147,6 @@ struct fp_info_t {
   }
 
   /**
-   * \brief Returns the size of the floating point number in bits.
-   */
-  uint32_t word_size() const {
-    return word_size_;
-  }
-
-  /**
    * \brief Returns the minimum exponent. (As described in Amaru's
    * representation.)
    */
@@ -177,7 +169,6 @@ private:
   std::string const rep_;
   uint32_t    const exponent_size_;
   uint32_t    const mantissa_size_;
-  uint32_t    const word_size_;
   int32_t     const exponent_min_;
   int32_t     const exponent_critical_;
 };
@@ -299,7 +290,6 @@ private:
       "enum {\n"
       "  exponent_size     = " << info_.exponent_size()     << ",\n"
       "  mantissa_size     = " << info_.mantissa_size()     << ",\n"
-      "  word_size         = " << info_.word_size()         << ",\n"
       "  exponent_min      = " << info_.exponent_min()      << ",\n"
       "  exponent_critical = " << info_.exponent_critical() << ",\n"
       "};\n"
@@ -310,10 +300,14 @@ private:
       "  uint32_t const shift;\n"
       "} scalers[] = {\n";
 
-    auto const E2_max = info_.exponent_min() +
+    auto const e2_max = info_.exponent_min() +
       int32_t(uint32_t{1} << info_.exponent_size()) - 2;
 
-    for (auto e2 = info_.exponent_min(); e2 < E2_max; ++e2) {
+    auto const size       = 1 + info_.exponent_size() + info_.mantissa_size();
+    auto const p2size     = integer_t{1} << size;
+    auto const nibbles    = size / 4;
+
+    for (auto e2 = info_.exponent_min(); e2 < e2_max; ++e2) {
 
       auto const f          = log10_pow2(e2);
       auto const e          = e2 - f;
@@ -324,9 +318,6 @@ private:
       auto const start_at_1 = e2 == info_.exponent_min();
       auto const maximum    = get_maximum(alpha, delta, start_at_1);
       auto const fast_eaf   = get_fast_eaf(alpha, delta, maximum, fixed_k);
-
-      auto const p2size     = integer_t{1} << info_.word_size();
-      auto const nibbles    = info_.word_size() / 4;
 
       integer_t upper, lower;
       divide_qr(fast_eaf.U, p2size, upper, lower);
@@ -436,7 +427,8 @@ private:
     integer_t q, r;
     divide_qr(numerator, denominator, q, r);
 
-    while (k < 3 * info_.word_size()) {
+    // It should return from inside the loop but let's put a bound.
+    while (k < 64) {
 
       if (maximum < rational_t{pow2, denominator - r})
         return { q + 1, k };

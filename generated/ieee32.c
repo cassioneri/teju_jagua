@@ -23,7 +23,6 @@ typedef ieee32_t rep_t;
 enum {
   exponent_size     = 8,
   mantissa_size     = 23,
-  word_size         = 32,
   exponent_min      = -149,
   exponent_critical = 10,
 };

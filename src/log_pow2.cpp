@@ -1,28 +1,48 @@
-// g++ -O3 -std=c++20 src/log10_pow2.cpp -o log10_pow2 -Wall -Wextra
+// g++ -O3 -I./include -std=c++11 src/log_pow2.cpp -o log_pow2 -Wall -Wextra
 
-#include <cmath>
+#include "common.h"
+
 #include <cstdint>
 #include <cstdio>
 #include <iostream>
 
+#define CHECK32
+//#define CHECK64
+
+namespace {
+
+#ifdef CHECK32
+  using sint = int32_t;
+  using dint = int64_t;
+#elif CHECK64
+  using sint = int64_t;
+  using dint = __int128_t;
+#else
+  #error "Missing types."
+#endif
+
+auto constexpr ssize = CHAR_BIT * sizeof(sint);
+
 void test(long double l) {
 
-  auto const lower   = __uint128_t((__uint128_t(1) << 64) * l);
+  auto const lower   = static_cast<dint>(AMARU_POW2(dint, ssize) * l);
   auto const upper   = lower + 1;
 
-  std::cout << "    Multiplier = " << uint64_t(upper) << '\n';
+  std::cout << "    Multiplier = " << dint(upper) << '\n';
 
-  int32_t min = 0;
-  while ((lower * min >> 64 ) == (upper * min >> 64))
+  dint min = 0;
+  while ((lower * min >> ssize) == (upper * min >> ssize))
     --min;
   ++min; // Minimum is inclusive.
 
-  int32_t max = 0;
-  while ((lower * max >> 64 ) == (upper * max >> 64))
+  dint max = 0;
+  while ((lower * max >> ssize) == (upper * max >> ssize))
     ++max;
 
   std::cout << "    Valid on [" << min << ", " << max << "[.\n";
 }
+
+} // namespace <anonymous>
 
 int main() {
 

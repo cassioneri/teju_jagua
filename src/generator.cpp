@@ -1,4 +1,6 @@
-// g++ -O3 -std=c++11 src/generator.cpp -o generator -Wall -Wextra
+// g++ -O3 -std=c++11 -I./include src/generator.cpp -o generator -Wall -Wextra
+
+#include "common.h"
 
 #include <boost/multiprecision/cpp_int.hpp>
 
@@ -12,6 +14,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+
+namespace {
 
 using integer_t  = boost::multiprecision::cpp_int;
 using rational_t = boost::multiprecision::cpp_rational;
@@ -48,118 +52,134 @@ integer_t pow5(uint32_t e) {
   return p1 * p1 * (e % 2 == 0 ? 1 : 5);
 }
 
-/**
- * \brief Returns log_10(2^e).
- */
-int32_t log10_pow2(int32_t e) {
-  return int32_t(1292913987 * uint64_t(e) >> 32);
-}
-
 struct amaru_exception : std::range_error {
   using std::range_error::range_error;
 };
 
 /**
- * \brief Meta information about a floating point number type.
+ * \brief Meta information about a floating point number type required by Amaru.
  *
- * More precisely:
+ * Surprisingly, the name of the type is not necessary because Amaru doesn't
+ * work directly with values of this type. Instead, they are decoded elsewhere
+ * into Amaru's representation of floating point numbers which is a struct
+ * containing sign, exponent and mantissa fields.
  *
- * fp_t    The floating point number type.
- * suint_t Unsigned integer type such that sizeof(suint_t) >= sizeof(fp_t).
- * duint_t Unsigned integer type such that sizeof(duint_t) >= 2*sizeof(suint_t).
+ * However, Amaru needs to know two unsigned integer types:
+ *
+ *    suint : used for mantissa storage and calculations.
+ *    duint : used for even bigger calculations. It must be, at least, double
+ *            the size of suint.
  */
-struct fp_type_t {
+struct fp_info_t {
 
   /**
    * \brief Constructor.
    *
-   * \param name            C/C++ name of fp_t (e.g., "float" or "double").
-   * \param suint_name      C/C++ name of suint_t (e.g., "uint32_t" or
-   *                        "uint64_t").
-   * \param duint_name      C/C++ name of duint_t (e.g., "uint64_t" or
+   * \param id              An identifier for the floating point number type
+   *                        (e.g., "ieee32" or "ieee64". This is used in C/C++
+   *                        identifiers and, accordingly, is restricted to the
+   *                        valid set of characters used in identifiers. In
+   *                        particular, it contains no spaces - "long double"
+   *                        is forbidden.
+   * \param suint           C/C++ name of suint (e.g., "uint32_t" or
+   *                        "uint64_t"). It might contain spaces -- "unsigned
+   *                        long" is allowed.
+   * \param duint           C/C++ name of duint (e.g., "uint64_t" or
    *                        "uint128_t").
-   * \param mantissa_size   Size of mantissa in bits.
    * \param exponent_size   Size of exponent in bits.
+   * \param mantissa_size   Size of mantissa in bits.
    * \param exponent_min    Minimum exponent. (As described in Amaru's
    *                        representation.)
    */
-  fp_type_t(std::string name, std::string suint_name, std::string duint_name,
-    uint32_t mantissa_size, uint32_t exponent_size, int32_t exponent_min) :
-    name_         {std::move(name)                   },
-    suint_name_   {std::move(suint_name)             },
-    duint_name_   {std::move(duint_name)             },
-    mantissa_size_{mantissa_size                     },
-    exponent_size_{exponent_size                     },
-    exponent_min_ {exponent_min                      },
-    size_         { 1 + exponent_size + mantissa_size} {
-    }
-
-  /**
-   * \brief Returns the C/C++ name of fp_t.
-   */
-  std::string const&
-  name() const {
-    return name_;
+  fp_info_t(std::string id, std::string suint, std::string duint,
+      uint32_t exponent_size, uint32_t mantissa_size, int32_t exponent_min) :
+    id_               {std::move(id)                    },
+    suint_            {std::move(suint)                 },
+    duint_            {std::move(duint)                 },
+    rep_              {id_ + "_t"                       },
+    exponent_size_    {exponent_size                    },
+    mantissa_size_    {mantissa_size                    },
+    word_size_        {1 + exponent_size + mantissa_size},
+    exponent_min_     {exponent_min                     },
+    // TODO (CN): Fix
+    exponent_critical_{10                               } {
   }
 
   /**
-   * \brief Returns the C/C++ name of suint_t.
+   * \brief Returns the id.
    */
-  std::string const&
-  suint_name() const {
-    return suint_name_;
+  std::string const& id() const {
+    return id_;
   }
 
   /**
-   * \brief Returns the C/C++ name of duint_t.
+   * \brief Returns the C/C++ name of suint.
    */
-  std::string const&
-  duint_name() const {
-    return duint_name_;
+  std::string const& suint() const {
+    return suint_;
   }
 
   /**
-   * \brief Returns the size of mantissa in bits.
+   * \brief Returns the C/C++ name of duint.
    */
-  uint32_t
-  mantissa_size() const {
-    return mantissa_size_;
+  std::string const& duint() const {
+    return duint_;
+  }
+
+  /**
+   * \brief Returns the C/C++ name of Amaru's representation type.
+   */
+  std::string const& rep() const {
+    return rep_;
   }
 
   /**
    * \brief Returns size of exponent in bits.
    */
-  uint32_t
-  exponent_size() const {
+  uint32_t exponent_size() const {
     return exponent_size_;
+  }
+
+  /**
+   * \brief Returns the size of mantissa in bits.
+   */
+  uint32_t mantissa_size() const {
+    return mantissa_size_;
+  }
+
+  /**
+   * \brief Returns the size of the floating point number in bits.
+   */
+  uint32_t word_size() const {
+    return word_size_;
   }
 
   /**
    * \brief Returns the minimum exponent. (As described in Amaru's
    * representation.)
    */
-  int32_t
-  exponent_min() const {
+  int32_t exponent_min() const {
     return exponent_min_;
   }
 
   /**
-   * \brief Returns the size of ft_p in bits.
+   * \brief Returns the critical exponent.
    */
-  uint32_t
-  size() const {
-    return size_;
+  int32_t exponent_critical() const {
+    return exponent_critical_;
   }
 
 private:
 
-  std::string const name_;
-  std::string const suint_name_;
-  std::string const duint_name_;
-  uint32_t    const mantissa_size_;
+  std::string const id_;
+  std::string const suint_;
+  std::string const duint_;
+  std::string const rep_;
   uint32_t    const exponent_size_;
+  uint32_t    const mantissa_size_;
+  uint32_t    const word_size_;
   int32_t     const exponent_min_;
-  uint32_t    const size_;
+  int32_t     const exponent_critical_;
 };
 
 /**
@@ -170,92 +190,130 @@ struct generator_t {
   /**
    * \brief Constructor.
    *
-   * \param fp_type The meta information of the floating point number type
+   * \param fp_info_t The meta information of the floating point number type
    *                whose table shall be generated.
    */
-  generator_t(fp_type_t fp_type) :
-    fp_type_{std::move(fp_type)},
-    P2P_    {pow2(fp_type_.mantissa_size())} {
+  generator_t(fp_info_t fp_info) :
+    info_         {std::move(fp_info)            },
+    p2_mantissa_size_{pow2(info_.mantissa_size())} {
   }
 
   /**
-   * \brief Generates the table.
+   * \brief Generates Amaru's implementation for fp.
    *
-   * \brief stream The output stream to receive the table.
+   * \brief dot_h The output stream to receive the ".h" file content.
+   * \brief dot_c The output stream to receive the ".c" file content.
    */
-  void
-  generate(std::ostream& stream) const {
-    std::cout << "Generating...\n";
-    std::cout << "  Header...\n";
-    append_header (stream);
-    std::cout << "  Scalers table...\n";
-    append_scalers(stream);
+  void generate(std::ostream& dot_h, std::ostream& dot_c) const {
+
+    std::cout << "Generation started.\n";
+
+    std::cout << "  Generating \".h\".\n";
+    header(dot_h);
+
+    std::cout << "  Generating \".c\".\n";
+    source(dot_c);
+
+    std::cout << "Generation finished.\n";
   }
 
 private:
 
-  static rational_t
-  phi(integer_t const& alpha, integer_t const& delta, integer_t const& m) {
+  static rational_t phi(integer_t const& alpha, integer_t const& delta,
+    integer_t const& m) {
     return {m, delta - alpha * m % delta};
   }
 
-  static rational_t
-  phi_p(integer_t const& alpha, integer_t const& delta, integer_t const& m) {
+  static rational_t phi_p(integer_t const& alpha, integer_t const& delta,
+    integer_t const& m) {
     return {m, 1 + (alpha * m - 1) % delta};
   }
 
   /**
-   * \brief Streams out the table header.
+   * \brief Streams out the common initial part of header and source files.
    *
-   * \brief stream The output stream.
+   * \brief stream The output stream to receive the content.
    */
-  void
-  append_header(std::ostream& stream) const {
+  void common_initial(std::ostream& stream) const {
     stream <<
       "// This file is auto-generated. DO NOT EDIT IT.\n"
       "\n"
       "#include <stdint.h>\n"
       "\n"
-      "typedef " << fp_type_.name()       << " fp_t;\n"
-      "typedef " << fp_type_.suint_name() << " suint_t;\n"
-      "typedef " << fp_type_.duint_name() << " duint_t;\n"
+      "#ifndef __cplusplus\n"
+      "#include <stdbool.h>\n"
+      "#endif\n"
+      "\n"
+      "#ifdef __cplusplus\n"
+      "extern \"C\" {\n"
+      "#endif\n"
       "\n"
       "typedef struct {\n"
       "  bool    negative;\n"
       "  int32_t exponent;\n"
-      "  suint_t mantissa;\n"
-      "} rep_t;\n"
-      "\n"
-      "enum {\n"
-      "  exponent_size  = " << fp_type_.exponent_size() << ",\n"
-      "  mantissa_size  = " << fp_type_.mantissa_size() << ",\n"
-      "  large_exponent = 10,\n" // LOG5_POW2(mantissa_size + 2)"
-      "  word_size      = " << fp_type_.size() << ",\n"
-      "  exponent_min   = " << fp_type_.exponent_min()   << "\n"
-      "};\n"
+      "  " << info_.suint() << " mantissa;\n"
+      "} " << info_.rep() << ";\n"
       "\n";
   }
 
   /**
-   * \brief Streams out the scalers.
+   * \brief Streams out the common final part of header and source files.
    *
-   * \brief stream The output stream.
+   * \brief stream The output stream to receive the content.
    */
-  void
-  append_scalers(std::ostream& stream) const {
-
-    std::cerr << "e2\tf\talpha\tdelta\tnum\tden\tfactor\tshift\n";
+  void common_final(std::ostream& stream) const {
     stream <<
+      "\n"
+      "#ifdef __cplusplus\n"
+      "}\n"
+      "#endif\n";
+  }
+
+  /**
+   * \brief Streams out the header file.
+   *
+   * \brief dot_h The output stream to receive the ".h" file content.
+   */
+  void header(std::ostream& dot_h) const {
+    dot_h << "#pragma once\n"
+      "\n";
+    common_initial(dot_h);
+    dot_h <<
+      info_.rep() << " amaru_" << info_.id() << "(" << info_.rep() <<
+      " binary);\n";
+    common_final(dot_h);
+  }
+
+  /**
+   * \brief Streams out the source file.
+   *
+   * \brief dot_c The output stream to receive the ".c" file content.
+   */
+  void source(std::ostream& dot_c) const {
+    common_initial(dot_c);
+    dot_c <<
+      "typedef " << info_.suint() << " suint_t;\n"
+      "typedef " << info_.duint() << " duint_t;\n"
+      "typedef " << info_.rep()   << " rep_t;\n"
+      "\n"
+      "enum {\n"
+      "  exponent_size     = " << info_.exponent_size()     << ",\n"
+      "  mantissa_size     = " << info_.mantissa_size()     << ",\n"
+      "  word_size         = " << info_.word_size()         << ",\n"
+      "  exponent_min      = " << info_.exponent_min()      << ",\n"
+      "  exponent_critical = " << info_.exponent_critical() << ",\n"
+      "};\n"
+      "\n"
       "static struct {\n"
-      "  suint_t  const upper;\n"
-      "  suint_t  const lower;\n"
+      "  " << info_.suint() << " const upper;\n"
+      "  " << info_.suint() << " const lower;\n"
       "  uint32_t const shift;\n"
       "} scalers[] = {\n";
 
-    auto const E2_max = fp_type_.exponent_min() +
-      int32_t(uint32_t{1} << fp_type_.exponent_size()) - 2;
+    auto const E2_max = info_.exponent_min() +
+      int32_t(uint32_t{1} << info_.exponent_size()) - 2;
 
-    for (auto e2 = fp_type_.exponent_min(); e2 < E2_max; ++e2) {
+    for (auto e2 = info_.exponent_min(); e2 < E2_max; ++e2) {
 
       auto const f          = log10_pow2(e2);
       auto const e          = e2 - f;
@@ -263,22 +321,12 @@ private:
       auto const alpha      = f >= 0 ? pow2( e) : pow5(-f);
       auto const delta      = f >= 0 ? pow5( f) : pow2(-e);
 
-      auto const start_at_1 = e2 == fp_type_.exponent_min();
+      auto const start_at_1 = e2 == info_.exponent_min();
       auto const maximum    = get_maximum(alpha, delta, start_at_1);
       auto const fast_eaf   = get_fast_eaf(alpha, delta, maximum, fixed_k);
 
-      std::cerr <<
-        e2                   << '\t' <<
-        f                    << '\t' <<
-        alpha                << '\t' <<
-        delta                << '\t' <<
-        numerator(maximum)   << '\t' <<
-        denominator(maximum) << '\t' <<
-        fast_eaf.U           << '\t' <<
-        fast_eaf.k           << '\n';
-
-      auto const p2size  = integer_t{1} << fp_type_.size();
-      auto const nibbles = fp_type_.size() / 4;
+      auto const p2size     = integer_t{1} << info_.word_size();
+      auto const nibbles    = info_.word_size() / 4;
 
       integer_t upper, lower;
       divide_qr(fast_eaf.U, p2size, upper, lower);
@@ -288,7 +336,7 @@ private:
 
       auto const shift = fast_eaf.k;
 
-      stream << "  { " <<
+      dot_c << "  { " <<
         "0x"     << std::hex << std::setw(nibbles) << std::setfill('0') <<
         upper    << ", " <<
         "0x"     << std::hex << std::setw(nibbles) << std::setfill('0') <<
@@ -297,7 +345,14 @@ private:
         shift    << " }, // " <<
         e2       << "\n";
     }
-    stream << "};\n";
+
+    dot_c <<
+      "};\n"
+      "\n"
+      "#define AMARU amaru_" << info_.id() << "\n"
+      "#include \"src/amaru.h\"\n"
+      "#undef AMARU\n";
+    common_final(dot_c);
   }
 
   rational_t static
@@ -362,11 +417,11 @@ private:
 
     alpha               %= delta;
 
-    auto const a        = start_at_1 ? integer_t{1} : 2 * P2P_;
-    auto const b        = 4 * P2P_;
+    auto const a        = start_at_1 ? integer_t{1} : 2 * p2_mantissa_size_;
+    auto const b        = 4 * p2_mantissa_size_;
 
     auto const maximum1 = get_maximum_primary(alpha, delta, a, b);
-    auto const maximum2 = phi(alpha, delta, 20 * P2P_);
+    auto const maximum2 = phi(alpha, delta, 20 * p2_mantissa_size_);
 
     return std::max(maximum1, maximum2);
   }
@@ -381,7 +436,7 @@ private:
     integer_t q, r;
     divide_qr(numerator, denominator, q, r);
 
-    while (k < 3 * fp_type_.size()) {
+    while (k < 3 * info_.word_size()) {
 
       if (maximum < rational_t{pow2, denominator - r})
         return { q + 1, k };
@@ -399,37 +454,41 @@ private:
     throw amaru_exception{"Cannot find fast EAF."};
   }
 
-  fp_type_t fp_type_;
-  integer_t P2P_;
+  fp_info_t info_;
+  integer_t p2_mantissa_size_;
 };
+
+} // namespace <anonymous>
 
 int main() {
 
   try {
 
-    auto float_config = fp_type_t {
-      /* name          */ "float",
-      /* suint_name    */ "uint32_t",
-      /* suint_name    */ "uint64_t",
-      /* mantissa_size */ 23,
+    auto float_config = fp_info_t {
+      /* name          */ "ieee32",
+      /* suint         */ "uint32_t",
+      /* duint         */ "uint64_t",
       /* exponent_size */ 8,
+      /* mantissa_size */ 23,
       /* exponent_min  */ -149
     };
     auto generator = generator_t{float_config};
-    auto stream    = std::ofstream{"./include/table32.h"};
+    auto dot_h = std::ofstream{"./generated/ieee32.h"};
+    auto dot_c = std::ofstream{"./generated/ieee32.c"};
 
-  //  auto double_config   = fp_type_t{
-  //    /* name          */ "double",
-  //    /* suint_name    */ "uint64_t",
-  //    /* suint_name    */ "__uint128_t",
-  //    /* mantissa_size */ 52,
-  //    /* exponent_size */ 11,
-  //    /* exponent_min  */ -1074
-  //  };
-  //  auto generator = generator_t{double_config};
-  //  auto stream    = std::ofstream{"./include/table64.h"};
+//    auto double_config   = fp_info_t{
+//      /* name          */ "ieee64",
+//      /* suint         */ "uint64_t",
+//      /* duint         */ "__uint128_t",
+//      /* exponent_size */ 11,
+//      /* mantissa_size */ 52,
+//      /* exponent_min  */ -1074
+//    };
+//    auto generator = generator_t{double_config};
+//    auto dot_h = std::ofstream{"./generated/ieee64.h"};
+//    auto dot_c = std::ofstream{"./generated/ieee64.c"};
 
-    generator.generate(stream);
+    generator.generate(dot_h, dot_c);
   }
 
   catch (std::exception const& e) {

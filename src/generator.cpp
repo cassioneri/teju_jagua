@@ -93,15 +93,14 @@ struct fp_info_t {
    */
   fp_info_t(std::string id, std::string suint, std::string duint,
       uint32_t exponent_size, uint32_t mantissa_size, int32_t exponent_min) :
-    id_               {std::move(id)                    },
-    suint_            {std::move(suint)                 },
-    duint_            {std::move(duint)                 },
-    rep_              {id_ + "_t"                       },
-    exponent_size_    {exponent_size                    },
-    mantissa_size_    {mantissa_size                    },
-    exponent_min_     {exponent_min                     },
-    // TODO (CN): Fix
-    exponent_critical_{10                               } {
+    id_               {std::move(id)               },
+    suint_            {std::move(suint)            },
+    duint_            {std::move(duint)            },
+    rep_              {id_ + "_t"                  },
+    exponent_size_    {exponent_size               },
+    mantissa_size_    {mantissa_size               },
+    exponent_min_     {exponent_min                },
+    exponent_critical_{log5_pow2(mantissa_size + 2)} {
   }
 
   /**

@@ -7,21 +7,43 @@
 extern "C" {
 #endif
 
-
 #ifdef __cplusplus
 #define AMARU_STATIC_ASSERT(cond, msg) static_assert(cond, msg)
 #else
 #define AMARU_STATIC_ASSERT(cond, msg) _Static_assert(cond, msg)
 #endif
 
+/**
+ * \brief Returns 2^n as a given type.
+ */
 #define AMARU_POW2(type, n) (((type) 1) << n)
 
+/**
+ * \brief Returns the n_bits least significant bits of n.
+ */
 #define AMARU_LOWER_BITS(n, n_bits) \
   ((~(n^n) >> (CHAR_BIT * sizeof(n) - (n_bits))) & n)
 
+/**
+ * \brief Returns the integer part of log_10(2^n).
+ *
+ * \pre n in [-70776, 70777[.
+ */
 static inline
-int32_t log10_pow2(uint64_t n) {
-  return (int32_t)(1292913987*n >> 32);
+int32_t log10_pow2(int32_t n) {
+  int64_t const log10_2 = 1292913987;
+  return n >= 0 ? (int32_t) (log10_2 * n >> 32) : -log10_pow2(-n) - 1;
+}
+
+/**
+ * \brief Returns the integer part of log_5(2^n).
+ *
+ * \pre n in [-78854, 78855[.
+ */
+static inline
+int32_t log5_pow2(int32_t n) {
+  int64_t const log5_2 = 1849741733;
+  return n >= 0 ? (int32_t) (log5_2 * n >> 32) : -log5_pow2(-n) - 1;
 }
 
 #ifdef __cplusplus

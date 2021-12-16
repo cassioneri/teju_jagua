@@ -20,8 +20,9 @@
 namespace {
 
 struct ieee32_params_t {
-  static auto constexpr exponent_size  = uint32_t{8};
-  static auto constexpr mantissa_size  = uint32_t{23};
+  static auto constexpr exponent_size = uint32_t{8};
+  static auto constexpr mantissa_size = uint32_t{23};
+  static auto constexpr mantissa_max  = AMARU_POW2(uint32_t, mantissa_size);
 };
 
 float to_value(ieee32_t const ieee) {
@@ -44,9 +45,9 @@ struct float_tests : testing::TestWithParam<int32_t> {
 TEST_P(float_tests, test_all_mantissas)
 {
   auto const exponent = GetParam();
-  auto       ieee     = ieee32_t{false, exponent, exponent == 0 };
+  auto       ieee     = ieee32_t{false, exponent, exponent == 0};
 
-  while (ieee.mantissa != float_params_t::mantissa_max) {
+  while (ieee.mantissa != ieee32_params_t::mantissa_max) {
 
     #if DO_RYU
       auto ryu = f2d(ieee.mantissa, ieee.exponent);

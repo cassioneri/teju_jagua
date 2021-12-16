@@ -1,9 +1,12 @@
-// This file is auto-generated. DO NOT EDIT IT.
-
 #pragma once
 
+// This file is auto-generated. DO NOT EDIT IT.
+
 #include <stdint.h>
+
+#ifndef __cplusplus
 #include <stdbool.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

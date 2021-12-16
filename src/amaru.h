@@ -2,6 +2,7 @@
 #error "Invalid inclusion of amaru.h."
 #endif
 
+#include <limits.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -9,7 +10,6 @@
 #include <string.h>
 
 #include "common.h"
-#include "ieee.h"
 
 #include <ryu.h>
 
@@ -117,7 +117,7 @@ AMARU(rep_t const binary) {
 
     if (s == b) {
       bool const is_exact = binary.exponent > 0 &&
-        decimal.exponent <= large_exponent && b_hat % 2 == 0 &&
+        decimal.exponent <= exponent_critical && b_hat % 2 == 0 &&
         is_multiple_of_pow5(m, upper, lower, n_bits + e);
       shorten = !is_exact || binary.mantissa % 2 == 0;
     }
@@ -126,7 +126,7 @@ AMARU(rep_t const binary) {
       m = m - 2; // = 2 * binary.mantissa - 1
       suint_t const a_hat = scale(upper, lower, n_bits, m);
       bool const is_exact = binary.exponent > 0 &&
-        decimal.exponent <= large_exponent && a_hat % 2 == 0 &&
+        decimal.exponent <= exponent_critical && a_hat % 2 == 0 &&
         is_multiple_of_pow5(m, upper, lower, n_bits + e);
       suint_t const a = a_hat / 2 + !is_exact;
       shorten = s > a || (s == a && (!is_exact || binary.mantissa % 2 == 0));
@@ -150,7 +150,7 @@ AMARU(rep_t const binary) {
     m = 2 * m - 3; // = 4 * binary.mantissa - 1
     suint_t const a_hat    = scale(upper, lower, n_bits, m);
     bool    const is_exact = binary.exponent > 1 &&
-      decimal.exponent <= large_exponent && a_hat % 4 == 0 &&
+      decimal.exponent <= exponent_critical && a_hat % 4 == 0 &&
       is_multiple_of_pow5(m, upper, lower, n_bits + e);
     suint_t const a        = a_hat / 4 + !is_exact;
     if (b >= a) {
@@ -174,6 +174,10 @@ AMARU(rep_t const binary) {
     else {
       --decimal.exponent;
       m = 20 * binary.mantissa; // = 20 * binary.mantissa
+
+      AMARU_STATIC_ASSERT(CHAR_BIT * sizeof(duint_t) >= mantissa_size + 4,
+        "duint is not large enough for calculations to not overflow.");
+
       suint_t const c_hat = scale(upper, lower, n_bits, m);
       decimal.mantissa = c_hat / 2;
       if (c_hat % 2 == 1)

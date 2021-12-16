@@ -1,24 +1,31 @@
 // This file is auto-generated. DO NOT EDIT IT.
 
-#include "ieee32.h"
-
 #include <stdint.h>
+
+#ifndef __cplusplus
+#include <stdbool.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef float fp_t;
+typedef struct {
+  bool    negative;
+  int32_t exponent;
+  uint64_t mantissa;
+} ieee32_t;
+
 typedef uint32_t suint_t;
 typedef uint64_t duint_t;
 typedef ieee32_t rep_t;
 
 enum {
-  exponent_size  = 8,
-  mantissa_size  = 23,
-  large_exponent = 10,
-  word_size      = 32,
-  exponent_min   = -149
+  exponent_size     = 8,
+  mantissa_size     = 23,
+  word_size         = 32,
+  exponent_min      = -149,
+  exponent_critical = 10,
 };
 
 static struct {

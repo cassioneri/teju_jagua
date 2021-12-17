@@ -35,17 +35,6 @@ int32_t log10_pow2(int32_t n) {
   return n >= 0 ? (int32_t) (log10_2 * n >> 32) : -log10_pow2(-n) - 1;
 }
 
-/**
- * \brief Returns the integer part of log_5(2^n).
- *
- * \pre n in [-78854, 78855[.
- */
-static inline
-int32_t log5_pow2(int32_t n) {
-  int64_t const log5_2 = 1849741733;
-  return n >= 0 ? (int32_t) (log5_2 * n >> 32) : -log5_pow2(-n) - 1;
-}
-
 #ifdef __cplusplus
 }
 #endif

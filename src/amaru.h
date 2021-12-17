@@ -3,15 +3,10 @@
 #endif
 
 #include <limits.h>
-#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <string.h>
 
 #include "common.h"
-
-#include <ryu.h>
 
 #define AMARU_DO_RYU   1
 #define AMARU_DO_AMARU 1
@@ -20,10 +15,8 @@
 extern "C" {
 #endif
 
-enum {
-  ssize = CHAR_BIT * sizeof(suint_t),
-  dsize = CHAR_BIT * sizeof(duint_t),
-};
+static uint32_t const ssize = CHAR_BIT * sizeof(suint_t);
+static uint32_t const dsize = CHAR_BIT * sizeof(duint_t);
 
 static inline
 rep_t remove_trailing_zeros(rep_t decimal) {
@@ -115,8 +108,7 @@ AMARU(rep_t const binary) {
   suint_t  const b         = b_hat / 2;
   bool shorten;
 
-  if (binary.mantissa != AMARU_POW2(suint_t, mantissa_size) ||
-    binary.exponent == exponent_min) {
+  if (binary.mantissa != mantissa_critical || binary.exponent == exponent_min) {
 
     suint_t const s = 10 * (b / 10);
 
@@ -148,7 +140,8 @@ AMARU(rep_t const binary) {
       decimal.mantissa = c_hat / 2;
       if (c_hat % 2 == 1)
         decimal.mantissa += decimal.mantissa % 2 == 1 ||
-          !(0 > e && e > -mantissa_size - 2 && m % AMARU_POW2(suint_t, -e) == 0);
+          !(0 > e && ((uint32_t) -e) < mantissa_size + 2 &&
+          m % AMARU_POW2(suint_t, -e) == 0);
     }
   }
   else {
@@ -173,7 +166,7 @@ AMARU(rep_t const binary) {
           ++decimal.mantissa;
         else if (c_hat % 2 == 1)
           decimal.mantissa += decimal.mantissa % 2 == 1 ||
-            !(e >= -(mantissa_size + 1) && decimal.exponent <= 0);
+            !(((uint32_t) -e) <= mantissa_size + 1 && decimal.exponent <= 0);
       }
     }
     else {
@@ -187,7 +180,7 @@ AMARU(rep_t const binary) {
       decimal.mantissa = c_hat / 2;
       if (c_hat % 2 == 1)
         decimal.mantissa += decimal.mantissa % 2 == 1 ||
-          !(e >= -(mantissa_size + 1) && decimal.exponent <= 0);
+          !(((uint32_t) -e) <= mantissa_size + 1 && decimal.exponent <= 0);
     }
   }
   return decimal;

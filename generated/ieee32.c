@@ -20,16 +20,14 @@ typedef uint32_t suint_t;
 typedef uint64_t duint_t;
 typedef ieee32_t rep_t;
 
-enum {
-  exponent_size     = 8,
-  mantissa_size     = 23,
-  exponent_min      = -149,
-  exponent_critical = 10,
-};
+static uint32_t const mantissa_size     = 23;
+static int32_t  const exponent_min      = -149;
+static int32_t  const exponent_critical = 10;
+static duint_t  const mantissa_critical = 8388608;
 
 static struct {
-  uint32_t const upper;
-  uint32_t const lower;
+  suint_t const upper;
+  suint_t const lower;
   uint32_t const shift;
 } scalers[] = {
   { 0x0000b35d, 0xbf821ae5, 47 }, // -149

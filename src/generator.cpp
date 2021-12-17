@@ -38,18 +38,32 @@ struct fast_eaf_t {
 /**
  * \brief Returns 2^e.
  */
-integer_t pow2(uint32_t e) {
+integer_t
+pow2(uint32_t e) {
   return integer_t{1} << e;
 }
 
 /**
  * \brief Returns 5^e.
  */
-integer_t pow5(uint32_t e) {
+integer_t
+pow5(uint32_t e) {
   if (e == 0)
     return 1;
   auto const p1 = pow5(e / 2);
   return p1 * p1 * (e % 2 == 0 ? 1 : 5);
+}
+
+/**
+ * \brief Returns the integer part of log_5(2^n).
+ *
+ * \pre n in [-78854, 78855[.
+ */
+static inline
+int32_t
+log5_pow2(int32_t n) {
+  int64_t const log5_2 = 1849741733;
+  return n >= 0 ? (int32_t) (log5_2 * n >> 32) : -log5_pow2(-n) - 1;
 }
 
 struct amaru_exception : std::range_error {
@@ -93,14 +107,15 @@ struct fp_info_t {
    */
   fp_info_t(std::string id, std::string suint, std::string duint,
       uint32_t exponent_size, uint32_t mantissa_size, int32_t exponent_min) :
-    id_               {std::move(id)               },
-    suint_            {std::move(suint)            },
-    duint_            {std::move(duint)            },
-    rep_              {id_ + "_t"                  },
-    exponent_size_    {exponent_size               },
-    mantissa_size_    {mantissa_size               },
-    exponent_min_     {exponent_min                },
-    exponent_critical_{log5_pow2(mantissa_size + 2)} {
+    id_                {std::move(id)                       },
+    suint_             {std::move(suint)                    },
+    duint_             {std::move(duint)                    },
+    rep_               {id_ + "_t"                          },
+    exponent_size_     {exponent_size                       },
+    mantissa_size_     {mantissa_size                       },
+    exponent_min_      {exponent_min                        },
+    exponent_critical_ {log5_pow2(mantissa_size + 2)        },
+    pow2_mantissa_size_{AMARU_POW2(integer_t, mantissa_size)} {
   }
 
   /**
@@ -134,14 +149,14 @@ struct fp_info_t {
   /**
    * \brief Returns size of exponent in bits.
    */
-  uint32_t exponent_size() const {
+  uint32_t const& exponent_size() const {
     return exponent_size_;
   }
 
   /**
    * \brief Returns the size of mantissa in bits.
    */
-  uint32_t mantissa_size() const {
+  uint32_t const& mantissa_size() const {
     return mantissa_size_;
   }
 
@@ -149,17 +164,23 @@ struct fp_info_t {
    * \brief Returns the minimum exponent. (As described in Amaru's
    * representation.)
    */
-  int32_t exponent_min() const {
+  int32_t const& exponent_min() const {
     return exponent_min_;
   }
 
   /**
    * \brief Returns the critical exponent.
    */
-  int32_t exponent_critical() const {
+  int32_t const& exponent_critical() const {
     return exponent_critical_;
   }
 
+  /**
+   * \brief Returns pow2(mantissa_size()).
+   */
+  integer_t const& pow2_mantissa_size() const {
+    return pow2_mantissa_size_;
+  }
 private:
 
   std::string const id_;
@@ -170,6 +191,7 @@ private:
   uint32_t    const mantissa_size_;
   int32_t     const exponent_min_;
   int32_t     const exponent_critical_;
+  integer_t   const pow2_mantissa_size_;
 };
 
 /**
@@ -184,8 +206,7 @@ struct generator_t {
    *                whose table shall be generated.
    */
   generator_t(fp_info_t fp_info) :
-    info_         {std::move(fp_info)            },
-    p2_mantissa_size_{pow2(info_.mantissa_size())} {
+    info_{std::move(fp_info)} {
   }
 
   /**
@@ -281,21 +302,24 @@ private:
    */
   void source(std::ostream& dot_c) const {
     common_initial(dot_c);
+
     dot_c <<
       "typedef " << info_.suint() << " suint_t;\n"
       "typedef " << info_.duint() << " duint_t;\n"
       "typedef " << info_.rep()   << " rep_t;\n"
       "\n"
-      "enum {\n"
-      "  exponent_size     = " << info_.exponent_size()     << ",\n"
-      "  mantissa_size     = " << info_.mantissa_size()     << ",\n"
-      "  exponent_min      = " << info_.exponent_min()      << ",\n"
-      "  exponent_critical = " << info_.exponent_critical() << ",\n"
-      "};\n"
+      "static uint32_t const mantissa_size     = " << info_.mantissa_size()
+      << ";\n"
+      "static int32_t  const exponent_min      = " << info_.exponent_min()
+      << ";\n"
+      "static int32_t  const exponent_critical = " << info_.exponent_critical()
+      << ";\n"
+      "static duint_t  const mantissa_critical = " << info_.pow2_mantissa_size()
+      << ";\n"
       "\n"
       "static struct {\n"
-      "  " << info_.suint() << " const upper;\n"
-      "  " << info_.suint() << " const lower;\n"
+      "  suint_t const upper;\n"
+      "  suint_t const lower;\n"
       "  uint32_t const shift;\n"
       "} scalers[] = {\n";
 
@@ -407,11 +431,12 @@ private:
 
     alpha               %= delta;
 
-    auto const a        = start_at_1 ? integer_t{1} : 2 * p2_mantissa_size_;
-    auto const b        = 4 * p2_mantissa_size_;
+    auto const a        = start_at_1 ?
+      integer_t{1} : 2 * info_.pow2_mantissa_size();
+    auto const b        = 4 * info_.pow2_mantissa_size();
 
     auto const maximum1 = get_maximum_primary(alpha, delta, a, b);
-    auto const maximum2 = phi(alpha, delta, 20 * p2_mantissa_size_);
+    auto const maximum2 = phi(alpha, delta, 20 * info_.pow2_mantissa_size());
 
     return std::max(maximum1, maximum2);
   }
@@ -427,7 +452,7 @@ private:
     divide_qr(numerator, denominator, q, r);
 
     // It should return from inside the loop but let's put a bound.
-    while (k < 64) {
+    while (k < 3 * 64) {
 
       if (maximum < rational_t{pow2, denominator - r})
         return { q + 1, k };
@@ -446,7 +471,6 @@ private:
   }
 
   fp_info_t info_;
-  integer_t p2_mantissa_size_;
 };
 
 } // namespace <anonymous>
@@ -455,29 +479,31 @@ int main() {
 
   try {
 
-    auto float_config = fp_info_t {
-      /* name          */ "ieee32",
-      /* suint         */ "uint32_t",
-      /* duint         */ "uint64_t",
-      /* exponent_size */ 8,
-      /* mantissa_size */ 23,
-      /* exponent_min  */ -149
+    #if 1
+      auto float_config = fp_info_t {
+        /* name          */ "ieee32",
+        /* suint         */ "uint32_t",
+        /* duint         */ "uint64_t",
+        /* exponent_size */ 8,
+        /* mantissa_size */ 23,
+        /* exponent_min  */ -149
+      };
+      auto generator = generator_t{float_config};
+      auto dot_h = std::ofstream{"./generated/ieee32.h"};
+      auto dot_c = std::ofstream{"./generated/ieee32.c"};
+  #else
+    auto double_config   = fp_info_t{
+      /* name          */ "ieee64",
+      /* suint         */ "uint64_t",
+      /* duint         */ "__uint128_t",
+      /* exponent_size */ 11,
+      /* mantissa_size */ 52,
+      /* exponent_min  */ -1074
     };
-    auto generator = generator_t{float_config};
-    auto dot_h = std::ofstream{"./generated/ieee32.h"};
-    auto dot_c = std::ofstream{"./generated/ieee32.c"};
-
-//    auto double_config   = fp_info_t{
-//      /* name          */ "ieee64",
-//      /* suint         */ "uint64_t",
-//      /* duint         */ "__uint128_t",
-//      /* exponent_size */ 11,
-//      /* mantissa_size */ 52,
-//      /* exponent_min  */ -1074
-//    };
-//    auto generator = generator_t{double_config};
-//    auto dot_h = std::ofstream{"./generated/ieee64.h"};
-//    auto dot_c = std::ofstream{"./generated/ieee64.c"};
+    auto generator = generator_t{double_config};
+    auto dot_h = std::ofstream{"./generated/ieee64.h"};
+    auto dot_c = std::ofstream{"./generated/ieee64.c"};
+  #endif
 
     generator.generate(dot_h, dot_c);
   }

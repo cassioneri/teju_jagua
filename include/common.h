@@ -2,15 +2,10 @@
 
 #include <limits.h>
 #include <stdint.h>
+#include <assert.h>
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#ifdef __cplusplus
-#define AMARU_STATIC_ASSERT(cond, msg) static_assert(cond, msg)
-#else
-#define AMARU_STATIC_ASSERT(cond, msg) _Static_assert(cond, msg)
 #endif
 
 /**

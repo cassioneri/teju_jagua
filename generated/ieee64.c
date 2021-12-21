@@ -20,10 +20,12 @@ typedef uint64_t suint_t;
 typedef __uint128_t duint_t;
 typedef ieee64_t rep_t;
 
-static uint32_t const mantissa_size     = 52;
-static int32_t  const exponent_min      = -1074;
-static int32_t  const exponent_critical = 23;
-static duint_t  const mantissa_critical = 4503599627370496;
+enum {
+  mantissa_size     = 52,
+  exponent_min      = -1074,
+  exponent_critical = 23,
+  mantissa_critical = 4503599627370496,
+};
 
 static struct {
   suint_t const upper;

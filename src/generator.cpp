@@ -1,5 +1,3 @@
-// g++ -O3 -std=c++11 -I./include src/generator.cpp -o generator -Wall -Wextra
-
 #include "common.h"
 
 #include <boost/multiprecision/cpp_int.hpp>
@@ -308,14 +306,12 @@ private:
       "typedef " << info_.duint() << " duint_t;\n"
       "typedef " << info_.rep()   << " rep_t;\n"
       "\n"
-      "static uint32_t const mantissa_size     = " << info_.mantissa_size()
-      << ";\n"
-      "static int32_t  const exponent_min      = " << info_.exponent_min()
-      << ";\n"
-      "static int32_t  const exponent_critical = " << info_.exponent_critical()
-      << ";\n"
-      "static duint_t  const mantissa_critical = " << info_.pow2_mantissa_size()
-      << ";\n"
+      "enum {\n"
+      "  mantissa_size     = " << info_.mantissa_size()      << ",\n"
+      "  exponent_min      = " << info_.exponent_min()       << ",\n"
+      "  exponent_critical = " << info_.exponent_critical()  << ",\n"
+      "  mantissa_critical = " << info_.pow2_mantissa_size() << ",\n"
+      "};\n"
       "\n"
       "static struct {\n"
       "  suint_t const upper;\n"
@@ -479,19 +475,19 @@ int main() {
 
   try {
 
-    #if 1
-      auto float_config = fp_info_t {
-        /* name          */ "ieee32",
-        /* suint         */ "uint32_t",
-        /* duint         */ "uint64_t",
-        /* exponent_size */ 8,
-        /* mantissa_size */ 23,
-        /* exponent_min  */ -149
-      };
-      auto generator = generator_t{float_config};
-      auto dot_h = std::ofstream{"./generated/ieee32.h"};
-      auto dot_c = std::ofstream{"./generated/ieee32.c"};
-  #else
+    auto float_config = fp_info_t {
+      /* name          */ "ieee32",
+      /* suint         */ "uint32_t",
+      /* duint         */ "uint64_t",
+      /* exponent_size */ 8,
+      /* mantissa_size */ 23,
+      /* exponent_min  */ -149
+    };
+    auto generator_32 = generator_t{float_config};
+    auto dot_h_32     = std::ofstream{"../generated/ieee32.h"};
+    auto dot_c_32     = std::ofstream{"../generated/ieee32.c"};
+    generator_32.generate(dot_h_32, dot_c_32);
+
     auto double_config   = fp_info_t{
       /* name          */ "ieee64",
       /* suint         */ "uint64_t",
@@ -500,12 +496,10 @@ int main() {
       /* mantissa_size */ 52,
       /* exponent_min  */ -1074
     };
-    auto generator = generator_t{double_config};
-    auto dot_h = std::ofstream{"./generated/ieee64.h"};
-    auto dot_c = std::ofstream{"./generated/ieee64.c"};
-  #endif
-
-    generator.generate(dot_h, dot_c);
+    auto generator_64 = generator_t{double_config};
+    auto dot_h_64     = std::ofstream{"../generated/ieee64.h"};
+    auto dot_c_64     = std::ofstream{"../generated/ieee64.c"};
+    generator_64.generate(dot_h_64, dot_c_64);
   }
 
   catch (std::exception const& e) {

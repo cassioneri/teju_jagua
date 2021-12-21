@@ -2,11 +2,12 @@
 #error "Invalid inclusion of amaru.h."
 #endif
 
+#include "common.h"
+
+#include <assert.h>
 #include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
-
-#include "common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -170,7 +171,7 @@ TO_AMARU_DEC(rep_t const* binary) {
       --decimal.exponent;
       m = 20 * binary->mantissa; // = 20 * binary->mantissa
 
-      AMARU_STATIC_ASSERT(CHAR_BIT * sizeof(duint_t) >= mantissa_size + 4,
+      static_assert(CHAR_BIT * sizeof(duint_t) >= mantissa_size + 4,
         "duint is not large enough for calculations to not overflow.");
 
       suint_t const c_hat = scale(upper, lower, n_bits, m);

@@ -11,7 +11,7 @@ test.cpp
   g++ -O3 -std=c++11 -o test -I. -I./include -I ~/ryu/cassio/ryu src/test.cpp -Wall -Wextra ieee32.o ieee64.o ~/ryu/cassio/ryu/libryu.a -lgtest -lgtest_main
  */
 
-#define DO_RYU   1
+#define DO_RYU   0
 #define DO_AMARU 1
 
 #include "common.h"
@@ -24,6 +24,7 @@ test.cpp
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/multiprecision/cpp_bin_float.hpp>
 
+#include <cmath>
 #include <cstdint>
 #include <random>
 #include <cstring>
@@ -94,7 +95,8 @@ void test_log(typename log_traits_t<T>::sint multiplier,
   }
 }
 
-auto const log10_2 = mp_float_t{".30102999566398119521373889472449302676818988146210"};
+auto const log10_2 =
+  mp_float_t{".30102999566398119521373889472449302676818988146210"};
 
 TEST(log10_pow2_tests, for_int32_t) {
   auto const multiplier = get_multiplier<int32_t>(log10_2);
@@ -108,7 +110,8 @@ TEST(log10_pow2_tests, for_int64_t) {
   test_log<int64_t>(multiplier, int64_t{-1923400329}, int64_t{1923400330});
 }
 
-auto const log5_2  = mp_float_t{".43067655807339305067010656876396563206979193207975"};
+auto const log5_2 =
+  mp_float_t{".43067655807339305067010656876396563206979193207975"};
 
 TEST(log5_pow2_tests, for_int32_t) {
   auto const multiplier = get_multiplier<int32_t>(log5_2);
@@ -126,16 +129,31 @@ template <typename>
 struct fp_traits_t;
 
 template <typename T>
-typename fp_traits_t<T>::fp_t
-to_value(typename fp_traits_t<T>::rep_t const& ieee) {
-  typename fp_traits_t<T>::suint_t uint;
-  uint   = ieee.negative;
-  uint <<= fp_traits_t<T>::exponent_size;
-  uint  |= ieee.exponent;
-  uint <<= fp_traits_t<T>::mantissa_size;
-  uint  |= ieee.mantissa;
-  typename fp_traits_t<T>::fp_t value;
-  std::memcpy(&value, &uint, sizeof(uint));
+typename fp_traits_t<T>::rep_t
+to_ieee(T const value) {
+
+  using traits_t = fp_traits_t<T>;
+
+  typename traits_t::suint_t i;
+  memcpy(&i, &value, sizeof(value));
+
+  typename fp_traits_t<T>::rep_t ieee;
+  ieee.mantissa = AMARU_LOWER_BITS(i, traits_t::mantissa_size);
+  i >>= traits_t::mantissa_size;
+  ieee.exponent = AMARU_LOWER_BITS(i, traits_t::exponent_size);
+  i >>= traits_t::exponent_size;
+  ieee.negative = i;
+
+  return ieee;
+}
+
+template <typename T>
+T
+get_next(T value) {
+  typename fp_traits_t<T>::suint_t i;
+  memcpy(&i, &value, sizeof(value));
+  ++i;
+  memcpy(&value, &i, sizeof(value));
   return value;
 }
 
@@ -149,23 +167,16 @@ struct fp_traits_t<float> {
   static auto constexpr exponent_size = uint32_t{8};
   static auto constexpr mantissa_size = uint32_t{23};
 
-  static auto constexpr exponent_max  = AMARU_POW2(int32_t, exponent_size) - 1;
-  static auto constexpr mantissa_max  = AMARU_POW2(suint_t, mantissa_size);
-
   static rep_t
-  to_ieee(fp_t value) {
-    return to_ieee32(value);
-  }
-
-  static rep_t
-  ryu(rep_t const& ieee) {
+  ryu(fp_t const value) {
+    auto ieee = to_ieee(value);
     auto const ryu = f2d(ieee.mantissa, ieee.exponent);
     return {false, ryu.exponent, ryu.mantissa};
   }
 
   static rep_t
-  amaru(rep_t const& ieee) {
-    return amaru_float(to_value<float>(ieee));
+  amaru(fp_t const value) {
+    return to_amaru_dec_float(value);
   }
 };
 
@@ -178,47 +189,48 @@ struct fp_traits_t<double> {
 
   static auto constexpr exponent_size = uint32_t{11};
   static auto constexpr mantissa_size = uint32_t{52};
-  static auto constexpr exponent_max  = AMARU_POW2(int32_t, exponent_size) - 1;
-  static auto constexpr mantissa_max  = AMARU_POW2(suint_t, mantissa_size);
 
   static rep_t
-  to_ieee(fp_t value) {
-    return to_ieee64(value);
-  }
-
-  static rep_t
-  ryu(rep_t const& ieee) {
+  ryu(fp_t const value) {
+    auto ieee = to_ieee(value);
     auto const ryu = d2d(ieee.mantissa, ieee.exponent);
     return {false, ryu.exponent, ryu.mantissa};
   }
 
   static rep_t
-  amaru(rep_t const& ieee) {
-    return amaru_double(to_value<double>(ieee));
+  amaru(fp_t const value) {
+    return to_amaru_dec_double(value);
   }
 };
 
 template <typename T>
-void compare_to_ryu(typename fp_traits_t<T>::rep_t const& ieee) {
+void compare_to_ryu(T const value) {
 
   using traits_t = fp_traits_t<T>;
 
   #if DO_RYU
-    auto const ryu_dec = traits_t::ryu(ieee);
-    (void) ryu_dec;
+    auto ryu_dec = traits_t::ryu(value);
+    asm("" : "+r"(ryu_dec.exponent), "+r"(ryu_dec.mantissa));
   #endif
 
   #if DO_AMARU
-    auto const amaru_dec = traits_t::amaru(ieee);
-    (void) amaru_dec;
+    auto amaru_dec = traits_t::amaru(value);
+    asm("" : "+r"(amaru_dec.exponent), "+r"(amaru_dec.mantissa));
   #endif
 
   #if DO_RYU && DO_AMARU
+
+    auto const     ieee   = to_ieee(value);
+    using fp_t     = typename traits_t::fp_t;
+    auto constexpr digits = std::numeric_limits<fp_t>::digits10 + 1;
+
     EXPECT_EQ(ryu_dec.exponent, amaru_dec.exponent) << "Note: "
+      "value = " << std::setprecision(digits) << value << ", "
       "ieee.exponent = " << ieee.exponent << ", "
       "ieee.mantissa = " << ieee.mantissa;
 
     EXPECT_EQ(ryu_dec.mantissa, amaru_dec.mantissa) << "Note: "
+      "value = " << std::setprecision(digits) << value << ", "
         "ieee.exponent = " << ieee.exponent << ", "
         "ieee.mantissa = " << ieee.mantissa;
   #endif
@@ -226,33 +238,30 @@ void compare_to_ryu(typename fp_traits_t<T>::rep_t const& ieee) {
 
 TEST(float_tests, exhaustive_comparison_to_ryu) {
 
-  using traits_t = fp_traits_t<float>;
+  auto value    = std::numeric_limits<float>::denorm_min();
+  #if DO_RYU && DO_AMARU
+    auto exponent = std::numeric_limits<int32_t>::min();
+  #endif
 
-  for (int32_t exponent = 0; !HasFailure() && exponent < traits_t::exponent_max;
-    ++exponent) {
+  while (std::isfinite(value) && !HasFailure()) {
 
     #if DO_RYU && DO_AMARU
-      std::cerr << "Exponent: " << exponent << std::endl;
+      auto const ieee = to_ieee(value);
+      if (ieee.exponent != exponent) {
+        exponent = ieee.exponent;
+        std::cerr << "Exponent: " << exponent << std::endl;
+      }
     #endif
 
-    for (traits_t::suint_t mantissa = exponent == 0;
-      mantissa < traits_t::mantissa_max; ++mantissa) {
+    compare_to_ryu(value);
 
-      auto const ieee = traits_t::rep_t{false, exponent, mantissa};
-      compare_to_ryu<traits_t::fp_t>(ieee);
-    }
+    value = get_next(value);
   }
 }
-
+#if 0
 TEST(double_tests, random_comparison_to_ryu) {
 
   using traits_t = fp_traits_t<double>;
-
-  // Ad hoc test
-  if (false) {
-    compare_to_ryu<traits_t::fp_t>({false, 582, 3372137371404177});
-    return;
-  }
 
   traits_t::suint_t uint_max;
   auto const fp_max = std::numeric_limits<traits_t::fp_t>::max();
@@ -274,6 +283,12 @@ TEST(double_tests, random_comparison_to_ryu) {
     if (HasFailure())
       FAIL() << x;
   }
+}
+#endif
+TEST(ad_hoc_test, a_particular_case) {
+  auto const value = 1.f; // std::numeric_limits<float>::denorm_min();
+  auto const ieee  = to_ieee(value);
+  std::cerr << ieee.negative << ' ' << ieee.exponent << ' ' << ieee.mantissa << '\n';
 }
 
 } // namespace <anonymous>

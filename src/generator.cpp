@@ -290,7 +290,8 @@ private:
       "\n";
     common_initial(dot_h);
     dot_h <<
-      info_.rep() << " to_amaru_dec_" << info_.id() << "(" << info_.rep() << " amaru_bin);\n";
+      info_.rep() << " to_amaru_dec_" << info_.id() << "(" << info_.rep() <<
+      " const* amaru_bin);\n";
     common_final(dot_h);
   }
 

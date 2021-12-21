@@ -18,7 +18,7 @@ typedef struct {
   uint64_t mantissa;
 } ieee64_t;
 
-ieee64_t to_amaru_dec_ieee64(ieee64_t amaru_bin);
+ieee64_t to_amaru_dec_ieee64(ieee64_t const* amaru_bin);
 
 #ifdef __cplusplus
 }

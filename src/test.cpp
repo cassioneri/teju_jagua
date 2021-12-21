@@ -16,8 +16,8 @@ All with gcc and g++
   g++ -O3 -std=c++11 -I. -I./include -c generated/ieee32.c -Wall -Wextra && g++ -O3 -std=c++11 -I. -I./include -c generated/ieee64.c -Wall -Wextra && g++ -O3 -std=c++11 -I. -I./include -I ~/ryu/cassio/ryu -o test src/test.cpp -Wall -Wextra ieee32.o ieee64.o ~/ryu/cassio/ryu/libryu.a -lgtest -lgtest_main
  */
 
-#define DO_RYU   0
-#define DO_AMARU 0
+#define DO_RYU   1
+#define DO_AMARU 1
 
 #include "common.h"
 #include "ieee.h"

@@ -12,10 +12,11 @@ extern "C" {
 #endif
 
 static inline
-ieee32_t to_ieee32(float const value) {
+ieee32_t to_amaru_bin_float(float const value) {
 
   uint32_t const mantissa_size = 23;
   uint32_t const exponent_size = 8;
+  int32_t  const exponent_min  = -149;
 
   uint32_t i;
   memcpy(&i, &value, sizeof(value));
@@ -27,29 +28,28 @@ ieee32_t to_ieee32(float const value) {
   i >>= exponent_size;
   ieee.negative = i;
 
-  return ieee;
+  auto amaru = ieee;
+  amaru.exponent += exponent_min;
+  if (ieee.exponent != 0) {
+    amaru.mantissa += AMARU_POW2(uint32_t, mantissa_size);
+    amaru.exponent -= 1;
+  }
+
+  return amaru;
 }
 
 static inline
-ieee32_t amaru_float(float const value) {
-
-  uint32_t const mantissa_size = 23;
-  int32_t  const exponent_min  = -149;
-
-  // Fill in as ieee32 fields...
-  ieee32_t amaru = to_ieee32(value);
-  // ...and then changes to Amaru's representation.
-  amaru.mantissa += amaru.exponent == 0 ? 0 : AMARU_POW2(uint32_t, mantissa_size);
-  amaru.exponent  = exponent_min + (amaru.exponent == 0 ? 0 : amaru.exponent - 1);
-
-  return amaru_ieee32(amaru);
+ieee32_t to_amaru_dec_float(float const value) {
+  ieee32_t const amaru_bin = to_amaru_bin_float(value);
+  return to_amaru_dec_ieee32(amaru_bin);
 }
 
 static inline
-ieee64_t to_ieee64(double const value) {
+ieee64_t to_amaru_bin_double(double const value) {
 
   uint32_t const mantissa_size = 52;
   uint32_t const exponent_size = 11;
+  int32_t  const exponent_min  = -1074;
 
   uint64_t i;
   memcpy(&i, &value, sizeof(value));
@@ -61,22 +61,20 @@ ieee64_t to_ieee64(double const value) {
   i >>= exponent_size;
   ieee.negative = i;
 
-  return ieee;
+  auto amaru = ieee;
+  amaru.exponent += exponent_min;
+  if (ieee.exponent != 0) {
+    amaru.mantissa += AMARU_POW2(uint64_t, mantissa_size);
+    amaru.exponent -= 1;
+  }
+
+  return amaru;
 }
 
 static inline
-ieee64_t amaru_double(double const value) {
-
-  uint32_t const mantissa_size = 52;
-  int32_t  const exponent_min  = -1074;
-
-  // Fill in as ieee64 fields...
-  ieee64_t amaru = to_ieee64(value);
-  // ...and then changes to Amaru's representation.
-  amaru.mantissa += amaru.exponent == 0 ? 0 : AMARU_POW2(uint64_t, mantissa_size);
-  amaru.exponent  = exponent_min + (amaru.exponent == 0 ? 0 : amaru.exponent - 1);
-
-  return amaru_ieee64(amaru);
+ieee64_t to_amaru_dec_double(double const value) {
+  ieee64_t const amaru_bin = to_amaru_bin_double(value);
+  return to_amaru_dec_ieee64(amaru_bin);
 }
 
 #ifdef __cplusplus

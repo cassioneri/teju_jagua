@@ -1,4 +1,4 @@
-#ifndef AMARU
+#ifndef TO_AMARU_DEC
 #error "Invalid inclusion of amaru.h."
 #endif
 
@@ -83,7 +83,7 @@ suint_t is_multiple_of_pow5(suint_t const m, suint_t const upper,
 }
 
 rep_t
-AMARU(rep_t const binary) {
+TO_AMARU_DEC(rep_t const binary) {
 
   rep_t decimal;
   decimal.negative = binary.negative;

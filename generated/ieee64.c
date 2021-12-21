@@ -2078,7 +2078,7 @@ static struct {
   { 0x000003fddec7f2fa, 0xf3713c97a3a2704f, 105 }, // 971
 };
 
-#define AMARU amaru_ieee64
+#define TO_AMARU_DEC to_amaru_dec_ieee64
 #include "src/amaru.h"
 #undef AMARU
 

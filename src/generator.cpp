@@ -290,8 +290,7 @@ private:
       "\n";
     common_initial(dot_h);
     dot_h <<
-      info_.rep() << " amaru_" << info_.id() << "(" << info_.rep() <<
-      " binary);\n";
+      info_.rep() << " to_amaru_dec_" << info_.id() << "(" << info_.rep() << " amaru_bin);\n";
     common_final(dot_h);
   }
 
@@ -363,7 +362,7 @@ private:
     dot_c <<
       "};\n"
       "\n"
-      "#define AMARU amaru_" << info_.id() << "\n"
+      "#define TO_AMARU_DEC to_amaru_dec_" << info_.id() << "\n"
       "#include \"src/amaru.h\"\n"
       "#undef AMARU\n";
     common_final(dot_c);

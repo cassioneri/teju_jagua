@@ -18,7 +18,7 @@ typedef struct {
   uint32_t mantissa;
 } ieee32_t;
 
-ieee32_t amaru_ieee32(ieee32_t binary);
+ieee32_t to_amaru_dec_ieee32(ieee32_t amaru_bin);
 
 #ifdef __cplusplus
 }

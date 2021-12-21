@@ -8,9 +8,6 @@
 
 #include "common.h"
 
-#define AMARU_DO_RYU   1
-#define AMARU_DO_AMARU 1
-
 #ifdef __cplusplus
 extern "C" {
 #endif

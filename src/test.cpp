@@ -1,18 +1,23 @@
 /*
-ieee32.c in C and C++
+Compile ieee32.c with gcc and g++
   gcc -O3 -std=c11 -I. -I./include -c generated/ieee32.c -Wall -Wextra
   g++ -O3 -std=c++11 -I. -I./include -c generated/ieee32.c -Wall -Wextra
 
-ieee64.c in C and C++
+Compile ieee64.c with gcc and g++
   gcc -O3 -std=c11 -I. -I./include -c generated/ieee64.c -Wall -Wextra
   g++ -O3 -std=c++11 -I. -I./include -c generated/ieee64.c -Wall -Wextra
 
-test.cpp
-  g++ -O3 -std=c++11 -o test -I. -I./include -I ~/ryu/cassio/ryu src/test.cpp -Wall -Wextra ieee32.o ieee64.o ~/ryu/cassio/ryu/libryu.a -lgtest -lgtest_main
+Compile test.cpp
+  g++ -O3 -std=c++11 -I. -I./include -I ~/ryu/cassio/ryu -o test src/test.cpp -Wall -Wextra ieee32.o ieee64.o ~/ryu/cassio/ryu/libryu.a -lgtest -lgtest_main
+
+All with gcc and g++
+  gcc -O3 -std=c11 -I. -I./include -c generated/ieee32.c -Wall -Wextra && gcc -O3 -std=c11 -I. -I./include -c generated/ieee64.c -Wall -Wextra && g++ -O3 -std=c++11 -I. -I./include -I ~/ryu/cassio/ryu -o test src/test.cpp -Wall -Wextra ieee32.o ieee64.o ~/ryu/cassio/ryu/libryu.a -lgtest -lgtest_main
+
+  g++ -O3 -std=c++11 -I. -I./include -c generated/ieee32.c -Wall -Wextra && g++ -O3 -std=c++11 -I. -I./include -c generated/ieee64.c -Wall -Wextra && g++ -O3 -std=c++11 -I. -I./include -I ~/ryu/cassio/ryu -o test src/test.cpp -Wall -Wextra ieee32.o ieee64.o ~/ryu/cassio/ryu/libryu.a -lgtest -lgtest_main
  */
 
 #define DO_RYU   0
-#define DO_AMARU 1
+#define DO_AMARU 0
 
 #include "common.h"
 #include "ieee.h"
@@ -221,7 +226,7 @@ void compare_to_ryu(T const value) {
   #if DO_RYU && DO_AMARU
 
     auto const     ieee   = to_ieee(value);
-    using fp_t     = typename traits_t::fp_t;
+    using          fp_t   = typename traits_t::fp_t;
     auto constexpr digits = std::numeric_limits<fp_t>::digits10 + 1;
 
     EXPECT_EQ(ryu_dec.exponent, amaru_dec.exponent) << "Note: "
@@ -258,7 +263,7 @@ TEST(float_tests, exhaustive_comparison_to_ryu) {
     value = get_next(value);
   }
 }
-#if 0
+
 TEST(double_tests, random_comparison_to_ryu) {
 
   using traits_t = fp_traits_t<double>;
@@ -276,19 +281,15 @@ TEST(double_tests, random_comparison_to_ryu) {
   // https://stackoverflow.com/questions/1642028/what-is-the-operator-in-c-c
   while (!HasFailure() && number_of_tests --> 0) {
     auto const i = dist(rd);
-    traits_t::fp_t x;
-    memcpy(&x, &i, sizeof(i));
-    auto const ieee = traits_t::to_ieee(x);
-    compare_to_ryu<traits_t::fp_t>(ieee);
-    if (HasFailure())
-      FAIL() << x;
+    traits_t::fp_t value;
+    memcpy(&value, &i, sizeof(i));
+    compare_to_ryu(value);
   }
 }
-#endif
+
 TEST(ad_hoc_test, a_particular_case) {
-  auto const value = 1.f; // std::numeric_limits<float>::denorm_min();
-  auto const ieee  = to_ieee(value);
-  std::cerr << ieee.negative << ' ' << ieee.exponent << ' ' << ieee.mantissa << '\n';
+  auto const value = 1.f;
+  compare_to_ryu(value);
 }
 
 } // namespace <anonymous>

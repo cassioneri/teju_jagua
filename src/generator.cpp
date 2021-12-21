@@ -62,7 +62,7 @@ pow5(uint32_t e) {
 static inline
 int32_t
 log5_pow2(int32_t n) {
-  int64_t const log5_2 = 1849741733;
+  int64_t const log5_2 = 1849741732;
   return n >= 0 ? (int32_t) (log5_2 * n >> 32) : -log5_pow2(-n) - 1;
 }
 

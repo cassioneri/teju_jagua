@@ -85,48 +85,52 @@ suint_t is_multiple_of_pow5(suint_t const m, suint_t const upper,
 rep_t
 TO_AMARU_DEC(rep_t const* binary) {
 
-  rep_t decimal;
-  decimal.negative = binary->negative;
+  bool    const negative = binary->negative;
+  int32_t const exponent = binary->exponent;
+  suint_t const mantissa = binary->mantissa;
 
-  if (binary->exponent == exponent_min && binary->mantissa == 0) {
+  rep_t decimal;
+  decimal.negative = negative;
+
+  if (exponent == exponent_min && mantissa == 0) {
     decimal.exponent = 0;
     decimal.mantissa = 0;
     return decimal;
   }
 
-  decimal.exponent = log10_pow2(binary->exponent);
+  decimal.exponent = log10_pow2(exponent);
 
-  uint32_t const index     = binary->exponent - exponent_min;
+  uint32_t const index     = exponent - exponent_min;
   suint_t  const upper     = scalers[index].upper;
   suint_t  const lower     = scalers[index].lower;
   uint32_t const n_bits    = scalers[index].shift;
-  suint_t  const mantissa2 = 2 * binary->mantissa;
-  int32_t  const e         = binary->exponent - decimal.exponent;
+  suint_t  const mantissa2 = 2 * mantissa;
+  int32_t  const e         = exponent - decimal.exponent;
 
-  suint_t        m         = mantissa2 + 1; // = 2 * binary->mantissa + 1
+  suint_t        m         = mantissa2 + 1; // = 2 * mantissa + 1
   suint_t  const b_hat     = scale(upper, lower, n_bits, m);
   suint_t  const b         = b_hat / 2;
   bool shorten;
 
-  if (binary->mantissa != mantissa_min || binary->exponent == exponent_min) {
+  if (mantissa != mantissa_min || exponent == exponent_min) {
 
     suint_t const s = 10 * (b / 10);
 
     if (s == b) {
-      bool const is_exact = binary->exponent > 0 &&
+      bool const is_exact = exponent > 0 &&
         decimal.exponent <= exponent_critical && b_hat % 2 == 0 &&
         is_multiple_of_pow5(m, upper, lower, n_bits + e);
-      shorten = !is_exact || binary->mantissa % 2 == 0;
+      shorten = !is_exact || mantissa % 2 == 0;
     }
 
     else {
-      m = m - 2; // = 2 * binary->mantissa - 1
+      m = m - 2; // = 2 * mantissa - 1
       suint_t const a_hat = scale(upper, lower, n_bits, m);
-      bool const is_exact = binary->exponent > 0 &&
+      bool const is_exact = exponent > 0 &&
         decimal.exponent <= exponent_critical && a_hat % 2 == 0 &&
         is_multiple_of_pow5(m, upper, lower, n_bits + e);
       suint_t const a = a_hat / 2 + !is_exact;
-      shorten = s > a || (s == a && (!is_exact || binary->mantissa % 2 == 0));
+      shorten = s > a || (s == a && (!is_exact || mantissa % 2 == 0));
     }
 
     if (shorten) {
@@ -135,7 +139,7 @@ TO_AMARU_DEC(rep_t const* binary) {
     }
 
     else {
-      m = mantissa2; // = 2 * binary->mantissa
+      m = mantissa2; // = 2 * mantissa
       suint_t const c_hat = scale(upper, lower, n_bits, m);
       decimal.mantissa = c_hat / 2;
       if (c_hat % 2 == 1)
@@ -145,9 +149,9 @@ TO_AMARU_DEC(rep_t const* binary) {
     }
   }
   else {
-    m = 2 * m - 3; // = 4 * binary->mantissa - 1
+    m = 2 * m - 3; // = 4 * mantissa - 1
     suint_t const a_hat    = scale(upper, lower, n_bits, m);
-    bool    const is_exact = binary->exponent > 1 &&
+    bool    const is_exact = exponent > 1 &&
       decimal.exponent <= exponent_critical && a_hat % 4 == 0 &&
       is_multiple_of_pow5(m, upper, lower, n_bits + e);
     suint_t const a        = a_hat / 4 + !is_exact;
@@ -159,7 +163,7 @@ TO_AMARU_DEC(rep_t const* binary) {
       }
 
       else {
-        m = mantissa2; // = 2 * binary->mantissa
+        m = mantissa2; // = 2 * mantissa
         suint_t const c_hat = scale(upper, lower, n_bits, m);
         decimal.mantissa = c_hat / 2;
         if (decimal.mantissa < a)
@@ -171,7 +175,7 @@ TO_AMARU_DEC(rep_t const* binary) {
     }
     else {
       --decimal.exponent;
-      m = 20 * binary->mantissa; // = 20 * binary->mantissa
+      m = 20 * mantissa;
 
       static_assert(CHAR_BIT * sizeof(duint_t) >= mantissa_size + 4,
         "duint is not large enough for calculations to not overflow.");

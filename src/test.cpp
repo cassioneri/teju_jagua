@@ -1,21 +1,3 @@
-/*
-Compile ieee32.c with gcc and g++
-  gcc -O3 -std=c11 -I. -I./include -c generated/ieee32.c -Wall -Wextra
-  g++ -O3 -std=c++11 -I. -I./include -c generated/ieee32.c -Wall -Wextra
-
-Compile ieee64.c with gcc and g++
-  gcc -O3 -std=c11 -I. -I./include -c generated/ieee64.c -Wall -Wextra
-  g++ -O3 -std=c++11 -I. -I./include -c generated/ieee64.c -Wall -Wextra
-
-Compile test.cpp
-  g++ -O3 -std=c++11 -I. -I./include -I ~/ryu/cassio/ryu -o test src/test.cpp -Wall -Wextra ieee32.o ieee64.o ~/ryu/cassio/ryu/libryu.a -lgtest -lgtest_main
-
-All with gcc and g++
-  gcc -O3 -std=c11 -I. -I./include -c generated/ieee32.c -Wall -Wextra && gcc -O3 -std=c11 -I. -I./include -c generated/ieee64.c -Wall -Wextra && g++ -O3 -std=c++11 -I. -I./include -I ~/ryu/cassio/ryu -o test src/test.cpp -Wall -Wextra ieee32.o ieee64.o ~/ryu/cassio/ryu/libryu.a -lgtest -lgtest_main
-
-  g++ -O3 -std=c++11 -I. -I./include -c generated/ieee32.c -Wall -Wextra && g++ -O3 -std=c++11 -I. -I./include -c generated/ieee64.c -Wall -Wextra && g++ -O3 -std=c++11 -I. -I./include -I ~/ryu/cassio/ryu -o test src/test.cpp -Wall -Wextra ieee32.o ieee64.o ~/ryu/cassio/ryu/libryu.a -lgtest -lgtest_main
- */
-
 #define DO_RYU   1
 #define DO_AMARU 1
 
@@ -31,8 +13,9 @@ All with gcc and g++
 
 #include <cmath>
 #include <cstdint>
-#include <random>
 #include <cstring>
+#include <iostream>
+#include <random>
 
 namespace {
 

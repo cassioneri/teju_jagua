@@ -310,8 +310,10 @@ private:
       "  mantissa_size     = " << info_.mantissa_size()      << ",\n"
       "  exponent_min      = " << info_.exponent_min()       << ",\n"
       "  exponent_critical = " << info_.exponent_critical()  << ",\n"
-      "  mantissa_critical = " << info_.pow2_mantissa_size() << ",\n"
       "};\n"
+      "\n"
+      "static suint_t const mantissa_min = " << info_.pow2_mantissa_size() <<
+        ";\n"
       "\n"
       "static struct {\n"
       "  suint_t const upper;\n"

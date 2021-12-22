@@ -13,8 +13,10 @@
 extern "C" {
 #endif
 
-static uint32_t const ssize = CHAR_BIT * sizeof(suint_t);
-static uint32_t const dsize = CHAR_BIT * sizeof(duint_t);
+enum {
+  ssize = CHAR_BIT * sizeof(suint_t),
+  dsize = CHAR_BIT * sizeof(duint_t),
+};
 
 static inline
 rep_t remove_trailing_zeros(rep_t decimal) {
@@ -106,7 +108,7 @@ TO_AMARU_DEC(rep_t const* binary) {
   suint_t  const b         = b_hat / 2;
   bool shorten;
 
-  if (binary->mantissa != mantissa_critical || binary->exponent == exponent_min) {
+  if (binary->mantissa != mantissa_min || binary->exponent == exponent_min) {
 
     suint_t const s = 10 * (b / 10);
 

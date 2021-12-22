@@ -24,8 +24,9 @@ enum {
   mantissa_size     = 52,
   exponent_min      = -1074,
   exponent_critical = 23,
-  mantissa_critical = 4503599627370496,
 };
+
+static suint_t const mantissa_min = 4503599627370496;
 
 static struct {
   suint_t const upper;

@@ -22,16 +22,14 @@ static inline
 rep_t remove_trailing_zeros(rep_t decimal) {
 
   suint_t const m = (~((suint_t)0)) / 10 + 1;
+  duint_t       p = ((duint_t) m) * decimal.mantissa;
 
-  duint_t p = ((duint_t) m) * decimal.mantissa;
-  suint_t r = (suint_t) p;
-
-  while (r < m) {
+  do {
     ++decimal.exponent;
     decimal.mantissa = (suint_t) (p >> ssize);
     p                = ((duint_t) m) * decimal.mantissa;
-    r                = (suint_t) p;
-  }
+  } while ((suint_t) p < m);
+
   return decimal;
 }
 

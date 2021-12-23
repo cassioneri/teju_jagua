@@ -11,13 +11,13 @@ extern "C" {
 /**
  * \brief Returns 2^n as a given type.
  */
-#define AMARU_POW2(type, n) (((type) 1) << n)
+#define AMARU_POW2(type, n) (((type) 1) << (n))
 
 /**
  * \brief Returns the n_bits least significant bits of n.
  */
 #define AMARU_LOWER_BITS(n, n_bits) \
-  ((~(n^n) >> (CHAR_BIT * sizeof(n) - (n_bits))) & n)
+  ((~(n^n) >> (CHAR_BIT * sizeof(n) - (n_bits))) & (n))
 
 /**
  * \brief Returns the integer part of log_10(2^n).

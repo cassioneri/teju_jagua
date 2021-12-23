@@ -288,8 +288,10 @@ private:
       "\n";
     common_initial(dot_h);
     dot_h <<
-      info_.rep() << " to_amaru_dec_" << info_.id() << "(" << info_.rep() <<
-      " const* binary);\n";
+      info_.rep() << "\n"
+      "to_amaru_dec_" << info_.id() << "(bool negative, int32_t exponent, " <<
+      info_.suint() << " mantissa);\n";
+
     common_final(dot_h);
   }
 

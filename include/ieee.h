@@ -40,8 +40,8 @@ ieee32_t to_amaru_bin_float(float const value) {
 
 static inline
 ieee32_t to_amaru_dec_float(float const value) {
-  ieee32_t const amaru_bin = to_amaru_bin_float(value);
-  return to_amaru_dec_ieee32(&amaru_bin);
+  ieee32_t const amaru = to_amaru_bin_float(value);
+  return to_amaru_dec_ieee32(amaru.negative, amaru.exponent, amaru.mantissa);
 }
 
 static inline
@@ -73,8 +73,8 @@ ieee64_t to_amaru_bin_double(double const value) {
 
 static inline
 ieee64_t to_amaru_dec_double(double const value) {
-  ieee64_t const amaru_bin = to_amaru_bin_double(value);
-  return to_amaru_dec_ieee64(&amaru_bin);
+  ieee64_t const amaru = to_amaru_bin_double(value);
+  return to_amaru_dec_ieee64(amaru.negative, amaru.exponent, amaru.mantissa);
 }
 
 #ifdef __cplusplus

@@ -83,11 +83,8 @@ suint_t is_multiple_of_pow5(suint_t const m, suint_t const upper,
 }
 
 rep_t
-TO_AMARU_DEC(rep_t const* binary) {
-
-  bool    const negative = binary->negative;
-  int32_t const exponent = binary->exponent;
-  suint_t const mantissa = binary->mantissa;
+TO_AMARU_DEC(bool const negative, int32_t const exponent,
+  suint_t const mantissa) {
 
   rep_t decimal;
   decimal.negative = negative;

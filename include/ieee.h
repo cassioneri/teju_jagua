@@ -28,7 +28,7 @@ ieee32_t to_amaru_bin_float(float const value) {
   i >>= exponent_size;
   ieee.negative = i;
 
-  auto amaru = ieee;
+  ieee32_t amaru = ieee;
   amaru.exponent += exponent_min;
   if (ieee.exponent != 0) {
     amaru.mantissa += AMARU_POW2(uint32_t, mantissa_size);
@@ -61,7 +61,7 @@ ieee64_t to_amaru_bin_double(double const value) {
   i >>= exponent_size;
   ieee.negative = i;
 
-  auto amaru = ieee;
+  ieee64_t amaru = ieee;
   amaru.exponent += exponent_min;
   if (ieee.exponent != 0) {
     amaru.mantissa += AMARU_POW2(uint64_t, mantissa_size);

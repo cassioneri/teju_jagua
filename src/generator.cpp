@@ -18,8 +18,6 @@ namespace {
 using integer_t  = boost::multiprecision::cpp_int;
 using rational_t = boost::multiprecision::cpp_rational;
 
-auto constexpr fixed_k = uint32_t{0};
-
 /**
  * \brief Fast EAF coefficients.
  *
@@ -98,17 +96,20 @@ struct fp_info_t {
    *                        long" is allowed.
    * \param duint           C/C++ name of duint (e.g., "uint64_t" or
    *                        "uint128_t").
+   * \param ssize           The size of suint in bits.
    * \param exponent_size   Size of exponent in bits.
    * \param mantissa_size   Size of mantissa in bits.
    * \param exponent_min    Minimum exponent. (As described in Amaru's
    *                        representation.)
    */
   fp_info_t(std::string id, std::string suint, std::string duint,
-      uint32_t exponent_size, uint32_t mantissa_size, int32_t exponent_min) :
+    uint32_t ssize, uint32_t exponent_size, uint32_t mantissa_size,
+    int32_t exponent_min) :
     id_                {std::move(id)                       },
     suint_             {std::move(suint)                    },
     duint_             {std::move(duint)                    },
     rep_               {id_ + "_t"                          },
+    ssize_             {ssize                               },
     exponent_size_     {exponent_size                       },
     mantissa_size_     {mantissa_size                       },
     exponent_min_      {exponent_min                        },
@@ -142,6 +143,13 @@ struct fp_info_t {
    */
   std::string const& rep() const {
     return rep_;
+  }
+
+  /**
+   * \brief Returns the size in bits of suint.
+   */
+  uint32_t const& ssize() const {
+    return ssize_;
   }
 
   /**
@@ -185,6 +193,7 @@ private:
   std::string const suint_;
   std::string const duint_;
   std::string const rep_;
+  uint32_t    const ssize_;
   uint32_t    const exponent_size_;
   uint32_t    const mantissa_size_;
   int32_t     const exponent_min_;
@@ -326,26 +335,26 @@ private:
     auto const e2_max = info_.exponent_min() +
       int32_t(uint32_t{1} << info_.exponent_size()) - 2;
 
-    auto const size       = 1 + info_.exponent_size() + info_.mantissa_size();
-    auto const p2size     = integer_t{1} << size;
-    auto const nibbles    = size / 4;
+    auto const ssize   = info_.ssize();
+    auto const p2ssize = integer_t{1} << ssize;
+    auto const nibbles = ssize / 4;
 
     for (auto e2 = info_.exponent_min(); e2 < e2_max; ++e2) {
 
       auto const f          = log10_pow2(e2);
       auto const e          = e2 - f;
 
-      auto const alpha      = f >= 0 ? pow2( e) : pow5(-f);
-      auto const delta      = f >= 0 ? pow5( f) : pow2(-e);
+      auto const alpha      = f >= 0 ? pow2(e) : pow5(-f);
+      auto const delta      = f >= 0 ? pow5(f) : pow2(-e);
 
       auto const start_at_1 = e2 == info_.exponent_min();
       auto const maximum    = get_maximum(alpha, delta, start_at_1);
-      auto const fast_eaf   = get_fast_eaf(alpha, delta, maximum, fixed_k);
+      auto const fast_eaf   = get_fast_eaf(alpha, delta, maximum);
 
       integer_t upper, lower;
-      divide_qr(fast_eaf.U, p2size, upper, lower);
+      divide_qr(fast_eaf.U, p2ssize, upper, lower);
 
-      if (upper > p2size)
+      if (upper > p2ssize)
         throw amaru_exception{"Multiplier is out of range."};
 
       auto const shift = fast_eaf.k;
@@ -443,7 +452,7 @@ private:
 
   fast_eaf_t
   get_fast_eaf(integer_t const& numerator, integer_t const& denominator,
-    rational_t const& maximum, uint32_t /*fixed_k*/ = 0) const {
+    rational_t const& maximum) const {
 
     auto k    = uint32_t{0};
     auto pow2 = integer_t{1}; // 2^k
@@ -452,7 +461,7 @@ private:
     divide_qr(numerator, denominator, q, r);
 
     // It should return from inside the loop but let's put a bound.
-    while (k < 3 * 64) {
+    while (k < 3 * info_.ssize()) {
 
       if (maximum < rational_t{pow2, denominator - r})
         return { q + 1, k };
@@ -483,6 +492,7 @@ int main() {
       /* name          */ "ieee32",
       /* suint         */ "uint32_t",
       /* duint         */ "uint64_t",
+      /* ssize         */ 32,
       /* exponent_size */ 8,
       /* mantissa_size */ 23,
       /* exponent_min  */ -149
@@ -496,6 +506,7 @@ int main() {
       /* name          */ "ieee64",
       /* suint         */ "uint64_t",
       /* duint         */ "__uint128_t",
+      /* ssize         */ 64,
       /* exponent_size */ 11,
       /* mantissa_size */ 52,
       /* exponent_min  */ -1074

@@ -39,13 +39,7 @@ duint_t add(duint_t upper, duint_t lower) {
 }
 
 static inline
-suint_t scale(suint_t const upper, suint_t const lower,
-  uint32_t const n_bits, suint_t const m) {
-
-  duint_t const upper_prod  = ((duint_t) upper) * m;
-  duint_t const lower_prod  = ((duint_t) lower) * m;
-
-  duint_t const upper_limbs = upper_prod + (lower_prod >> ssize);
+suint_t scale(uint32_t const n_bits, duint_t const lower_prod, duint_t const upper_limbs) {
 
   if (n_bits >= ssize)
     return upper_limbs >> (n_bits - ssize);
@@ -55,27 +49,23 @@ suint_t scale(suint_t const upper, suint_t const lower,
 }
 
 static inline
-suint_t is_multiple_of_pow5(suint_t const m, suint_t const upper,
-  suint_t const lower, uint32_t const n_bits) {
+suint_t is_multiple_of_pow5(suint_t const upper, suint_t const lower,
+  uint32_t const n_bits, duint_t const upper_prod,
+  duint_t const lower_prod, duint_t const upper_limbs) {
 
-  duint_t const lower_prod = ((duint_t) lower) * m;
-  duint_t const upper_prod = ((duint_t) upper) * m;
+  duint_t const multiplier = add(upper, lower);
 
   if (n_bits >= dsize) {
-
-    duint_t const upper_limbs = upper_prod + (lower_prod >> ssize);
 
     if (AMARU_LOWER_BITS(upper_limbs, n_bits - ssize) >> ssize > 0)
       return false;
 
     duint_t const lower_limb = (suint_t) lower_prod;
     duint_t const prod       = add(upper_limbs, lower_limb);
-    duint_t const multiplier = add(upper, lower);
     return prod < multiplier;
   }
 
-  duint_t const prod       = add(upper_prod, lower_prod);
-  duint_t const multiplier = add(upper, lower);
+  duint_t const prod = add(upper_prod, lower_prod);
 
   return AMARU_LOWER_BITS(prod, n_bits) < multiplier;
 }
@@ -103,7 +93,12 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   int32_t  const e         = exponent - decimal.exponent;
 
   suint_t        m         = mantissa2 + 1; // = 2 * mantissa + 1
-  suint_t  const b_hat     = scale(upper, lower, n_bits, m);
+  duint_t        upper_prod = ((duint_t) upper) * m;
+  duint_t        lower_prod = ((duint_t) lower) * m;
+  duint_t        upper_limbs = upper_prod + (lower_prod >> ssize);
+
+  suint_t  const b_hat     = scale(n_bits, lower_prod, upper_limbs);
+
   suint_t  const b         = b_hat / 2;
   bool shorten;
 
@@ -114,16 +109,23 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     if (s == b) {
       bool const is_exact = exponent > 0 &&
         decimal.exponent <= exponent_critical && b_hat % 2 == 0 &&
-        is_multiple_of_pow5(m, upper, lower, n_bits + e);
+        is_multiple_of_pow5(upper, lower, n_bits + e, upper_prod, lower_prod,
+          upper_limbs);
       shorten = !is_exact || mantissa % 2 == 0;
     }
 
     else {
-      m = m - 2; // = 2 * mantissa - 1
-      suint_t const a_hat = scale(upper, lower, n_bits, m);
+      m           = m - 2; // = 2 * mantissa - 1
+      upper_prod  = ((duint_t) upper) * m;
+      lower_prod  = ((duint_t) lower) * m;
+      upper_limbs = upper_prod + (lower_prod >> ssize);
+
+      suint_t const a_hat = scale(n_bits, lower_prod, upper_limbs);
+
       bool const is_exact = exponent > 0 &&
         decimal.exponent <= exponent_critical && a_hat % 2 == 0 &&
-        is_multiple_of_pow5(m, upper, lower, n_bits + e);
+        is_multiple_of_pow5(upper, lower, n_bits + e, upper_prod, lower_prod,
+          upper_limbs);
       suint_t const a = a_hat / 2 + !is_exact;
       shorten = s > a || (s == a && (!is_exact || mantissa % 2 == 0));
     }
@@ -134,8 +136,11 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     }
 
     else {
-      m = mantissa2; // = 2 * mantissa
-      suint_t const c_hat = scale(upper, lower, n_bits, m);
+      m           = mantissa2; // = 2 * mantissa
+      upper_prod  = ((duint_t) upper) * m;
+      lower_prod  = ((duint_t) lower) * m;
+      upper_limbs = upper_prod + (lower_prod >> ssize);
+      suint_t const c_hat = scale(n_bits, lower_prod, upper_limbs);
       decimal.mantissa = c_hat / 2;
       if (c_hat % 2 == 1)
         decimal.mantissa += decimal.mantissa % 2 == 1 ||
@@ -144,11 +149,16 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     }
   }
   else {
-    m = 2 * m - 3; // = 4 * mantissa - 1
-    suint_t const a_hat    = scale(upper, lower, n_bits, m);
+    m           = 2 * m - 3; // = 4 * mantissa - 1
+    upper_prod  = ((duint_t) upper) * m;
+    lower_prod  = ((duint_t) lower) * m;
+    upper_limbs = upper_prod + (lower_prod >> ssize);
+
+    suint_t const a_hat    = scale(n_bits, lower_prod, upper_limbs);
     bool    const is_exact = exponent > 1 &&
       decimal.exponent <= exponent_critical && a_hat % 4 == 0 &&
-      is_multiple_of_pow5(m, upper, lower, n_bits + e);
+      is_multiple_of_pow5(upper, lower, n_bits + e, upper_prod, lower_prod,
+        upper_limbs);
     suint_t const a        = a_hat / 4 + !is_exact;
     if (b >= a) {
       suint_t const s = 10 * (b / 10);
@@ -159,7 +169,11 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 
       else {
         m = mantissa2; // = 2 * mantissa
-        suint_t const c_hat = scale(upper, lower, n_bits, m);
+        upper_prod  = ((duint_t) upper) * m;
+        lower_prod  = ((duint_t) lower) * m;
+        upper_limbs = upper_prod + (lower_prod >> ssize);
+
+        suint_t const c_hat = scale(n_bits, lower_prod, upper_limbs);
         decimal.mantissa = c_hat / 2;
         if (decimal.mantissa < a)
           ++decimal.mantissa;
@@ -171,11 +185,15 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     else {
       --decimal.exponent;
       m = 20 * mantissa;
+      upper_prod  = ((duint_t) upper) * m;
+      lower_prod  = ((duint_t) lower) * m;
+      upper_limbs = upper_prod + (lower_prod >> ssize);
 
       static_assert(CHAR_BIT * sizeof(duint_t) >= mantissa_size + 4,
         "duint is not large enough for calculations to not overflow.");
 
-      suint_t const c_hat = scale(upper, lower, n_bits, m);
+      suint_t const c_hat = scale(n_bits, lower_prod, upper_limbs);
+
       decimal.mantissa = c_hat / 2;
       if (c_hat % 2 == 1)
         decimal.mantissa += decimal.mantissa % 2 == 1 ||

@@ -85,21 +85,21 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 
   decimal.exponent = log10_pow2(exponent);
 
-  uint32_t const index     = exponent - exponent_min;
-  suint_t  const upper     = scalers[index].upper;
-  suint_t  const lower     = scalers[index].lower;
-  uint32_t const n_bits    = scalers[index].shift;
-  suint_t  const mantissa2 = 2 * mantissa;
-  int32_t  const e         = exponent - decimal.exponent;
+  uint32_t const index       = exponent - exponent_min;
+  suint_t  const upper       = scalers[index].upper;
+  suint_t  const lower       = scalers[index].lower;
+  uint32_t const n_bits      = scalers[index].shift;
+  suint_t  const mantissa2   = 2 * mantissa;
+  int32_t  const e           = exponent - decimal.exponent;
 
-  suint_t        m         = mantissa2 + 1; // = 2 * mantissa + 1
-  duint_t        upper_prod = ((duint_t) upper) * m;
-  duint_t        lower_prod = ((duint_t) lower) * m;
+  suint_t        m           = mantissa2 + 1; // = 2 * mantissa + 1
+  duint_t        upper_prod  = ((duint_t) upper) * m;
+  duint_t        lower_prod  = ((duint_t) lower) * m;
   duint_t        upper_limbs = upper_prod + (lower_prod >> ssize);
 
-  suint_t  const b_hat     = scale(n_bits, lower_prod, upper_limbs);
+  suint_t  const b_hat       = scale(n_bits, lower_prod, upper_limbs);
+  suint_t  const b           = b_hat / 2;
 
-  suint_t  const b         = b_hat / 2;
   bool shorten;
 
   if (mantissa != mantissa_min || exponent == exponent_min) {
@@ -115,10 +115,10 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     }
 
     else {
-      m           = m - 2; // = 2 * mantissa - 1
-      upper_prod  = ((duint_t) upper) * m;
-      lower_prod  = ((duint_t) lower) * m;
-      upper_limbs = upper_prod + (lower_prod >> ssize);
+      //m            = m - 2; // = 2 * mantissa - 1
+      upper_prod  -= 2 * ((duint_t) upper); // = upper * (2 * mantissa + 1)
+      lower_prod  -= 2 * ((duint_t) lower); // = lower * (2 * mantissa + 1)
+      upper_limbs  = upper_prod + (lower_prod >> ssize);
 
       suint_t const a_hat = scale(n_bits, lower_prod, upper_limbs);
 

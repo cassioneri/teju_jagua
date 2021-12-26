@@ -35,7 +35,7 @@ rep_t remove_trailing_zeros(rep_t decimal) {
 
 static inline
 duint_t add(duint_t upper, duint_t lower) {
-  return (((duint_t) upper) << ssize) + lower;
+  return (upper << ssize) + lower;
 }
 
 static inline

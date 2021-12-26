@@ -87,16 +87,16 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   int32_t  const e             = exponent - decimal.exponent;
 
   uint32_t const index         = exponent - exponent_min;
-  suint_t  const upper         = scalers[index].upper;
-  suint_t  const lower         = scalers[index].lower;
+  duint_t  const upper         = scalers[index].upper;
+  duint_t  const lower         = scalers[index].lower;
   uint32_t const n_bits        = scalers[index].shift;
 
   suint_t  const m_a           = 2 * mantissa - 1;
-  duint_t  const upper_prod_a  = ((duint_t) upper) * m_a;
-  duint_t  const lower_prod_a  = ((duint_t) lower) * m_a;
+  duint_t  const upper_prod_a  = upper * m_a;
+  duint_t  const lower_prod_a  = lower * m_a;
 
-  duint_t  const upper_prod_b  = upper_prod_a + 2 * ((duint_t) upper);
-  duint_t  const lower_prod_b  = lower_prod_a + 2 * ((duint_t) lower);
+  duint_t  const upper_prod_b  = upper_prod_a + 2 * upper;
+  duint_t  const lower_prod_b  = lower_prod_a + 2 * lower;
   duint_t  const upper_limbs_b = upper_prod_b + (lower_prod_b >> ssize);
 
   suint_t  const b_hat         = scale(n_bits, lower_prod_b, upper_limbs_b);
@@ -135,8 +135,8 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 
     else {
       suint_t const m           = m_a + 1; // = 2 * mantissa
-      duint_t const upper_prod  = upper_prod_a + ((duint_t) upper) ;
-      duint_t const lower_prod  = lower_prod_a + ((duint_t) lower);
+      duint_t const upper_prod  = upper_prod_a + upper;
+      duint_t const lower_prod  = lower_prod_a + lower;
       duint_t const upper_limbs = upper_prod + (lower_prod >> ssize);
       suint_t const c_hat       = scale(n_bits, lower_prod, upper_limbs);
       decimal.mantissa          = c_hat / 2;
@@ -149,8 +149,8 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   }
   else {
     // m = 4 * mantissa - 1 = 2 * m_a + 1
-    duint_t const upper_prod  = 2 * upper_prod_a + ((duint_t) upper);
-    duint_t const lower_prod  = 2 * lower_prod_a + ((duint_t) lower);
+    duint_t const upper_prod  = 2 * upper_prod_a + upper;
+    duint_t const lower_prod  = 2 * lower_prod_a + lower;
     duint_t const upper_limbs = upper_prod + (lower_prod >> ssize);
 
     suint_t const a_hat    = scale(n_bits, lower_prod, upper_limbs);
@@ -168,8 +168,8 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 
       else {
         // m = 2 * mantissa = m_a + 1
-        duint_t const upper_prod  = upper_prod_a + ((duint_t) upper);
-        duint_t const lower_prod  = lower_prod_a + ((duint_t) lower);
+        duint_t const upper_prod  = upper_prod_a + upper;
+        duint_t const lower_prod  = lower_prod_a + lower;
         duint_t const upper_limbs = upper_prod + (lower_prod >> ssize);
 
         suint_t const c_hat       = scale(n_bits, lower_prod, upper_limbs);
@@ -185,8 +185,8 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     else {
       --decimal.exponent;
       suint_t const m           = 20 * mantissa;
-      duint_t const upper_prod  = ((duint_t) upper) * m;
-      duint_t const lower_prod  = ((duint_t) lower) * m;
+      duint_t const upper_prod  = upper * m;
+      duint_t const lower_prod  = lower * m;
       duint_t const upper_limbs = upper_prod + (lower_prod >> ssize);
 
       static_assert(CHAR_BIT * sizeof(duint_t) >= mantissa_size + 4,

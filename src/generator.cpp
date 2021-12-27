@@ -19,19 +19,6 @@ using integer_t  = boost::multiprecision::cpp_int;
 using rational_t = boost::multiprecision::cpp_rational;
 
 /**
- * \brief Fast EAF coefficients.
- *
- * For given alpha > 0 and delta > 0, we often find U > 0 and k >= 0 such that
- *     alpha * m / delta = U * m >> k for m in a certain interval.
- *
- * This type stores U and k.
- */
-struct fast_eaf_t {
-  integer_t U;
-  uint32_t  k;
-};
-
-/**
  * \brief Returns 2^e.
  */
 integer_t
@@ -80,7 +67,7 @@ struct amaru_exception : std::range_error {
  *    duint : used for even bigger calculations. It must be, at least, double
  *            the size of suint.
  */
-struct fp_info_t {
+struct info_t {
 
   /**
    * \brief Constructor.
@@ -102,9 +89,9 @@ struct fp_info_t {
    * \param exponent_min    Minimum exponent. (As described in Amaru's
    *                        representation.)
    */
-  fp_info_t(std::string id, std::string suint, std::string duint,
-    uint32_t ssize, uint32_t exponent_size, uint32_t mantissa_size,
-    int32_t exponent_min) :
+  info_t(std::string id, std::string suint, std::string duint, uint32_t ssize,
+    uint32_t exponent_size, uint32_t mantissa_size, int32_t exponent_min,
+    int32_t exponent_max) :
     id_                {std::move(id)                       },
     suint_             {std::move(suint)                    },
     duint_             {std::move(duint)                    },
@@ -113,6 +100,7 @@ struct fp_info_t {
     exponent_size_     {exponent_size                       },
     mantissa_size_     {mantissa_size                       },
     exponent_min_      {exponent_min                        },
+    exponent_max_      {exponent_max                        },
     exponent_critical_ {log5_pow2(mantissa_size + 2)        },
     pow2_mantissa_size_{AMARU_POW2(integer_t, mantissa_size)} {
   }
@@ -175,6 +163,13 @@ struct fp_info_t {
   }
 
   /**
+   * \brief Returns the maximal exponent allowed in the implementation.
+   */
+  int32_t const& exponent_max() const {
+    return exponent_max_;
+  }
+
+  /**
    * \brief Returns the critical exponent.
    */
   int32_t const& exponent_critical() const {
@@ -197,27 +192,33 @@ private:
   uint32_t    const exponent_size_;
   uint32_t    const mantissa_size_;
   int32_t     const exponent_min_;
+  int32_t     const exponent_max_;
   int32_t     const exponent_critical_;
   integer_t   const pow2_mantissa_size_;
 };
 
+struct config_t {
+  bool use_shift_max = false;
+};
+
 /**
- * \brief Amaru's table generator.
+ * \brief Generator of Amaru's generator implementation for a given floating
+ * point number type.
  */
 struct generator_t {
 
   /**
    * \brief Constructor.
    *
-   * \param fp_info_t The meta information of the floating point number type
-   *                whose table shall be generated.
+   * \param info_t The meta information of the floating point number type whose
+   *               Amaru's implementation shall be generated.
    */
-  generator_t(fp_info_t fp_info) :
-    info_{std::move(fp_info)} {
+  generator_t(info_t info) :
+    info_{std::move(info)} {
   }
 
   /**
-   * \brief Generates Amaru's implementation for fp.
+   * \brief Generates the implementation.
    *
    * \brief dot_h The output stream to receive the ".h" file content.
    * \brief dot_c The output stream to receive the ".c" file content.
@@ -236,6 +237,25 @@ struct generator_t {
   }
 
 private:
+
+  /**
+   * \brief Fast EAF coefficients.
+   *
+   * For given alpha > 0 and delta > 0, we often find U > 0 and k >= 0 such that
+   *     alpha * m / delta = U * m >> k for m in a certain interval.
+   *
+   * This type stores U and k.
+   */
+  struct fast_eaf_t {
+    integer_t U;
+    uint32_t  k;
+  };
+
+  struct alpha_delta_maximum {
+    integer_t  alpha;
+    integer_t  delta;
+    rational_t maximum;
+  };
 
   static rational_t phi(integer_t const& alpha, integer_t const& delta,
     integer_t const& m) {
@@ -332,24 +352,32 @@ private:
       "  uint32_t const shift;\n"
       "} scalers[] = {\n";
 
-    auto const e2_max = info_.exponent_min() +
-      int32_t(uint32_t{1} << info_.exponent_size()) - 2;
+    auto const maxima = get_maxima();
+    std::vector<fast_eaf_t> fast_eafs;
+    fast_eafs.reserve(maxima.size());
+
+    auto shift_max = uint32_t{0};
+
+    for (auto e2 = info_.exponent_min(); e2 <= info_.exponent_max(); ++e2) {
+      auto const& x = maxima[e2 - info_.exponent_min()];
+      fast_eafs.emplace_back(get_fast_eaf(x));
+      auto const shift = fast_eafs.back().k;
+      if (shift > shift_max)
+        shift_max = shift;
+    }
 
     auto const ssize   = info_.ssize();
     auto const p2ssize = integer_t{1} << ssize;
     auto const nibbles = ssize / 4;
 
-    for (auto e2 = info_.exponent_min(); e2 < e2_max; ++e2) {
+    for (auto e2 = info_.exponent_min(); e2 <= info_.exponent_max(); ++e2) {
 
-      auto const f          = log10_pow2(e2);
-      auto const e          = e2 - f;
-
-      auto const alpha      = f >= 0 ? pow2(e) : pow5(-f);
-      auto const delta      = f >= 0 ? pow5(f) : pow2(-e);
-
-      auto const start_at_1 = e2 == info_.exponent_min();
-      auto const maximum    = get_maximum(alpha, delta, start_at_1);
-      auto const fast_eaf   = get_fast_eaf(alpha, delta, maximum);
+      auto const& fast_eaf = [&]() {
+        if (config_.use_shift_max)
+          return fast_eaf_t{};
+        else
+          return fast_eafs[e2 - info_.exponent_min()];
+      }();
 
       integer_t upper, lower;
       divide_qr(fast_eaf.U, p2ssize, upper, lower);
@@ -378,9 +406,37 @@ private:
     common_final(dot_c);
   }
 
-  rational_t static
-  get_maximum_primary(integer_t const& alpha, integer_t const& delta,
-    integer_t const& a, integer_t const& b) {
+  /**
+   * \brief Gets the maxima of all primary problems.
+   *
+   * It returns a vector v of size info_.exponent_max() - info_.exponent_min() +
+   * 1 such that v[i] contains the maximum of the primary problem corresponding
+   * to exponent = info_.exponent_min() + i.
+   *
+   * \returns The vector v.
+   */
+  std::vector<alpha_delta_maximum> get_maxima() const {
+
+    std::vector<alpha_delta_maximum> maxima;
+    maxima.reserve(info_.exponent_max() - info_.exponent_min() + 1);
+
+    for (auto e2 = info_.exponent_min(); e2 <= info_.exponent_max(); ++e2) {
+
+      auto const f = log10_pow2(e2);
+      auto const e = e2 - f;
+
+      alpha_delta_maximum x;
+      x.alpha   = f >= 0 ? pow2(e) : pow5(-f);
+      x.delta   = f >= 0 ? pow5(f) : pow2(-e);
+      x.maximum = get_maximum(x.alpha, x.delta, e2 == info_.exponent_min());
+
+      maxima.emplace_back(std::move(x));
+    }
+    return maxima;
+  }
+
+  static rational_t get_maximum_primary(integer_t const& alpha,
+    integer_t const& delta, integer_t const& a, integer_t const& b) {
 
     auto const b_minus_1 = b - 1;
     auto const maximum1  = phi(alpha, delta, b_minus_1);
@@ -405,9 +461,8 @@ private:
     return std::max(maximum1, maximum2);
   }
 
-  rational_t static
-  get_maximum_secondary(integer_t const& alpha_p, integer_t const& delta_p,
-    integer_t const& a_p, integer_t const& b_p) {
+  static rational_t get_maximum_secondary(integer_t const& alpha_p,
+    integer_t const& delta_p, integer_t const& a_p, integer_t const& b_p) {
 
     if (alpha_p == 0)
       return b_p - 1;
@@ -434,9 +489,8 @@ private:
     return std::max(maximum1, maximum2);
   }
 
-  rational_t
-  get_maximum(integer_t alpha, integer_t const& delta, bool start_at_1 = false)
-    const {
+  rational_t get_maximum(integer_t alpha, integer_t const& delta,
+    bool start_at_1 = false) const {
 
     alpha               %= delta;
 
@@ -450,36 +504,35 @@ private:
     return std::max(maximum1, maximum2);
   }
 
-  fast_eaf_t
-  get_fast_eaf(integer_t const& numerator, integer_t const& denominator,
-    rational_t const& maximum) const {
+  fast_eaf_t get_fast_eaf(alpha_delta_maximum const& x) const {
 
     auto k    = uint32_t{0};
     auto pow2 = integer_t{1}; // 2^k
 
     integer_t q, r;
-    divide_qr(numerator, denominator, q, r);
+    divide_qr(x.alpha, x.delta, q, r);
 
     // It should return from inside the loop but let's put a bound.
     while (k < 3 * info_.ssize()) {
 
-      if (maximum < rational_t{pow2, denominator - r})
+      if (x.maximum < rational_t{pow2, x.delta - r})
         return { q + 1, k };
 
       k    += 1;
       pow2 *= 2;
       q    *= 2;
       r    *= 2;
-      while (r >= denominator) {
+      while (r >= x.delta) {
         q += 1;
-        r -= denominator;
+        r -= x.delta;
       }
     }
 
     throw amaru_exception{"Cannot find fast EAF."};
   }
 
-  fp_info_t info_;
+  info_t   info_;
+  config_t config_;
 };
 
 } // namespace <anonymous>
@@ -488,30 +541,32 @@ int main() {
 
   try {
 
-    auto float_config = fp_info_t {
+    auto ieee32_config = info_t {
       /* name          */ "ieee32",
       /* suint         */ "uint32_t",
       /* duint         */ "uint64_t",
       /* ssize         */ 32,
       /* exponent_size */ 8,
       /* mantissa_size */ 23,
-      /* exponent_min  */ -149
+      /* exponent_min  */ -149,
+      /* exponent_max  */ 104
     };
-    auto generator_32 = generator_t{float_config};
+    auto generator_32 = generator_t{ieee32_config};
     auto dot_h_32     = std::ofstream{"../generated/ieee32.h"};
     auto dot_c_32     = std::ofstream{"../generated/ieee32.c"};
     generator_32.generate(dot_h_32, dot_c_32);
 
-    auto double_config   = fp_info_t{
+    auto ieee64_config   = info_t{
       /* name          */ "ieee64",
       /* suint         */ "uint64_t",
       /* duint         */ "__uint128_t",
       /* ssize         */ 64,
       /* exponent_size */ 11,
       /* mantissa_size */ 52,
-      /* exponent_min  */ -1074
+      /* exponent_min  */ -1074,
+      /* exponent_max  */ 971
     };
-    auto generator_64 = generator_t{double_config};
+    auto generator_64 = generator_t{ieee64_config};
     auto dot_h_64     = std::ofstream{"../generated/ieee64.h"};
     auto dot_c_64     = std::ofstream{"../generated/ieee64.c"};
     generator_64.generate(dot_h_64, dot_c_64);

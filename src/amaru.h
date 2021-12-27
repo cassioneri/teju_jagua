@@ -83,32 +83,28 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     return decimal;
   }
 
-  int32_t  const f         = log10_pow2(exponent);
-  int32_t  const e         = exponent - f;
+  int32_t const f = log10_pow2(exponent);
+  int32_t const e = exponent - f;
 
-  uint32_t const index     = exponent - exponent_min;
+  int32_t const i = exponent - exponent_min;
 
-  duint_t  const upper     =
   #ifdef AMARU_UPPER_IS_ZERO
-    0;
+    duint_t const upper   = 0;
   #else
-    scalers[index].upper;
+    duint_t const upper   = scalers[i].upper;
   #endif
-
-  duint_t  const lower     = scalers[index].lower;
-
-  uint32_t const shift     =
+  duint_t const lower     = scalers[i].lower;
   #ifdef AMARU_SHIFT
-    AMARU_SHIFT;
+    uint32_t const shift  = AMARU_SHIFT;
   #else
-    scalers[index].shift;
+    uint32_t const shift  = scalers[i].shift;
   #endif
 
-  suint_t  const m_b       = 2 * mantissa + 1;
-  duint_t  const upper_m_b = upper * m_b;
-  duint_t  const lower_m_b = lower * m_b;
-  suint_t  const b_hat     = scale(upper_m_b, lower_m_b, shift);
-  suint_t  const b         = b_hat / 2;
+  suint_t const m_b       = 2 * mantissa + 1;
+  duint_t const upper_m_b = upper * m_b;
+  duint_t const lower_m_b = lower * m_b;
+  suint_t const b_hat     = scale(upper_m_b, lower_m_b, shift);
+  suint_t const b         = b_hat / 2;
 
   if (mantissa != mantissa_min || exponent == exponent_min) {
 
@@ -141,8 +137,7 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     duint_t const upper_m_c = upper_m_b - upper;
     duint_t const lower_m_c = lower_m_b - lower;
     suint_t const c_hat     = scale(upper_m_c, lower_m_c, shift);
-
-    rep_t decimal = { negative, f, c_hat / 2 };
+    rep_t         decimal   = { negative, f, c_hat / 2 };
 
     decimal.mantissa += c_hat % 2 == 1 && (decimal.mantissa % 2 == 1 ||
       !(0 > e && ((uint32_t) -e) < mantissa_size + 2 &&
@@ -151,8 +146,10 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     return decimal;
   }
 
-  // m_a = 4 * mantissa - 1
-  suint_t const m_a       = 4 * mantissa - 1;
+  // mantissa = mantissa_min
+
+  // m_a = 4 * mantissa - 1 = 4 * mantissa_min - 1
+  suint_t const m_a       = 4 * mantissa_min - 1;
   duint_t const upper_m_a = upper * m_a;
   duint_t const lower_m_a = lower * m_a;
   suint_t const a_hat     = scale(upper_m_a, lower_m_a, shift);
@@ -172,8 +169,7 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     duint_t const upper_m_c = upper_m_b - upper;
     duint_t const lower_m_c = lower_m_b - lower;
     suint_t const c_hat     = scale(upper_m_c, lower_m_c, shift);
-
-    rep_t decimal = { negative, f, c_hat / 2 };
+    rep_t         decimal   = { negative, f, c_hat / 2 };
 
     if (decimal.mantissa < a)
       ++decimal.mantissa;
@@ -185,16 +181,14 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     return decimal;
   }
 
-  suint_t const m_c       = 20 * mantissa;
+  static_assert(CHAR_BIT * sizeof(suint_t) >= mantissa_size + 4,
+    "suint_t is not large enough for calculations to not overflow.");
+
+  suint_t const m_c       = 20 * mantissa_min;
   duint_t const upper_m_c = upper * m_c;
   duint_t const lower_m_c = lower * m_c;
-
-  static_assert(CHAR_BIT * sizeof(duint_t) >= mantissa_size + 4,
-    "duint_t is not large enough for calculations to not overflow.");
-
   suint_t const c_hat     = scale(upper_m_c, lower_m_c, shift);
-
-  rep_t decimal = { negative, f - 1, c_hat / 2 };
+  rep_t         decimal   = { negative, f - 1, c_hat / 2 };
 
   if (c_hat % 2 == 1)
     decimal.mantissa += decimal.mantissa % 2 == 1 ||

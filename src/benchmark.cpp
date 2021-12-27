@@ -133,17 +133,16 @@ void benchmark() {
   auto const fp_max = std::numeric_limits<T>::max();
   memcpy(&uint_max, &fp_max, sizeof(fp_max));
 
-  std::random_device rd;
+  //std::random_device device;
+  std::mt19937_64 device;
   auto dist = std::uniform_int_distribution<typename traits_t::suint_t>
     {1, uint_max};
 
   auto n_samples = uint32_t{10000};
 
-  // Using the "downto" operator :-D
-  // https://stackoverflow.com/questions/1642028/what-is-the-operator-in-c-c
-  while (n_samples --> 0) {
+  while (n_samples--) {
 
-    auto const i = dist(rd);
+    auto const i = dist(device);
     typename traits_t::fp_t value;
     memcpy(&value, &i, sizeof(i));
 
@@ -155,7 +154,7 @@ void benchmark() {
       traits_t::amaru(value);
       auto const end   = std::chrono::steady_clock::now();
       auto const dt    = ns_t{end - start};
-      if (dt < amaru)
+      if (amaru > dt)
         amaru = dt;
     }
 
@@ -165,7 +164,7 @@ void benchmark() {
       traits_t::ryu(value);
       auto const end   = std::chrono::steady_clock::now();
       auto const dt    = ns_t{end - start};
-      if (dt < ryu)
+      if (ryu > dt)
         ryu = dt;
     }
 
@@ -179,12 +178,17 @@ void benchmark() {
 
 int main() {
 
-  // Also disable hyperthreading with something like this:
-  // cat /sys/devices/system/cpu/cpu*/topology/core_id
-  // sudo /bin/bash -c "echo 0 > /sys/devices/system/cpu/cpu6/online"
+  // Run on CPU 10 only:
   cpu_set_t my_set;
   CPU_ZERO(&my_set);
-  CPU_SET(2, &my_set);
+  CPU_SET(10, &my_set);
+  // Also, disable other threads/CPU running on same core as CPU 10:
+  // 1) Find the other CPU that's a thread on the same core:
+  //      $ cat /sys/devices/system/cpu/cpu10/topology/thread_siblings_list
+  //      10-11
+  //    The above means we need to disable CPU 11.
+  // 2) Disable the other CPU:
+  //      sudo /bin/bash -c "echo 0 > /sys/devices/system/cpu/cpu11/online"
   sched_setaffinity(getpid(), sizeof(cpu_set_t), &my_set);
 
   benchmark<float>();

@@ -1,6 +1,6 @@
 CPPFLAGS  = -DNDEBUG -I../include -I. -I.. -I ~/ryu/cassio/ryu
-CFLAGS    = -g -O3 -Wall -Wextra -std=c11
-CXXFLAGS  = -g -O3 -Wall -Wextra -std=c++11
+CFLAGS    = -O3 -Wall -Wextra -std=c11
+CXXFLAGS  = -O3 -Wall -Wextra -std=c++11
 
 all         : test benchmark
 
@@ -25,4 +25,4 @@ benchmark   : benchmark.o generated_ieee32.o generated_ieee64.o
 
 .PHONY: clean
 clean:
-	rm -f *.o generator test
+	rm -f *.o generator test benchmark

@@ -399,6 +399,18 @@ private:
       }
     }
 
+    auto const ssize   = info_.ssize();
+    auto const p2ssize = integer_t{1} << ssize;
+
+    // Check if all upper parts of the multiplier are zero.
+    auto all_upper_parts_are_zero = true;
+
+    for (auto const& eaf : fast_eafs)
+      if (eaf.U >= p2ssize) {
+        all_upper_parts_are_zero = false;
+        break;
+      }
+
     dot_c <<
       "typedef " << info_.suint() << " suint_t;\n"
       "typedef " << info_.duint() << " duint_t;\n"
@@ -414,21 +426,24 @@ private:
         ";\n"
       "\n";
 
+    if (all_upper_parts_are_zero)
+      dot_c << "#define AMARU_UPPER_IS_ZERO\n\n";
+
     if (config_.use_same_shift())
       dot_c << "#define AMARU_SHIFT " << shift << "\n\n";
 
-    dot_c <<
-      "static struct {\n"
-      "  suint_t  const upper;\n"
-      "  suint_t  const lower;\n";
+    dot_c << "static struct {\n";
+
+    if (!all_upper_parts_are_zero)
+      dot_c << "  suint_t  const upper;\n";
+
+    dot_c << "  suint_t  const lower;\n";
 
     if (!config_.use_same_shift())
       dot_c << "  uint32_t const shift;\n";
 
     dot_c << "} scalers[] = {\n";
 
-    auto const ssize   = info_.ssize();
-    auto const p2ssize = integer_t{1} << ssize;
     auto const nibbles = ssize / 4;
 
     for (auto e2 = info_.exponent_min(); e2 <= info_.exponent_max(); ++e2) {
@@ -441,11 +456,15 @@ private:
       if (upper > p2ssize)
         throw amaru_exception{"Multiplier is out of range."};
 
-      dot_c << "  { " <<
-        "0x"     << std::hex << std::setw(nibbles) << std::setfill('0') <<
-        upper    << ", " <<
-        "0x"     << std::hex << std::setw(nibbles) << std::setfill('0') <<
-        lower    << std::dec;
+      dot_c << "  { ";
+
+      if (!all_upper_parts_are_zero) {
+        dot_c << "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
+            upper << ", ";
+      }
+
+      dot_c << "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
+        lower << std::dec;
 
       if (!config_.use_same_shift()) {
         auto const shift = fast_eaf.k;

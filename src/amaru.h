@@ -20,7 +20,10 @@ enum {
 
 static inline
 rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
-    suint_t mantissa) {
+  suint_t mantissa) {
+
+  static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
+    "duint_t must be at least twice the size of suint_t.");
 
   suint_t const m = (~((suint_t)0)) / 10 + 1;
   duint_t       p = ((duint_t) m) * mantissa;
@@ -68,7 +71,6 @@ suint_t is_multiple_of_pow5(duint_t const upper_m, duint_t const lower_m,
   }
 
   duint_t const prod = pack(upper_m, lower_m);
-
   return AMARU_LOWER_BITS(prod, n_bits) < multiplier;
 }
 
@@ -85,8 +87,16 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   int32_t  const e         = exponent - f;
 
   uint32_t const index     = exponent - exponent_min;
-  duint_t  const upper     = scalers[index].upper;
+
+  duint_t  const upper     =
+  #ifdef AMARU_UPPER_IS_ZERO
+    0;
+  #else
+    scalers[index].upper;
+  #endif
+
   duint_t  const lower     = scalers[index].lower;
+
   uint32_t const shift     =
   #ifdef AMARU_SHIFT
     AMARU_SHIFT;
@@ -180,7 +190,7 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   duint_t const lower_m_c = lower * m_c;
 
   static_assert(CHAR_BIT * sizeof(duint_t) >= mantissa_size + 4,
-    "duint is not large enough for calculations to not overflow.");
+    "duint_t is not large enough for calculations to not overflow.");
 
   suint_t const c_hat     = scale(upper_m_c, lower_m_c, shift);
 

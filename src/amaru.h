@@ -87,7 +87,12 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   uint32_t const index     = exponent - exponent_min;
   duint_t  const upper     = scalers[index].upper;
   duint_t  const lower     = scalers[index].lower;
-  uint32_t const shift     = scalers[index].shift;
+  uint32_t const shift     =
+  #ifdef AMARU_SHIFT
+    AMARU_SHIFT;
+  #else
+    scalers[index].shift;
+  #endif
 
   suint_t  const m_b       = 2 * mantissa + 1;
   duint_t  const upper_m_b = upper * m_b;

@@ -198,7 +198,17 @@ private:
 };
 
 struct config_t {
-  bool use_shift_max = false;
+
+  config_t(bool use_same_shift) :
+    use_same_shift_{std::move(use_same_shift)} {
+  }
+
+  bool use_same_shift() const {
+    return use_same_shift_;
+  }
+
+private:
+  bool use_same_shift_;
 };
 
 /**
@@ -213,8 +223,9 @@ struct generator_t {
    * \param info_t The meta information of the floating point number type whose
    *               Amaru's implementation shall be generated.
    */
-  generator_t(info_t info) :
-    info_{std::move(info)} {
+  generator_t(info_t info, config_t config) :
+    info_  {std::move(info)  },
+    config_{std::move(config)} {
   }
 
   /**
@@ -332,6 +343,20 @@ private:
   void source(std::ostream& dot_c) const {
     common_initial(dot_c);
 
+    auto const maxima = get_maxima();
+    std::vector<fast_eaf_t> fast_eafs;
+    fast_eafs.reserve(maxima.size());
+
+    auto shift = uint32_t{0};
+
+    for (auto e2 = info_.exponent_min(); e2 <= info_.exponent_max(); ++e2) {
+      auto const& x = maxima[e2 - info_.exponent_min()];
+      fast_eafs.emplace_back(get_fast_eaf(x));
+      auto const s = fast_eafs.back().k;
+      if (s > shift)
+        shift = s;
+    }
+
     dot_c <<
       "typedef " << info_.suint() << " suint_t;\n"
       "typedef " << info_.duint() << " duint_t;\n"
@@ -345,38 +370,43 @@ private:
       "\n"
       "static suint_t const mantissa_min = " << info_.pow2_mantissa_size() <<
         ";\n"
-      "\n"
+      "\n";
+
+    if (config_.use_same_shift())
+      dot_c << "#define AMARU_SHIFT " << shift << "\n\n";
+
+    dot_c <<
       "static struct {\n"
       "  suint_t  const upper;\n"
-      "  suint_t  const lower;\n"
-      "  uint32_t const shift;\n"
-      "} scalers[] = {\n";
+      "  suint_t  const lower;\n";
 
-    auto const maxima = get_maxima();
-    std::vector<fast_eaf_t> fast_eafs;
-    fast_eafs.reserve(maxima.size());
+    if (!config_.use_same_shift())
+      dot_c << "  uint32_t const shift;\n";
 
-    auto shift_max = uint32_t{0};
-
-    for (auto e2 = info_.exponent_min(); e2 <= info_.exponent_max(); ++e2) {
-      auto const& x = maxima[e2 - info_.exponent_min()];
-      fast_eafs.emplace_back(get_fast_eaf(x));
-      auto const shift = fast_eafs.back().k;
-      if (shift > shift_max)
-        shift_max = shift;
-    }
+    dot_c << "} scalers[] = {\n";
 
     auto const ssize   = info_.ssize();
     auto const p2ssize = integer_t{1} << ssize;
     auto const nibbles = ssize / 4;
 
+    auto const p2shift = integer_t{1} << (config_.use_same_shift() ? shift : 0);
+
     for (auto e2 = info_.exponent_min(); e2 <= info_.exponent_max(); ++e2) {
 
       auto const& fast_eaf = [&]() {
-        if (config_.use_shift_max)
-          return fast_eaf_t{};
-        else
+
+        if (!config_.use_same_shift())
           return fast_eafs[e2 - info_.exponent_min()];
+
+        auto const& x = maxima[e2 - info_.exponent_min()];
+
+        integer_t q, r;
+        divide_qr(x.alpha << shift, x.delta, q, r);
+
+        if (x.maximum >= rational_t{p2shift, x.delta - r})
+          throw amaru_exception{"Unable to use same shift."};
+
+        return fast_eaf_t{q + 1, shift};
       }();
 
       integer_t upper, lower;
@@ -385,16 +415,17 @@ private:
       if (upper > p2ssize)
         throw amaru_exception{"Multiplier is out of range."};
 
-      auto const shift = fast_eaf.k;
-
       dot_c << "  { " <<
         "0x"     << std::hex << std::setw(nibbles) << std::setfill('0') <<
         upper    << ", " <<
         "0x"     << std::hex << std::setw(nibbles) << std::setfill('0') <<
-        lower    << ", " <<
-        std::dec <<
-        shift    << " }, // " <<
-        e2       << "\n";
+        lower    << std::dec;
+
+      if (!config_.use_same_shift()) {
+        auto const shift = fast_eaf.k;
+        dot_c << ", " << shift;
+      }
+      dot_c <<  " }, // " << e2 << "\n";
     }
 
     dot_c <<
@@ -541,7 +572,11 @@ int main() {
 
   try {
 
-    auto ieee32_config = info_t {
+    auto const config = config_t{
+      /* use_same_shift */ false
+    };
+
+    auto ieee32_info = info_t {
       /* name          */ "ieee32",
       /* suint         */ "uint32_t",
       /* duint         */ "uint64_t",
@@ -551,12 +586,12 @@ int main() {
       /* exponent_min  */ -149,
       /* exponent_max  */ 104
     };
-    auto generator_32 = generator_t{ieee32_config};
+    auto generator_32 = generator_t{ieee32_info, config};
     auto dot_h_32     = std::ofstream{"../generated/ieee32.h"};
     auto dot_c_32     = std::ofstream{"../generated/ieee32.c"};
     generator_32.generate(dot_h_32, dot_c_32);
 
-    auto ieee64_config   = info_t{
+    auto ieee64_info   = info_t{
       /* name          */ "ieee64",
       /* suint         */ "uint64_t",
       /* duint         */ "__uint128_t",
@@ -566,7 +601,7 @@ int main() {
       /* exponent_min  */ -1074,
       /* exponent_max  */ 971
     };
-    auto generator_64 = generator_t{ieee64_config};
+    auto generator_64 = generator_t{ieee64_info, config};
     auto dot_h_64     = std::ofstream{"../generated/ieee64.h"};
     auto dot_c_64     = std::ofstream{"../generated/ieee64.c"};
     generator_64.generate(dot_h_64, dot_c_64);

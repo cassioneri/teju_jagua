@@ -58,7 +58,8 @@ suint_t is_multiple_of_pow5(duint_t const upper_m, duint_t const lower_m,
 
     duint_t const upper_limbs = upper_m + (lower_m >> ssize);
 
-    if (AMARU_LOWER_BITS(upper_limbs, n_bits - ssize) >> ssize > 0)
+    if (AMARU_LOWER_BITS(upper_limbs, n_bits - ssize) >=
+      AMARU_POW2(duint_t, ssize))
       return false;
 
     duint_t const lower_limb = (suint_t) lower_m;

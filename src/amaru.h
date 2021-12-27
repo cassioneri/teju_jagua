@@ -34,8 +34,8 @@ rep_t remove_trailing_zeros(rep_t decimal) {
 }
 
 static inline
-duint_t pack(duint_t upper, duint_t lower) {
-  return (upper << ssize) + lower;
+duint_t pack(duint_t upper_m, duint_t lower_m) {
+  return (upper_m << ssize) + lower_m;
 }
 
 static inline
@@ -50,20 +50,21 @@ suint_t scale(duint_t const upper_m, duint_t const lower_m,
 
 static inline
 suint_t is_multiple_of_pow5(duint_t const multiplier, uint32_t const n_bits,
-  duint_t const upper_prod, duint_t const lower_prod,
-  duint_t const upper_limbs) {
+  duint_t const upper_m, duint_t const lower_m) {
 
   if (n_bits >= dsize) {
+
+    duint_t const upper_limbs = upper_m + (lower_m >> ssize);
 
     if (AMARU_LOWER_BITS(upper_limbs, n_bits - ssize) >> ssize > 0)
       return false;
 
-    duint_t const lower_limb = (suint_t) lower_prod;
+    duint_t const lower_limb = (suint_t) lower_m;
     duint_t const prod       = pack(upper_limbs, lower_limb);
     return prod < multiplier;
   }
 
-  duint_t const prod = pack(upper_prod, lower_prod);
+  duint_t const prod = pack(upper_m, lower_m);
 
   return AMARU_LOWER_BITS(prod, n_bits) < multiplier;
 }
@@ -81,22 +82,20 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     return decimal;
   }
 
-  decimal.exponent = log10_pow2(exponent);
+  decimal.exponent         = log10_pow2(exponent);
+  int32_t  const e         = exponent - decimal.exponent;
 
-  int32_t  const e             = exponent - decimal.exponent;
+  uint32_t const index     = exponent - exponent_min;
+  duint_t  const upper     = scalers[index].upper;
+  duint_t  const lower     = scalers[index].lower;
+  uint32_t const shift     = scalers[index].shift;
 
-  uint32_t const index         = exponent - exponent_min;
-  duint_t  const upper         = scalers[index].upper;
-  duint_t  const lower         = scalers[index].lower;
-  uint32_t const shift         = scalers[index].shift;
+  suint_t  const m_b       = 2 * mantissa + 1;
+  duint_t  const upper_m_b = upper * m_b;
+  duint_t  const lower_m_b = lower * m_b;
 
-  suint_t  const m_b           = 2 * mantissa + 1;
-  duint_t  const upper_m_b     = upper * m_b;
-  duint_t  const lower_m_b     = lower * m_b;
-  duint_t  const upper_limbs_b = upper_m_b + (lower_m_b >> ssize);
-
-  suint_t  const b_hat         = scale(upper_m_b, lower_m_b, shift);
-  suint_t  const b             = b_hat / 2;
+  suint_t  const b_hat     = scale(upper_m_b, lower_m_b, shift);
+  suint_t  const b         = b_hat / 2;
 
   bool shorten;
 
@@ -108,21 +107,20 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
       bool const is_exact = exponent > 0 &&
         decimal.exponent <= exponent_critical && b_hat % 2 == 0 &&
         is_multiple_of_pow5(pack(upper, lower), shift + e, upper_m_b,
-          lower_m_b, upper_limbs_b);
+        lower_m_b);
       shorten = !is_exact || mantissa % 2 == 0;
     }
 
     else {
       // m_a = 2 * mantissa - 1 = m_b - 2.
-      duint_t const upper_m_a     = upper_m_b - 2 * upper;
-      duint_t const lower_m_a     = lower_m_b - 2 * lower;
-      duint_t const upper_limbs_a = upper_m_a + (lower_m_a >> ssize);
-      suint_t const a_hat         = scale(upper_m_a, lower_m_a, shift);
+      duint_t const upper_m_a = upper_m_b - 2 * upper;
+      duint_t const lower_m_a = lower_m_b - 2 * lower;
+      suint_t const a_hat     = scale(upper_m_a, lower_m_a, shift);
 
       bool const is_exact = exponent > 0 &&
         decimal.exponent <= exponent_critical && a_hat % 2 == 0 &&
         is_multiple_of_pow5(pack(upper, lower), shift + e, upper_m_a,
-          lower_m_a, upper_limbs_a);
+        lower_m_a);
       suint_t const a = a_hat / 2 + !is_exact;
       shorten = s > a || (s == a && (!is_exact || mantissa % 2 == 0));
     }
@@ -148,17 +146,14 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   }
   else {
     // m_a = 4 * mantissa - 1
-    suint_t const m_a           = 4 * mantissa - 1;
-    duint_t const upper_m_a     = upper * m_a;
-    duint_t const lower_m_a     = lower * m_a;
-    duint_t const upper_limbs_a = upper_m_a + (lower_m_a >> ssize);
-
-    suint_t const a_hat         = scale(upper_m_a, lower_m_a, shift);
-    bool    const is_exact      = exponent > 1 &&
+    suint_t const m_a       = 4 * mantissa - 1;
+    duint_t const upper_m_a = upper * m_a;
+    duint_t const lower_m_a = lower * m_a;
+    suint_t const a_hat     = scale(upper_m_a, lower_m_a, shift);
+    bool    const is_exact  = exponent > 1 &&
       decimal.exponent <= exponent_critical && a_hat % 4 == 0 &&
-      is_multiple_of_pow5(pack(upper, lower), shift + e, upper_m_a, lower_m_a,
-        upper_limbs_a);
-    suint_t const a             = a_hat / 4 + !is_exact;
+      is_multiple_of_pow5(pack(upper, lower), shift + e, upper_m_a, lower_m_a);
+    suint_t const a         = a_hat / 4 + !is_exact;
 
     if (b >= a) {
       suint_t const s = 10 * (b / 10);

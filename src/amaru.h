@@ -34,7 +34,7 @@ rep_t remove_trailing_zeros(rep_t decimal) {
 }
 
 static inline
-duint_t add(duint_t upper, duint_t lower) {
+duint_t pack(duint_t upper, duint_t lower) {
   return (upper << ssize) + lower;
 }
 
@@ -47,11 +47,9 @@ suint_t scale(duint_t const upper_limbs, suint_t const lower_limb,
 }
 
 static inline
-suint_t is_multiple_of_pow5(suint_t const upper, suint_t const lower,
-  uint32_t const n_bits, duint_t const upper_prod,
-  duint_t const lower_prod, duint_t const upper_limbs) {
-
-  duint_t const multiplier = add(upper, lower);
+suint_t is_multiple_of_pow5(duint_t const multiplier, uint32_t const n_bits,
+  duint_t const upper_prod, duint_t const lower_prod,
+  duint_t const upper_limbs) {
 
   if (n_bits >= dsize) {
 
@@ -59,11 +57,11 @@ suint_t is_multiple_of_pow5(suint_t const upper, suint_t const lower,
       return false;
 
     duint_t const lower_limb = (suint_t) lower_prod;
-    duint_t const prod       = add(upper_limbs, lower_limb);
+    duint_t const prod       = pack(upper_limbs, lower_limb);
     return prod < multiplier;
   }
 
-  duint_t const prod = add(upper_prod, lower_prod);
+  duint_t const prod = pack(upper_prod, lower_prod);
 
   return AMARU_LOWER_BITS(prod, n_bits) < multiplier;
 }
@@ -107,7 +105,7 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     if (s == b) {
       bool const is_exact = exponent > 0 &&
         decimal.exponent <= exponent_critical && b_hat % 2 == 0 &&
-        is_multiple_of_pow5(upper, lower, shift + e, upper_prod_b,
+        is_multiple_of_pow5(pack(upper, lower), shift + e, upper_prod_b,
           lower_prod_b, upper_limbs_b);
       shorten = !is_exact || mantissa % 2 == 0;
     }
@@ -121,7 +119,7 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 
       bool const is_exact = exponent > 0 &&
         decimal.exponent <= exponent_critical && a_hat % 2 == 0 &&
-        is_multiple_of_pow5(upper, lower, shift + e, upper_prod_a,
+        is_multiple_of_pow5(pack(upper, lower), shift + e, upper_prod_a,
           lower_prod_a, upper_limbs_a);
       suint_t const a = a_hat / 2 + !is_exact;
       shorten = s > a || (s == a && (!is_exact || mantissa % 2 == 0));
@@ -157,7 +155,7 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     suint_t const a_hat         = scale(upper_limbs_a, lower_prod_a, shift);
     bool    const is_exact      = exponent > 1 &&
       decimal.exponent <= exponent_critical && a_hat % 4 == 0 &&
-      is_multiple_of_pow5(upper, lower, shift + e, upper_prod_a, lower_prod_a,
+      is_multiple_of_pow5(pack(upper, lower), shift + e, upper_prod_a, lower_prod_a,
         upper_limbs_a);
     suint_t const a             = a_hat / 4 + !is_exact;
 

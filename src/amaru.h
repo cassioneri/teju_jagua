@@ -13,6 +13,9 @@
 extern "C" {
 #endif
 
+static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
+  "duint_t must be at least twice the size of suint_t.");
+
 enum {
   ssize = CHAR_BIT * sizeof(suint_t),
   dsize = CHAR_BIT * sizeof(duint_t),
@@ -21,9 +24,6 @@ enum {
 static inline
 rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
   suint_t mantissa) {
-
-  static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
-    "duint_t must be at least twice the size of suint_t.");
 
   suint_t const m = (~((suint_t)0)) / 10 + 1;
   duint_t       p = ((duint_t) m) * mantissa;
@@ -100,13 +100,14 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     uint32_t const shift  = scalers[i].shift;
   #endif
 
+  // The below doesn't overflow. (See generator's overflow check #1).
   suint_t const m_b       = 2 * mantissa + 1;
   duint_t const upper_m_b = upper * m_b;
   duint_t const lower_m_b = lower * m_b;
   suint_t const b_hat     = scale(upper_m_b, lower_m_b, shift);
   suint_t const b         = b_hat / 2;
 
-  if (mantissa != mantissa_min || exponent == exponent_min) {
+  if (mantissa != normal_mantissa_min || exponent == exponent_min) {
 
     suint_t const s = 10 * (b / 10);
 
@@ -148,8 +149,8 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 
   // mantissa = mantissa_min
 
-  // m_a = 4 * mantissa - 1 = 4 * mantissa_min - 1
-  suint_t const m_a       = 4 * mantissa_min - 1;
+  // The below doesn't overflow. (See generator's overflow check #2).
+  suint_t const m_a       = 4 * normal_mantissa_min - 1;
   duint_t const upper_m_a = upper * m_a;
   duint_t const lower_m_a = lower * m_a;
   suint_t const a_hat     = scale(upper_m_a, lower_m_a, shift);
@@ -181,10 +182,8 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     return decimal;
   }
 
-  static_assert(CHAR_BIT * sizeof(suint_t) >= mantissa_size + 4,
-    "suint_t is not large enough for calculations to not overflow.");
-
-  suint_t const m_c       = 20 * mantissa_min;
+  // The below doesn't overflow. (See generator's overflow check #2).
+  suint_t const m_c       = 20 * normal_mantissa_min;
   duint_t const upper_m_c = upper * m_c;
   duint_t const lower_m_c = lower * m_c;
   suint_t const c_hat     = scale(upper_m_c, lower_m_c, shift);

@@ -93,19 +93,20 @@ struct info_t {
    *                        representation.)
    */
   info_t(std::string id, std::string suint, std::string duint, uint32_t ssize,
-    uint32_t exponent_size, uint32_t mantissa_size, int32_t exponent_min,
-    int32_t exponent_max) :
-    id_                {std::move(id)                       },
-    suint_             {std::move(suint)                    },
-    duint_             {std::move(duint)                    },
-    rep_               {id_ + "_t"                          },
-    ssize_             {ssize                               },
-    exponent_size_     {exponent_size                       },
-    mantissa_size_     {mantissa_size                       },
-    exponent_min_      {exponent_min                        },
-    exponent_max_      {exponent_max                        },
-    exponent_critical_ {log5_pow2(mantissa_size + 2)        },
-    pow2_mantissa_size_{AMARU_POW2(integer_t, mantissa_size)} {
+    uint32_t exponent_size, int32_t exponent_min, int32_t exponent_max,
+    uint32_t mantissa_size) :
+    id_                 {std::move(id)                       },
+    suint_              {std::move(suint)                    },
+    duint_              {std::move(duint)                    },
+    rep_                {id_ + "_t"                          },
+    ssize_              {ssize                               },
+    exponent_size_      {exponent_size                       },
+    exponent_min_       {exponent_min                        },
+    exponent_max_       {exponent_max                        },
+    exponent_critical_  {log5_pow2(mantissa_size + 2)        },
+    mantissa_size_      {mantissa_size                       },
+    normal_mantissa_min_{AMARU_POW2(integer_t, mantissa_size)},
+    normal_mantissa_max_{2 * normal_mantissa_min_            } {
   }
 
   /**
@@ -180,11 +181,25 @@ struct info_t {
   }
 
   /**
-   * \brief Returns pow2(mantissa_size()).
+   * \brief Returns the normal minimal mantissa: pow2(mantissa_size()).
+   *
+   * This is the minimal mantissa for normal numbers. Sub-normal numbers have
+   * smaller mantissas.
    */
-  integer_t const& pow2_mantissa_size() const {
-    return pow2_mantissa_size_;
+  integer_t const& normal_mantissa_min() const {
+    return normal_mantissa_min_;
   }
+
+  /**
+   * \brief Returns the normal maximal mantissa: 2 * normal_mantissa_min().
+   *
+   * This is the maximal mantissa for normal numbers. Sub-normal numbers have
+   * smaller mantissas.
+   */
+  integer_t const& normal_mantissa_max() const {
+    return normal_mantissa_max_;
+  }
+
 private:
 
   std::string const id_;
@@ -193,11 +208,12 @@ private:
   std::string const rep_;
   uint32_t    const ssize_;
   uint32_t    const exponent_size_;
-  uint32_t    const mantissa_size_;
   int32_t     const exponent_min_;
   int32_t     const exponent_max_;
   int32_t     const exponent_critical_;
-  integer_t   const pow2_mantissa_size_;
+  uint32_t    const mantissa_size_;
+  integer_t   const normal_mantissa_min_;
+  integer_t   const normal_mantissa_max_;
 };
 
 /**
@@ -242,8 +258,9 @@ struct generator_t {
    * \param config          Configures implementation details.
    */
   generator_t(info_t info, config_t config) :
-    info_  {std::move(info)  },
-    config_{std::move(config)} {
+    info_   {std::move(info)              },
+    config_ {std::move(config)            },
+    p2ssize_{integer_t{1} << info_.ssize()} {
   }
 
   /**
@@ -255,6 +272,16 @@ struct generator_t {
   void generate(std::ostream& dot_h, std::ostream& dot_c) const {
 
     std::cout << "Generation started.\n";
+
+    // Overflow check 1:
+    if (2 * info_.normal_mantissa_max() + 1 >= p2ssize_)
+      throw amaru_exception("suint_t is not large enough for calculations to "
+        "not overflow.");
+
+    // Overflow check 2:
+    if (20 * info_.normal_mantissa_min() >= p2ssize_)
+      throw amaru_exception("suint_t is not large enough for calculations to "
+        "not overflow.");
 
     std::cout << "  Generating \".h\".\n";
     header(dot_h);
@@ -422,8 +449,8 @@ private:
       "  exponent_critical = " << info_.exponent_critical()  << ",\n"
       "};\n"
       "\n"
-      "static suint_t const mantissa_min = " << info_.pow2_mantissa_size() <<
-        ";\n"
+      "static suint_t const normal_mantissa_min = " <<
+        info_.normal_mantissa_min() << ";\n"
       "\n";
 
     if (all_upper_parts_are_zero)
@@ -600,11 +627,11 @@ private:
     alpha               %= delta;
 
     auto const a        = start_at_1 ?
-      integer_t{1} : 2 * info_.pow2_mantissa_size();
-    auto const b        = 4 * info_.pow2_mantissa_size();
+      integer_t{1} : 2 * info_.normal_mantissa_min();
+    auto const b        = 2 * info_.normal_mantissa_max();
 
     auto const maximum1 = get_maximum_primary(alpha, delta, a, b);
-    auto const maximum2 = phi(alpha, delta, 20 * info_.pow2_mantissa_size());
+    auto const maximum2 = phi(alpha, delta, 20 * info_.normal_mantissa_min());
 
     return std::max(maximum1, maximum2);
   }
@@ -648,8 +675,9 @@ private:
     throw amaru_exception{"Cannot find fast EAF."};
   }
 
-  info_t   info_;
-  config_t config_;
+  info_t    info_;
+  config_t  config_;
+  integer_t p2ssize_;
 };
 
 } // namespace <anonymous>
@@ -663,14 +691,14 @@ int main() {
     };
 
     auto ieee32_info = info_t {
-      /* name          */ "ieee32",
+      /* id            */ "ieee32",
       /* suint         */ "uint32_t",
       /* duint         */ "uint64_t",
       /* ssize         */ 32,
       /* exponent_size */ 8,
-      /* mantissa_size */ 23,
       /* exponent_min  */ -149,
-      /* exponent_max  */ 104
+      /* exponent_max  */ 104,
+      /* mantissa_size */ 23
     };
     auto generator_32 = generator_t{ieee32_info, config};
     auto dot_h_32     = std::ofstream{"../generated/ieee32.h"};
@@ -678,14 +706,14 @@ int main() {
     generator_32.generate(dot_h_32, dot_c_32);
 
     auto ieee64_info   = info_t{
-      /* name          */ "ieee64",
+      /* id            */ "ieee64",
       /* suint         */ "uint64_t",
       /* duint         */ "__uint128_t",
       /* ssize         */ 64,
       /* exponent_size */ 11,
-      /* mantissa_size */ 52,
       /* exponent_min  */ -1074,
-      /* exponent_max  */ 971
+      /* exponent_max  */ 971,
+      /* mantissa_size */ 52
     };
     auto generator_64 = generator_t{ieee64_info, config};
     auto dot_h_64     = std::ofstream{"../generated/ieee64.h"};

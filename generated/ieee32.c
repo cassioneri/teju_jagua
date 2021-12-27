@@ -26,7 +26,7 @@ enum {
   exponent_critical = 10,
 };
 
-static suint_t const mantissa_min = 8388608;
+static suint_t const normal_mantissa_min = 8388608;
 
 static struct {
   suint_t  const upper;

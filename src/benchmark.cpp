@@ -13,9 +13,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define DO_RYU   1
-#define DO_AMARU 1
-
 template <typename>
 struct fp_traits_t;
 
@@ -95,30 +92,6 @@ struct fp_traits_t<double> {
     asm("" : "+r"(amaru.exponent), "+r"(amaru.mantissa));
   }
 };
-
-template <typename T>
-void run_ryu_and_or_amaru(T const value) {
-
-  using traits_t = fp_traits_t<T>;
-
-  #if DO_RYU
-    traits_t::ryu(value);
-  #endif
-
-  #if DO_AMARU
-    traits_t::amaru(value);
-  #endif
-}
-
-void run_ryu_and_or_amaru_for_all_floats() {
-
-  auto value = std::numeric_limits<float>::denorm_min();
-
-  while (std::isfinite(value)) {
-    run_ryu_and_or_amaru(value);
-    value = get_next(value);
-  }
-}
 
 template <typename T>
 void benchmark() {

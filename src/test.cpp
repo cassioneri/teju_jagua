@@ -1,6 +1,3 @@
-#define DO_RYU   1
-#define DO_AMARU 1
-
 #include "common.h"
 #include "ieee.h"
 
@@ -194,52 +191,38 @@ struct fp_traits_t<double> {
 template <typename T>
 void compare_to_ryu(T const value) {
 
-  using traits_t = fp_traits_t<T>;
+  using          traits_t = fp_traits_t<T>;
+  using          fp_t     = typename traits_t::fp_t;
+  auto constexpr digits   = std::numeric_limits<fp_t>::digits10 + 1;
 
-  #if DO_RYU
-    auto ryu_dec = traits_t::ryu(value);
-    asm("" : "+r"(ryu_dec.exponent), "+r"(ryu_dec.mantissa));
-  #endif
+  auto const ryu_dec      = traits_t::ryu(value);
+  auto const amaru_dec    = traits_t::amaru(value);
 
-  #if DO_AMARU
-    auto amaru_dec = traits_t::amaru(value);
-    asm("" : "+r"(amaru_dec.exponent), "+r"(amaru_dec.mantissa));
-  #endif
+  auto const ieee         = to_ieee(value);
 
-  #if DO_RYU && DO_AMARU
+  EXPECT_EQ(ryu_dec.exponent, amaru_dec.exponent) << "Note: "
+    "value = " << std::setprecision(digits) << value << ", "
+    "ieee.exponent = " << ieee.exponent << ", "
+    "ieee.mantissa = " << ieee.mantissa;
 
-    auto const     ieee   = to_ieee(value);
-    using          fp_t   = typename traits_t::fp_t;
-    auto constexpr digits = std::numeric_limits<fp_t>::digits10 + 1;
-
-    EXPECT_EQ(ryu_dec.exponent, amaru_dec.exponent) << "Note: "
-      "value = " << std::setprecision(digits) << value << ", "
+  EXPECT_EQ(ryu_dec.mantissa, amaru_dec.mantissa) << "Note: "
+    "value = " << std::setprecision(digits) << value << ", "
       "ieee.exponent = " << ieee.exponent << ", "
       "ieee.mantissa = " << ieee.mantissa;
-
-    EXPECT_EQ(ryu_dec.mantissa, amaru_dec.mantissa) << "Note: "
-      "value = " << std::setprecision(digits) << value << ", "
-        "ieee.exponent = " << ieee.exponent << ", "
-        "ieee.mantissa = " << ieee.mantissa;
-  #endif
 }
 
 TEST(float_tests, exhaustive_comparison_to_ryu) {
 
   auto value    = std::numeric_limits<float>::denorm_min();
-  #if DO_RYU && DO_AMARU
-    auto exponent = std::numeric_limits<int32_t>::min();
-  #endif
+  auto exponent = std::numeric_limits<int32_t>::min();
 
   while (std::isfinite(value) && !HasFailure()) {
 
-    #if DO_RYU && DO_AMARU
-      auto const ieee = to_ieee(value);
-      if (ieee.exponent != exponent) {
-        exponent = ieee.exponent;
-        std::cerr << "Exponent: " << exponent << std::endl;
-      }
-    #endif
+    auto const ieee = to_ieee(value);
+    if (ieee.exponent != exponent) {
+      exponent = ieee.exponent;
+      std::cerr << "Exponent: " << exponent << std::endl;
+    }
 
     compare_to_ryu(value);
 

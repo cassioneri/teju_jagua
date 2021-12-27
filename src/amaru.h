@@ -89,11 +89,11 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   uint32_t const shift         = scalers[index].shift;
 
   suint_t  const m_b           = 2 * mantissa + 1;
-  duint_t  const upper_prod_b  = upper * m_b;
-  duint_t  const lower_prod_b  = lower * m_b;
-  duint_t  const upper_limbs_b = upper_prod_b + (lower_prod_b >> ssize);
+  duint_t  const upper_m_b     = upper * m_b;
+  duint_t  const lower_m_b     = lower * m_b;
+  duint_t  const upper_limbs_b = upper_m_b + (lower_m_b >> ssize);
 
-  suint_t  const b_hat         = scale(upper_limbs_b, lower_prod_b, shift);
+  suint_t  const b_hat         = scale(upper_limbs_b, lower_m_b, shift);
   suint_t  const b             = b_hat / 2;
 
   bool shorten;
@@ -105,22 +105,22 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     if (s == b) {
       bool const is_exact = exponent > 0 &&
         decimal.exponent <= exponent_critical && b_hat % 2 == 0 &&
-        is_multiple_of_pow5(pack(upper, lower), shift + e, upper_prod_b,
-          lower_prod_b, upper_limbs_b);
+        is_multiple_of_pow5(pack(upper, lower), shift + e, upper_m_b,
+          lower_m_b, upper_limbs_b);
       shorten = !is_exact || mantissa % 2 == 0;
     }
 
     else {
       // m_a = 2 * mantissa - 1 = m_b - 2.
-      duint_t const upper_prod_a  = upper_prod_b - 2 * upper;
-      duint_t const lower_prod_a  = lower_prod_b - 2 * lower;
-      duint_t const upper_limbs_a = upper_prod_a + (lower_prod_a >> ssize);
-      suint_t const a_hat         = scale(upper_limbs_a, lower_prod_a, shift);
+      duint_t const upper_m_a     = upper_m_b - 2 * upper;
+      duint_t const lower_m_a     = lower_m_b - 2 * lower;
+      duint_t const upper_limbs_a = upper_m_a + (lower_m_a >> ssize);
+      suint_t const a_hat         = scale(upper_limbs_a, lower_m_a, shift);
 
       bool const is_exact = exponent > 0 &&
         decimal.exponent <= exponent_critical && a_hat % 2 == 0 &&
-        is_multiple_of_pow5(pack(upper, lower), shift + e, upper_prod_a,
-          lower_prod_a, upper_limbs_a);
+        is_multiple_of_pow5(pack(upper, lower), shift + e, upper_m_a,
+          lower_m_a, upper_limbs_a);
       suint_t const a = a_hat / 2 + !is_exact;
       shorten = s > a || (s == a && (!is_exact || mantissa % 2 == 0));
     }
@@ -133,10 +133,10 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     else {
       // m_c = 2 * mantissa = m_b - 1;
       suint_t const m_c           = m_b - 1;
-      duint_t const upper_prod_c  = upper_prod_b - upper;
-      duint_t const lower_prod_c  = lower_prod_b - lower;
-      duint_t const upper_limbs_c = upper_prod_c + (lower_prod_c >> ssize);
-      suint_t const c_hat         = scale(upper_limbs_c, lower_prod_c, shift);
+      duint_t const upper_m_c     = upper_m_b - upper;
+      duint_t const lower_m_c     = lower_m_b - lower;
+      duint_t const upper_limbs_c = upper_m_c + (lower_m_c >> ssize);
+      suint_t const c_hat         = scale(upper_limbs_c, lower_m_c, shift);
       decimal.mantissa            = c_hat / 2;
 
       if (c_hat % 2 == 1)
@@ -148,14 +148,14 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   else {
     // m_a = 4 * mantissa - 1
     suint_t const m_a           = 4 * mantissa - 1;
-    duint_t const upper_prod_a  = upper * m_a;
-    duint_t const lower_prod_a  = lower * m_a;
-    duint_t const upper_limbs_a = upper_prod_a + (lower_prod_a >> ssize);
+    duint_t const upper_m_a     = upper * m_a;
+    duint_t const lower_m_a     = lower * m_a;
+    duint_t const upper_limbs_a = upper_m_a + (lower_m_a >> ssize);
 
-    suint_t const a_hat         = scale(upper_limbs_a, lower_prod_a, shift);
+    suint_t const a_hat         = scale(upper_limbs_a, lower_m_a, shift);
     bool    const is_exact      = exponent > 1 &&
       decimal.exponent <= exponent_critical && a_hat % 4 == 0 &&
-      is_multiple_of_pow5(pack(upper, lower), shift + e, upper_prod_a, lower_prod_a,
+      is_multiple_of_pow5(pack(upper, lower), shift + e, upper_m_a, lower_m_a,
         upper_limbs_a);
     suint_t const a             = a_hat / 4 + !is_exact;
 
@@ -168,10 +168,10 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 
       else {
         // m_c = 2 * mantissa = m_b - 1
-        duint_t const upper_prod_c  = upper_prod_b - upper;
-        duint_t const lower_prod_c  = lower_prod_b - lower;
-        duint_t const upper_limbs_c = upper_prod_c + (lower_prod_c >> ssize);
-        suint_t const c_hat         = scale(upper_limbs_c, lower_prod_c, shift);
+        duint_t const upper_m_c     = upper_m_b - upper;
+        duint_t const lower_m_c     = lower_m_b - lower;
+        duint_t const upper_limbs_c = upper_m_c + (lower_m_c >> ssize);
+        suint_t const c_hat         = scale(upper_limbs_c, lower_m_c, shift);
         decimal.mantissa            = c_hat / 2;
 
         if (decimal.mantissa < a)
@@ -183,15 +183,15 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     }
     else {
       --decimal.exponent;
-      suint_t const m           = 20 * mantissa;
-      duint_t const upper_prod  = upper * m;
-      duint_t const lower_prod  = lower * m;
-      duint_t const upper_limbs = upper_prod + (lower_prod >> ssize);
+      suint_t const m_c           = 20 * mantissa;
+      duint_t const upper_m_c     = upper * m_c;
+      duint_t const lower_m_c     = lower * m_c;
+      duint_t const upper_limbs_c = upper_m_c + (lower_m_c >> ssize);
 
       static_assert(CHAR_BIT * sizeof(duint_t) >= mantissa_size + 4,
         "duint is not large enough for calculations to not overflow.");
 
-      suint_t const c_hat = scale(upper_limbs, lower_prod, shift);
+      suint_t const c_hat = scale(upper_limbs_c, lower_m_c, shift);
 
       decimal.mantissa = c_hat / 2;
       if (c_hat % 2 == 1)

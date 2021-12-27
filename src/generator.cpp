@@ -49,6 +49,9 @@ log5_pow2(int32_t n) {
   return n >= 0 ? (int32_t) (log5_2 * n >> 32) : -log5_pow2(-n) - 1;
 }
 
+/**
+ * \brief Exception thrown by the generator.
+ */
 struct amaru_exception : std::range_error {
   using std::range_error::range_error;
 };
@@ -197,12 +200,26 @@ private:
   integer_t   const pow2_mantissa_size_;
 };
 
+/**
+ * \brief Configuration of Amaru's generated implementation.
+ */
 struct config_t {
 
+  /**
+   * \brief Constructor.
+   *
+   * \param use_same_shift  Tells if Amaru should use the same shift for all
+   *                        exponents. It saves memory and is faster but it
+   *                        might not be possible (in which case, the generator
+   *                        throws.)
+   */
   config_t(bool use_same_shift) :
     use_same_shift_{std::move(use_same_shift)} {
   }
 
+  /**
+   * \brief Returns if Amarus should use the same shift for all exponents.
+   */
   bool use_same_shift() const {
     return use_same_shift_;
   }
@@ -220,8 +237,9 @@ struct generator_t {
   /**
    * \brief Constructor.
    *
-   * \param info_t The meta information of the floating point number type whose
-   *               Amaru's implementation shall be generated.
+   * \param info            The meta information of the floating point number
+   *                        type whose implementation is to be generated.
+   * \param config          Configures implementation details.
    */
   generator_t(info_t info, config_t config) :
     info_  {std::move(info)  },
@@ -262,6 +280,11 @@ private:
     uint32_t  k;
   };
 
+  /**
+   * \brief Stores alpha, delta (usually pow2(e) and pow2(f)) and the maximum of
+   *     m / (delta - alpha * m % delta)
+   * for m in the set of mantissas.
+   */
   struct alpha_delta_maximum {
     integer_t  alpha;
     integer_t  delta;
@@ -441,7 +464,7 @@ private:
   }
 
   /**
-   * \brief Gets the maxima of all primary problems.
+   * \brief Gets the maxima of all primary problems. (See get_maximum_primary.)
    *
    * It returns a vector v of size info_.exponent_max() - info_.exponent_min() +
    * 1 such that v[i] contains the maximum of the primary problem corresponding
@@ -469,6 +492,16 @@ private:
     return maxima;
   }
 
+  /**
+   * \brief Given alpha, delta, a and b, this function calculates the maximiser
+   * of
+   *
+   *     phi(m) := m / (delta - alpha * m % delta),
+   *
+   * over [a, b[.
+   *
+   * \pre 0 <= alpha && alpha < delta && a < b.
+   */
   static rational_t get_maximum_primary(integer_t const& alpha,
     integer_t const& delta, integer_t const& a, integer_t const& b) {
 
@@ -495,6 +528,16 @@ private:
     return std::max(maximum1, maximum2);
   }
 
+  /**
+   * \brief Given alpha', delta', a' and b', this function calculates the
+   * maximiser of
+   *
+   *     phi'(m') := m' / (1 + (alpha' * m' - 1) % delta'),
+   *
+   * over [a', b'[.
+   *
+   * \pre 0 < alpha' && 0 < delta' && 1 <= a' && a' < b'.
+   */
   static rational_t get_maximum_secondary(integer_t const& alpha_p,
     integer_t const& delta_p, integer_t const& a_p, integer_t const& b_p) {
 
@@ -523,6 +566,15 @@ private:
     return std::max(maximum1, maximum2);
   }
 
+  /**
+   * \brief Given alpha and delta, this function calculates the maximiser of
+   *
+   *     phi(m) = m / (delta - alpha * m % delta),
+   *
+   * over the set of mantissas.
+   *
+   * \pre 0 <= alpha && 0 < delta.
+   */
   rational_t get_maximum(integer_t alpha, integer_t const& delta,
     bool start_at_1 = false) const {
 
@@ -538,6 +590,18 @@ private:
     return std::max(maximum1, maximum2);
   }
 
+  /**
+   * \brief Get the version of the EAF f(m) = alpha * m / delta which works on
+   * an interval of relevant mantissas. This fast EAF is associated to
+   * maximisation of
+   *
+   *     phi(m) := m / (delta - alpha * m % delta),
+   *
+   * over the set of mantissas.
+   *
+   * \param x               The container of alpha, beta and the solution of
+   *                        the maximum problem.
+   */
   fast_eaf_t get_fast_eaf(alpha_delta_maximum const& x) const {
 
     auto k    = uint32_t{0};

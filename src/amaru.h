@@ -19,17 +19,19 @@ enum {
 };
 
 static inline
-rep_t remove_trailing_zeros(rep_t decimal) {
+rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
+    suint_t mantissa) {
 
   suint_t const m = (~((suint_t)0)) / 10 + 1;
-  duint_t       p = ((duint_t) m) * decimal.mantissa;
+  duint_t       p = ((duint_t) m) * mantissa;
 
   do {
-    ++decimal.exponent;
-    decimal.mantissa = (suint_t) (p >> ssize);
-    p                = ((duint_t) m) * decimal.mantissa;
+    ++exponent;
+    mantissa = (suint_t) (p >> ssize);
+    p        = ((duint_t) m) * mantissa;
   } while ((suint_t) p < m);
 
+  rep_t const decimal = { negative, exponent, mantissa };
   return decimal;
 }
 
@@ -73,17 +75,13 @@ rep_t
 TO_AMARU_DEC(bool const negative, int32_t const exponent,
   suint_t const mantissa) {
 
-  rep_t decimal;
-  decimal.negative = negative;
-
   if (exponent == exponent_min && mantissa == 0) {
-    decimal.exponent = 0;
-    decimal.mantissa = 0;
+    rep_t decimal = { negative, 0, 0 };
     return decimal;
   }
 
-  decimal.exponent         = log10_pow2(exponent);
-  int32_t  const e         = exponent - decimal.exponent;
+  int32_t  const f         = log10_pow2(exponent);
+  int32_t  const e         = exponent - f;
 
   uint32_t const index     = exponent - exponent_min;
   duint_t  const upper     = scalers[index].upper;
@@ -101,13 +99,11 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     suint_t const s = 10 * (b / 10);
 
     if (s == b) {
-      bool const is_exact = exponent > 0 &&
-        decimal.exponent <= exponent_critical && b_hat % 2 == 0 &&
-        is_multiple_of_pow5(upper_m_b, lower_m_b, pack(upper, lower), shift + e);
-      if (!is_exact || mantissa % 2 == 0) {
-        decimal.mantissa = s;
-        return remove_trailing_zeros(decimal);
-      }
+      bool const is_exact = exponent > 0 && f <= exponent_critical &&
+        b_hat % 2 == 0 && is_multiple_of_pow5(upper_m_b, lower_m_b,
+        pack(upper, lower), shift + e);
+      if (!is_exact || mantissa % 2 == 0)
+        return remove_trailing_zeros(negative, f, s);
     }
 
     else {
@@ -116,14 +112,12 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
       duint_t const lower_m_a = lower_m_b - 2 * lower;
       suint_t const a_hat     = scale(upper_m_a, lower_m_a, shift);
 
-      bool const is_exact = exponent > 0 &&
-        decimal.exponent <= exponent_critical && a_hat % 2 == 0 &&
-        is_multiple_of_pow5(upper_m_a, lower_m_a, pack(upper, lower), shift + e);
+      bool const is_exact = exponent > 0 && f <= exponent_critical &&
+        a_hat % 2 == 0 && is_multiple_of_pow5(upper_m_a, lower_m_a,
+        pack(upper, lower), shift + e);
       suint_t const a = a_hat / 2 + !is_exact;
-      if (s > a || (s == a && (!is_exact || mantissa % 2 == 0))) {
-        decimal.mantissa = s;
-        return remove_trailing_zeros(decimal);
-      }
+      if (s > a || (s == a && (!is_exact || mantissa % 2 == 0)))
+        return remove_trailing_zeros(negative, f, s);
     }
 
     // m_c = 2 * mantissa = m_b - 1;
@@ -131,63 +125,65 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     duint_t const upper_m_c = upper_m_b - upper;
     duint_t const lower_m_c = lower_m_b - lower;
     suint_t const c_hat     = scale(upper_m_c, lower_m_c, shift);
-    decimal.mantissa        = c_hat / 2;
 
-    if (c_hat % 2 == 1)
+    rep_t decimal = { negative, f, c_hat / 2 };
+
+    decimal.mantissa += c_hat % 2 == 1 && (decimal.mantissa % 2 == 1 ||
+      !(0 > e && ((uint32_t) -e) < mantissa_size + 2 &&
+      m_c % AMARU_POW2(suint_t, -e) == 0));
+
+    return decimal;
+  }
+
+  // m_a = 4 * mantissa - 1
+  suint_t const m_a       = 4 * mantissa - 1;
+  duint_t const upper_m_a = upper * m_a;
+  duint_t const lower_m_a = lower * m_a;
+  suint_t const a_hat     = scale(upper_m_a, lower_m_a, shift);
+  bool    const is_exact  = exponent > 1 && f <= exponent_critical &&
+    a_hat % 4 == 0 && is_multiple_of_pow5(upper_m_a, lower_m_a,
+    pack(upper, lower), shift + e);
+  suint_t const a         = a_hat / 4 + !is_exact;
+
+  if (b >= a) {
+
+    suint_t const s = 10 * (b / 10);
+
+    if (s >= a)
+      return remove_trailing_zeros(negative, f, s);
+
+    // m_c = 2 * mantissa = m_b - 1
+    duint_t const upper_m_c = upper_m_b - upper;
+    duint_t const lower_m_c = lower_m_b - lower;
+    suint_t const c_hat     = scale(upper_m_c, lower_m_c, shift);
+
+    rep_t decimal = { negative, f, c_hat / 2 };
+
+    if (decimal.mantissa < a)
+      ++decimal.mantissa;
+
+    else if (c_hat % 2 == 1)
       decimal.mantissa += decimal.mantissa % 2 == 1 ||
-        !(0 > e && ((uint32_t) -e) < mantissa_size + 2 &&
-        m_c % AMARU_POW2(suint_t, -e) == 0);
+        !(((uint32_t) -e) <= mantissa_size + 1 && decimal.exponent <= 0);
+
+    return decimal;
   }
 
-  else {
-    // m_a = 4 * mantissa - 1
-    suint_t const m_a       = 4 * mantissa - 1;
-    duint_t const upper_m_a = upper * m_a;
-    duint_t const lower_m_a = lower * m_a;
-    suint_t const a_hat     = scale(upper_m_a, lower_m_a, shift);
-    bool    const is_exact  = exponent > 1 &&
-      decimal.exponent <= exponent_critical && a_hat % 4 == 0 &&
-      is_multiple_of_pow5(upper_m_a, lower_m_a, pack(upper, lower), shift + e);
-    suint_t const a         = a_hat / 4 + !is_exact;
+  suint_t const m_c       = 20 * mantissa;
+  duint_t const upper_m_c = upper * m_c;
+  duint_t const lower_m_c = lower * m_c;
 
-    if (b >= a) {
-      suint_t const s = 10 * (b / 10);
-      if (s >= a) {
-        decimal.mantissa = s;
-        return remove_trailing_zeros(decimal);
-      }
+  static_assert(CHAR_BIT * sizeof(duint_t) >= mantissa_size + 4,
+    "duint is not large enough for calculations to not overflow.");
 
-      else {
-        // m_c = 2 * mantissa = m_b - 1
-        duint_t const upper_m_c = upper_m_b - upper;
-        duint_t const lower_m_c = lower_m_b - lower;
-        suint_t const c_hat     = scale(upper_m_c, lower_m_c, shift);
-        decimal.mantissa        = c_hat / 2;
+  suint_t const c_hat     = scale(upper_m_c, lower_m_c, shift);
 
-        if (decimal.mantissa < a)
-          ++decimal.mantissa;
-        else if (c_hat % 2 == 1)
-          decimal.mantissa += decimal.mantissa % 2 == 1 ||
-            !(((uint32_t) -e) <= mantissa_size + 1 && decimal.exponent <= 0);
-      }
-    }
-    else {
-      --decimal.exponent;
-      suint_t const m_c       = 20 * mantissa;
-      duint_t const upper_m_c = upper * m_c;
-      duint_t const lower_m_c = lower * m_c;
+  rep_t decimal = { negative, f - 1, c_hat / 2 };
 
-      static_assert(CHAR_BIT * sizeof(duint_t) >= mantissa_size + 4,
-        "duint is not large enough for calculations to not overflow.");
+  if (c_hat % 2 == 1)
+    decimal.mantissa += decimal.mantissa % 2 == 1 ||
+      !(((uint32_t) -e) <= mantissa_size + 1 && decimal.exponent <= 0);
 
-      suint_t const c_hat     = scale(upper_m_c, lower_m_c, shift);
-
-      decimal.mantissa = c_hat / 2;
-      if (c_hat % 2 == 1)
-        decimal.mantissa += decimal.mantissa % 2 == 1 ||
-          !(((uint32_t) -e) <= mantissa_size + 1 && decimal.exponent <= 0);
-    }
-  }
   return decimal;
 }
 

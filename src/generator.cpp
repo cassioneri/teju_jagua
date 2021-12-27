@@ -327,8 +327,8 @@ private:
         ";\n"
       "\n"
       "static struct {\n"
-      "  suint_t const upper;\n"
-      "  suint_t const lower;\n"
+      "  suint_t  const upper;\n"
+      "  suint_t  const lower;\n"
       "  uint32_t const shift;\n"
       "} scalers[] = {\n";
 

@@ -29,8 +29,8 @@ enum {
 static suint_t const mantissa_min = 8388608;
 
 static struct {
-  suint_t const upper;
-  suint_t const lower;
+  suint_t  const upper;
+  suint_t  const lower;
   uint32_t const shift;
 } scalers[] = {
   { 0x0000b35d, 0xbf821ae5, 47 }, // -149

@@ -349,12 +349,31 @@ private:
 
     auto shift = uint32_t{0};
 
-    for (auto e2 = info_.exponent_min(); e2 <= info_.exponent_max(); ++e2) {
-      auto const& x = maxima[e2 - info_.exponent_min()];
+    // Calculates minimal fast EAFs (i.e., those with minimal shift).
+    for (auto const& x : maxima) {
       fast_eafs.emplace_back(get_fast_eaf(x));
       auto const s = fast_eafs.back().k;
       if (s > shift)
         shift = s;
+    }
+
+    // Replace minimal fast EAFs to use the same shift.
+    if (config_.use_same_shift()) {
+
+      auto const p2shift = integer_t{1} << shift;
+
+      for (uint32_t i = 0; i < maxima.size(); ++i) {
+
+        auto const& x = maxima[i];
+
+        integer_t q, r;
+        divide_qr(x.alpha << shift, x.delta, q, r);
+
+        if (x.maximum >= rational_t{p2shift, x.delta - r})
+          throw amaru_exception{"Unable to use same shift."};
+
+        fast_eafs[i] = fast_eaf_t{q + 1, shift};
+      }
     }
 
     dot_c <<
@@ -389,25 +408,9 @@ private:
     auto const p2ssize = integer_t{1} << ssize;
     auto const nibbles = ssize / 4;
 
-    auto const p2shift = integer_t{1} << (config_.use_same_shift() ? shift : 0);
-
     for (auto e2 = info_.exponent_min(); e2 <= info_.exponent_max(); ++e2) {
 
-      auto const& fast_eaf = [&]() {
-
-        if (!config_.use_same_shift())
-          return fast_eafs[e2 - info_.exponent_min()];
-
-        auto const& x = maxima[e2 - info_.exponent_min()];
-
-        integer_t q, r;
-        divide_qr(x.alpha << shift, x.delta, q, r);
-
-        if (x.maximum >= rational_t{p2shift, x.delta - r})
-          throw amaru_exception{"Unable to use same shift."};
-
-        return fast_eaf_t{q + 1, shift};
-      }();
+      auto const& fast_eaf = fast_eafs[e2 - info_.exponent_min()];
 
       integer_t upper, lower;
       divide_qr(fast_eaf.U, p2ssize, upper, lower);

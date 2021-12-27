@@ -178,18 +178,22 @@ void benchmark() {
 
 int main() {
 
+  // Disable CPU Frequency Scaling:
+  //     $ sudo cpupower frequency-set --governor performance
+
   // Run on CPU 10 only:
   cpu_set_t my_set;
   CPU_ZERO(&my_set);
   CPU_SET(10, &my_set);
-  // Also, disable other threads/CPU running on same core as CPU 10:
+  sched_setaffinity(getpid(), sizeof(cpu_set_t), &my_set);
+
+  // Disable other threads/CPU running on same core as CPU 10:
   // 1) Find the other CPU that's a thread on the same core:
   //      $ cat /sys/devices/system/cpu/cpu10/topology/thread_siblings_list
   //      10-11
   //    The above means we need to disable CPU 11.
   // 2) Disable the other CPU:
   //      sudo /bin/bash -c "echo 0 > /sys/devices/system/cpu/cpu11/online"
-  sched_setaffinity(getpid(), sizeof(cpu_set_t), &my_set);
 
   benchmark<float>();
 }

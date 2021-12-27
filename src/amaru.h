@@ -96,8 +96,6 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   suint_t  const b_hat     = scale(upper_m_b, lower_m_b, shift);
   suint_t  const b         = b_hat / 2;
 
-  bool shorten;
-
   if (mantissa != mantissa_min || exponent == exponent_min) {
 
     suint_t const s = 10 * (b / 10);
@@ -106,7 +104,10 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
       bool const is_exact = exponent > 0 &&
         decimal.exponent <= exponent_critical && b_hat % 2 == 0 &&
         is_multiple_of_pow5(upper_m_b, lower_m_b, pack(upper, lower), shift + e);
-      shorten = !is_exact || mantissa % 2 == 0;
+      if (!is_exact || mantissa % 2 == 0) {
+        decimal.mantissa = s;
+        return remove_trailing_zeros(decimal);
+      }
     }
 
     else {
@@ -119,28 +120,25 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
         decimal.exponent <= exponent_critical && a_hat % 2 == 0 &&
         is_multiple_of_pow5(upper_m_a, lower_m_a, pack(upper, lower), shift + e);
       suint_t const a = a_hat / 2 + !is_exact;
-      shorten = s > a || (s == a && (!is_exact || mantissa % 2 == 0));
+      if (s > a || (s == a && (!is_exact || mantissa % 2 == 0))) {
+        decimal.mantissa = s;
+        return remove_trailing_zeros(decimal);
+      }
     }
 
-    if (shorten) {
-      decimal.mantissa = s;
-      return remove_trailing_zeros(decimal);
-    }
+    // m_c = 2 * mantissa = m_b - 1;
+    suint_t const m_c       = m_b - 1;
+    duint_t const upper_m_c = upper_m_b - upper;
+    duint_t const lower_m_c = lower_m_b - lower;
+    suint_t const c_hat     = scale(upper_m_c, lower_m_c, shift);
+    decimal.mantissa        = c_hat / 2;
 
-    else {
-      // m_c = 2 * mantissa = m_b - 1;
-      suint_t const m_c       = m_b - 1;
-      duint_t const upper_m_c = upper_m_b - upper;
-      duint_t const lower_m_c = lower_m_b - lower;
-      suint_t const c_hat     = scale(upper_m_c, lower_m_c, shift);
-      decimal.mantissa        = c_hat / 2;
-
-      if (c_hat % 2 == 1)
-        decimal.mantissa += decimal.mantissa % 2 == 1 ||
-          !(0 > e && ((uint32_t) -e) < mantissa_size + 2 &&
-          m_c % AMARU_POW2(suint_t, -e) == 0);
-    }
+    if (c_hat % 2 == 1)
+      decimal.mantissa += decimal.mantissa % 2 == 1 ||
+        !(0 > e && ((uint32_t) -e) < mantissa_size + 2 &&
+        m_c % AMARU_POW2(suint_t, -e) == 0);
   }
+
   else {
     // m_a = 4 * mantissa - 1
     suint_t const m_a       = 4 * mantissa - 1;

@@ -1,6 +1,8 @@
 #include "common.h"
 #include "ieee.h"
 
+#include "math.hpp"
+
 #include <ryu.h>
 
 #include <gtest/gtest.h>
@@ -13,70 +15,90 @@
 #include <cstring>
 #include <iostream>
 #include <random>
+#include <type_traits>
 
 namespace {
 
 using mp_float_t = boost::multiprecision::cpp_bin_float_50;
 using mp_int_t   = boost::multiprecision::cpp_int;
 
-template <typename T>
-struct log_traits_t;
-
-template <>
-struct log_traits_t<int32_t> {
-  using                 sint = int32_t;
-  using                 dint = int64_t;
-  static auto constexpr size = 32;
-};
-
-template <>
-struct log_traits_t<int64_t> {
-  using                 sint = int64_t;
-  using                 dint = __int128_t;
-  static auto constexpr size = 64;
-};
-
-template <typename T>
-typename log_traits_t<T>::sint get_multiplier(mp_float_t const& log) {
-  using      traits_t   = log_traits_t<T>;
-  auto const pow2size   = pow(mp_float_t{2.}, traits_t::size);
-  auto const multiplier = static_cast<typename traits_t::sint>(log * pow2size);
+int32_t get_multiplier(mp_float_t const& log) {
+  auto const pow2size   = pow(mp_float_t{2.}, 32);
+  auto const multiplier = static_cast<int32_t>(log * pow2size);
   return multiplier;
 }
 
-template <typename T>
-void test_log(typename log_traits_t<T>::sint multiplier,
-  typename log_traits_t<T>::sint min, typename log_traits_t<T>::sint max) {
+template <unsigned B>
+int32_t logB_pow2(int32_t n);
 
-  using traits_t = log_traits_t<T>;
+template <>
+int32_t logB_pow2<10>(int32_t n) {
+  return log10_pow2(n) ;
+}
 
-  auto const lower = static_cast<typename traits_t::dint>(multiplier);
-  auto const upper = lower + 1;
+template <>
+int32_t logB_pow2<5>(int32_t n) {
+  return log5_pow2(n) ;
+}
 
-  for (typename traits_t::sint n = 0; n >= min; --n) {
-    auto const lower_bound = lower * n >> traits_t::size;
-    auto const upper_bound = upper * n >> traits_t::size;
-    ASSERT_EQ(lower_bound, upper_bound) << "Note n = " << n;
-  }
-
-  for (typename traits_t::sint n = 0; n < max; ++n) {
-    auto const lower_bound = lower * n >> traits_t::size;
-    auto const upper_bound = upper * n >> traits_t::size;
-    ASSERT_EQ(lower_bound, upper_bound) << "Note n = " << n;
-  }
-
+template <unsigned B>
+void test_log(uint64_t const multiplier, int32_t const min, int32_t const max) {
   {
+    // n == 0:
+    auto powBn   = mp_int_t{1}; // B^n
+    auto pow2n   = mp_int_t{1}; // 2^n
+    auto correct = int32_t{0};  // B^correct <= 2^n < B^(correct + 1)
+
+    for (int32_t n = 0; n >= min; --n) {
+
+      // Test the real code.
+      ASSERT_EQ(logB_pow2<B>(n), correct) << "Note n = " << n;
+
+      // Helps find the multiplier used by log10_pow2 and log5_pow2.
+      auto const approximation = int32_t(multiplier * n >> 32);
+      ASSERT_EQ(approximation, correct) << "Note n = " << n;
+
+      pow2n *= 2;
+      if (powBn < pow2n) {
+        powBn *= B;
+        --correct;
+      }
+    }
+
     auto const n = min - 1;
-    auto const lower_bound = lower * n >> traits_t::size;
-    auto const upper_bound = upper * n >> traits_t::size;
-    EXPECT_GT(lower_bound, upper_bound) << "Minimum " << min << " isn't sharp.";
-  }
 
+    EXPECT_NE(logB_pow2<B>(n), correct) << "Minimum " << min << " isn't sharp.";
+
+    auto const approximation = int32_t(multiplier * n >> 32);
+    EXPECT_NE(correct, approximation) << "Minimum " << min << " isn't sharp.";
+  }
   {
+    // n == 0:
+    auto powBnp1 = mp_int_t{B}; // B^(n + 1)
+    auto pow2n   = mp_int_t{1}; // 2^n
+    auto correct = int32_t{0};  // B^correct <= 2^n < B^(correct + 1)
+
+    for (int32_t n = 0; n < max; ++n) {
+
+      // Test the real code.
+      ASSERT_EQ(logB_pow2<B>(n), correct) << "Note n = " << n;
+
+      // Helps find the multiplier used by log10_pow2 and log5_pow2.
+      auto const approximation = int32_t(multiplier * n >> 32);
+      ASSERT_EQ(approximation, correct) << "Note n = " << n;
+
+      pow2n *= 2;
+      if (powBnp1 < pow2n) {
+        powBnp1 *= B;
+        ++correct;
+      }
+    }
+
     auto const n = max;
-    auto const lower_bound = lower * n >> traits_t::size;
-    auto const upper_bound = upper * n >> traits_t::size;
-    EXPECT_LT(lower_bound, upper_bound) << "Maximum " << max << " isn't sharp.";
+    EXPECT_NE(logB_pow2<B>(n), correct) << "Maximum " << max << " isn't sharp.";
+
+    auto const approximation = int32_t(multiplier * n >> 32);
+    EXPECT_NE(correct, approximation) << "Maximum " << max << " isn't sharp.";
   }
 }
 
@@ -84,30 +106,18 @@ auto const log10_2 =
   mp_float_t{".30102999566398119521373889472449302676818988146210"};
 
 TEST(log10_pow2_tests, for_int32_t) {
-  auto const multiplier = get_multiplier<int32_t>(log10_2);
-  EXPECT_EQ(multiplier, int32_t{1292913986});
-  test_log<int32_t>(multiplier, int32_t{-70776}, int32_t{70777});
-}
-
-TEST(log10_pow2_tests, for_int64_t) {
-  auto const multiplier = get_multiplier<int64_t>(log10_2);
-  EXPECT_EQ(multiplier, int64_t{5553023288523357132});
-  test_log<int64_t>(multiplier, int64_t{-1923400329}, int64_t{1923400330});
+  auto const multiplier = get_multiplier(log10_2);
+  EXPECT_EQ(multiplier, 1292913986);
+  test_log<10>(multiplier, -70776, 70777);
 }
 
 auto const log5_2 =
   mp_float_t{".43067655807339305067010656876396563206979193207975"};
 
 TEST(log5_pow2_tests, for_int32_t) {
-  auto const multiplier = get_multiplier<int32_t>(log5_2);
-  EXPECT_EQ(multiplier, int32_t{1849741732});
-  test_log<int32_t>(multiplier, int32_t{-78854}, int32_t{78855});
-}
-
-TEST(log5_pow2_tests, for_int64_t) {
-  auto const multiplier = get_multiplier<int64_t>(log5_2);
-  EXPECT_EQ(multiplier, int64_t{7944580245325990804});
-  test_log<int64_t>(multiplier, int64_t{-1344399136}, int64_t{1344399137});
+  auto const multiplier = get_multiplier(log5_2);
+  EXPECT_EQ(multiplier, 1849741732);
+  test_log<5>(multiplier, -227267, 227268);
 }
 
 template <typename>

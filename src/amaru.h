@@ -105,7 +105,7 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   duint_t const lower_m_b      = lower * m_b;
   suint_t const b_hat          = scale(upper_m_b, lower_m_b, shift);
   suint_t const b              = b_hat / 2;
-  bool    const might_be_exact = exponent > 0 && f <= exponent_critical;
+  bool    const might_be_exact = e > 0 && f <= exponent_critical;
 
   if (mantissa != normal_mantissa_min || exponent == exponent_min) {
 

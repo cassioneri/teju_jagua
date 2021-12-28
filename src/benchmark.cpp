@@ -35,16 +35,6 @@ to_ieee(T const value) {
   return ieee;
 }
 
-template <typename T>
-T
-get_next(T value) {
-  typename fp_traits_t<T>::suint_t i;
-  memcpy(&i, &value, sizeof(value));
-  ++i;
-  memcpy(&value, &i, sizeof(value));
-  return value;
-}
-
 template <>
 struct fp_traits_t<float> {
 
@@ -58,14 +48,12 @@ struct fp_traits_t<float> {
   static void
   ryu(fp_t const value) {
     auto ieee = to_ieee(value);
-    auto ryu = f2d(ieee.mantissa, ieee.exponent);
-    asm("" : "+r"(ryu.exponent), "+r"(ryu.mantissa));
+    f2d(ieee.mantissa, ieee.exponent);
   }
 
   static void
   amaru(fp_t const value) {
-    auto amaru = to_amaru_dec_float(value);
-    asm("" : "+r"(amaru.exponent), "+r"(amaru.mantissa));
+    to_amaru_dec_float(value);
   }
 };
 

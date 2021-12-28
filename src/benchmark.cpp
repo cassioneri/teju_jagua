@@ -82,14 +82,12 @@ struct fp_traits_t<double> {
   static void
   ryu(fp_t const value) {
     auto ieee = to_ieee(value);
-    auto ryu = d2d(ieee.mantissa, ieee.exponent);
-    asm("" : "+r"(ryu.exponent), "+r"(ryu.mantissa));
+    d2d(ieee.mantissa, ieee.exponent);
   }
 
   static void
   amaru(fp_t const value) {
-    auto amaru = to_amaru_dec_double(value);
-    asm("" : "+r"(amaru.exponent), "+r"(amaru.mantissa));
+    to_amaru_dec_double(value);
   }
 };
 

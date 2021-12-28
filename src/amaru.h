@@ -85,36 +85,35 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 
   int32_t const f = log10_pow2(exponent);
   int32_t const e = exponent - f;
-
   int32_t const i = exponent - exponent_min;
 
-  #ifdef AMARU_UPPER_IS_ZERO
-    duint_t const upper   = 0;
-  #else
-    duint_t const upper   = scalers[i].upper;
-  #endif
-  duint_t const lower     = scalers[i].lower;
-  #ifdef AMARU_SHIFT
-    uint32_t const shift  = AMARU_SHIFT;
-  #else
-    uint32_t const shift  = scalers[i].shift;
-  #endif
+#ifdef AMARU_UPPER_IS_ZERO
+  duint_t  const upper = 0;
+#else
+  duint_t  const upper = scalers[i].upper;
+#endif
+  duint_t  const lower = scalers[i].lower;
+#ifdef AMARU_SHIFT
+  uint32_t const shift = AMARU_SHIFT;
+#else
+  uint32_t const shift = scalers[i].shift;
+#endif
 
   // The below doesn't overflow. (See generator's overflow check #1).
-  suint_t const m_b       = 2 * mantissa + 1;
-  duint_t const upper_m_b = upper * m_b;
-  duint_t const lower_m_b = lower * m_b;
-  suint_t const b_hat     = scale(upper_m_b, lower_m_b, shift);
-  suint_t const b         = b_hat / 2;
+  suint_t const m_b            = 2 * mantissa + 1;
+  duint_t const upper_m_b      = upper * m_b;
+  duint_t const lower_m_b      = lower * m_b;
+  suint_t const b_hat          = scale(upper_m_b, lower_m_b, shift);
+  suint_t const b              = b_hat / 2;
+  bool    const might_be_exact = exponent > 0 && f <= exponent_critical;
 
   if (mantissa != normal_mantissa_min || exponent == exponent_min) {
 
     suint_t const s = 10 * (b / 10);
 
     if (s == b) {
-      bool const is_exact = exponent > 0 && f <= exponent_critical &&
-        b_hat % 2 == 0 && is_multiple_of_pow5(upper_m_b, lower_m_b,
-        pack(upper, lower), shift + e);
+      bool const is_exact = might_be_exact && b_hat % 2 == 0 &&
+        is_multiple_of_pow5(upper_m_b, lower_m_b, pack(upper, lower), shift + e);
       if (!is_exact || mantissa % 2 == 0)
         return remove_trailing_zeros(negative, f, s);
     }
@@ -124,10 +123,8 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
       duint_t const upper_m_a = upper_m_b - 2 * upper;
       duint_t const lower_m_a = lower_m_b - 2 * lower;
       suint_t const a_hat     = scale(upper_m_a, lower_m_a, shift);
-
-      bool const is_exact = exponent > 0 && f <= exponent_critical &&
-        a_hat % 2 == 0 && is_multiple_of_pow5(upper_m_a, lower_m_a,
-        pack(upper, lower), shift + e);
+      bool    const is_exact  = might_be_exact && a_hat % 2 == 0 &&
+        is_multiple_of_pow5(upper_m_a, lower_m_a, pack(upper, lower), shift + e);
       suint_t const a = a_hat / 2 + !is_exact;
       if (s > a || (s == a && (!is_exact || mantissa % 2 == 0)))
         return remove_trailing_zeros(negative, f, s);
@@ -154,9 +151,8 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   duint_t const upper_m_a = upper * m_a;
   duint_t const lower_m_a = lower * m_a;
   suint_t const a_hat     = scale(upper_m_a, lower_m_a, shift);
-  bool    const is_exact  = exponent > 1 && f <= exponent_critical &&
-    a_hat % 4 == 0 && is_multiple_of_pow5(upper_m_a, lower_m_a,
-    pack(upper, lower), shift + e);
+  bool    const is_exact  = might_be_exact && a_hat % 4 == 0 &&
+    is_multiple_of_pow5(upper_m_a, lower_m_a, pack(upper, lower), shift + e);
   suint_t const a         = a_hat / 4 + !is_exact;
 
   if (b >= a) {

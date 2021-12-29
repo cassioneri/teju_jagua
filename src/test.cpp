@@ -23,24 +23,26 @@ using mp_float_t = boost::multiprecision::cpp_bin_float_50;
 using mp_int_t   = boost::multiprecision::cpp_int;
 
 /**
- * \brief Given x in [0, 1[, returns ceil(2^32 * x).
- *
- * This is the integer y in [0, 2^32[ such that y <= 2^32 * x < y + 1.
+ * \brief Given x in [0, 1[, returns the integer part of 2^32 * x.
  */
-uint32_t get_32_bits_approximation(mp_float_t const& x) {
-  auto const pow2size   = pow(mp_float_t{2.}, 32);
-  auto const multiplier = static_cast<uint32_t>(x * pow2size);
-  return multiplier;
+uint32_t get_x_times_2_to_32(mp_float_t const& x) {
+  auto const p32  = pow(mp_float_t{2.}, 32);
+  auto const ceil = static_cast<uint32_t>(x * p32);
+  return ceil;
 }
 
 /**
- * \brief Primary template function that calculates ceil(log_{B1}(B2^n)).
+ * \brief Primary template function that returns the integer part of
+ * log_{B1}(B2^n).
  */
 template <unsigned B1, unsigned B2>
 int32_t logB1_powB2(int32_t n);
 
 /**
- * \brief Calculates ceil(log_10(2^n)).
+ * \brief Returns the integer part of log_10(2^n).
+ *
+ * This is a fast implementation under test. The maximal internal on which it
+ * gives a correct result is to be found.
  */
 template <>
 int32_t logB1_powB2<10, 2>(int32_t n) {
@@ -48,7 +50,10 @@ int32_t logB1_powB2<10, 2>(int32_t n) {
 }
 
 /**
- * \brief Calculates ceil(log_5(2^n)).
+ * \brief Returns the integer part of log_5(2^n).
+ *
+ * This is a fast implementation under test. The maximal internal on which it
+ * gives a correct result is to be found.
  */
 template <>
 int32_t logB1_powB2<5, 2>(int32_t n) {
@@ -56,43 +61,66 @@ int32_t logB1_powB2<5, 2>(int32_t n) {
 }
 
 /**
- * \brief Tests the fast implementation of ceil(log_{B1}(B2^n)) given by
+ * \brief Returns the integer part of log_2(10^n).
  *
- *     M * n / 2^32,
+ * This is a fast implementation under test. The maximal internal on which it
+ * gives a correct result is to be found.
+ */
+template <>
+int32_t logB1_powB2<2, 10>(int32_t n) {
+  return log2_pow10(n) ;
+}
+
+/**
+ * \brief Tests the fast implementation of the integer part of log_{B1}(B2^n)
+ * given by
  *
- * where M (multiplier) is a 32-bits approximation of log_{B1}(B2).
+ *    M * n >> K,
+ *
+ * where the multiplier M is a 32-bits approximation of log_{B1}(B2). Notice
+ * that the K lower bits of M * n correspond to the fractional part of
+ * log_{B1}(B2^n).
  *
  * This function tests that the implementation is correct in [min, max[ and that
  * these bounds are sharp.
  *
- * \param M                 The multiplier M.
- * \param min               The minimum bound (inclusive).
- * \param max               The maximum bound (non inclusive).
+ * \pre 0 <= K && K <= 32.
+ *
+ * \tparam B1               1st base.
+ * \tparam B2               2nd base.
+ * \tparam K                Number of bits.
+ *
+ * \param  multiplier       The multiplier M.
+ * \param  min              The minimum bound (inclusive).
+ * \param  max              The maximum bound (non inclusive).
  */
-template <unsigned B1, unsigned B2, int32_t Addon = 0>
+template <unsigned B1, unsigned B2, unsigned K>
 void test_log(uint64_t const multiplier, int32_t const min, int32_t const max) {
   {
     // Tests n from 0 (inclusive) to min (inclusive).
-    //
+
+    // Loop invariant: B1^correct    <= B2^n    < B1^(correct + 1)
+    //                 B1^(-correct) >= B2^(-n) > B1^(-correct - 1)
+
+    // For n == 0:
+    auto correct = int32_t{0};
+    auto powB1   = mp_int_t{1}; // B1^(-correct)
+    auto powB2   = mp_int_t{1}; // B2^n
+
     // TIP: Not stopping at n = min is useful to discover what should be the
     // value of min.
-
-    // n == 0:
-    auto powB1n  = mp_int_t{1}; // B1^n
-    auto powB2n  = mp_int_t{1}; // B2^n
-    auto correct = int32_t{0};  // B1^correct <= B2^n < B1^(correct + 1)
-
     for (int32_t n = 0; n >= min; --n) {
 
       // Test the real code.
-      //ASSERT_EQ((logB1_powB2<B1, B2>(n)), correct) << "Note n = " << n;
+      ASSERT_EQ((logB1_powB2<B1, B2>(n)), correct) << "Note n = " << n;
 
-      auto const approximation = int32_t(multiplier * n >> 32) + Addon * n;
+      auto const approximation = int32_t(multiplier * n >> K);
       ASSERT_EQ(approximation, correct) << "Note n = " << n;
 
-      powB2n *= B2;
-      while (powB1n < powB2n) {
-        powB1n *= B1;
+      // Restore loop invariant for next iteration.
+      powB2 *= B2;
+      while (powB1 < powB2) {
+        powB1 *= B1;
         --correct;
       }
     }
@@ -101,34 +129,36 @@ void test_log(uint64_t const multiplier, int32_t const min, int32_t const max) {
 
     auto const n = min - 1;
 
-//    EXPECT_NE((logB1_powB2<B1, B2>(n)), correct) <<
-//      "Minimum " << min << " isn't sharp.";
+    EXPECT_NE((logB1_powB2<B1, B2>(n)), correct) <<
+      "Minimum " << min << " isn't sharp.";
 
-    auto const approximation = int32_t(multiplier * n >> 32) + Addon * n;
+    auto const approximation = int32_t(multiplier * n >> K);
     EXPECT_NE(correct, approximation) << "Minimum " << min << " isn't sharp.";
   }
   {
     // Tests for n from 0 (inclusive) to max (non inclusive).
-    //
-    // TIP: Not stopping at n = max is useful to discover what should be the
-    // value of max.
+
+    // Loop invariant: B1^correct <= B2^n < B1^(correct + 1)
 
     // n == 0:
-    auto powB1np1 = mp_int_t{B1}; // B1^(n + 1)
-    auto powB2n   = mp_int_t{1};  // B2^n
-    auto correct  = int32_t{0};   // B1^correct <= B2^n < B1^(correct + 1)
+    auto correct = int32_t{0};
+    auto powB1   = mp_int_t{B1}; // B1^(correct + 1)
+    auto powB2   = mp_int_t{1};  // B2^n
 
+    // TIP: Not stopping at n = max is useful to discover what should be the
+    // value of max.
     for (int32_t n = 0; n < max; ++n) {
 
       // Test the real code.
-      //ASSERT_EQ((logB1_powB2<B1, B2>(n)), correct) << "Note n = " << n;
+      ASSERT_EQ((logB1_powB2<B1, B2>(n)), correct) << "Note n = " << n;
 
-      auto const approximation = int32_t(multiplier * n >> 32) + Addon * n;
+      auto const approximation = int32_t(multiplier * n >> K);
       ASSERT_EQ(approximation, correct) << "Note n = " << n;
 
-      powB2n *= B2;
-      while (powB1np1 < powB2n) {
-        powB1np1 *= B1;
+      // Restore loop invariant for next iteration.
+      powB2 *= B2;
+      while (powB1 <= powB2) {
+        powB1 *= B1;
         ++correct;
       }
     }
@@ -136,39 +166,46 @@ void test_log(uint64_t const multiplier, int32_t const min, int32_t const max) {
     // Tests whether max is sharp.
 
     auto const n = max;
-//    EXPECT_NE((logB1_powB2<B1, B2>(n)), correct)
-//      << "Maximum " << max << " isn't sharp.";
+    EXPECT_NE((logB1_powB2<B1, B2>(n)), correct)
+      << "Maximum " << max << " isn't sharp.";
 
-    auto const approximation = int32_t(multiplier * n >> 32) + Addon * n;
+    auto const approximation = int32_t(multiplier * n >> K);
     EXPECT_NE(correct, approximation) << "Maximum " << max << " isn't sharp.";
   }
 }
 
-auto const log10_2 =
-  mp_float_t{".30102999566398119521373889472449302676818988146210"};
-
 TEST(log_tests, log10_pow2) {
-  auto const multiplier = get_32_bits_approximation(log10_2);
-  EXPECT_EQ(multiplier, 1292913986);
-  test_log<10, 2>(multiplier, -70776, 70777);
-}
 
-auto const log5_2 =
-  mp_float_t{".43067655807339305067010656876396563206979193207975"};
+  auto const log10_2 =
+    mp_float_t{".30102999566398119521373889472449302676818988146210"};
+
+  auto const log10_2_times_2_to_32 = get_x_times_2_to_32(log10_2);
+  EXPECT_EQ(log10_2_times_2_to_32, 1292913986);
+  test_log<10, 2, 32>(log10_2_times_2_to_32, -70776, 70777);
+}
 
 TEST(log_tests, log5_pow2) {
-  auto const multiplier = get_32_bits_approximation(log5_2);
-  EXPECT_EQ(multiplier, 1849741732);
-  test_log<5, 2>(multiplier, -227267, 227268);
+
+  auto const log5_2 =
+    mp_float_t{".43067655807339305067010656876396563206979193207975"};
+
+  auto const log5_2_times_2_to_32 = get_x_times_2_to_32(log5_2);
+  EXPECT_EQ(log5_2_times_2_to_32, 1849741732);
+  test_log<5, 2, 32>(log5_2_times_2_to_32, -227267, 227268);
 }
 
-auto const log2_10_minus_3 =
-  mp_float_t{"0.32192809488736234787031942948939017586483139302460"};
-
 TEST(log_tests, log2_pow10) {
-  auto const multiplier = get_32_bits_approximation(log2_10_minus_3);
-  EXPECT_EQ(multiplier, 1382670639);
-  test_log<2, 10, 3>(multiplier, -272330, 272331);
+
+  auto const log2_10 =
+    mp_float_t{"3.32192809488736234787031942948939017586483139302460"};
+
+  // Since log2_10 < 4, we divide it by 4 to get a result in [0, 1[, a
+  // pre-condition of get_32_bits_approximation. Consequently, the 30 lower bits
+  // of the multiplier correspond to the fractional part.
+
+  auto const log2_10_times_2_to_30 = get_x_times_2_to_32(log2_10 / 4);
+  EXPECT_EQ(log2_10_times_2_to_30, 3566893131);
+  test_log<2, 10, 30>(log2_10_times_2_to_30, -55266, 55267);
 }
 
 template <typename>

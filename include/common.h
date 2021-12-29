@@ -22,12 +22,23 @@ extern "C" {
 /**
  * \brief Returns the integer part of log_10(2^n).
  *
- * \pre n in [-70776, 70777[.
+ * \pre -70776 <= n && n < 70777.
  */
 static inline
 int32_t log10_pow2(int32_t n) {
-  uint64_t const log10_2 = 1292913986;
-  return log10_2 * n >> 32;
+  uint64_t const log10_2_times_2_to_32 = 1292913986;
+  return log10_2_times_2_to_32 * n >> 32;
+}
+
+/**
+ * \brief Returns the integer part of log_2(10^n).
+ *
+ * \pre -55266 <= n && n < 55267.
+ */
+static inline
+int32_t log2_pow10(int32_t n) {
+  uint64_t const log2_10_times_2_to_30 = 3566893131;
+  return log2_10_times_2_to_30 * n >> 30;
 }
 
 #ifdef __cplusplus

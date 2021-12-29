@@ -20,14 +20,14 @@ struct amaru_exception : std::range_error {
 };
 
 /**
- * \brief Meta information about a floating point number type required by Amaru.
+ * \brief Meta information about a floating point number type.
  *
  * Surprisingly, the name of the type is not necessary because Amaru doesn't
  * work directly with values of this type. Instead, they are decoded elsewhere
  * into Amaru's representation of floating point numbers which is a struct
  * containing sign, exponent and mantissa fields.
  *
- * However, Amaru needs to know two unsigned integer types:
+ * Amaru needs, however, to know two unsigned integer types:
  *
  *    suint : used for mantissa storage and calculations.
  *    duint : used for even bigger calculations. It must be, at least, double
@@ -39,11 +39,10 @@ struct info_t {
    * \brief Constructor.
    *
    * \param id              An identifier for the floating point number type
-   *                        (e.g., "ieee32" or "ieee64". This is used in C/C++
-   *                        identifiers and, accordingly, is restricted to the
-   *                        valid set of characters used in identifiers. In
-   *                        particular, it contains no spaces - "long double"
-   *                        is forbidden.
+   *                        (e.g., "ieee32" or "ieee64"). This is used in C/C++
+   *                        identifiers and, accordingly, is restricted to a
+   *                        corresponding set of characters. In particular, it
+   *                        contains no spaces - "long double" is forbidden.
    * \param suint           C/C++ name of suint (e.g., "uint32_t" or
    *                        "uint64_t"). It might contain spaces -- "unsigned
    *                        long" is allowed.
@@ -51,10 +50,8 @@ struct info_t {
    *                        "uint128_t").
    * \param ssize           The size of suint in bits.
    * \param exponent_size   Size of exponent in bits.
-   * \param exponent_min    Minimum exponent. (As described in Amaru's
-   *                        representation.)
-   * \param exponent_max    Maximum exponent. (As described in Amaru's
-   *                        representation.)
+   * \param exponent_min    Minimum exponent.
+   * \param exponent_max    Maximum exponent.
    * \param mantissa_size   Size of mantissa in bits.
    */
   info_t(std::string id, std::string suint, std::string duint, uint32_t ssize,
@@ -182,7 +179,7 @@ private:
 };
 
 /**
- * \brief Configuration of Amaru's generated implementation.
+ * \brief Configuration of Amaru's implementation.
  */
 struct config_t {
 
@@ -190,28 +187,46 @@ struct config_t {
    * \brief Constructor.
    *
    * \param use_same_shift  Tells if Amaru should use the same shift for all
-   *                        exponents. It saves memory and is faster but it
-   *                        might not be possible (in which case, the generator
-   *                        throws.)
+   *                        exponents. It saves memory and makes Amaru faster.
+   *                        Unfortunately, such shift might might be too large
+   *                        for practical use, in which case, the generator
+   *                        throws.
+   *
+   * \param use_compact_tbl Tells if the scalers table should have an entry per
+   *                        decimal (compact) or per binary exponent (complete).
+   *                        The compact form requires a few more instructions at
+   *                        runtime. However, the size of the compact table
+   *                        asymptotically goes to log_10(2) (or 30%) of the non
+   *                        compact one. In addition to saving memory this might
+   *                        reduce cache misses, possibly, boosting performance.
    */
-  config_t(bool use_same_shift) :
-    use_same_shift_{std::move(use_same_shift)} {
+  config_t(bool use_same_shift, bool use_compact_tbl) :
+    use_same_shift_ {use_same_shift },
+    use_compact_tbl_{use_compact_tbl} {
   }
 
   /**
-   * \brief Returns if Amarus should use the same shift for all exponents.
+   * \brief Returns if Amaru should use the same shift for all exponents.
    */
   bool use_same_shift() const {
     return use_same_shift_;
   }
 
+  /**
+   * \brief Returns if Amaru should use a compact table of scalers.
+   */
+  bool use_compact_tbl() const {
+    return use_compact_tbl_;
+  }
+
 private:
   bool use_same_shift_;
+  bool use_compact_tbl_;
 };
 
 /**
- * \brief Generator of Amaru's generator implementation for a given floating
- * point number type.
+ * \brief Generator of Amaru's implementation for a given floating point number
+ * type.
  */
 struct generator_t {
 
@@ -283,11 +298,21 @@ private:
     rational_t maximum;
   };
 
+  /**
+   * \brief The objective function of the primary maximisation problem:
+   *
+   *     phi(m) := m / (delta - alpha * m % delta).
+   */
   static rational_t phi(integer_t const& alpha, integer_t const& delta,
     integer_t const& m) {
     return {m, delta - alpha * m % delta};
   }
 
+  /**
+   * \brief The objective function of the secondary maximisation problem:
+   *
+   *     phi'(m') := m' / (1 + (alpha' * m' - 1) % delta').
+   */
   static rational_t phi_p(integer_t const& alpha, integer_t const& delta,
     integer_t const& m) {
     return {m, 1 + (alpha * m - 1) % delta};
@@ -462,7 +487,7 @@ private:
         auto const shift = fast_eaf.k;
         dot_c << ", " << shift;
       }
-      dot_c <<  " }, // " << e2 << "\n";
+      dot_c << " }, // " << e2 << "\n";
     }
 
     dot_c <<
@@ -505,11 +530,7 @@ private:
 
   /**
    * \brief Given alpha, delta, a and b, this function calculates the maximiser
-   * of
-   *
-   *     phi(m) := m / (delta - alpha * m % delta),
-   *
-   * over [a, b[.
+   * of phi(m) over [a, b[.
    *
    * \pre 0 <= alpha && alpha < delta && a < b.
    */
@@ -541,11 +562,7 @@ private:
 
   /**
    * \brief Given alpha', delta', a' and b', this function calculates the
-   * maximiser of
-   *
-   *     phi'(m') := m' / (1 + (alpha' * m' - 1) % delta'),
-   *
-   * over [a', b'[.
+   * maximiser of phi'(m') over [a', b'[.
    *
    * \pre 0 < alpha' && 0 < delta' && 1 <= a' && a' < b'.
    */
@@ -579,10 +596,7 @@ private:
 
   /**
    * \brief Given alpha and delta, this function calculates the maximiser of
-   *
-   *     phi(m) = m / (delta - alpha * m % delta),
-   *
-   * over the set of mantissas.
+   * phi(m) over the relevant set of mantissas.
    *
    * \pre 0 <= alpha && 0 < delta.
    */
@@ -602,16 +616,12 @@ private:
   }
 
   /**
-   * \brief Get the version of the EAF f(m) = alpha * m / delta which works on
-   * an interval of relevant mantissas. This fast EAF is associated to
-   * maximisation of
-   *
-   *     phi(m) := m / (delta - alpha * m % delta),
-   *
+   * \brief Get the EAF f(m) = alpha * m / delta which works on an interval of
+   * relevant mantissas. This fast EAF is associated to maximisation of phi(m)
    * over the set of mantissas.
    *
    * \param x               The container of alpha, beta and the solution of
-   *                        the maximum problem.
+   *                        the primary maximisation problem.
    */
   fast_eaf_t get_fast_eaf(alpha_delta_maximum const& x) const {
 
@@ -650,10 +660,11 @@ int main() {
   try {
 
     auto const config = config_t{
-      /* use_same_shift */ false
+      /* use_same_shift  */ false,
+      /* use_compact_tbl */ false
     };
 
-    auto ieee32_info = info_t {
+    auto ieee32_info = info_t{
       /* id            */ "ieee32",
       /* suint         */ "uint32_t",
       /* duint         */ "uint64_t",

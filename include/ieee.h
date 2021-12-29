@@ -22,9 +22,9 @@ ieee32_t to_amaru_bin_float(float const value) {
   memcpy(&i, &value, sizeof(value));
 
   ieee32_t ieee;
-  ieee.mantissa = AMARU_LOWER_BITS(i, mantissa_size);
+  ieee.mantissa = AMARU_LSB(i, mantissa_size);
   i >>= mantissa_size;
-  ieee.exponent = AMARU_LOWER_BITS(i, exponent_size);
+  ieee.exponent = AMARU_LSB(i, exponent_size);
   i >>= exponent_size;
   ieee.negative = i;
 
@@ -55,9 +55,9 @@ ieee64_t to_amaru_bin_double(double const value) {
   memcpy(&i, &value, sizeof(value));
 
   ieee64_t ieee;
-  ieee.mantissa = AMARU_LOWER_BITS(i, mantissa_size);
+  ieee.mantissa = AMARU_LSB(i, mantissa_size);
   i >>= mantissa_size;
-  ieee.exponent = AMARU_LOWER_BITS(i, exponent_size);
+  ieee.exponent = AMARU_LSB(i, exponent_size);
   i >>= exponent_size;
   ieee.negative = i;
 

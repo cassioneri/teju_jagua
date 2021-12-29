@@ -26,9 +26,9 @@ to_ieee(T const value) {
   memcpy(&i, &value, sizeof(value));
 
   typename fp_traits_t<T>::rep_t ieee;
-  ieee.mantissa = AMARU_LOWER_BITS(i, traits_t::mantissa_size);
+  ieee.mantissa = AMARU_LSB(i, traits_t::mantissa_size);
   i >>= traits_t::mantissa_size;
-  ieee.exponent = AMARU_LOWER_BITS(i, traits_t::exponent_size);
+  ieee.exponent = AMARU_LSB(i, traits_t::exponent_size);
   i >>= traits_t::exponent_size;
   ieee.negative = i;
 

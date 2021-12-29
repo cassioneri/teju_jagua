@@ -14,10 +14,10 @@ extern "C" {
 #define AMARU_POW2(type, n) (((type) 1) << (n))
 
 /**
- * \brief Returns the n_bits least significant bits of n.
+ * \brief Returns the k least significant bits (LSB) of n.
  */
-#define AMARU_LOWER_BITS(n, n_bits) \
-  ((~(n^n) >> (CHAR_BIT * sizeof(n) - (n_bits))) & (n))
+#define AMARU_LSB(n, k) \
+  ((~(n^n) >> (CHAR_BIT * sizeof(n) - (k))) & (n))
 
 /**
  * \brief Returns the integer part of log_10(2^n).

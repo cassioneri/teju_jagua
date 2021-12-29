@@ -51,9 +51,11 @@ struct info_t {
    *                        "uint128_t").
    * \param ssize           The size of suint in bits.
    * \param exponent_size   Size of exponent in bits.
-   * \param mantissa_size   Size of mantissa in bits.
    * \param exponent_min    Minimum exponent. (As described in Amaru's
    *                        representation.)
+   * \param exponent_max    Maximum exponent. (As described in Amaru's
+   *                        representation.)
+   * \param mantissa_size   Size of mantissa in bits.
    */
   info_t(std::string id, std::string suint, std::string duint, uint32_t ssize,
     uint32_t exponent_size, int32_t exponent_min, int32_t exponent_max,

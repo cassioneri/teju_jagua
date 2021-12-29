@@ -140,7 +140,7 @@ int main() {
   // Disable CPU Frequency Scaling:
   //     $ sudo cpupower frequency-set --governor performance
 
-  // Run on CPU 3 only:
+  // Run on CPU 2 only:
   cpu_set_t my_set;
   CPU_ZERO(&my_set);
   CPU_SET(2, &my_set);

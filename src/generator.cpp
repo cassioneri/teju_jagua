@@ -433,13 +433,13 @@ private:
       "typedef " << info_.duint() << " duint_t;\n"
       "typedef " << info_.rep()   << " rep_t;\n"
       "\n"
-      "enum {\n"
-      "  mantissa_size     = " << info_.mantissa_size()      << ",\n"
-      "  exponent_min      = " << info_.exponent_min()       << ",\n"
-      "  exponent_critical = " << info_.exponent_critical()  << ",\n"
-      "};\n"
-      "\n"
-      "static suint_t const normal_mantissa_min = " <<
+      "static uint32_t const mantissa_size       = " <<
+        info_.mantissa_size() << ";\n"
+      "static int32_t  const exponent_min        = " <<
+        info_.exponent_min() << ";\n"
+      "static int32_t  const exponent_critical   = " <<
+        info_.exponent_critical() << ";\n"
+      "static suint_t  const normal_mantissa_min = " <<
         info_.normal_mantissa_min() << ";\n"
       "\n";
 
@@ -459,7 +459,7 @@ private:
     if (!config_.use_same_shift())
       dot_c << "  uint32_t const shift;\n";
 
-    dot_c << "} scalers[] = {\n";
+    dot_c << "} const scalers[] = {\n";
 
     auto const nibbles = ssize / 4;
 

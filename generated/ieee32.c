@@ -20,19 +20,16 @@ typedef uint32_t suint_t;
 typedef uint64_t duint_t;
 typedef ieee32_t rep_t;
 
-enum {
-  mantissa_size     = 23,
-  exponent_min      = -149,
-  exponent_critical = 10,
-};
-
-static suint_t const normal_mantissa_min = 8388608;
+static uint32_t const mantissa_size         = 23;
+static int32_t  const bin_exponent_min      = -149;
+static int32_t  const bin_exponent_critical = 10;
+static suint_t  const normal_mantissa_min   = 8388608;
 
 static struct {
   suint_t  const upper;
   suint_t  const lower;
   uint32_t const shift;
-} scalers[] = {
+} const scalers[] = {
   { 0x0000b35d, 0xbf821ae5, 47 }, // -149
   { 0x0000b35d, 0xbf821ae5, 46 }, // -148
   { 0x0000b35d, 0xbf821ae5, 45 }, // -147

@@ -1,7 +1,6 @@
 #include "common.h"
 #include "math.hpp"
 
-#include <algorithm>
 #include <climits>
 #include <cstdint>
 #include <cstdio>
@@ -11,6 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 
 /**
  * \brief Exception thrown by the generator.
@@ -696,14 +696,14 @@ int main() {
   }
 
   catch (amaru_exception const& e) {
-    printf("Generation failed: %s.\n", e.what());
+    std::printf("Generation failed: %s.\n", e.what());
   }
 
   catch (std::exception const& e) {
-    printf("std::exception thrown: %s.\n", e.what());
+    std::printf("std::exception thrown: %s.\n", e.what());
   }
 
   catch (...) {
-    printf("Unknown exception thrown.\n");
+    std::printf("Unknown exception thrown.\n");
   }
 }

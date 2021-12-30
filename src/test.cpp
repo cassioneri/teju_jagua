@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <iomanip>
 #include <random>
 #include <type_traits>
 
@@ -218,7 +219,7 @@ to_ieee(T const value) {
   using traits_t = fp_traits_t<T>;
 
   typename traits_t::suint_t i;
-  memcpy(&i, &value, sizeof(value));
+  std::memcpy(&i, &value, sizeof(value));
 
   typename fp_traits_t<T>::rep_t ieee;
   ieee.mantissa = AMARU_LSB(i, traits_t::mantissa_size);
@@ -234,9 +235,9 @@ template <typename T>
 T
 get_next(T value) {
   typename fp_traits_t<T>::suint_t i;
-  memcpy(&i, &value, sizeof(value));
+  std::memcpy(&i, &value, sizeof(value));
   ++i;
-  memcpy(&value, &i, sizeof(value));
+  std::memcpy(&value, &i, sizeof(value));
   return value;
 }
 
@@ -334,7 +335,7 @@ TEST(double_tests, random_comparison_to_ryu) {
 
   traits_t::suint_t uint_max;
   auto const fp_max = std::numeric_limits<traits_t::fp_t>::max();
-  memcpy(&uint_max, &fp_max, sizeof(fp_max));
+  std::memcpy(&uint_max, &fp_max, sizeof(fp_max));
 
   std::random_device rd;
   auto dist = std::uniform_int_distribution<traits_t::suint_t>{1, uint_max};
@@ -346,7 +347,7 @@ TEST(double_tests, random_comparison_to_ryu) {
   while (!HasFailure() && number_of_tests --> 0) {
     auto const i = dist(rd);
     traits_t::fp_t value;
-    memcpy(&value, &i, sizeof(i));
+    std::memcpy(&value, &i, sizeof(i));
     compare_to_ryu(value);
   }
 }

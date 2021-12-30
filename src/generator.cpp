@@ -695,6 +695,10 @@ int main() {
     generator_64.generate(dot_h_64, dot_c_64);
   }
 
+  catch (amaru_exception const& e) {
+    printf("Generation failed: %s.\n", e.what());
+  }
+
   catch (std::exception const& e) {
     printf("std::exception thrown: %s.\n", e.what());
   }

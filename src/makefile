@@ -8,7 +8,7 @@ generator.o : generator.cpp ../include/common.h math.hpp
 generator   : generator.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^
 
-../generated/%.c : generator
+../generated/%.c : generator amaru.h
 	./generator
 
 generated_%.o : ../generated/%.c

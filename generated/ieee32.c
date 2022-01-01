@@ -29,7 +29,7 @@ static struct {
   suint_t  const upper;
   suint_t  const lower;
   uint32_t const shift;
-} const scalers[] = {
+} const multipliers [] = {
   { 0x0000b35d, 0xbf821ae5, 47 }, // -149
   { 0x0000b35d, 0xbf821ae5, 46 }, // -148
   { 0x0000b35d, 0xbf821ae5, 45 }, // -147

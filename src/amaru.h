@@ -16,23 +16,21 @@ extern "C" {
 static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
   "duint_t must be at least twice the size of suint_t.");
 
-enum {
-  ssize = CHAR_BIT * sizeof(suint_t),
-  dsize = CHAR_BIT * sizeof(duint_t),
-};
+static uint32_t const ssize = CHAR_BIT * sizeof(suint_t);
+static uint32_t const dsize = CHAR_BIT * sizeof(duint_t);
 
 static inline
 rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
   suint_t mantissa) {
 
-  suint_t const m = (~((suint_t)0)) / 10 + 1;
-  duint_t       p = ((duint_t) m) * mantissa;
+  suint_t const multiplier = (~((suint_t)0)) / 10 + 1;
+  duint_t       product    = ((duint_t) multiplier) * mantissa;
 
   do {
     ++exponent;
-    mantissa = (suint_t) (p >> ssize);
-    p        = ((duint_t) m) * mantissa;
-  } while ((suint_t) p < m);
+    mantissa = (suint_t) (product >> ssize);
+    product  = ((duint_t) multiplier) * mantissa;
+  } while ((suint_t) product < multiplier);
 
   rep_t const decimal = { negative, exponent, mantissa };
   return decimal;
@@ -44,8 +42,8 @@ duint_t pack(duint_t upper_m, duint_t lower_m) {
 }
 
 static inline
-suint_t scale(suint_t const m, duint_t const upper, duint_t const lower,
-  uint32_t const shift) {
+suint_t multipliy_and_shift(suint_t const m, duint_t const upper,
+  duint_t const lower, uint32_t const shift) {
 
   duint_t const upper_m = upper * m;
   duint_t const lower_m = lower * m;
@@ -97,7 +95,6 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   }
 
   int32_t  const f = log10_pow2(exponent);
-
   int32_t  const e = exponent - f;
 
 #ifdef AMARU_USE_COMPACT_TBL
@@ -111,15 +108,15 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 #endif
 
 #ifdef AMARU_UPPER_IS_ZERO
-  duint_t  const upper  = 0;
+  duint_t  const upper = 0;
 #else
-  duint_t  const upper  = scalers[i].upper;
+  duint_t  const upper = multipliers[i].upper;
 #endif
-  duint_t  const lower  = scalers[i].lower;
+  duint_t  const lower = multipliers[i].lower;
 #ifdef AMARU_SHIFT
-  uint32_t const shift  = AMARU_SHIFT;
+  uint32_t const shift = AMARU_SHIFT;
 #else
-  uint32_t const shift  = scalers[i].shift;
+  uint32_t const shift = multipliers[i].shift;
 #endif
 
   uint32_t const n_bits         = shift + e0;
@@ -127,7 +124,7 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 
   // The below doesn't overflow. (See generator's overflow check #1).
   suint_t const m_b   = 2 * mantissa + 1;
-  suint_t const b_hat = scale(m_b << extra, upper, lower, shift);
+  suint_t const b_hat = multipliy_and_shift(m_b << extra, upper, lower, shift);
   suint_t const b     = b_hat / 2;
 
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
@@ -143,7 +140,8 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 
     else {
       suint_t const m_a      = 2 * mantissa - 1;
-      suint_t const a_hat    = scale(m_a<< extra, upper, lower, shift);
+      suint_t const a_hat    = multipliy_and_shift(m_a<< extra, upper, lower,
+        shift);
       bool    const is_exact = might_be_exact && a_hat % 2 == 0 &&
         is_multiple_of_pow5(m_a, upper, lower, n_bits);
       suint_t const a = a_hat / 2 + !is_exact;
@@ -152,7 +150,8 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     }
 
     suint_t const m_c     = 2 * mantissa;
-    suint_t const c_hat   = scale(m_c << extra, upper, lower, shift);
+    suint_t const c_hat   = multipliy_and_shift(m_c << extra, upper, lower,
+      shift);
     rep_t         decimal = { negative, f, c_hat / 2 };
 
     decimal.mantissa += c_hat % 2 == 1 && (decimal.mantissa % 2 == 1 ||
@@ -166,7 +165,8 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 
   // The below doesn't overflow. (See generator's overflow check #2).
   suint_t const m_a      = 4 * normal_mantissa_min - 1;
-  suint_t const a_hat    = scale(m_a << extra, upper, lower, shift);
+  suint_t const a_hat    = multipliy_and_shift(m_a << extra, upper, lower,
+    shift);
   bool    const is_exact = might_be_exact && a_hat % 4 == 0 &&
     is_multiple_of_pow5(m_a, upper, lower, n_bits);
   suint_t const a        = a_hat / 4 + !is_exact;
@@ -179,7 +179,8 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
       return remove_trailing_zeros(negative, f, s);
 
     suint_t const m_c     = 2 * mantissa;
-    suint_t const c_hat   = scale(m_c << extra, upper, lower, shift);
+    suint_t const c_hat   = multipliy_and_shift(m_c << extra, upper, lower,
+      shift);
     rep_t         decimal = { negative, f, c_hat / 2 };
     if (decimal.mantissa < a)
       ++decimal.mantissa;
@@ -193,7 +194,8 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 
   // The below doesn't overflow. (See generator's overflow check #2).
   suint_t const m_c     = 20 * normal_mantissa_min;
-  suint_t const c_hat   = scale(m_c << extra, upper, lower, shift);
+  suint_t const c_hat   = multipliy_and_shift(m_c << extra, upper, lower,
+    shift);
   rep_t         decimal = { negative, f - 1, c_hat / 2 };
 
   if (c_hat % 2 == 1)

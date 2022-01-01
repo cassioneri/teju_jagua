@@ -192,13 +192,14 @@ struct config_t {
    *                        for practical use, in which case, the generator
    *                        throws.
    *
-   * \param use_compact_tbl Tells if the scalers table should have an entry per
-   *                        decimal (compact) or per binary exponent (complete).
-   *                        The compact form requires a few more instructions at
-   *                        runtime. However, the size of the compact table
-   *                        asymptotically goes to log_10(2) (or 30%) of the non
-   *                        compact one. In addition to saving memory this might
-   *                        reduce cache misses, possibly, boosting performance.
+   * \param use_compact_tbl Tells if the multipliers table should have an entry
+   *                        per decimal (compact) or per binary exponent
+   *                        (complete). The compact form requires a few more
+   *                        instructions at runtime. However, the size of the
+   *                        compact table asymptotically goes to log_10(2) (or
+   *                        30%) of the non compact one. In addition to saving
+   *                        memory this might reduce cache misses, possibly,
+   *                        boosting performance.
    */
   config_t(bool use_same_shift, bool use_compact_tbl) :
     use_same_shift_ {use_same_shift },
@@ -213,7 +214,7 @@ struct config_t {
   }
 
   /**
-   * \brief Returns if Amaru should use a compact table of scalers.
+   * \brief Returns if Amaru should use a compact table of multipliers.
    */
   bool use_compact_tbl() const {
     return use_compact_tbl_;
@@ -467,7 +468,7 @@ private:
     if (!config_.use_same_shift())
       dot_c << "  uint32_t const shift;\n";
 
-    dot_c << "} const scalers[] = {\n";
+    dot_c << "} const multipliers [] = {\n";
 
     auto const nibbles = ssize / 4;
 

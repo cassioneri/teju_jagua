@@ -35,6 +35,21 @@ to_ieee(T const value) {
   return ieee;
 }
 
+template <typename T>
+T
+from_ieee(uint32_t exponent, typename fp_traits_t<T>::suint_t mantissa) {
+
+  using         traits_t  = fp_traits_t<T>;
+  using         suint_t   = typename traits_t::suint_t;
+  suint_t const i         = (suint_t(exponent) << traits_t::mantissa_size) |
+    mantissa;
+
+  T value;
+  memcpy(&value, &i, sizeof(i));
+
+  return value;
+}
+
 template <>
 struct fp_traits_t<float> {
 
@@ -82,57 +97,85 @@ struct fp_traits_t<double> {
 template <typename T>
 void benchmark() {
 
-  using traits_t = fp_traits_t<T>;
-  using ns_t     = std::chrono::nanoseconds;
+  using ns_t               = std::chrono::nanoseconds;
+  std::cout.precision(std::numeric_limits<T>::digits10 + 2);
+  std::cout << "exponent, mantissa, integer, value, amaru, ryu\n";
 
-  std::cout.precision(std::numeric_limits<T>::digits10);
-  std::cout << "integer, value, amaru, ryu\n";
-
-  typename traits_t::suint_t uint_max;
-  auto const fp_max = std::numeric_limits<T>::max();
-  memcpy(&uint_max, &fp_max, sizeof(fp_max));
+  using traits_t          = fp_traits_t<T>;
+  using suint_t           = typename traits_t::suint_t;
+  auto const exponent_max = AMARU_POW2(suint_t, traits_t::exponent_size) - 1;
+  auto const mantissa_max = AMARU_POW2(suint_t, traits_t::mantissa_size) - 1;
 
   //std::random_device device;
   std::mt19937_64 device;
-  auto dist = std::uniform_int_distribution<typename traits_t::suint_t>
-    {1, uint_max};
+  auto dist = std::uniform_int_distribution<suint_t> {0, mantissa_max};
 
-  auto n_samples = uint32_t{10000};
+  auto           n_mantissas  = uint32_t{1000};
+  auto constexpr n_iterations = uint32_t{100};
 
-  while (n_samples--) {
+  uint64_t amaru_total = 0;
+  uint64_t ryu_total   = 0;
+  uint64_t count       = 0;
 
-    auto const i = dist(device);
-    typename traits_t::fp_t value;
-    memcpy(&value, &i, sizeof(i));
+  while (n_mantissas--) {
 
-    auto constexpr n_iterations = uint32_t{10000};
+    auto const mantissa = dist(device);
 
-    auto amaru = ns_t{std::numeric_limits<ns_t::rep>::max()};
-    for (auto n = n_iterations; n != 0; --n) {
-      auto const start = std::chrono::steady_clock::now();
-      traits_t::amaru(value);
-      auto const end   = std::chrono::steady_clock::now();
-      auto const dt    = ns_t{end - start};
-      if (amaru > dt)
-        amaru = dt;
+    #if 0
+    uint32_t exponent = 149;
+    (void) exponent_max;
+    {
+    #else
+    // If exponent == exponent_max, then value is infinity or NaN. Hence, we
+    // exclude exponent_max.
+    for (uint32_t exponent = 0; exponent < exponent_max; ++exponent) {
+    #endif
+      auto const value = from_ieee<T>(exponent, mantissa);
+
+      auto amaru = ns_t{std::numeric_limits<ns_t::rep>::max()};
+      for (auto n = n_iterations; n != 0; --n) {
+        auto const start = std::chrono::steady_clock::now();
+        traits_t::amaru(value);
+        auto const end   = std::chrono::steady_clock::now();
+        auto const dt    = ns_t{end - start};
+        if (amaru > dt)
+          amaru = dt;
+      }
+
+      auto ryu = ns_t{std::numeric_limits<ns_t::rep>::max()};
+      for (auto n = n_iterations; n != 0; --n) {
+        auto const start = std::chrono::steady_clock::now();
+        traits_t::ryu(value);
+        auto const end   = std::chrono::steady_clock::now();
+        auto const dt    = ns_t{end - start};
+        if (ryu > dt)
+          ryu = dt;
+      }
+
+      suint_t integer;
+      std::memcpy(&integer, &value, sizeof(value));
+
+      std::cout <<
+        exponent      << ", " <<
+        mantissa      << ", " <<
+        integer       << ", " <<
+        value         << ", " <<
+        amaru.count() << ", " <<
+        ryu.count()   << '\n';
+
+      ++count;
+      amaru_total += amaru.count();
+      ryu_total   += ryu.count();
     }
-
-    auto ryu = ns_t{std::numeric_limits<ns_t::rep>::max()};
-    for (auto n = n_iterations; n != 0; --n) {
-      auto const start = std::chrono::steady_clock::now();
-      traits_t::ryu(value);
-      auto const end   = std::chrono::steady_clock::now();
-      auto const dt    = ns_t{end - start};
-      if (ryu > dt)
-        ryu = dt;
-    }
-
-    std::cout <<
-      i             << ", " <<
-      value         << ", " <<
-      amaru.count() << ", " <<
-      ryu.count()   << '\n';
   }
+
+  auto avg = [=](uint64_t total) {
+    return double(total) / count;
+  };
+
+  std::cerr << "amaru (avg) = " << avg(amaru_total) << '\n';
+  std::cerr << "ryu (avg)   = " << avg(ryu_total   ) << '\n';
+  std::cerr << "speed up    = " << avg(ryu_total) / avg(amaru_total) << '\n';
 }
 
 int main() {

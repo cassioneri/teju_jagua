@@ -18,4 +18,4 @@ set grid x y
 set key autotitle columnhead
 set key bottom center spacing 2 font "Arial,12" maxrows 1
 
-plot "float.csv" using 2:3 with points pt 7 ps .5 lc "blue", "" using 2:4 with points pt 7 ps .5 lc "red"
+plot "float.csv" using 4:5 with points pt 1 ps 0.5 lc "blue", "" using 4:6 with points pt 6 ps 0.5 lc "red"

@@ -15,7 +15,7 @@ generated_%.o : ../generated/%.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
 
 test.o      : test.cpp math.hpp ../include/common.h ../include/ieee.h \
-	../generated/ieee32.h ../generated/ieee64.h
+	../generated/ieee32.c ../generated/ieee64.c
 test        : test.o generated_ieee32.o generated_ieee64.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^  ~/ryu/cassio/ryu/libryu.a -lgtest -lgtest_main
 

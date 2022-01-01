@@ -292,7 +292,7 @@ void compare_to_ryu(T const value) {
 
   using          traits_t = fp_traits_t<T>;
   using          fp_t     = typename traits_t::fp_t;
-  auto constexpr digits   = std::numeric_limits<fp_t>::digits10 + 1;
+  auto constexpr digits   = std::numeric_limits<fp_t>::digits10 + 2;
 
   auto const ryu_dec      = traits_t::ryu(value);
   auto const amaru_dec    = traits_t::amaru(value);

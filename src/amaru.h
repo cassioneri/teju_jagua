@@ -155,7 +155,7 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     rep_t         decimal = { negative, f, c_hat / 2 };
 
     decimal.mantissa += c_hat % 2 == 1 && (decimal.mantissa % 2 == 1 ||
-      !(e < 0 && ((uint32_t) -e) < mantissa_size + 2 &&
+      !(-((int32_t) (mantissa_size + 2)) < e && e < 0 &&
       m_c % AMARU_POW2(suint_t, -e) == 0));
 
     return decimal;
@@ -187,7 +187,7 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 
     else if (c_hat % 2 == 1)
       decimal.mantissa += decimal.mantissa % 2 == 1 ||
-        !(((uint32_t) -e) <= mantissa_size + 1 && decimal.exponent <= 0);
+        !(-((int32_t) (mantissa_size + 1)) <= e && decimal.exponent <= 0);
 
     return decimal;
   }
@@ -200,7 +200,7 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 
   if (c_hat % 2 == 1)
     decimal.mantissa += decimal.mantissa % 2 == 1 ||
-      !(((uint32_t) -e) <= mantissa_size + 1 && decimal.exponent <= 0);
+      !(-((int32_t) (mantissa_size + 1)) <= e && decimal.exponent <= 0);
 
   return decimal;
 }

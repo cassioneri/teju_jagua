@@ -422,8 +422,8 @@ private:
     // Check if all upper parts of the multiplier are zero.
     auto all_upper_parts_are_zero = true;
 
-    for (auto const& eaf : fast_eafs)
-      if (eaf.U >= p2ssize) {
+    for (auto const& fast_eaf : fast_eafs)
+      if (fast_eaf.U >= p2ssize) {
         all_upper_parts_are_zero = false;
         break;
       }
@@ -433,18 +433,26 @@ private:
       "typedef " << info_.duint() << " duint_t;\n"
       "typedef " << info_.rep()   << " rep_t;\n"
       "\n"
-      "static uint32_t const mantissa_size       = " <<
+      "static uint32_t const mantissa_size         = " <<
         info_.mantissa_size() << ";\n"
-      "static int32_t  const exponent_min        = " <<
-        info_.exponent_min() << ";\n"
-      "static int32_t  const exponent_critical   = " <<
+      "static int32_t  const bin_exponent_min      = " <<
+        info_.exponent_min() << ";\n";
+
+     if (config_.use_compact_tbl())
+       dot_c << "static int32_t  const dec_exponent_min      = " <<
+         log10_pow2(info_.exponent_min()) << ";\n";
+
+     dot_c << "static int32_t  const bin_exponent_critical = " <<
         info_.exponent_critical() << ";\n"
-      "static suint_t  const normal_mantissa_min = " <<
+      "static suint_t  const normal_mantissa_min   = " <<
         info_.normal_mantissa_min() << ";\n"
       "\n";
 
     if (all_upper_parts_are_zero)
       dot_c << "#define AMARU_UPPER_IS_ZERO\n\n";
+
+    if (config_.use_compact_tbl())
+      dot_c << "#define AMARU_USE_COMPACT_TBL\n\n";
 
     if (config_.use_same_shift())
       dot_c << "#define AMARU_SHIFT " << shift << "\n\n";
@@ -463,14 +471,15 @@ private:
 
     auto const nibbles = ssize / 4;
 
-    for (auto e2 = info_.exponent_min(); e2 <= info_.exponent_max(); ++e2) {
+    auto e2      = info_.exponent_min();
+    auto e2_or_f = config_.use_compact_tbl() ? log10_pow2(e2) : e2;
 
-      auto const& fast_eaf = fast_eafs[e2 - info_.exponent_min()];
+    for (auto const& fast_eaf : fast_eafs) {
 
       integer_t upper, lower;
       divide_qr(fast_eaf.U, p2ssize, upper, lower);
 
-      if (upper > p2ssize)
+      if (upper >= p2ssize)
         throw amaru_exception{"Multiplier is out of range."};
 
       dot_c << "  { ";
@@ -487,7 +496,8 @@ private:
         auto const shift = fast_eaf.k;
         dot_c << ", " << shift;
       }
-      dot_c << " }, // " << e2 << "\n";
+      dot_c << " }, // " << e2_or_f << "\n";
+      ++e2_or_f;
     }
 
     dot_c <<
@@ -513,10 +523,16 @@ private:
     std::vector<alpha_delta_maximum> maxima;
     maxima.reserve(info_.exponent_max() - info_.exponent_min() + 1);
 
+    auto f_done = log10_pow2(info_.exponent_min()) - 1;
+
     for (auto e2 = info_.exponent_min(); e2 <= info_.exponent_max(); ++e2) {
 
       auto const f = log10_pow2(e2);
-      auto const e = e2 - f;
+
+      if (config_.use_compact_tbl() && f == f_done)
+        continue;
+
+      auto const e = (config_.use_compact_tbl() ? log2_pow10(f) : e2) - f;
 
       alpha_delta_maximum x;
       x.alpha   = f >= 0 ? pow2(e) : pow5(-f);
@@ -524,6 +540,8 @@ private:
       x.maximum = get_maximum(x.alpha, x.delta, e2 == info_.exponent_min());
 
       maxima.emplace_back(std::move(x));
+
+      f_done = f;
     }
     return maxima;
   }
@@ -607,7 +625,8 @@ private:
 
     auto const a        = start_at_1 ?
       integer_t{1} : 2 * info_.normal_mantissa_min();
-    auto const b        = 2 * info_.normal_mantissa_max();
+    auto const b        = 2 * info_.normal_mantissa_max() *
+      (config_.use_compact_tbl() ? 8 : 1);
 
     auto const maximum1 = get_maximum_primary(alpha, delta, a, b);
     auto const maximum2 = phi(alpha, delta, 20 * info_.normal_mantissa_min());

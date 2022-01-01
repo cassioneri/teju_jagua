@@ -87,12 +87,15 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     return decimal;
   }
 
-  if (exponent == 0) {
-    if (mantissa % 10 == 0)
-      return remove_trailing_zeros(negative, 0, mantissa);
-    rep_t decimal = { negative, 0, mantissa };
+#ifdef AMARU_SPECIAL_CASES
+  if (exponent == 0 || exponent == 1) {
+    suint_t const m = mantissa << exponent;
+    if (m % 10 == 0)
+      return remove_trailing_zeros(negative, 0, m);
+    rep_t decimal = { negative, 0, m };
     return decimal;
   }
+#endif
 
   int32_t  const f = log10_pow2(exponent);
   int32_t  const e = exponent - f;

@@ -200,10 +200,15 @@ struct config_t {
    *                        30%) of the non compact one. In addition to saving
    *                        memory this might reduce cache misses, possibly,
    *                        boosting performance.
+   *
+   * \param do_special_cases  Tells if Amaru should also treat special cases
+   *                        (e.g., binary exponent in {0, 1}) for which more
+   *                        more direct and efficient methods are known.
    */
-  config_t(bool use_same_shift, bool use_compact_tbl) :
-    use_same_shift_ {use_same_shift },
-    use_compact_tbl_{use_compact_tbl} {
+  config_t(bool use_same_shift, bool use_compact_tbl, bool do_special_cases) :
+    use_same_shift_  {use_same_shift  },
+    use_compact_tbl_ {use_compact_tbl },
+    do_special_cases_{do_special_cases} {
   }
 
   /**
@@ -220,9 +225,17 @@ struct config_t {
     return use_compact_tbl_;
   }
 
+  /**
+   * \brief Returns if Amaru should also treat special cases.
+   */
+  bool do_special_cases() const {
+    return do_special_cases_;
+  }
+
 private:
   bool use_same_shift_;
   bool use_compact_tbl_;
+  bool do_special_cases_;
 };
 
 /**
@@ -458,6 +471,9 @@ private:
     if (config_.use_same_shift())
       dot_c << "#define AMARU_SHIFT " << shift << "\n\n";
 
+    if (!config_.do_special_cases())
+      dot_c << "#define AMARU_SPECIAL_CASES\n\n";
+
     dot_c << "static struct {\n";
 
     if (!all_upper_parts_are_zero)
@@ -680,8 +696,9 @@ int main() {
   try {
 
     auto const config = config_t{
-      /* use_same_shift  */ false,
-      /* use_compact_tbl */ false
+      /* use_same_shift   */ false,
+      /* use_compact_tbl  */ false,
+      /* do_special_cases */ true
     };
 
     auto ieee32_info = info_t{

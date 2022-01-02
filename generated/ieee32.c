@@ -22,7 +22,7 @@ typedef ieee32_t rep_t;
 
 static uint32_t const mantissa_size         = 23;
 static int32_t  const bin_exponent_min      = -149;
-static int32_t  const bin_exponent_critical = 10;
+static int32_t  const dec_exponent_critical = 10;
 static suint_t  const normal_mantissa_min   = 8388608;
 
 static struct {

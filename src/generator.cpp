@@ -472,7 +472,7 @@ private:
        dot_c << "static int32_t  const dec_exponent_min      = " <<
          log10_pow2(info_.exponent_min()) << ";\n";
 
-     dot_c << "static int32_t  const bin_exponent_critical = " <<
+     dot_c << "static int32_t  const dec_exponent_critical = " <<
         info_.exponent_critical() << ";\n"
       "static suint_t  const normal_mantissa_min   = " <<
         info_.normal_mantissa_min() << ";\n"

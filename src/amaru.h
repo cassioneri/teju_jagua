@@ -134,7 +134,7 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 #else
   uint32_t const shift = multipliers[i].shift;
 #endif
-  bool     const might_be_exact = e > 0 && f <= bin_exponent_critical;
+  bool     const might_be_exact = e > 0 && f <= dec_exponent_critical;
 
   // The below doesn't overflow. (See generator's overflow check #1).
   suint_t const m_b   = 2 * mantissa + 1;

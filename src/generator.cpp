@@ -503,7 +503,7 @@ private:
     if (!config_.use_same_shift())
       dot_c << "  uint32_t const shift;\n";
 
-    dot_c << "} const multipliers [] = {\n";
+    dot_c << "} const multipliers[] = {\n";
 
     auto const nibbles = ssize / 4;
 

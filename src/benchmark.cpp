@@ -13,6 +13,36 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+// Welford's online algorithm
+// https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+struct stats_t {
+
+  void update(double const x) {
+    ++count_;
+    auto const delta    = x - mean_;
+    mean_              += delta / count_;
+    auto const delta2   = x - mean_;
+    m2_                += delta * delta2;
+  }
+
+  double mean() const {
+    return mean_;
+  }
+
+  double variance() const {
+    return m2_ / (count_ - 1);
+  }
+
+  double stddev() const {
+    return sqrt(variance());
+  }
+
+private:
+  uint64_t count_ = 0;
+  double   mean_  = 0;
+  double   m2_    = 0;
+};
+
 template <typename>
 struct fp_traits_t;
 
@@ -97,7 +127,10 @@ struct fp_traits_t<double> {
 template <typename T>
 void benchmark() {
 
-  using ns_t               = std::chrono::nanoseconds;
+  using ns_t              = std::chrono::nanoseconds;
+  using clock_t           = std::chrono::high_resolution_clock;
+  using time_point_t      = std::chrono::time_point<clock_t>;
+
   std::cout.precision(std::numeric_limits<T>::digits10 + 2);
   std::cout << "exponent, mantissa, integer, value, amaru, ryu\n";
 
@@ -111,11 +144,9 @@ void benchmark() {
   auto dist = std::uniform_int_distribution<suint_t> {0, mantissa_max};
 
   auto           n_mantissas  = uint32_t{1000};
-  auto constexpr n_iterations = uint32_t{100};
+  auto constexpr n_iterations = uint32_t{1024};
 
-  uint64_t amaru_total = 0;
-  uint64_t ryu_total   = 0;
-  uint64_t count       = 0;
+  stats_t amaru_stats, ryu_stats;
 
   while (n_mantissas--) {
 
@@ -130,52 +161,44 @@ void benchmark() {
     // exclude exponent_max.
     for (uint32_t exponent = 0; exponent < exponent_max; ++exponent) {
     #endif
+
       auto const value = from_ieee<T>(exponent, mantissa);
 
-      auto amaru = ns_t{std::numeric_limits<ns_t::rep>::max()};
-      for (auto n = n_iterations; n != 0; --n) {
-        auto const start = std::chrono::steady_clock::now();
-        traits_t::amaru(value);
-        auto const end   = std::chrono::steady_clock::now();
-        auto const dt    = ns_t{end - start};
-        if (amaru > dt)
-          amaru = dt;
-      }
+      time_point_t start, end;
 
-      auto ryu = ns_t{std::numeric_limits<ns_t::rep>::max()};
-      for (auto n = n_iterations; n != 0; --n) {
-        auto const start = std::chrono::steady_clock::now();
+      start = clock_t::now();
+      for (auto n = n_iterations; n != 0; --n)
+        traits_t::amaru(value);
+      end = clock_t::now();
+      auto const amaru = double(ns_t{end - start}.count()) / n_iterations;
+      amaru_stats.update(amaru);
+
+      start = clock_t::now();
+      for (auto n = n_iterations; n != 0; --n)
         traits_t::ryu(value);
-        auto const end   = std::chrono::steady_clock::now();
-        auto const dt    = ns_t{end - start};
-        if (ryu > dt)
-          ryu = dt;
-      }
+      end = clock_t::now();
+      auto const ryu = double(ns_t{end - start}.count()) / n_iterations;
+      ryu_stats.update(ryu);
 
       suint_t integer;
       std::memcpy(&integer, &value, sizeof(value));
 
       std::cout <<
-        exponent      << ", " <<
-        mantissa      << ", " <<
-        integer       << ", " <<
-        value         << ", " <<
-        amaru.count() << ", " <<
-        ryu.count()   << '\n';
-
-      ++count;
-      amaru_total += amaru.count();
-      ryu_total   += ryu.count();
+        exponent << ", " <<
+        mantissa << ", " <<
+        integer  << ", " <<
+        value    << ", " <<
+        amaru    << ", " <<
+        ryu      << '\n';
     }
   }
 
-  auto avg = [=](uint64_t total) {
-    return double(total) / count;
-  };
-
-  std::cerr << "amaru (avg) = " << avg(amaru_total) << '\n';
-  std::cerr << "ryu (avg)   = " << avg(ryu_total   ) << '\n';
-  std::cerr << "speed up    = " << avg(ryu_total) / avg(amaru_total) << '\n';
+  std::cerr << "amaru (mean)   = " << amaru_stats.mean()   << '\n';
+  std::cerr << "amaru (stddev) = " << amaru_stats.stddev() << '\n';
+  std::cerr << "ryu   (mean)   = " << ryu_stats  .mean()   << '\n';
+  std::cerr << "ryu   (stddev) = " << ryu_stats  .stddev() << '\n';
+  std::cerr << "speed up       = "
+    << ryu_stats.mean() / amaru_stats.mean() << '\n';
 }
 
 int main() {

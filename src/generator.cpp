@@ -201,14 +201,16 @@ struct config_t {
    *                        memory this might reduce cache misses, possibly,
    *                        boosting performance.
    *
-   * \param do_special_cases  Tells if Amaru should also treat special cases
-   *                        (e.g., binary exponent in {0, 1}) for which more
-   *                        more direct and efficient methods are known.
+   * \param identify_special_cases  Tells if Amaru should identify special cases
+   *                        (e.g., when binary exponent in {0, 1}) and treat
+   *                        them differently using a more direct and,
+   *                        presumably, more efficient method.
    */
-  config_t(bool use_same_shift, bool use_compact_tbl, bool do_special_cases) :
-    use_same_shift_  {use_same_shift  },
-    use_compact_tbl_ {use_compact_tbl },
-    do_special_cases_{do_special_cases} {
+  config_t(bool use_same_shift, bool use_compact_tbl,
+      bool identify_special_cases) :
+    use_same_shift_        {use_same_shift        },
+    use_compact_tbl_       {use_compact_tbl       },
+    identify_special_cases_{identify_special_cases} {
   }
 
   /**
@@ -226,16 +228,17 @@ struct config_t {
   }
 
   /**
-   * \brief Returns if Amaru should also treat special cases.
+   * \brief Returns if Amaru should indentify special cases and treat them
+   * differently.
    */
-  bool do_special_cases() const {
-    return do_special_cases_;
+  bool identify_special_cases() const {
+    return identify_special_cases_;
   }
 
 private:
   bool use_same_shift_;
   bool use_compact_tbl_;
-  bool do_special_cases_;
+  bool identify_special_cases_;
 };
 
 /**
@@ -378,9 +381,11 @@ private:
    * \brief dot_h The output stream to receive the ".h" file content.
    */
   void header(std::ostream& dot_h) const {
-    dot_h << "#pragma once\n"
-      "\n";
+
+    dot_h << "#pragma once\n\n";
+
     common_initial(dot_h);
+
     dot_h <<
       info_.rep() << "\n"
       "to_amaru_dec_" << info_.id() << "(bool negative, int32_t exponent, " <<
@@ -471,8 +476,8 @@ private:
     if (config_.use_same_shift())
       dot_c << "#define AMARU_SHIFT " << shift << "\n\n";
 
-    if (!config_.do_special_cases())
-      dot_c << "#define AMARU_SPECIAL_CASES\n\n";
+    if (config_.identify_special_cases())
+      dot_c << "#define AMARU_IDENTIFY_SPECIAL_CASES\n\n";
 
     dot_c << "static struct {\n";
 
@@ -696,9 +701,9 @@ int main() {
   try {
 
     auto const config = config_t{
-      /* use_same_shift   */ false,
-      /* use_compact_tbl  */ false,
-      /* do_special_cases */ true
+      /* use_same_shift         */ false,
+      /* use_compact_tbl        */ false,
+      /* identify_special_cases */ false
     };
 
     auto ieee32_info = info_t{

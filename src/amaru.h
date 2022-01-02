@@ -87,7 +87,7 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
     return decimal;
   }
 
-#ifdef AMARU_SPECIAL_CASES
+#if defined(AMARU_IDENTIFY_SPECIAL_CASES)
   if (exponent == 0 || exponent == 1) {
     suint_t const m = mantissa << exponent;
     if (m % 10 == 0)
@@ -100,7 +100,7 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   int32_t  const f = log10_pow2(exponent);
   int32_t  const e = exponent - f;
 
-#ifdef AMARU_USE_COMPACT_TBL
+#if defined(AMARU_USE_COMPACT_TBL)
   int32_t  const e0    = log2_pow10(f) - f;
   uint32_t const extra = e - e0;
   int32_t  const i     = f - dec_exponent_min;
@@ -110,13 +110,13 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   int32_t  const i     = exponent - bin_exponent_min;
 #endif
 
-#ifdef AMARU_UPPER_IS_ZERO
+#if defined(AMARU_UPPER_IS_ZERO)
   duint_t  const upper = 0;
 #else
   duint_t  const upper = multipliers[i].upper;
 #endif
   duint_t  const lower = multipliers[i].lower;
-#ifdef AMARU_SHIFT
+#if defined(AMARU_SHIFT)
   uint32_t const shift = AMARU_SHIFT;
 #else
   uint32_t const shift = multipliers[i].shift;

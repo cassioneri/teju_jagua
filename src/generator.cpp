@@ -742,7 +742,7 @@ int main() {
       /* identify_special_cases */ false
     };
 
-    auto ieee32_info = info_t{
+    auto const ieee32_info = info_t{
       /* id            */ "ieee32",
       /* suint         */ "uint32_t",
       /* duint         */ "uint64_t",
@@ -757,7 +757,7 @@ int main() {
     auto dot_c_32     = std::ofstream{"../generated/ieee32.c"};
     generator_32.generate(dot_h_32, dot_c_32);
 
-    auto ieee64_info   = info_t{
+    auto const ieee64_info = info_t{
       /* id            */ "ieee64",
       /* suint         */ "uint64_t",
       /* duint         */ "__uint128_t",

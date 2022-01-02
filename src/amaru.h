@@ -37,11 +37,6 @@ rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
 }
 
 static inline
-duint_t pack(duint_t upper_m, duint_t lower_m) {
-  return (upper_m << ssize) + lower_m;
-}
-
-static inline
 suint_t multipliy_and_shift(suint_t const m, duint_t const upper,
   duint_t const lower, uint32_t const shift) {
 
@@ -52,6 +47,20 @@ suint_t multipliy_and_shift(suint_t const m, duint_t const upper,
     return (upper_m + (lower_m >> ssize)) >> (shift - ssize);
 
   return (lower_m >> shift) + (upper_m << (ssize - shift));
+}
+
+#if defined(AMARU_USE_MINVERSE)
+
+static inline
+bool is_multiple_of_pow5(suint_t const m, int32_t const f) {
+  return f == 0 | m * minverse[f - 1].multiplier < minverse[f - 1].bound;
+}
+
+#else
+
+static inline
+duint_t pack(duint_t upper_m, duint_t lower_m) {
+  return (upper_m << ssize) + lower_m;
 }
 
 static inline
@@ -77,6 +86,7 @@ suint_t is_multiple_of_pow5(suint_t const m, duint_t const upper,
   duint_t const prod = pack(upper_m, lower_m);
   return AMARU_LSB(prod, n_bits) < multiplier;
 }
+#endif
 
 rep_t
 TO_AMARU_DEC(bool const negative, int32_t const exponent,
@@ -110,6 +120,9 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   int32_t  const i     = exponent - bin_exponent_min;
 #endif
 
+  // Disables warning when AMARU_USE_MINVERSE is defined.
+  (void) e0;
+
 #if defined(AMARU_UPPER_IS_ZERO)
   duint_t  const upper = 0;
 #else
@@ -121,8 +134,6 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 #else
   uint32_t const shift = multipliers[i].shift;
 #endif
-
-  uint32_t const n_bits         = shift + e0;
   bool     const might_be_exact = e > 0 && f <= bin_exponent_critical;
 
   // The below doesn't overflow. (See generator's overflow check #1).
@@ -136,7 +147,11 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
 
     if (s == b) {
       bool const is_exact = might_be_exact && b_hat % 2 == 0 &&
-        is_multiple_of_pow5(m_b, upper, lower, n_bits);
+#if defined(AMARU_USE_MINVERSE)
+        is_multiple_of_pow5(m_b, f);
+#else
+        is_multiple_of_pow5(m_b, upper, lower, shift + e0);
+#endif
       if (!is_exact || mantissa % 2 == 0)
         return remove_trailing_zeros(negative, f, s);
     }
@@ -146,7 +161,11 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
       suint_t const a_hat    = multipliy_and_shift(m_a<< extra, upper, lower,
         shift);
       bool    const is_exact = might_be_exact && a_hat % 2 == 0 &&
-        is_multiple_of_pow5(m_a, upper, lower, n_bits);
+#if defined(AMARU_USE_MINVERSE)
+        is_multiple_of_pow5(m_a, f);
+#else
+        is_multiple_of_pow5(m_a, upper, lower, shift + e0);
+#endif
       suint_t const a = a_hat / 2 + !is_exact;
       if (s > a || (s == a && (!is_exact || mantissa % 2 == 0)))
         return remove_trailing_zeros(negative, f, s);
@@ -171,7 +190,11 @@ TO_AMARU_DEC(bool const negative, int32_t const exponent,
   suint_t const a_hat    = multipliy_and_shift(m_a << extra, upper, lower,
     shift);
   bool    const is_exact = might_be_exact && a_hat % 4 == 0 &&
-    is_multiple_of_pow5(m_a, upper, lower, n_bits);
+#if defined(AMARU_USE_MINVERSE)
+      is_multiple_of_pow5(m_a, f);
+#else
+      is_multiple_of_pow5(m_a, upper, lower, shift + e0);
+#endif
   suint_t const a        = a_hat / 4 + !is_exact;
 
   if (b >= a) {

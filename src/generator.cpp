@@ -201,15 +201,21 @@ struct config_t {
    *                        memory this might reduce cache misses, possibly,
    *                        boosting performance.
    *
+   * \param use_minverse    Tells if Amaru checking divisibility by powers of 5
+   *                        should use the miverse algorithm or use its own
+   *                        version of multiply and compare. The former is,
+   *                        presumably, faster but requires and extra memory.
+   *
    * \param identify_special_cases  Tells if Amaru should identify special cases
    *                        (e.g., when binary exponent in {0, 1}) and treat
    *                        them differently using a more direct and,
    *                        presumably, more efficient method.
    */
-  config_t(bool use_same_shift, bool use_compact_tbl,
+  config_t(bool use_same_shift, bool use_compact_tbl, bool use_minverse,
       bool identify_special_cases) :
     use_same_shift_        {use_same_shift        },
     use_compact_tbl_       {use_compact_tbl       },
+    use_minverse_          {use_minverse          },
     identify_special_cases_{identify_special_cases} {
   }
 
@@ -228,8 +234,14 @@ struct config_t {
   }
 
   /**
-   * \brief Returns if Amaru should indentify special cases and treat them
-   * differently.
+   * \brief Returns if Amaru should use the minverse algorithm.
+   */
+  bool use_minverse() const {
+    return use_minverse_;
+  }
+
+  /**
+   * \brief Returns if Amaru should identify special cases.
    */
   bool identify_special_cases() const {
     return identify_special_cases_;
@@ -238,6 +250,7 @@ struct config_t {
 private:
   bool use_same_shift_;
   bool use_compact_tbl_;
+  bool use_minverse_;
   bool identify_special_cases_;
 };
 
@@ -383,13 +396,10 @@ private:
   void header(std::ostream& dot_h) const {
 
     dot_h << "#pragma once\n\n";
-
     common_initial(dot_h);
 
-    dot_h <<
-      info_.rep() << "\n"
-      "to_amaru_dec_" << info_.id() << "(bool negative, int32_t exponent, " <<
-      info_.suint() << " mantissa);\n";
+    dot_h << info_.rep() << " to_amaru_dec_" << info_.id() << "(bool negative, "
+      "int32_t exponent, " << info_.suint() << " mantissa);\n";
 
     common_final(dot_h);
   }
@@ -400,6 +410,7 @@ private:
    * \brief dot_c The output stream to receive the ".c" file content.
    */
   void source(std::ostream& dot_c) const {
+
     common_initial(dot_c);
 
     auto const maxima = get_maxima();
@@ -470,11 +481,14 @@ private:
     if (all_upper_parts_are_zero)
       dot_c << "#define AMARU_UPPER_IS_ZERO\n\n";
 
+    if (config_.use_same_shift())
+      dot_c << "#define AMARU_SHIFT " << shift << "\n\n";
+
     if (config_.use_compact_tbl())
       dot_c << "#define AMARU_USE_COMPACT_TBL\n\n";
 
-    if (config_.use_same_shift())
-      dot_c << "#define AMARU_SHIFT " << shift << "\n\n";
+    if (config_.use_minverse())
+      dot_c << "#define AMARU_USE_MINVERSE\n\n";
 
     if (config_.identify_special_cases())
       dot_c << "#define AMARU_IDENTIFY_SPECIAL_CASES\n\n";
@@ -521,10 +535,31 @@ private:
       dot_c << " }, // " << e2_or_f << "\n";
       ++e2_or_f;
     }
+    dot_c << "};\n\n";
+
+    if (config_.use_minverse()) {
+
+      dot_c << "static struct {\n"
+        "  suint_t const multiplier;\n"
+        "  suint_t const bound;\n"
+        "} const minverse[] = {\n";
+
+      auto const minverse5  = integer_t{p2ssize - (p2ssize - 1) / 5};
+      auto multiplier = minverse5;
+      for (int32_t f = 1; f <= info_.exponent_critical(); ++f) {
+        auto const bound = p2ssize / pow5(f) + 1;
+        dot_c << "  { "
+          "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
+          multiplier << ", " <<
+          "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
+          bound <<
+          " },\n";
+        multiplier = (multiplier * minverse5) % p2ssize;
+      }
+      dot_c <<"};\n\n";
+    }
 
     dot_c <<
-      "};\n"
-      "\n"
       "#define TO_AMARU_DEC to_amaru_dec_" << info_.id() << "\n"
       "#include \"src/amaru.h\"\n"
       "#undef AMARU\n";
@@ -703,6 +738,7 @@ int main() {
     auto const config = config_t{
       /* use_same_shift         */ false,
       /* use_compact_tbl        */ false,
+      /* use_minverse           */ false,
       /* identify_special_cases */ false
     };
 

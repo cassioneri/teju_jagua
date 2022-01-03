@@ -153,9 +153,8 @@ void benchmark() {
     auto const mantissa = dist(device);
 
     #if 0
-    uint32_t exponent = 149;
     (void) exponent_max;
-    {
+    for (uint32_t exponent = 148; exponent <= 152; ++exponent) {
     #else
     // If exponent == exponent_max, then value is infinity or NaN. Hence, we
     // exclude exponent_max.

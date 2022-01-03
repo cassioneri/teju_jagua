@@ -2,8 +2,8 @@
 
 #include "common.h"
 
-#include "generated/ieee32.h"
-#include "generated/ieee64.h"
+#include "../generated/ieee32.h"
+#include "../generated/ieee64.h"
 
 #include <stdint.h>
 #include <string.h>

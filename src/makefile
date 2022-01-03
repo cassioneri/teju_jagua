@@ -1,4 +1,4 @@
-CPPFLAGS += -DNDEBUG -I../include -I. -I.. -I ../../ryu/ryu
+CPPFLAGS += -DNDEBUG -I ../../ryu/ryu
 CFLAGS   += -O3 -Wall -Wextra -std=c11
 CXXFLAGS += -O3 -Wall -Wextra -std=c++11
 

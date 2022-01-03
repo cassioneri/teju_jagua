@@ -1,11 +1,12 @@
 #pragma once
 
 #include "common.h"
-#include <stdint.h>
-#include <string.h>
 
 #include "generated/ieee32.h"
 #include "generated/ieee64.h"
+
+#include <stdint.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {

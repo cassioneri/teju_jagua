@@ -561,7 +561,7 @@ private:
     dot_c <<
       "\n"
       "#define AMARU_IMPL amaru_" << info_.id() << "\n"
-      "#include \"src/amaru_impl.h\"\n"
+      "#include \"include/amaru_impl.h\"\n"
       "#undef AMARU_IMPL\n";
   }
 

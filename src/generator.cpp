@@ -359,19 +359,11 @@ private:
       "\n"
       "#include <stdint.h>\n"
       "\n"
-      "#ifndef __cplusplus\n"
-      "#include <stdbool.h>\n"
-      "#endif\n"
-      "\n"
       "#ifdef __cplusplus\n"
       "extern \"C\" {\n"
+      "#else\n"
+      "#include <stdbool.h>\n"
       "#endif\n"
-      "\n"
-      "typedef struct {\n"
-      "  bool    negative;\n"
-      "  int32_t exponent;\n"
-      "  " << info_.suint() << " mantissa;\n"
-      "} " << info_.rep() << ";\n"
       "\n";
   }
 
@@ -382,7 +374,6 @@ private:
    */
   void common_final(std::ostream& stream) const {
     stream <<
-      "\n"
       "#ifdef __cplusplus\n"
       "}\n"
       "#endif\n";
@@ -398,7 +389,14 @@ private:
     dot_h << "#pragma once\n\n";
     common_initial(dot_h);
 
-    dot_h << info_.rep() << " to_amaru_dec_" << info_.id() << "(bool negative, "
+    dot_h <<
+      "typedef struct {\n"
+      "  bool    negative;\n"
+      "  int32_t exponent;\n"
+      "  " << info_.suint() << " mantissa;\n"
+      "} " << info_.rep() << ";\n"
+      "\n" <<
+      info_.rep() << " to_amaru_dec_" << info_.id() << "(bool negative, "
       "int32_t exponent, " << info_.suint() << " mantissa);\n";
 
     common_final(dot_h);
@@ -461,7 +459,6 @@ private:
     dot_c <<
       "typedef " << info_.suint() << " suint_t;\n"
       "typedef " << info_.duint() << " duint_t;\n"
-      "typedef " << info_.rep()   << " rep_t;\n"
       "\n"
       "static uint32_t const mantissa_size         = " <<
         info_.mantissa_size() << ";\n"
@@ -556,14 +553,16 @@ private:
           " },\n";
         multiplier = (multiplier * minverse5) % p2ssize;
       }
-      dot_c <<"};\n\n";
+      dot_c <<"};\n";
     }
 
+    common_final(dot_c);
+
     dot_c <<
+      "\n"
       "#define TO_AMARU_DEC to_amaru_dec_" << info_.id() << "\n"
       "#include \"src/amaru.h\"\n"
       "#undef AMARU\n";
-    common_final(dot_c);
   }
 
   /**

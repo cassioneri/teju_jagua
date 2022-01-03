@@ -2,23 +2,14 @@
 
 #include <stdint.h>
 
-#ifndef __cplusplus
+#ifdef __cplusplus
+extern "C" {
+#else
 #include <stdbool.h>
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef struct {
-  bool    negative;
-  int32_t exponent;
-  uint32_t mantissa;
-} ieee32_t;
-
 typedef uint32_t suint_t;
 typedef uint64_t duint_t;
-typedef ieee32_t rep_t;
 
 static uint32_t const mantissa_size         = 23;
 static int32_t  const bin_exponent_min      = -149;
@@ -286,10 +277,10 @@ static struct {
   { 0x00002073, 0xaccb12d1, 44 }, // 104
 };
 
-#define TO_AMARU_DEC to_amaru_dec_ieee32
-#include "src/amaru.h"
-#undef AMARU
-
 #ifdef __cplusplus
 }
 #endif
+
+#define TO_AMARU_DEC to_amaru_dec_ieee32
+#include "src/amaru.h"
+#undef AMARU

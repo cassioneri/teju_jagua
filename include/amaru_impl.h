@@ -19,12 +19,6 @@ static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
 static uint32_t const ssize = CHAR_BIT * sizeof(suint_t);
 static uint32_t const dsize = CHAR_BIT * sizeof(duint_t);
 
-typedef struct {
-  bool    negative;
-  int32_t exponent;
-  suint_t mantissa;
-} rep_t;
-
 static inline
 rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
   suint_t mantissa) {

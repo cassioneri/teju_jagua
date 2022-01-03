@@ -8,8 +8,15 @@ extern "C" {
 #include <stdbool.h>
 #endif
 
+typedef struct {
+  bool    negative;
+  int32_t exponent;
+  uint64_t mantissa;
+} ieee64_t;
+
 typedef uint64_t suint_t;
 typedef __uint128_t duint_t;
+typedef ieee64_t rep_t;
 
 static uint32_t const mantissa_size         = 52;
 static int32_t  const bin_exponent_min      = -1074;

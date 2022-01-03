@@ -364,6 +364,12 @@ private:
       "#else\n"
       "#include <stdbool.h>\n"
       "#endif\n"
+      "\n"
+      "typedef struct {\n"
+      "  bool    negative;\n"
+      "  int32_t exponent;\n"
+      "  " << info_.suint() << " mantissa;\n"
+      "} " << info_.rep() << ";\n"
       "\n";
   }
 
@@ -390,12 +396,6 @@ private:
     common_initial(dot_h);
 
     dot_h <<
-      "typedef struct {\n"
-      "  bool    negative;\n"
-      "  int32_t exponent;\n"
-      "  " << info_.suint() << " mantissa;\n"
-      "} " << info_.rep() << ";\n"
-      "\n" <<
       info_.rep() << " amaru_" << info_.id() << "(bool negative, int32_t "
         "exponent, " << info_.suint() << " mantissa);\n\n";
 
@@ -459,6 +459,7 @@ private:
     dot_c <<
       "typedef " << info_.suint() << " suint_t;\n"
       "typedef " << info_.duint() << " duint_t;\n"
+      "typedef " << info_.rep()   << " rep_t;\n"
       "\n"
       "static uint32_t const mantissa_size         = " <<
         info_.mantissa_size() << ";\n"

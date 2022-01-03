@@ -281,6 +281,6 @@ static struct {
 }
 #endif
 
-#define TO_AMARU_DEC to_amaru_dec_ieee32
-#include "src/amaru.h"
-#undef AMARU
+#define AMARU_IMPL amaru_ieee32
+#include "src/amaru_impl.h"
+#undef AMARU_IMPL

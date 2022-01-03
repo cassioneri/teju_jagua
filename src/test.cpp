@@ -260,7 +260,7 @@ struct fp_traits_t<float> {
 
   static rep_t
   amaru(fp_t const value) {
-    return to_amaru_dec_float(value);
+    return amaru_float(value);
   }
 };
 
@@ -283,7 +283,7 @@ struct fp_traits_t<double> {
 
   static rep_t
   amaru(fp_t const value) {
-    return to_amaru_dec_double(value);
+    return amaru_double(value);
   }
 };
 

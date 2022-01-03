@@ -98,7 +98,7 @@ struct fp_traits_t<float> {
 
   static void
   amaru(fp_t const value) {
-    to_amaru_dec_float(value);
+    amaru_float(value);
   }
 };
 
@@ -120,7 +120,7 @@ struct fp_traits_t<double> {
 
   static void
   amaru(fp_t const value) {
-    to_amaru_dec_double(value);
+    amaru_double(value);
   }
 };
 

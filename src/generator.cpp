@@ -396,8 +396,8 @@ private:
       "  " << info_.suint() << " mantissa;\n"
       "} " << info_.rep() << ";\n"
       "\n" <<
-      info_.rep() << " to_amaru_dec_" << info_.id() << "(bool negative, "
-      "int32_t exponent, " << info_.suint() << " mantissa);\n";
+      info_.rep() << " amaru_" << info_.id() << "(bool negative, int32_t "
+        "exponent, " << info_.suint() << " mantissa);\n\n";
 
     common_final(dot_h);
   }
@@ -560,9 +560,9 @@ private:
 
     dot_c <<
       "\n"
-      "#define TO_AMARU_DEC to_amaru_dec_" << info_.id() << "\n"
-      "#include \"src/amaru.h\"\n"
-      "#undef AMARU\n";
+      "#define AMARU_IMPL amaru_" << info_.id() << "\n"
+      "#include \"src/amaru_impl.h\"\n"
+      "#undef AMARU_IMPL\n";
   }
 
   /**

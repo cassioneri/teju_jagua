@@ -1,5 +1,5 @@
-#ifndef TO_AMARU_DEC
-#error "Invalid inclusion of amaru.h."
+#ifndef AMARU_IMPL
+#error "Invalid inclusion of amaru_impl.h."
 #endif
 
 #include "common.h"
@@ -95,8 +95,7 @@ suint_t is_multiple_of_pow5(suint_t const m, duint_t const upper,
 
 #endif
 
-rep_t
-TO_AMARU_DEC(bool const negative, int32_t const exponent,
+rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   suint_t const mantissa) {
 
   if (exponent == bin_exponent_min && mantissa == 0) {

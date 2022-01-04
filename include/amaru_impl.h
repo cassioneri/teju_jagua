@@ -19,18 +19,24 @@ static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
 static uint32_t const ssize = CHAR_BIT * sizeof(suint_t);
 static uint32_t const dsize = CHAR_BIT * sizeof(duint_t);
 
+static suint_t const inv10  = AMARU_POW2(duint_t, ssize) / 10 + 1;
+
+static inline
+bool is_multiple_of_10(suint_t const m) {
+  return inv10 * m < inv10;
+}
+
 static inline
 rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
   suint_t mantissa) {
 
-  suint_t const multiplier = (~((suint_t)0)) / 10 + 1;
-  duint_t       product    = ((duint_t) multiplier) * mantissa;
+  duint_t product = ((duint_t) inv10) * mantissa;
 
   do {
     ++exponent;
     mantissa = (suint_t) (product >> ssize);
-    product  = ((duint_t) multiplier) * mantissa;
-  } while ((suint_t) product < multiplier);
+    product  = ((duint_t) inv10) * mantissa;
+  } while ((suint_t) product < inv10);
 
   rep_t const decimal = { negative, exponent, mantissa };
   return decimal;
@@ -143,9 +149,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 
-    suint_t const s = 10 * (b / 10);
-
-    if (s == b) {
+    if (is_multiple_of_10(b)) {
       bool const is_exact = might_be_exact && b_hat % 2 == 0 &&
 #if defined(AMARU_USE_MINVERSE)
         is_multiple_of_pow5(m_b, f);
@@ -153,22 +157,30 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
         is_multiple_of_pow5(m_b, upper, lower, shift + e0);
 #endif
       if (!is_exact || mantissa % 2 == 0)
-        return remove_trailing_zeros(negative, f, s);
+        return remove_trailing_zeros(negative, f, b);
     }
 
     else {
-      suint_t const m_a      = 2 * mantissa - 1;
-      suint_t const a_hat    = multipliy_and_shift(m_a<< extra, upper, lower,
+
+      suint_t const s     = 10 * (b / 10);
+      suint_t const m_a   = 2 * mantissa - 1;
+      suint_t const a_hat = multipliy_and_shift(m_a<< extra, upper, lower,
         shift);
-      bool    const is_exact = might_be_exact && a_hat % 2 == 0 &&
+      suint_t const a     = a_hat / 2;
+
+      if (s > a)
+        return remove_trailing_zeros(negative, f, s);
+
+      if (s == a) {
+        bool const is_exact = might_be_exact && a_hat % 2 == 0 &&
 #if defined(AMARU_USE_MINVERSE)
         is_multiple_of_pow5(m_a, f);
 #else
         is_multiple_of_pow5(m_a, upper, lower, shift + e0);
 #endif
-      suint_t const a = a_hat / 2 + !is_exact;
-      if (s > a || (s == a && (!is_exact || mantissa % 2 == 0)))
-        return remove_trailing_zeros(negative, f, s);
+        if (is_exact && mantissa % 2 == 0)
+          return remove_trailing_zeros(negative, f, s);
+      }
     }
 
     suint_t const m_c     = 2 * mantissa;

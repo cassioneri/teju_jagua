@@ -53,7 +53,7 @@ suint_t multipliy_and_shift(suint_t const m, duint_t const upper,
 
 static inline
 bool is_multiple_of_pow5(suint_t const m, int32_t const f) {
-  return f == 0 | m * minverse[f - 1].multiplier < minverse[f - 1].bound;
+  return f == 0 || m * minverse[f - 1].multiplier < minverse[f - 1].bound;
 }
 
 #define AMARU_IS_MULTIPLE_OF_POW5(m) is_multiple_of_pow5(m, f)

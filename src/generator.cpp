@@ -466,30 +466,35 @@ private:
       "static int32_t  const bin_exponent_min      = " <<
         info_.exponent_min() << ";\n";
 
-     if (config_.use_compact_tbl())
-       dot_c << "static int32_t  const dec_exponent_min      = " <<
-         log10_pow2(info_.exponent_min()) << ";\n";
+    if (config_.use_compact_tbl())
+      dot_c << "static int32_t  const dec_exponent_min      = " <<
+      log10_pow2(info_.exponent_min()) << ";\n";
 
-     dot_c << "static int32_t  const dec_exponent_critical = " <<
-        info_.exponent_critical() << ";\n"
+    dot_c << "static int32_t  const dec_exponent_critical = " <<
+      info_.exponent_critical() << ";\n"
       "static suint_t  const normal_mantissa_min   = " <<
-        info_.normal_mantissa_min() << ";\n"
+      info_.normal_mantissa_min() << ";\n"
       "\n";
 
-    if (all_upper_parts_are_zero)
-      dot_c << "#define AMARU_UPPER_IS_ZERO\n\n";
+    bool something_was_defined = false;
 
-    if (config_.use_same_shift())
-      dot_c << "#define AMARU_SHIFT " << shift << "\n\n";
+    if (all_upper_parts_are_zero && (something_was_defined = true))
+      dot_c << "#define AMARU_UPPER_IS_ZERO\n";
 
-    if (config_.use_compact_tbl())
-      dot_c << "#define AMARU_USE_COMPACT_TBL\n\n";
+    if (config_.use_same_shift() && (something_was_defined = true))
+      dot_c << "#define AMARU_SHIFT " << shift << "\n";
 
-    if (config_.use_minverse())
-      dot_c << "#define AMARU_USE_MINVERSE\n\n";
+    if (config_.use_compact_tbl() && (something_was_defined = true))
+      dot_c << "#define AMARU_USE_COMPACT_TBL\n";
 
-    if (config_.identify_special_cases())
-      dot_c << "#define AMARU_IDENTIFY_SPECIAL_CASES\n\n";
+    if (config_.use_minverse() && (something_was_defined = true))
+      dot_c << "#define AMARU_USE_MINVERSE\n";
+
+    if (config_.identify_special_cases() && (something_was_defined = true))
+      dot_c << "#define AMARU_IDENTIFY_SPECIAL_CASES\n";
+
+    if (something_was_defined)
+      dot_c << '\n';
 
     dot_c << "static struct {\n";
 
@@ -563,7 +568,23 @@ private:
       "\n"
       "#define AMARU_IMPL amaru_" << info_.id() << "\n"
       "#include \"../include/amaru_impl.h\"\n"
+      "\n"
       "#undef AMARU_IMPL\n";
+
+    if (all_upper_parts_are_zero)
+      dot_c << "#undef AMARU_UPPER_IS_ZERO\n";
+
+    if (config_.use_same_shift())
+      dot_c << "#undef AMARU_SHIFT\n";
+
+    if (config_.use_compact_tbl())
+      dot_c << "#undef AMARU_USE_COMPACT_TBL\n";
+
+    if (config_.use_minverse())
+      dot_c << "#undef AMARU_USE_MINVERSE\n";
+
+    if (config_.identify_special_cases())
+      dot_c << "#undef AMARU_IDENTIFY_SPECIAL_CASES\n";
   }
 
   /**

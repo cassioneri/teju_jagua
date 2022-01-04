@@ -290,4 +290,5 @@ static struct {
 
 #define AMARU_IMPL amaru_ieee32
 #include "../include/amaru_impl.h"
+
 #undef AMARU_IMPL

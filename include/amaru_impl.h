@@ -140,7 +140,6 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 #else
   uint32_t const shift = multipliers[i].shift;
 #endif
-  bool     const might_be_exact = e > 0 && f <= dec_exponent_critical;
 
   // The below doesn't overflow. (See generator's overflow check #1).
   suint_t const m_b   = 2 * mantissa + 1;
@@ -150,7 +149,8 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 
     if (is_multiple_of_10(b)) {
-      bool const is_exact = might_be_exact && b_hat % 2 == 0 &&
+      bool const is_exact = e > 0 && f <= dec_exponent_critical &&
+        b_hat % 2 == 0 &&
 #if defined(AMARU_USE_MINVERSE)
         is_multiple_of_pow5(m_b, f);
 #else
@@ -172,11 +172,12 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
         return remove_trailing_zeros(negative, f, s);
 
       if (s == a) {
-        bool const is_exact = might_be_exact && a_hat % 2 == 0 &&
+        bool const is_exact = e > 0 && f <= dec_exponent_critical &&
+            a_hat % 2 == 0 &&
 #if defined(AMARU_USE_MINVERSE)
-        is_multiple_of_pow5(m_a, f);
+            is_multiple_of_pow5(m_a, f);
 #else
-        is_multiple_of_pow5(m_a, upper, lower, shift + e0);
+            is_multiple_of_pow5(m_a, upper, lower, shift + e0);
 #endif
         if (is_exact && mantissa % 2 == 0)
           return remove_trailing_zeros(negative, f, s);
@@ -201,11 +202,12 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   suint_t const m_a      = 4 * normal_mantissa_min - 1;
   suint_t const a_hat    = multipliy_and_shift(m_a << extra, upper, lower,
     shift);
-  bool    const is_exact = might_be_exact && a_hat % 4 == 0 &&
+  bool    const is_exact = e > 0 && f <= dec_exponent_critical &&
+    a_hat % 4 == 0 &&
 #if defined(AMARU_USE_MINVERSE)
-      is_multiple_of_pow5(m_a, f);
+    is_multiple_of_pow5(m_a, f);
 #else
-      is_multiple_of_pow5(m_a, upper, lower, shift + e0);
+    is_multiple_of_pow5(m_a, upper, lower, shift + e0);
 #endif
   suint_t const a        = a_hat / 4 + !is_exact;
 

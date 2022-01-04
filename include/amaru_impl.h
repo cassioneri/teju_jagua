@@ -19,18 +19,12 @@ static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
 static uint32_t const ssize = CHAR_BIT * sizeof(suint_t);
 static uint32_t const dsize = CHAR_BIT * sizeof(duint_t);
 
-static suint_t const inv10  = AMARU_POW2(duint_t, ssize) / 10 + 1;
-
-static inline
-bool is_multiple_of_10(suint_t const m) {
-  return inv10 * m < inv10;
-}
-
 static inline
 rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
   suint_t mantissa) {
 
-  duint_t product = ((duint_t) inv10) * mantissa;
+  suint_t const inv10   = AMARU_POW2(duint_t, ssize) / 10 + 1;
+  duint_t       product = ((duint_t) inv10) * mantissa;
 
   do {
     ++exponent;
@@ -65,8 +59,8 @@ bool is_multiple_of_pow5(suint_t const m, int32_t const f) {
 #else
 
 static inline
-duint_t pack(duint_t upper_m, duint_t lower_m) {
-  return (upper_m << ssize) + lower_m;
+duint_t pack(duint_t upper, duint_t lower) {
+  return (upper << ssize) + lower;
 }
 
 static inline
@@ -148,7 +142,10 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 
-    if (is_multiple_of_10(b)) {
+    suint_t const s = 10 * (b / 10);
+
+    if (b == s) {
+
       bool const is_exact = e > 0 && f <= dec_exponent_critical &&
         b_hat % 2 == 0 &&
 #if defined(AMARU_USE_MINVERSE)
@@ -162,7 +159,6 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
     else {
 
-      suint_t const s     = 10 * (b / 10);
       suint_t const m_a   = 2 * mantissa - 1;
       suint_t const a_hat = multipliy_and_shift(m_a<< extra, upper, lower,
         shift);

@@ -56,6 +56,8 @@ bool is_multiple_of_pow5(suint_t const m, int32_t const f) {
   return f == 0 | m * minverse[f - 1].multiplier < minverse[f - 1].bound;
 }
 
+#define AMARU_IS_MULTIPLE_OF_POW5(m) is_multiple_of_pow5(m, f)
+
 #else
 
 static inline
@@ -86,6 +88,9 @@ suint_t is_multiple_of_pow5(suint_t const m, duint_t const upper,
   duint_t const prod = pack(upper_m, lower_m);
   return AMARU_LSB(prod, n_bits) < multiplier;
 }
+
+#define AMARU_IS_MULTIPLE_OF_POW5(m) \
+  is_multiple_of_pow5(m, upper, lower, shift + e0)
 
 #endif
 
@@ -147,12 +152,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     if (b == s) {
 
       bool const is_exact = e > 0 && f <= dec_exponent_critical &&
-        b_hat % 2 == 0 &&
-#if defined(AMARU_USE_MINVERSE)
-        is_multiple_of_pow5(m_b, f);
-#else
-        is_multiple_of_pow5(m_b, upper, lower, shift + e0);
-#endif
+        b_hat % 2 == 0 && AMARU_IS_MULTIPLE_OF_POW5(m_b);
       if (!is_exact || mantissa % 2 == 0)
         return remove_trailing_zeros(negative, f, b);
     }
@@ -169,12 +169,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
       if (s == a) {
         bool const is_exact = e > 0 && f <= dec_exponent_critical &&
-            a_hat % 2 == 0 &&
-#if defined(AMARU_USE_MINVERSE)
-            is_multiple_of_pow5(m_a, f);
-#else
-            is_multiple_of_pow5(m_a, upper, lower, shift + e0);
-#endif
+            a_hat % 2 == 0 && AMARU_IS_MULTIPLE_OF_POW5(m_a);
         if (is_exact && mantissa % 2 == 0)
           return remove_trailing_zeros(negative, f, s);
       }
@@ -192,19 +187,15 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     return decimal;
   }
 
-  // mantissa = mantissa_min
+  // mantissa = normal_mantissa_min
 
   // The below doesn't overflow. (See generator's overflow check #2).
   suint_t const m_a      = 4 * normal_mantissa_min - 1;
   suint_t const a_hat    = multipliy_and_shift(m_a << extra, upper, lower,
     shift);
-  bool    const is_exact = e > 0 && f <= dec_exponent_critical &&
-    a_hat % 4 == 0 &&
-#if defined(AMARU_USE_MINVERSE)
-    is_multiple_of_pow5(m_a, f);
-#else
-    is_multiple_of_pow5(m_a, upper, lower, shift + e0);
-#endif
+  bool    const is_exact = mantissa_size % 4 == 2 && e > 1 &&
+    f <= dec_exponent_critical && a_hat % 4 == 0 &&
+    AMARU_IS_MULTIPLE_OF_POW5(m_a);
   suint_t const a        = a_hat / 4 + !is_exact;
 
   if (b >= a) {
@@ -214,17 +205,18 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     if (s >= a)
       return remove_trailing_zeros(negative, f, s);
 
-    suint_t const m_c     = 2 * mantissa;
-    suint_t const c_hat   = multipliy_and_shift(m_c << extra, upper, lower,
+    suint_t const m_c   = 2 * normal_mantissa_min;
+    suint_t const c_hat = multipliy_and_shift(m_c << extra, upper, lower,
       shift);
-    rep_t         decimal = { negative, f, c_hat / 2 };
-    if (decimal.mantissa < a)
-      ++decimal.mantissa;
+    suint_t const c     = c_hat / 2;
 
-    else if (c_hat % 2 == 1)
-      decimal.mantissa += decimal.mantissa % 2 == 1 ||
-        !(-((int32_t) (mantissa_size + 1)) <= e && decimal.exponent <= 0);
+    if (c < a || (c_hat % 2 == 1 && (c % 2 == 1 ||
+      !(-((int32_t) (mantissa_size + 1)) <= e && f <= 0)))) {
+      rep_t const decimal = { negative, f, c + 1 };
+      return decimal;
+    }
 
+    rep_t const decimal = { negative, f, c  };
     return decimal;
   }
 
@@ -232,15 +224,20 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   suint_t const m_c     = 20 * normal_mantissa_min;
   suint_t const c_hat   = multipliy_and_shift(m_c << extra, upper, lower,
     shift);
-  rep_t         decimal = { negative, f - 1, c_hat / 2 };
+  suint_t const c       = c_hat / 2;
 
-  if (c_hat % 2 == 1)
-    decimal.mantissa += decimal.mantissa % 2 == 1 ||
-      !(-((int32_t) (mantissa_size + 1)) <= e && decimal.exponent <= 0);
+  if (c_hat % 2 == 1 && (c % 2 == 1 || !(-((int32_t) (mantissa_size + 1)) <= e
+    && f <= 1))) {
+    rep_t const decimal = { negative, f - 1, c + 1 };
+    return decimal;
+  }
 
+  rep_t decimal = { negative, f - 1, c };
   return decimal;
 }
 
 #ifdef __cplusplus
 }
 #endif
+
+#undef AMARU_IS_MULTIPLE_OF_POW5

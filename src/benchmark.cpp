@@ -150,7 +150,8 @@ void benchmark() {
 
   while (n_mantissas--) {
 
-    auto const mantissa = dist(device);
+    // Force mantissa = 0 to be in the set.
+    auto const mantissa = n_mantissas == 0 ? 0 : dist(device);
 
     #if 0
     (void) exponent_max;

@@ -3,6 +3,8 @@
 
 #include "math.hpp"
 
+#include "dragonbox.hpp"
+
 #include <ryu.h>
 
 #include <gtest/gtest.h>
@@ -262,6 +264,11 @@ struct fp_traits_t<float> {
   amaru(fp_t const value) {
     return amaru_float(value);
   }
+
+  static rep_t
+  dragonbox(fp_t const value) {
+    return dragonbox_float(value);
+  }
 };
 
 template <>
@@ -285,32 +292,35 @@ struct fp_traits_t<double> {
   amaru(fp_t const value) {
     return amaru_double(value);
   }
+
+  static rep_t
+  dragonbox(fp_t const value) {
+    return dragonbox_double(value);
+  }
 };
 
 template <typename T>
-void compare_to_ryu(T const value) {
+void compare_to_other(T const value) {
 
   using          traits_t = fp_traits_t<T>;
   using          fp_t     = typename traits_t::fp_t;
   auto constexpr digits   = std::numeric_limits<fp_t>::digits10 + 2;
-
-  auto const ryu_dec      = traits_t::ryu(value);
-  auto const amaru_dec    = traits_t::amaru(value);
-
+  auto const other        = traits_t::ryu(value);
+  auto const amaru        = traits_t::amaru(value);
   auto const ieee         = to_ieee(value);
 
-  EXPECT_EQ(ryu_dec.exponent, amaru_dec.exponent) << "Note: "
+  EXPECT_EQ(other.exponent, amaru.exponent) << "Note: "
     "value = " << std::setprecision(digits) << value << ", "
     "ieee.exponent = " << ieee.exponent << ", "
     "ieee.mantissa = " << ieee.mantissa;
 
-  EXPECT_EQ(ryu_dec.mantissa, amaru_dec.mantissa) << "Note: "
+  EXPECT_EQ(other.mantissa, amaru.mantissa) << "Note: "
     "value = " << std::setprecision(digits) << value << ", "
-      "ieee.exponent = " << ieee.exponent << ", "
-      "ieee.mantissa = " << ieee.mantissa;
+    "ieee.exponent = " << ieee.exponent << ", "
+    "ieee.mantissa = " << ieee.mantissa;
 }
 
-TEST(float_tests, exhaustive_comparison_to_ryu) {
+TEST(float_tests, exhaustive_comparison_to_other) {
 
   auto value    = std::numeric_limits<float>::denorm_min();
   auto exponent = std::numeric_limits<int32_t>::min();
@@ -323,13 +333,13 @@ TEST(float_tests, exhaustive_comparison_to_ryu) {
       std::cerr << "Exponent: " << exponent << std::endl;
     }
 
-    compare_to_ryu(value);
+    compare_to_other(value);
 
     value = get_next(value);
   }
 }
 
-TEST(double_tests, random_comparison_to_ryu) {
+TEST(double_tests, random_comparison_to_other) {
 
   using traits_t = fp_traits_t<double>;
 
@@ -348,13 +358,13 @@ TEST(double_tests, random_comparison_to_ryu) {
     auto const i = dist(rd);
     traits_t::fp_t value;
     std::memcpy(&value, &i, sizeof(i));
-    compare_to_ryu(value);
+    compare_to_other(value);
   }
 }
 
 TEST(ad_hoc_test, a_particular_case) {
   auto const value = 1.f;
-  compare_to_ryu(value);
+  compare_to_other(value);
 }
 
 } // namespace <anonymous>

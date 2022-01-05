@@ -1,6 +1,8 @@
 #include "../include/common.h"
 #include "../include/ieee.h"
 
+#include "dragonbox.hpp"
+
 #include <ryu.h>
 
 #include <chrono>
@@ -100,6 +102,11 @@ struct fp_traits_t<float> {
   amaru(fp_t const value) {
     amaru_float(value);
   }
+
+  static void
+  dragonbox(fp_t const value) {
+    dragonbox_float(value);
+  }
 };
 
 template <>
@@ -122,6 +129,11 @@ struct fp_traits_t<double> {
   amaru(fp_t const value) {
     amaru_double(value);
   }
+
+  static void
+  dragonbox(fp_t const value) {
+    dragonbox_double(value);
+  }
 };
 
 template <typename T>
@@ -132,7 +144,7 @@ void benchmark() {
   using time_point_t      = std::chrono::time_point<clock_t>;
 
   std::cout.precision(std::numeric_limits<T>::digits10 + 2);
-  std::cout << "exponent, mantissa, integer, value, amaru, ryu\n";
+  std::cout << "exponent, mantissa, integer, value, amaru, other\n";
 
   using traits_t          = fp_traits_t<T>;
   using suint_t           = typename traits_t::suint_t;
@@ -146,7 +158,7 @@ void benchmark() {
   auto           n_mantissas  = uint32_t{1000};
   auto constexpr n_iterations = uint32_t{1024};
 
-  stats_t amaru_stats, ryu_stats;
+  stats_t amaru_stats, other_stats;
 
   while (n_mantissas--) {
 
@@ -175,10 +187,10 @@ void benchmark() {
 
       start = clock_t::now();
       for (auto n = n_iterations; n != 0; --n)
-        traits_t::ryu(value);
+        traits_t::dragonbox(value);
       end = clock_t::now();
-      auto const ryu = double(ns_t{end - start}.count()) / n_iterations;
-      ryu_stats.update(ryu);
+      auto const other = double(ns_t{end - start}.count()) / n_iterations;
+      other_stats.update(other);
 
       suint_t integer;
       std::memcpy(&integer, &value, sizeof(value));
@@ -189,16 +201,16 @@ void benchmark() {
         integer  << ", " <<
         value    << ", " <<
         amaru    << ", " <<
-        ryu      << '\n';
+        other    << "\n";
     }
   }
 
   std::cerr << "amaru (mean)   = " << amaru_stats.mean()   << '\n';
   std::cerr << "amaru (stddev) = " << amaru_stats.stddev() << '\n';
-  std::cerr << "ryu   (mean)   = " << ryu_stats  .mean()   << '\n';
-  std::cerr << "ryu   (stddev) = " << ryu_stats  .stddev() << '\n';
-  std::cerr << "speed up       = "
-    << ryu_stats.mean() / amaru_stats.mean() << '\n';
+  std::cerr << "other (mean)   = " << other_stats.mean()   << '\n';
+  std::cerr << "other (stddev) = " << other_stats.stddev() << '\n';
+  std::cerr << "speed up       = " << other_stats.mean() / amaru_stats.mean()
+    << '\n';
 }
 
 int main() {
@@ -220,5 +232,5 @@ int main() {
   // 2) Disable the other CPU:
   //      sudo /bin/bash -c "echo 0 > /sys/devices/system/cpu/cpu6/online"
 
-  benchmark<float>();
+  benchmark<double>();
 }

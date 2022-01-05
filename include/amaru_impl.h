@@ -61,15 +61,10 @@ bool is_multiple_of_pow5(suint_t const m, int32_t const f) {
 #else
 
 static inline
-duint_t pack(duint_t upper, duint_t lower) {
-  return (upper << ssize) + lower;
-}
-
-static inline
 suint_t is_multiple_of_pow5(suint_t const m, duint_t const upper,
   duint_t const lower, uint32_t const n_bits) {
 
-  duint_t const multiplier = pack(upper, lower);
+  duint_t const multiplier = (upper << ssize) + lower;
   duint_t const upper_m    = upper * m;
   duint_t const lower_m    = lower * m;
 
@@ -81,12 +76,12 @@ suint_t is_multiple_of_pow5(suint_t const m, duint_t const upper,
       return false;
 
     duint_t const lower_limb = (suint_t) lower_m;
-    duint_t const prod       = pack(upper_limbs, lower_limb);
-    return prod < multiplier;
+    duint_t const product    = (upper_limbs << ssize) + lower_limb;
+    return product < multiplier;
   }
 
-  duint_t const prod = pack(upper_m, lower_m);
-  return AMARU_LSB(prod, n_bits) < multiplier;
+  duint_t const product = (upper_m << ssize) + lower_m;
+  return AMARU_LSB(product, n_bits) < multiplier;
 }
 
 #define AMARU_IS_MULTIPLE_OF_POW5(m) \
@@ -98,7 +93,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   suint_t const mantissa) {
 
   if (exponent == bin_exponent_min && mantissa == 0) {
-    rep_t decimal = { negative, 0, 0 };
+    rep_t const decimal = { negative, 0, 0 };
     return decimal;
   }
 
@@ -107,7 +102,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     suint_t const m = mantissa << exponent;
     if (m % 10 == 0)
       return remove_trailing_zeros(negative, 0, m);
-    rep_t decimal = { negative, 0, m };
+    rep_t const decimal = { negative, 0, m };
     return decimal;
   }
 #endif
@@ -125,7 +120,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   int32_t  const i     = exponent - bin_exponent_min;
 #endif
 
-  // Disables warning when AMARU_USE_MINVERSE is defined.
+  // Disables unused variable warning when AMARU_USE_MINVERSE is defined.
   (void) e0;
 
 #if defined(AMARU_UPPER_IS_ZERO)
@@ -147,33 +142,22 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 
-    suint_t const s = 10 * (b / 10);
+    if (b % 10 != 0) {
 
-    if (b == s) {
-
-      bool const is_exact = e > 0 && f <= dec_exponent_critical &&
-        b_hat % 2 == 0 && AMARU_IS_MULTIPLE_OF_POW5(m_b);
-      if (!is_exact || mantissa % 2 == 0)
-        return remove_trailing_zeros(negative, f, b);
-    }
-
-    else {
-
+      suint_t const s     = 10 * (b / 10);
       suint_t const m_a   = 2 * mantissa - 1;
-      suint_t const a_hat = multipliy_and_shift(m_a<< extra, upper, lower,
+      suint_t const a_hat = multipliy_and_shift(m_a << extra, upper, lower,
         shift);
       suint_t const a     = a_hat / 2;
 
-      if (s > a)
+      if (s > a || (s == a && e > 0 && f <= dec_exponent_critical &&
+        a_hat % 2 == 0 && mantissa % 2 == 0 && AMARU_IS_MULTIPLE_OF_POW5(m_a)))
         return remove_trailing_zeros(negative, f, s);
-
-      if (s == a) {
-        bool const is_exact = e > 0 && f <= dec_exponent_critical &&
-            a_hat % 2 == 0 && AMARU_IS_MULTIPLE_OF_POW5(m_a);
-        if (is_exact && mantissa % 2 == 0)
-          return remove_trailing_zeros(negative, f, s);
-      }
     }
+
+    else if (e <= 0 || f > dec_exponent_critical || b_hat % 2 == 1 ||
+      mantissa % 2 == 0 || !AMARU_IS_MULTIPLE_OF_POW5(m_b))
+      return remove_trailing_zeros(negative, f, b);
 
     suint_t const m_c     = 2 * mantissa;
     suint_t const c_hat   = multipliy_and_shift(m_c << extra, upper, lower,
@@ -232,7 +216,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     return decimal;
   }
 
-  rep_t decimal = { negative, f - 1, c };
+  rep_t const decimal = { negative, f - 1, c };
   return decimal;
 }
 

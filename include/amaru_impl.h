@@ -159,15 +159,18 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
       mantissa % 2 == 0 || !AMARU_IS_MULTIPLE_OF_POW5(m_b))
       return remove_trailing_zeros(negative, f, b);
 
-    suint_t const m_c     = 2 * mantissa;
-    suint_t const c_hat   = multipliy_and_shift(m_c << extra, upper, lower,
+    suint_t const m_c   = 2 * mantissa;
+    suint_t const c_hat = multipliy_and_shift(m_c << extra, upper, lower,
       shift);
-    rep_t         decimal = { negative, f, c_hat / 2 };
+    suint_t const c     = c_hat / 2;
 
-    decimal.mantissa += c_hat % 2 == 1 && (decimal.mantissa % 2 == 1 ||
-      !(-((int32_t) (mantissa_size + 2)) < e && e < 0 &&
-      m_c % AMARU_POW2(suint_t, -e) == 0));
+    if (c_hat % 2 == 1 && (c % 2 == 1 || !(-((int32_t) (mantissa_size + 2)) < e
+      && e < 0 && m_c % AMARU_POW2(suint_t, -e) == 0))) {
+      rep_t const decimal = { negative, f, c + 1 };
+      return decimal;
+    }
 
+    rep_t const decimal = { negative, f, c };
     return decimal;
   }
 

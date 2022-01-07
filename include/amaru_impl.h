@@ -21,7 +21,7 @@ static uint32_t const dsize = CHAR_BIT * sizeof(duint_t);
 static suint_t  const inv10 = AMARU_POW2(duint_t, ssize) / 10 + 1;
 
 static inline
-rep_t make_result(bool const negative, int32_t exponent, suint_t mantissa) {
+rep_t make_decimal(bool const negative, int32_t exponent, suint_t mantissa) {
   rep_t const decimal = { negative, exponent, mantissa };
   return decimal;
 }
@@ -38,7 +38,7 @@ rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
     product  = ((duint_t) inv10) * mantissa;
   } while ((suint_t) product < inv10);
 
-  return make_result(negative, exponent, mantissa);
+  return make_decimal(negative, exponent, mantissa);
 }
 
 static inline
@@ -98,14 +98,14 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   suint_t const mantissa) {
 
   if (exponent == bin_exponent_min && mantissa == 0)
-    return make_result(negative, 0, 0);
+    return make_decimal(negative, 0, 0);
 
 #if defined(AMARU_IDENTIFY_SPECIAL_CASES)
   if (exponent == 0 || exponent == 1) {
     suint_t const m = mantissa << exponent;
     if (m % 10 == 0)
       return remove_trailing_zeros(negative, 0, m);
-    return make_result(negative, 0, m);
+    return make_decimal(negative, 0, m);
   }
 #endif
 
@@ -154,7 +154,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
       suint_t const a   = a_2 / 2;
 
       if (a == b)
-        return make_result(negative, f, a);
+        return make_decimal(negative, f, a);
 
       suint_t const r_a = inv10 * a;
 
@@ -176,9 +176,9 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
     if (c_2 % 2 == 1 && (c % 2 == 1 || !(-((int32_t) (mantissa_size + 2)) < e
       && e < 0 && m_c % AMARU_POW2(suint_t, -e) == 0)))
-      return make_result(negative, f, c + 1);
+      return make_decimal(negative, f, c + 1);
 
-    return make_result(negative, f, c);
+    return make_decimal(negative, f, c);
   }
 
   // mantissa = normal_mantissa_min
@@ -206,9 +206,9 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
     if (c < a || (c_2 % 2 == 1 && (c % 2 == 1 ||
       !(-((int32_t) (mantissa_size + 1)) <= e && f <= 0))))
-      return make_result(negative, f, c + 1);
+      return make_decimal(negative, f, c + 1);
 
-    return make_result(negative, f, c);
+    return make_decimal(negative, f, c);
   }
 
   // The below doesn't overflow. (See generator's overflow check #2).
@@ -218,9 +218,9 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
   if (c_2 % 2 == 1 && (c % 2 == 1 || !(-((int32_t) (mantissa_size + 1)) <= e
     && f <= 1)))
-    return make_result(negative, f - 1, c + 1);
+    return make_decimal(negative, f - 1, c + 1);
 
-  return make_result(negative, f - 1, c);
+  return make_decimal(negative, f - 1, c);
 }
 
 #ifdef __cplusplus

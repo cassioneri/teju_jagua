@@ -18,13 +18,13 @@ static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
 
 static uint32_t const ssize = CHAR_BIT * sizeof(suint_t);
 static uint32_t const dsize = CHAR_BIT * sizeof(duint_t);
+static suint_t  const inv10 = AMARU_POW2(duint_t, ssize) / 10 + 1;
 
 static inline
 rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
   suint_t mantissa) {
 
-  suint_t const inv10   = AMARU_POW2(duint_t, ssize) / 10 + 1;
-  duint_t       product = ((duint_t) inv10) * mantissa;
+  duint_t product = ((duint_t) inv10) * mantissa;
 
   do {
     ++exponent;
@@ -142,17 +142,28 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 
-    if (b % 10 != 0) {
+    suint_t const r_b = inv10 * b;
 
-      suint_t const s     = 10 * (b / 10);
+    if (r_b >= inv10) {
+
       suint_t const m_a   = 2 * mantissa - 1;
       suint_t const a_hat = multipliy_and_shift(m_a << extra, upper, lower,
         shift);
       suint_t const a     = a_hat / 2;
 
-      if (s > a || (s == a && e > 0 && f <= dec_exponent_critical &&
-        a_hat % 2 == 0 && mantissa % 2 == 0 && AMARU_IS_MULTIPLE_OF_POW5(m_a)))
-        return remove_trailing_zeros(negative, f, s);
+      if (a == b) {
+        rep_t const decimal = { negative, f, a };
+        return decimal;
+      }
+
+      suint_t const r_a = inv10 * a;
+
+      if (r_b - 4 <= r_a)
+        return remove_trailing_zeros(negative, f, b);
+
+      else if (r_a < inv10 && e > 0 && f <= dec_exponent_critical &&
+        a_hat % 2 == 0 && mantissa % 2 == 0 && AMARU_IS_MULTIPLE_OF_POW5(m_a))
+        return remove_trailing_zeros(negative, f, a);
     }
 
     else if (e <= 0 || f > dec_exponent_critical || b_hat % 2 == 1 ||

@@ -138,9 +138,9 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 #endif
 
   // The below doesn't overflow. (See generator's overflow check #1).
-  suint_t const m_b   = 2 * mantissa + 1;
-  suint_t const b_hat = multipliy_and_shift(m_b << extra, upper, lower, shift);
-  suint_t const b     = b_hat / 2;
+  suint_t const m_b = 2 * mantissa + 1;
+  suint_t const b_2 = multipliy_and_shift(m_b << extra, upper, lower, shift);
+  suint_t const b   = b_2 / 2;
 
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 
@@ -148,10 +148,10 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
     if (r_b >= inv10) {
 
-      suint_t const m_a   = 2 * mantissa - 1;
-      suint_t const a_hat = multipliy_and_shift(m_a << extra, upper, lower,
+      suint_t const m_a = 2 * mantissa - 1;
+      suint_t const a_2 = multipliy_and_shift(m_a << extra, upper, lower,
         shift);
-      suint_t const a     = a_hat / 2;
+      suint_t const a   = a_2 / 2;
 
       if (a == b)
         return make_result(negative, f, a);
@@ -161,24 +161,22 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
       if (r_b - 4 <= r_a)
         return remove_trailing_zeros(negative, f, b);
 
-      else if (r_a < inv10 && e > 0 && f <= dec_exponent_critical &&
-        a_hat % 2 == 0 && mantissa % 2 == 0 && AMARU_IS_MULTIPLE_OF_POW5(m_a))
+      if (r_a < inv10 && e > 0 && f <= dec_exponent_critical && a_2 % 2 == 0
+        && mantissa % 2 == 0 && AMARU_IS_MULTIPLE_OF_POW5(m_a))
         return remove_trailing_zeros(negative, f, a);
     }
 
-    else if (e <= 0 || f > dec_exponent_critical || b_hat % 2 == 1 ||
+    else if (e <= 0 || f > dec_exponent_critical || b_2 % 2 == 1 ||
       mantissa % 2 == 0 || !AMARU_IS_MULTIPLE_OF_POW5(m_b))
       return remove_trailing_zeros(negative, f, b);
 
-    suint_t const m_c   = 2 * mantissa;
-    suint_t const c_hat = multipliy_and_shift(m_c << extra, upper, lower,
-      shift);
-    suint_t const c     = c_hat / 2;
+    suint_t const m_c = 2 * mantissa;
+    suint_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower, shift);
+    suint_t const c   = c_2 / 2;
 
-    if (c_hat % 2 == 1 && (c % 2 == 1 || !(-((int32_t) (mantissa_size + 2)) < e
-      && e < 0 && m_c % AMARU_POW2(suint_t, -e) == 0))) {
+    if (c_2 % 2 == 1 && (c % 2 == 1 || !(-((int32_t) (mantissa_size + 2)) < e
+      && e < 0 && m_c % AMARU_POW2(suint_t, -e) == 0)))
       return make_result(negative, f, c + 1);
-    }
 
     return make_result(negative, f, c);
   }
@@ -186,13 +184,14 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   // mantissa = normal_mantissa_min
 
   // The below doesn't overflow. (See generator's overflow check #2).
-  suint_t const m_a      = 4 * normal_mantissa_min - 1;
-  suint_t const a_hat    = multipliy_and_shift(m_a << extra, upper, lower,
-    shift);
-  bool    const is_exact = mantissa_size % 4 == 2 && e > 1 &&
-    f <= dec_exponent_critical && a_hat % 4 == 0 &&
+  suint_t const m_a = 4 * normal_mantissa_min - 1;
+  suint_t const a_2 = multipliy_and_shift(m_a << extra, upper, lower, shift);
+
+  bool const is_exact = mantissa_size % 4 == 2 && e > 1 &&
+    f <= dec_exponent_critical && a_2 % 4 == 0 &&
     AMARU_IS_MULTIPLE_OF_POW5(m_a);
-  suint_t const a        = a_hat / 4 + !is_exact;
+
+  suint_t const a  = a_2 / 4 + !is_exact;
 
   if (b >= a) {
 
@@ -201,12 +200,11 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     if (s >= a)
       return remove_trailing_zeros(negative, f, s);
 
-    suint_t const m_c   = 2 * normal_mantissa_min;
-    suint_t const c_hat = multipliy_and_shift(m_c << extra, upper, lower,
-      shift);
-    suint_t const c     = c_hat / 2;
+    suint_t const m_c = 2 * normal_mantissa_min;
+    suint_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower, shift);
+    suint_t const c   = c_2 / 2;
 
-    if (c < a || (c_hat % 2 == 1 && (c % 2 == 1 ||
+    if (c < a || (c_2 % 2 == 1 && (c % 2 == 1 ||
       !(-((int32_t) (mantissa_size + 1)) <= e && f <= 0))))
       return make_result(negative, f, c + 1);
 
@@ -214,12 +212,11 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   }
 
   // The below doesn't overflow. (See generator's overflow check #2).
-  suint_t const m_c     = 20 * normal_mantissa_min;
-  suint_t const c_hat   = multipliy_and_shift(m_c << extra, upper, lower,
-    shift);
-  suint_t const c       = c_hat / 2;
+  suint_t const m_c = 20 * normal_mantissa_min;
+  suint_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower, shift);
+  suint_t const c   = c_2 / 2;
 
-  if (c_hat % 2 == 1 && (c % 2 == 1 || !(-((int32_t) (mantissa_size + 1)) <= e
+  if (c_2 % 2 == 1 && (c % 2 == 1 || !(-((int32_t) (mantissa_size + 1)) <= e
     && f <= 1)))
     return make_result(negative, f - 1, c + 1);
 

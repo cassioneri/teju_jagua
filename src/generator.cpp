@@ -143,20 +143,20 @@ struct info_t {
   }
 
   /**
-   * \brief Returns the normal minimal mantissa: pow2(mantissa_size()).
+   * \brief Returns the normal (inclusive) minimal mantissa.
    *
-   * This is the minimal mantissa for normal numbers. Sub-normal numbers have
-   * smaller mantissas.
+   * Mantissas for normal floating point numbers are elements of the interval
+   * [normal_mantissa_min(), normal_mantissa_max()[.
    */
   integer_t const& normal_mantissa_min() const {
     return normal_mantissa_min_;
   }
 
   /**
-   * \brief Returns the normal maximal mantissa: 2 * normal_mantissa_min().
+   * \brief Returns the normal (exclusive) maximal mantissa.
    *
-   * This is the maximal mantissa for normal numbers. Sub-normal numbers have
-   * smaller mantissas.
+   * Mantissas for normal floating point numbers are elements of the interval
+   * [normal_mantissa_min(), normal_mantissa_max()[.
    */
   integer_t const& normal_mantissa_max() const {
     return normal_mantissa_max_;

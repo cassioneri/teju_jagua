@@ -699,17 +699,29 @@ private:
   rational_t get_maximum(integer_t alpha, integer_t const& delta,
     bool start_at_1 = false) const {
 
-    alpha               %= delta;
+    auto const mantissa_min = info_.normal_mantissa_min();
+    auto const mantissa_max = info_.normal_mantissa_max();
 
-    auto const a        = start_at_1 ?
-      integer_t{1} : 2 * info_.normal_mantissa_min();
-    auto const b        = 2 * info_.normal_mantissa_max() *
-      (config_.use_compact_tbl() ? 8 : 1);
+    alpha %= delta;
 
-    auto const maximum1 = get_maximum_primary(alpha, delta, a, b);
-    auto const maximum2 = phi(alpha, delta, 20 * info_.normal_mantissa_min());
+    // Usual interval.
 
-    return std::max(maximum1, maximum2);
+    auto const a = start_at_1 ? integer_t{1} : 2 * mantissa_min;
+    auto const b = 2 * mantissa_max * (!config_.use_compact_tbl() ? 1 : 8);
+
+    auto const max_ab = get_maximum_primary(alpha, delta, a, b);
+
+    // Extras that are needed when mantissa == normal_mantissa_min().
+
+    auto max_extras = [&](auto const& mantissa) {
+      auto const m_a     =  4 * mantissa - 1;
+      auto const m_c     = 20 * mantissa;
+      auto const max_m_a = phi(alpha, delta, m_a);
+      auto const max_m_c = phi(alpha, delta, m_c);
+      return std::max(max_m_a, max_m_c);
+    };
+
+    return std::max(max_ab, max_extras(mantissa_min));
   }
 
   /**

@@ -152,7 +152,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
       suint_t const r_a = inv10 * a;
 
-      if (r_b - 4 <= r_a)
+      if (r_b - 10 * inv10 <= r_a)
         return remove_trailing_zeros(negative, f, b);
 
       if (r_a < inv10 && e > 0 && f <= dec_exponent_critical && a_2 % 2 == 0

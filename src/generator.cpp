@@ -610,7 +610,7 @@ private:
       if (config_.use_compact_tbl() && f == f_done)
         continue;
 
-      auto const e = (config_.use_compact_tbl() ? log2_pow10(f) : e2) - f;
+      auto const e = (config_.use_compact_tbl() ? -log2_pow10(-f): e2) - f;
 
       alpha_delta_maximum x;
       x.alpha   = f >= 0 ? pow2(e) : pow5(-f);
@@ -706,8 +706,9 @@ private:
 
     // Usual interval.
 
-    auto const a = start_at_1 ? integer_t{1} : 2 * mantissa_min;
-    auto const b = 2 * mantissa_max * (!config_.use_compact_tbl() ? 1 : 8);
+    auto const a = start_at_1 ? integer_t{1} : integer_t{2 * mantissa_min};
+    auto const b = config_.use_compact_tbl() ?
+        integer_t{16 * mantissa_max - 15} : integer_t{2 * mantissa_max};
 
     auto const max_ab = get_maximum_primary(alpha, delta, a, b);
 
@@ -721,7 +722,12 @@ private:
       return std::max(max_m_a, max_m_c);
     };
 
-    return std::max(max_ab, max_extras(mantissa_min));
+    if (!config_.use_compact_tbl())
+      return std::max(max_ab, max_extras(mantissa_min));
+
+    return std::max({max_ab, max_extras(mantissa_min),
+      max_extras(2 * mantissa_min), max_extras(4 * mantissa_min),
+      max_extras(8 * mantissa_min)});
   }
 
   /**

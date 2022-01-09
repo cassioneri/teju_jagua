@@ -113,7 +113,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   int32_t  const e = exponent - f;
 
 #if defined(AMARU_USE_COMPACT_TBL)
-  int32_t  const e0    = log2_pow10(f) - f;
+  int32_t  const e0    = -log2_pow10(-f) - f;
   uint32_t const extra = e - e0;
   int32_t  const i     = f - dec_exponent_min;
 #else

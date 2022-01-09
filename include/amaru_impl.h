@@ -114,16 +114,11 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
 #if defined(AMARU_USE_COMPACT_TBL)
   uint32_t const extra = exponent + log2_pow10(-f);
-  int32_t  const e0    = e - extra;
   int32_t  const i     = f - dec_exponent_min;
 #else
   uint32_t const extra = 0;
-  int32_t  const e0    = e;
   int32_t  const i     = exponent - bin_exponent_min;
 #endif
-
-  // Disables unused variable warning when AMARU_USE_MINVERSE is defined.
-  (void) e0;
 
 #if defined(AMARU_UPPER_IS_ZERO)
   duint_t  const upper = 0;

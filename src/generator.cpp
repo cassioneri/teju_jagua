@@ -1,5 +1,6 @@
 #include "../include/common.h"
-#include "math.hpp"
+
+#include <boost/multiprecision/cpp_int.hpp>
 
 #include <climits>
 #include <cstdint>
@@ -11,6 +12,26 @@
 #include <fstream>
 #include <string>
 #include <vector>
+
+using integer_t  = boost::multiprecision::cpp_int;
+using rational_t = boost::multiprecision::cpp_rational;
+
+/**
+ * \brief Returns 2^n.
+ */
+integer_t pow2(uint32_t n) {
+  return integer_t{1} << n;
+}
+
+/**
+ * \brief Returns 5^n.
+ */
+integer_t pow5(uint32_t n) {
+  if (n == 0)
+    return 1;
+  auto const p1 = pow5(n / 2);
+  return p1 * p1 * (n % 2 == 0 ? 1 : 5);
+}
 
 /**
  * \brief Exception thrown by the generator.
@@ -65,7 +86,7 @@ struct info_t {
     exponent_size_      {exponent_size                       },
     exponent_min_       {exponent_min                        },
     exponent_max_       {exponent_max                        },
-    exponent_critical_  {log5_pow2(mantissa_size + 2)        },
+    exponent_critical_  {AMARU_LOG5_POW2(mantissa_size + 2)  },
     mantissa_size_      {mantissa_size                       },
     normal_mantissa_min_{AMARU_POW2(integer_t, mantissa_size)},
     normal_mantissa_max_{2 * normal_mantissa_min_            } {
@@ -136,11 +157,11 @@ struct info_t {
   }
 
   /**
-   * \brief Returns the critical exponent.
-   */
-  int32_t const& exponent_critical() const {
-    return exponent_critical_;
-  }
+    * \brief Returns the critical exponent.
+    */
+   int32_t const& exponent_critical() const {
+     return exponent_critical_;
+   }
 
   /**
    * \brief Returns the normal (inclusive) minimal mantissa.
@@ -212,7 +233,7 @@ struct config_t {
    *                        presumably, more efficient method.
    */
   config_t(bool use_same_shift, bool use_compact_tbl, bool use_minverse,
-      bool identify_special_cases) :
+    bool identify_special_cases) :
     use_same_shift_        {use_same_shift        },
     use_compact_tbl_       {use_compact_tbl       },
     use_minverse_          {use_minverse          },
@@ -461,20 +482,10 @@ private:
       "typedef " << info_.duint() << " duint_t;\n"
       "typedef " << info_.rep()   << " rep_t;\n"
       "\n"
-      "static uint32_t const mantissa_size         = " <<
-        info_.mantissa_size() << ";\n"
-      "static int32_t  const bin_exponent_min      = " <<
-        info_.exponent_min() << ";\n";
-
-    if (config_.use_compact_tbl())
-      dot_c << "static int32_t  const dec_exponent_min      = " <<
-      log10_pow2(info_.exponent_min()) << ";\n";
-
-    dot_c << "static int32_t  const dec_exponent_critical = " <<
-      info_.exponent_critical() << ";\n"
-      "static suint_t  const normal_mantissa_min   = " <<
-      info_.normal_mantissa_min() << ";\n"
-      "\n";
+      "static uint32_t const mantissa_size    = " << info_.mantissa_size() <<
+      ";\n"
+      "static int32_t  const bin_exponent_min = " << info_.exponent_min() <<
+      ";\n\n";
 
     bool something_was_defined = false;
 
@@ -511,7 +522,7 @@ private:
     auto const nibbles = ssize / 4;
 
     auto e2      = info_.exponent_min();
-    auto e2_or_f = config_.use_compact_tbl() ? log10_pow2(e2) : e2;
+    auto e2_or_f = config_.use_compact_tbl() ? AMARU_LOG10_POW2(e2) : e2;
 
     for (auto const& fast_eaf : fast_eafs) {
 
@@ -601,16 +612,17 @@ private:
     std::vector<alpha_delta_maximum> maxima;
     maxima.reserve(info_.exponent_max() - info_.exponent_min() + 1);
 
-    auto f_done = log10_pow2(info_.exponent_min()) - 1;
+    auto f_done = AMARU_LOG10_POW2(info_.exponent_min()) - 1;
 
     for (auto e2 = info_.exponent_min(); e2 <= info_.exponent_max(); ++e2) {
 
-      auto const f = log10_pow2(e2);
+      auto const f = AMARU_LOG10_POW2(e2);
 
       if (config_.use_compact_tbl() && f == f_done)
         continue;
 
-      auto const e = (config_.use_compact_tbl() ? -log2_pow10(-f): e2) - f;
+      auto const e = (config_.use_compact_tbl() ? -AMARU_LOG2_POW10(-f) : e2)
+        - f;
 
       alpha_delta_maximum x;
       x.alpha   = f >= 0 ? pow2(e) : pow5(-f);

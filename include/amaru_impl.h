@@ -18,7 +18,13 @@ static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
 
 static uint32_t const ssize = CHAR_BIT * sizeof(suint_t);
 static uint32_t const dsize = CHAR_BIT * sizeof(duint_t);
-static suint_t  const inv10 = AMARU_POW2(duint_t, ssize) / 10 + 1;
+
+static suint_t const q10 = AMARU_POW2(duint_t, ssize) / 10 + 1;
+static suint_t const r10 = 10 * q10;
+
+static int32_t const dec_exponent_critical = AMARU_LOG5_POW2(mantissa_size + 2);
+static int32_t const dec_exponent_min      = AMARU_LOG10_POW2(bin_exponent_min);
+static suint_t const normal_mantissa_min   = AMARU_POW2(suint_t, mantissa_size);
 
 static inline
 rep_t make_decimal(bool const negative, int32_t exponent, suint_t mantissa) {
@@ -30,13 +36,13 @@ static inline
 rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
   suint_t mantissa) {
 
-  duint_t product = ((duint_t) inv10) * mantissa;
+  duint_t product = ((duint_t) q10) * mantissa;
 
   do {
     ++exponent;
     mantissa = (suint_t) (product >> ssize);
-    product  = ((duint_t) inv10) * mantissa;
-  } while ((suint_t) product < inv10);
+    product  = ((duint_t) q10) * mantissa;
+  } while ((suint_t) product < q10);
 
   return make_decimal(negative, exponent, mantissa);
 }
@@ -109,11 +115,11 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   }
 #endif
 
-  int32_t  const f = log10_pow2(exponent);
+  int32_t  const f = AMARU_LOG10_POW2(exponent);
   int32_t  const e = exponent - f;
 
 #if defined(AMARU_USE_COMPACT_TBL)
-  uint32_t const extra = exponent + log2_pow10(-f);
+  uint32_t const extra = exponent + AMARU_LOG2_POW10(-f);
   int32_t  const i     = f - dec_exponent_min;
 #else
   uint32_t const extra = 0;
@@ -139,9 +145,9 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 
-    suint_t const r_b = inv10 * b;
+    suint_t const r_b = q10 * b;
 
-    if (r_b >= inv10) {
+    if (r_b >= q10) {
 
       suint_t const m_a = 2 * mantissa - 1;
       suint_t const a_2 = multipliy_and_shift(m_a, upper, lower, shift);
@@ -150,12 +156,12 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
       if (a == b)
         return make_decimal(negative, f, a);
 
-      suint_t const r_a = inv10 * a;
+      suint_t const r_a = q10 * a;
 
-      if (r_b - 10 * inv10 <= r_a)
+      if (r_b - r10 <= r_a)
         return remove_trailing_zeros(negative, f, b);
 
-      if (r_a < inv10 && e > 0 && f <= dec_exponent_critical && a_2 % 2 == 0
+      if (r_a < q10 && e > 0 && f <= dec_exponent_critical && a_2 % 2 == 0
         && mantissa % 2 == 0 && AMARU_IS_MULTIPLE_OF_POW5(m_a))
         return remove_trailing_zeros(negative, f, a);
     }

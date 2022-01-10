@@ -4,7 +4,7 @@ CXXFLAGS += -O3 -Wall -Wextra -std=c++17
 
 all         : test benchmark
 
-generator.o : generator.cpp ../include/common.h math.hpp
+generator.o : generator.cpp ../include/common.h
 
 generator   : generator.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^
@@ -17,7 +17,7 @@ generated_%.o : ../generated/%.c
 
 dragonbox.o : dragonbox.cpp dragonbox.hpp
 
-test.o      : test.cpp math.hpp ../include/common.h ../include/ieee.h \
+test.o      : test.cpp ../include/common.h ../include/ieee.h \
 	../generated/ieee32.c ../generated/ieee64.c
 
 test        : test.o generated_ieee32.o generated_ieee64.o dragonbox.o

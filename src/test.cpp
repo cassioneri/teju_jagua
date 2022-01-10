@@ -1,8 +1,6 @@
 #include "../include/common.h"
 #include "../include/ieee.h"
 
-#include "math.hpp"
-
 #include "dragonbox.hpp"
 
 #include <ryu.h>
@@ -49,7 +47,7 @@ int32_t logB1_powB2(int32_t n);
  */
 template <>
 int32_t logB1_powB2<10, 2>(int32_t n) {
-  return log10_pow2(n) ;
+  return AMARU_LOG10_POW2(n) ;
 }
 
 /**
@@ -60,7 +58,7 @@ int32_t logB1_powB2<10, 2>(int32_t n) {
  */
 template <>
 int32_t logB1_powB2<5, 2>(int32_t n) {
-  return log5_pow2(n) ;
+  return AMARU_LOG5_POW2(n);
 }
 
 /**
@@ -71,7 +69,7 @@ int32_t logB1_powB2<5, 2>(int32_t n) {
  */
 template <>
 int32_t logB1_powB2<2, 10>(int32_t n) {
-  return log2_pow10(n) ;
+  return AMARU_LOG2_POW10(n) ;
 }
 
 /**

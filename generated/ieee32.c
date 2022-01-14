@@ -21,6 +21,8 @@ typedef ieee32_t rep_t;
 static uint32_t const mantissa_size    = 23;
 static int32_t  const bin_exponent_min = -149;
 
+#define AMARU_USE_MINVERSE
+
 static struct {
   suint_t  const upper;
   suint_t  const lower;
@@ -282,6 +284,21 @@ static struct {
   { 0x00002073, 0xaccb12d1, 44 }, // 104
 };
 
+static struct {
+  suint_t const multiplier;
+  suint_t const bound;
+} const minverse[] = {
+  { 0xcccccccd, 0x33333334 },
+  { 0xc28f5c29, 0x0a3d70a4 },
+  { 0x26e978d5, 0x020c49bb },
+  { 0x3afb7e91, 0x0068db8c },
+  { 0x0bcbe61d, 0x0014f8b6 },
+  { 0x68c26139, 0x000431be },
+  { 0xae8d46a5, 0x0000d6c0 },
+  { 0x22e90e21, 0x00002af4 },
+  { 0x3a2e9c6d, 0x00000898 },
+  { 0x3ed61f49, 0x000001b8 },
+};
 #ifdef __cplusplus
 }
 #endif
@@ -290,3 +307,4 @@ static struct {
 #include "../include/amaru_impl.h"
 
 #undef AMARU_IMPL
+#undef AMARU_USE_MINVERSE

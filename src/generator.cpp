@@ -789,7 +789,7 @@ int main() {
     auto const config = config_t{
       /* use_same_shift         */ false,
       /* use_compact_tbl        */ false,
-      /* use_minverse           */ false,
+      /* use_minverse           */ true,
       /* identify_special_cases */ false
     };
 

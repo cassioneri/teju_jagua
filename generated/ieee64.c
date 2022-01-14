@@ -21,6 +21,8 @@ typedef ieee64_t rep_t;
 static uint32_t const mantissa_size    = 52;
 static int32_t  const bin_exponent_min = -1074;
 
+#define AMARU_USE_MINVERSE
+
 static struct {
   suint_t  const upper;
   suint_t  const lower;
@@ -2074,6 +2076,34 @@ static struct {
   { 0x000003fddec7f2fa, 0xf3713c97a3a2704f, 105 }, // 971
 };
 
+static struct {
+  suint_t const multiplier;
+  suint_t const bound;
+} const minverse[] = {
+  { 0xcccccccccccccccd, 0x3333333333333334 },
+  { 0x8f5c28f5c28f5c29, 0x0a3d70a3d70a3d71 },
+  { 0x1cac083126e978d5, 0x020c49ba5e353f7d },
+  { 0xd288ce703afb7e91, 0x0068db8bac710cb3 },
+  { 0x5d4e8fb00bcbe61d, 0x0014f8b588e368f1 },
+  { 0x790fb65668c26139, 0x000431bde82d7b64 },
+  { 0xe5032477ae8d46a5, 0x0000d6bf94d5e57b },
+  { 0xc767074b22e90e21, 0x00002af31dc46119 },
+  { 0x8e47ce423a2e9c6d, 0x0000089705f4136c },
+  { 0x4fa7f60d3ed61f49, 0x000001b7cdfd9d7c },
+  { 0x0fee64690c913975, 0x00000057f5ff85e6 },
+  { 0x3662e0e1cf503eb1, 0x000000119799812e },
+  { 0xa47a2cf9f6433fbd, 0x0000000384b84d0a },
+  { 0x54186f653140a659, 0x00000000b424dc36 },
+  { 0x7738164770402145, 0x0000000024075f3e },
+  { 0xe4a4d1417cd9a041, 0x000000000734aca6 },
+  { 0xc75429d9e5c5200d, 0x000000000170ef55 },
+  { 0xc1773b91fac10669, 0x000000000049c978 },
+  { 0x26b172506559ce15, 0x00000000000ec1e5 },
+  { 0xd489e3a9addec2d1, 0x000000000002f395 },
+  { 0x90e860bb892c8d5d, 0x000000000000971e },
+  { 0x502e79bf1b6f4f79, 0x0000000000001e3a },
+  { 0xdcd618596be30fe5, 0x000000000000060c },
+};
 #ifdef __cplusplus
 }
 #endif
@@ -2082,3 +2112,4 @@ static struct {
 #include "../include/amaru_impl.h"
 
 #undef AMARU_IMPL
+#undef AMARU_USE_MINVERSE

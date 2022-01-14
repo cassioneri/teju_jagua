@@ -19,9 +19,6 @@ static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
 static uint32_t const ssize = CHAR_BIT * sizeof(suint_t);
 static uint32_t const dsize = CHAR_BIT * sizeof(duint_t);
 
-static suint_t const q10 = AMARU_POW2(duint_t, ssize) / 10 + 1;
-static suint_t const r10 = 10 * q10;
-
 static int32_t const dec_exponent_critical = AMARU_LOG5_POW2(mantissa_size + 2);
 static int32_t const dec_exponent_min      = AMARU_LOG10_POW2(bin_exponent_min);
 static suint_t const normal_mantissa_min   = AMARU_POW2(suint_t, mantissa_size);
@@ -36,13 +33,14 @@ static inline
 rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
   suint_t mantissa) {
 
-  duint_t product = ((duint_t) q10) * mantissa;
+  suint_t const inv10 = AMARU_POW2(duint_t, ssize) / 10 + 1;
+  duint_t product     = ((duint_t) inv10) * mantissa;
 
   do {
     ++exponent;
     mantissa = (suint_t) (product >> ssize);
-    product  = ((duint_t) q10) * mantissa;
-  } while ((suint_t) product < q10);
+    product  = ((duint_t) inv10) * mantissa;
+  } while ((suint_t) product < inv10);
 
   return make_decimal(negative, exponent, mantissa);
 }
@@ -138,44 +136,31 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   uint32_t const shift = multipliers[i].shift - extra;
 #endif
 
-  // The below doesn't overflow. (See generator's overflow check #1).
   suint_t const m_b = 2 * mantissa + 1;
   suint_t const b_2 = multipliy_and_shift(m_b, upper, lower, shift);
-  suint_t const b   = b_2 / 2;
 
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 
-    suint_t const r_b = q10 * b;
+    suint_t const s   = 10 * (b_2 / 20);
+    suint_t const m_a = 2 * mantissa - 1;
+    suint_t const a   = multipliy_and_shift(m_a, upper, lower, shift) / 2;
 
-    if (r_b >= q10) {
-
-      suint_t const m_a = 2 * mantissa - 1;
-      suint_t const a_2 = multipliy_and_shift(m_a, upper, lower, shift);
-      suint_t const a   = a_2 / 2;
-
-      if (a == b)
-        return make_decimal(negative, f, a);
-
-      suint_t const r_a = q10 * a;
-
-      if (r_b - r10 <= r_a)
-        return remove_trailing_zeros(negative, f, b);
-
-      if (r_a < q10 && e > 0 && f <= dec_exponent_critical && a_2 % 2 == 0
-        && mantissa % 2 == 0 && AMARU_IS_MULTIPLE_OF_POW5(m_a))
-        return remove_trailing_zeros(negative, f, a);
+    if (a < s) {
+      if (e < 2 || f + 1 > dec_exponent_critical ||
+        !is_multiple_of_pow5(m_b, f + 1) || mantissa % 2 == 0)
+        return remove_trailing_zeros(negative, f, s);
     }
 
-    else if (e <= 0 || f > dec_exponent_critical || b_2 % 2 == 1 ||
-      mantissa % 2 == 0 || !AMARU_IS_MULTIPLE_OF_POW5(m_b))
-      return remove_trailing_zeros(negative, f, b);
+    else if (s == a && e > 0 && f <= dec_exponent_critical &&
+      is_multiple_of_pow5(m_a, f) && mantissa % 2 == 0)
+      return remove_trailing_zeros(negative, f, s);
 
     suint_t const m_c = 2 * mantissa;
     suint_t const c_2 = multipliy_and_shift(m_c, upper, lower, shift);
     suint_t const c   = c_2 / 2;
 
-    if (c_2 % 2 == 1 && (c % 2 == 1 || !(-((int32_t) (mantissa_size + 2)) < e
-      && e < 0 && m_c % AMARU_POW2(suint_t, -e) == 0)))
+    if (c_2 % 2 == 1 && (c % 2 == 1 || !(-((int32_t) (mantissa_size + 2)) < e &&
+      e < 0 && m_c % AMARU_POW2(suint_t, -e) == 0)))
       return make_decimal(negative, f, c + 1);
 
     return make_decimal(negative, f, c);
@@ -183,7 +168,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
   // mantissa = normal_mantissa_min
 
-  // The below doesn't overflow. (See generator's overflow check #2).
+  suint_t const b   = b_2 / 2;
   suint_t const m_a = 4 * normal_mantissa_min - 1;
   suint_t const a_2 = multipliy_and_shift(m_a, upper, lower, shift);
 

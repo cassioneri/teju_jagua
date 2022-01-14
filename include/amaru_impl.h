@@ -155,7 +155,6 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     return make_decimal(negative, f, c);
   }
 
-  // The below doesn't overflow. (See generator's overflow check #2).
   suint_t const m_c = 20 * normal_mantissa_min;
   suint_t const c_2 = multipliy_and_shift(m_c, upper, lower, shift);
   suint_t const c   = c_2 / 2;

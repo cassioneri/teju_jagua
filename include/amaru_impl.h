@@ -58,45 +58,10 @@ suint_t multipliy_and_shift(suint_t const m, duint_t const upper,
   return (lower_m >> shift) + (upper_m << (ssize - shift));
 }
 
-#if defined(AMARU_USE_MINVERSE)
-
 static inline
 bool is_multiple_of_pow5(suint_t const m, int32_t const f) {
   return f == 0 || m * minverse[f - 1].multiplier < minverse[f - 1].bound;
 }
-
-#define AMARU_IS_MULTIPLE_OF_POW5(m) is_multiple_of_pow5(m, f)
-
-#else
-
-static inline
-suint_t is_multiple_of_pow5(suint_t const m, duint_t const upper,
-  duint_t const lower, uint32_t const n_bits) {
-
-  duint_t const multiplier = (upper << ssize) + lower;
-  duint_t const upper_m    = upper * m;
-  duint_t const lower_m    = lower * m;
-
-  if (n_bits >= dsize) {
-
-    duint_t const upper_limbs = upper_m + (lower_m >> ssize);
-
-    if (AMARU_LSB(upper_limbs, n_bits - ssize) >= AMARU_POW2(duint_t, ssize))
-      return false;
-
-    duint_t const lower_limb = (suint_t) lower_m;
-    duint_t const product    = (upper_limbs << ssize) + lower_limb;
-    return product < multiplier;
-  }
-
-  duint_t const product = (upper_m << ssize) + lower_m;
-  return AMARU_LSB(product, n_bits) < multiplier;
-}
-
-#define AMARU_IS_MULTIPLE_OF_POW5(m) \
-  is_multiple_of_pow5(m, upper, lower, shift + e)
-
-#endif
 
 rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   suint_t const mantissa) {
@@ -173,8 +138,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   suint_t const a_2 = multipliy_and_shift(m_a, upper, lower, shift);
 
   bool const is_exact = mantissa_size % 4 == 2 && e > 1 &&
-    f <= dec_exponent_critical && a_2 % 4 == 0 &&
-    AMARU_IS_MULTIPLE_OF_POW5(m_a);
+    f <= dec_exponent_critical && a_2 % 4 == 0 && is_multiple_of_pow5(m_a, f);
 
   suint_t const a  = a_2 / 4 + !is_exact;
 

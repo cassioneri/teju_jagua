@@ -21,8 +21,6 @@ typedef ieee32_t rep_t;
 static uint32_t const mantissa_size    = 23;
 static int32_t  const bin_exponent_min = -149;
 
-#define AMARU_USE_MINVERSE
-
 static struct {
   suint_t  const upper;
   suint_t  const lower;
@@ -307,4 +305,3 @@ static struct {
 #include "../include/amaru_impl.h"
 
 #undef AMARU_IMPL
-#undef AMARU_USE_MINVERSE

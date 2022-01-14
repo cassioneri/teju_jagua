@@ -222,21 +222,15 @@ struct config_t {
    *                        memory this might reduce cache misses, possibly,
    *                        boosting performance.
    *
-   * \param use_minverse    Tells if Amaru checking divisibility by powers of 5
-   *                        should use the miverse algorithm or use its own
-   *                        version of multiply and compare. The former is,
-   *                        presumably, faster but requires and extra memory.
-   *
    * \param identify_special_cases  Tells if Amaru should identify special cases
    *                        (e.g., when binary exponent in {0, 1}) and treat
    *                        them differently using a more direct and,
    *                        presumably, more efficient method.
    */
-  config_t(bool use_same_shift, bool use_compact_tbl, bool use_minverse,
+  config_t(bool use_same_shift, bool use_compact_tbl,
     bool identify_special_cases) :
     use_same_shift_        {use_same_shift        },
     use_compact_tbl_       {use_compact_tbl       },
-    use_minverse_          {use_minverse          },
     identify_special_cases_{identify_special_cases} {
   }
 
@@ -255,13 +249,6 @@ struct config_t {
   }
 
   /**
-   * \brief Returns if Amaru should use the minverse algorithm.
-   */
-  bool use_minverse() const {
-    return use_minverse_;
-  }
-
-  /**
    * \brief Returns if Amaru should identify special cases.
    */
   bool identify_special_cases() const {
@@ -271,7 +258,6 @@ struct config_t {
 private:
   bool use_same_shift_;
   bool use_compact_tbl_;
-  bool use_minverse_;
   bool identify_special_cases_;
 };
 
@@ -498,9 +484,6 @@ private:
     if (config_.use_compact_tbl() && (something_was_defined = true))
       dot_c << "#define AMARU_USE_COMPACT_TBL\n";
 
-    if (config_.use_minverse() && (something_was_defined = true))
-      dot_c << "#define AMARU_USE_MINVERSE\n";
-
     if (config_.identify_special_cases() && (something_was_defined = true))
       dot_c << "#define AMARU_IDENTIFY_SPECIAL_CASES\n";
 
@@ -549,29 +532,27 @@ private:
       dot_c << " }, // " << e2_or_f << "\n";
       ++e2_or_f;
     }
-    dot_c << "};\n\n";
 
-    if (config_.use_minverse()) {
+    dot_c << "};\n"
+      "\n"
+      "static struct {\n"
+      "  suint_t const multiplier;\n"
+      "  suint_t const bound;\n"
+      "} const minverse[] = {\n";
 
-      dot_c << "static struct {\n"
-        "  suint_t const multiplier;\n"
-        "  suint_t const bound;\n"
-        "} const minverse[] = {\n";
-
-      auto const minverse5  = integer_t{p2ssize - (p2ssize - 1) / 5};
-      auto multiplier = minverse5;
-      for (int32_t f = 1; f <= info_.exponent_critical(); ++f) {
-        auto const bound = p2ssize / pow5(f) + 1;
-        dot_c << "  { "
-          "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
-          multiplier << ", " <<
-          "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
-          bound <<
-          " },\n";
-        multiplier = (multiplier * minverse5) % p2ssize;
-      }
-      dot_c <<"};\n";
+    auto const minverse5  = integer_t{p2ssize - (p2ssize - 1) / 5};
+    auto multiplier = minverse5;
+    for (int32_t f = 1; f <= info_.exponent_critical(); ++f) {
+      auto const bound = p2ssize / pow5(f) + 1;
+      dot_c << "  { "
+        "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
+        multiplier << ", " <<
+        "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
+        bound <<
+        " },\n";
+      multiplier = (multiplier * minverse5) % p2ssize;
     }
+    dot_c <<"};\n";
 
     common_final(dot_c);
 
@@ -590,9 +571,6 @@ private:
 
     if (config_.use_compact_tbl())
       dot_c << "#undef AMARU_USE_COMPACT_TBL\n";
-
-    if (config_.use_minverse())
-      dot_c << "#undef AMARU_USE_MINVERSE\n";
 
     if (config_.identify_special_cases())
       dot_c << "#undef AMARU_IDENTIFY_SPECIAL_CASES\n";
@@ -789,7 +767,6 @@ int main() {
     auto const config = config_t{
       /* use_same_shift         */ false,
       /* use_compact_tbl        */ false,
-      /* use_minverse           */ true,
       /* identify_special_cases */ false
     };
 

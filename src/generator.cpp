@@ -730,13 +730,13 @@ private:
    */
   fast_eaf_t get_fast_eaf(alpha_delta_maximum const& x) const {
 
-    auto k    = uint32_t{0};
-    auto pow2 = integer_t{1}; // 2^k
+    auto k    = info_.ssize() + 4;
+    auto pow2 = integer_t{1} << k;
 
     integer_t q, r;
-    divide_qr(x.alpha, x.delta, q, r);
+    divide_qr(pow2 * x.alpha, x.delta, q, r);
 
-    // It should return from inside the loop but let's put a bound.
+    // It should return from inside the loop but let's set an upper bound.
     while (k < 3 * info_.ssize()) {
 
       if (x.maximum < rational_t{pow2, x.delta - r})

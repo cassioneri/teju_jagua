@@ -48,14 +48,9 @@ rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
 static inline
 suint_t multipliy_and_shift(suint_t const m, duint_t const upper,
   duint_t const lower, uint32_t const shift) {
-
   duint_t const upper_m = upper * m;
   duint_t const lower_m = lower * m;
-
-  if (shift >= ssize)
-    return (upper_m + (lower_m >> ssize)) >> (shift - ssize);
-
-  return (lower_m >> shift) + (upper_m << (ssize - shift));
+  return (upper_m + (lower_m >> ssize)) >> (shift - ssize);
 }
 
 static inline

@@ -221,17 +221,10 @@ struct config_t {
    *                        30%) of the non compact one. In addition to saving
    *                        memory this might reduce cache misses, possibly,
    *                        boosting performance.
-   *
-   * \param identify_special_cases  Tells if Amaru should identify special cases
-   *                        (e.g., when binary exponent in {0, 1}) and treat
-   *                        them differently using a more direct and,
-   *                        presumably, more efficient method.
    */
-  config_t(bool use_same_shift, bool use_compact_tbl,
-    bool identify_special_cases) :
-    use_same_shift_        {use_same_shift        },
-    use_compact_tbl_       {use_compact_tbl       },
-    identify_special_cases_{identify_special_cases} {
+  config_t(bool use_same_shift, bool use_compact_tbl) :
+    use_same_shift_ {use_same_shift },
+    use_compact_tbl_{use_compact_tbl} {
   }
 
   /**
@@ -248,17 +241,9 @@ struct config_t {
     return use_compact_tbl_;
   }
 
-  /**
-   * \brief Returns if Amaru should identify special cases.
-   */
-  bool identify_special_cases() const {
-    return identify_special_cases_;
-  }
-
 private:
   bool use_same_shift_;
   bool use_compact_tbl_;
-  bool identify_special_cases_;
 };
 
 /**
@@ -484,9 +469,6 @@ private:
     if (config_.use_compact_tbl() && (something_was_defined = true))
       dot_c << "#define AMARU_USE_COMPACT_TBL\n";
 
-    if (config_.identify_special_cases() && (something_was_defined = true))
-      dot_c << "#define AMARU_IDENTIFY_SPECIAL_CASES\n";
-
     if (something_was_defined)
       dot_c << '\n';
 
@@ -571,9 +553,6 @@ private:
 
     if (config_.use_compact_tbl())
       dot_c << "#undef AMARU_USE_COMPACT_TBL\n";
-
-    if (config_.identify_special_cases())
-      dot_c << "#undef AMARU_IDENTIFY_SPECIAL_CASES\n";
   }
 
   /**
@@ -765,9 +744,8 @@ int main() {
   try {
 
     auto const config = config_t{
-      /* use_same_shift         */ false,
-      /* use_compact_tbl        */ false,
-      /* identify_special_cases */ false
+      /* use_same_shift  */ false,
+      /* use_compact_tbl */ false
     };
 
     auto const ieee32_info = info_t{

@@ -64,15 +64,6 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   if (exponent == bin_exponent_min && mantissa == 0)
     return make_decimal(negative, 0, 0);
 
-#if defined(AMARU_IDENTIFY_SPECIAL_CASES)
-  if (exponent == 0 || exponent == 1) {
-    suint_t const m = mantissa << exponent;
-    if (m % 10 == 0)
-      return remove_trailing_zeros(negative, 0, m);
-    return make_decimal(negative, 0, m);
-  }
-#endif
-
   int32_t  const f = AMARU_LOG10_POW2(exponent);
   int32_t  const e = exponent - f;
 

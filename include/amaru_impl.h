@@ -83,11 +83,11 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 #endif
 
   suint_t const m_b = 2 * mantissa + 1;
-  suint_t const b_2 = multipliy_and_shift(m_b, upper, lower, shift);
+  suint_t const b   = multipliy_and_shift(m_b, upper, lower, shift) / 2;
 
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 
-    suint_t const s   = 10 * (b_2 / 20);
+    suint_t const s   = 10 * (b / 10);
     suint_t const m_a = 2 * mantissa - 1;
     suint_t const a   = multipliy_and_shift(m_a, upper, lower, shift) / 2;
 
@@ -114,7 +114,6 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
   // mantissa = normal_mantissa_min
 
-  suint_t const b   = b_2 / 2;
   suint_t const m_a = 4 * normal_mantissa_min - 1;
   suint_t const a_2 = multipliy_and_shift(m_a, upper, lower, shift);
 

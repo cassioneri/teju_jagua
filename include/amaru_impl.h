@@ -92,7 +92,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     suint_t const a   = multipliy_and_shift(m_a, upper, lower, shift) / 2;
 
     if (a < s) {
-      if (e < 2 || f + 1 > dec_exponent_critical ||
+      if (e < 2 || f >= dec_exponent_critical ||
         !is_multiple_of_pow5(m_b, f + 1) || mantissa % 2 == 0)
         return remove_trailing_zeros(negative, f, s);
     }
@@ -105,8 +105,8 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     suint_t const c_2 = multipliy_and_shift(m_c, upper, lower, shift);
     suint_t const c   = c_2 / 2;
 
-    if (c_2 % 2 == 1 && (c % 2 == 1 || !(-((int32_t) (mantissa_size + 2)) < e &&
-      e < 0 && m_c % AMARU_POW2(suint_t, -e) == 0)))
+    if ((e >= 0 || -((int32_t) ssize) >= e || ((m_c & -m_c) >> -e) == 0 ||
+      c % 2 == 1) && c_2 % 2 == 1)
       return make_decimal(negative, f, c + 1);
 
     return make_decimal(negative, f, c);

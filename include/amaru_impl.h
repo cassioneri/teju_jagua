@@ -17,7 +17,6 @@ static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
   "duint_t must be at least twice the size of suint_t.");
 
 static uint32_t const ssize = CHAR_BIT * sizeof(suint_t);
-static uint32_t const dsize = CHAR_BIT * sizeof(duint_t);
 
 static int32_t const dec_exponent_critical = AMARU_LOG5_POW2(mantissa_size + 2);
 static int32_t const dec_exponent_min      = AMARU_LOG10_POW2(bin_exponent_min);
@@ -46,10 +45,10 @@ rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
 }
 
 static inline
-suint_t multipliy_and_shift(suint_t const m, duint_t const upper,
-  duint_t const lower, uint32_t const shift) {
-  duint_t const upper_m = upper * m;
-  duint_t const lower_m = lower * m;
+suint_t multipliy_and_shift(suint_t const m, suint_t const upper,
+  suint_t const lower, uint32_t const shift) {
+  duint_t const upper_m = ((duint_t) upper) * m;
+  duint_t const lower_m = ((duint_t) lower) * m;
   return (upper_m + (lower_m >> ssize)) >> (shift - ssize);
 }
 
@@ -75,12 +74,8 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   int32_t  const i     = exponent - bin_exponent_min;
 #endif
 
-#if defined(AMARU_UPPER_IS_ZERO)
-  duint_t  const upper = 0;
-#else
-  duint_t  const upper = multipliers[i].upper;
-#endif
-  duint_t  const lower = multipliers[i].lower;
+  suint_t  const upper = multipliers[i].upper;
+  suint_t  const lower = multipliers[i].lower;
 #if defined(AMARU_SHIFT)
   uint32_t const shift = AMARU_SHIFT - extra;
 #else
@@ -160,5 +155,3 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 #ifdef __cplusplus
 }
 #endif
-
-#undef AMARU_IS_MULTIPLE_OF_POW5

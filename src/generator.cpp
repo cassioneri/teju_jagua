@@ -439,15 +439,6 @@ private:
     auto const ssize   = info_.ssize();
     auto const p2ssize = integer_t{1} << ssize;
 
-    // Check if all upper parts of the multiplier are zero.
-    auto all_upper_parts_are_zero = true;
-
-    for (auto const& fast_eaf : fast_eafs)
-      if (fast_eaf.U >= p2ssize) {
-        all_upper_parts_are_zero = false;
-        break;
-      }
-
     dot_c <<
       "typedef " << info_.suint() << " suint_t;\n"
       "typedef " << info_.duint() << " duint_t;\n"
@@ -460,9 +451,6 @@ private:
 
     bool something_was_defined = false;
 
-    if (all_upper_parts_are_zero && (something_was_defined = true))
-      dot_c << "#define AMARU_UPPER_IS_ZERO\n";
-
     if (config_.use_same_shift() && (something_was_defined = true))
       dot_c << "#define AMARU_SHIFT " << shift << "\n";
 
@@ -472,12 +460,10 @@ private:
     if (something_was_defined)
       dot_c << '\n';
 
-    dot_c << "static struct {\n";
-
-    if (!all_upper_parts_are_zero)
-      dot_c << "  suint_t  const upper;\n";
-
-    dot_c << "  suint_t  const lower;\n";
+    dot_c <<
+      "static struct {\n"
+      "  suint_t  const upper;\n"
+      "  suint_t  const lower;\n";
 
     if (!config_.use_same_shift())
       dot_c << "  uint32_t const shift;\n";
@@ -498,12 +484,8 @@ private:
         throw amaru_exception{"Multiplier is out of range."};
 
       dot_c << "  { ";
-
-      if (!all_upper_parts_are_zero) {
-        dot_c << "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
+      dot_c << "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
             upper << ", ";
-      }
-
       dot_c << "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
         lower << std::dec;
 
@@ -544,9 +526,6 @@ private:
       "#include \"../include/amaru_impl.h\"\n"
       "\n"
       "#undef AMARU_IMPL\n";
-
-    if (all_upper_parts_are_zero)
-      dot_c << "#undef AMARU_UPPER_IS_ZERO\n";
 
     if (config_.use_same_shift())
       dot_c << "#undef AMARU_SHIFT\n";

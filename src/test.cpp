@@ -49,17 +49,6 @@ int32_t logB1_powB2<10, 2>(int32_t n) {
 }
 
 /**
- * \brief Returns the integer part of log_5(2^n).
- *
- * This is a fast implementation under test. The maximal internal on which it
- * gives a correct result is to be found.
- */
-template <>
-int32_t logB1_powB2<5, 2>(int32_t n) {
-  return AMARU_LOG5_POW2(n);
-}
-
-/**
  * \brief Tests the fast implementation of the integer part of log_{B1}(B2^n)
  * given by
  *
@@ -187,16 +176,6 @@ TEST(log_tests, log10_pow2_remainder) {
     ASSERT_EQ(f0, f) << "Note: e = " << e << ", e0 = " << e0;
     ASSERT_LT(f1, f) << "Note: e = " << e << ", e0 = " << e0;
   }
-}
-
-TEST(log_tests, log5_pow2) {
-
-  auto const log5_2 =
-    mp_float_t{".43067655807339305067010656876396563206979193207975"};
-
-  auto const log5_2_times_2_to_32 = get_x_times_2_to_32(log5_2);
-  EXPECT_EQ(log5_2_times_2_to_32, 1849741732);
-  test_log<5, 2, 32>(log5_2_times_2_to_32, -227267, 227268);
 }
 
 template <typename>

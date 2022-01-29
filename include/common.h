@@ -37,14 +37,6 @@ extern "C" {
 #define AMARU_LOG10_POW2_REMAINDER(e) \
   (((uint32_t) (((uint64_t) 1292913986) * (e))) / 1292913986)
 
-/**
- * \brief Returns the integer part of log_5(2^n).
- *
- * \pre -227267 <= n && n < 227268.
- */
-#define AMARU_LOG5_POW2(n) \
-  ((int32_t) ((((uint64_t) 1849741732) * (n)) >> 32))
-
 #ifdef __cplusplus
 }
 #endif

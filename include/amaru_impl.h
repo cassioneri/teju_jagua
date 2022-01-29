@@ -16,11 +16,9 @@ extern "C" {
 static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
   "duint_t must be at least twice the size of suint_t.");
 
-static uint32_t const ssize = CHAR_BIT * sizeof(suint_t);
-
-static int32_t const dec_exponent_critical = AMARU_LOG5_POW2(mantissa_size + 2);
-static int32_t const dec_exponent_min      = AMARU_LOG10_POW2(bin_exponent_min);
-static suint_t const normal_mantissa_min   = AMARU_POW2(suint_t, mantissa_size);
+static uint32_t const ssize               = CHAR_BIT * sizeof(suint_t);
+static int32_t  const dec_exponent_min    = AMARU_LOG10_POW2(bin_exponent_min);
+static suint_t  const normal_mantissa_min = AMARU_POW2(suint_t, mantissa_size);
 
 static inline
 rep_t make_decimal(bool const negative, int32_t exponent, suint_t mantissa) {
@@ -54,7 +52,8 @@ suint_t multipliy_and_shift(suint_t const m, suint_t const upper,
 
 static inline
 bool is_multiple_of_pow5(suint_t const m, int32_t const f) {
-  return f == 0 || m * minverse[f - 1].multiplier < minverse[f - 1].bound;
+  return f >= 0 && f < (int32_t) (sizeof(minverse) / sizeof(minverse[0])) &&
+    m * minverse[f].multiplier <= minverse[f].bound;
 }
 
 rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
@@ -93,13 +92,11 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     suint_t const a   = multipliy_and_shift(m_a, upper, lower, shift) / 2;
 
     if (a < s) {
-      if (e < 2 || f >= dec_exponent_critical ||
-        !is_multiple_of_pow5(m_b, f + 1) || mantissa % 2 == 0)
+      if (!is_multiple_of_pow5(m_b, f + 1) || mantissa % 2 == 0)
         return remove_trailing_zeros(negative, f, s);
     }
 
-    else if (s == a && e > 0 && f <= dec_exponent_critical &&
-      is_multiple_of_pow5(m_a, f) && mantissa % 2 == 0)
+    else if (s == a && is_multiple_of_pow5(m_a, f) && mantissa % 2 == 0)
       return remove_trailing_zeros(negative, f, s);
 
     suint_t const m_c = 2 * mantissa;
@@ -118,8 +115,8 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   suint_t const m_a = 4 * normal_mantissa_min - 1;
   suint_t const a_2 = multipliy_and_shift(m_a, upper, lower, shift);
 
-  bool const is_exact = mantissa_size % 4 == 2 && e > 1 &&
-    f <= dec_exponent_critical && a_2 % 4 == 0 && is_multiple_of_pow5(m_a, f);
+  bool const is_exact = mantissa_size % 4 == 2 && a_2 % 4 == 0 &&
+    is_multiple_of_pow5(m_a, f);
 
   suint_t const a  = a_2 / 4 + !is_exact;
 

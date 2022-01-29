@@ -86,7 +86,6 @@ struct info_t {
     exponent_size_      {exponent_size                       },
     exponent_min_       {exponent_min                        },
     exponent_max_       {exponent_max                        },
-    exponent_critical_  {AMARU_LOG5_POW2(mantissa_size + 2)  },
     mantissa_size_      {mantissa_size                       },
     normal_mantissa_min_{AMARU_POW2(integer_t, mantissa_size)},
     normal_mantissa_max_{2 * normal_mantissa_min_            } {
@@ -157,13 +156,6 @@ struct info_t {
   }
 
   /**
-    * \brief Returns the critical exponent.
-    */
-   int32_t const& exponent_critical() const {
-     return exponent_critical_;
-   }
-
-  /**
    * \brief Returns the normal (inclusive) minimal mantissa.
    *
    * Mantissas for normal floating point numbers are elements of the interval
@@ -193,7 +185,6 @@ private:
   uint32_t    const exponent_size_;
   int32_t     const exponent_min_;
   int32_t     const exponent_max_;
-  int32_t     const exponent_critical_;
   uint32_t    const mantissa_size_;
   integer_t   const normal_mantissa_min_;
   integer_t   const normal_mantissa_max_;
@@ -505,9 +496,11 @@ private:
       "} const minverse[] = {\n";
 
     auto const minverse5  = integer_t{p2ssize - (p2ssize - 1) / 5};
-    auto multiplier = minverse5;
-    for (int32_t f = 1; f <= info_.exponent_critical(); ++f) {
-      auto const bound = p2ssize / pow5(f) + 1;
+    auto multiplier = integer_t{1};
+    auto p5 = integer_t{1};
+
+    for (int32_t f = 0; p5 < info_.normal_mantissa_max(); ++f) {
+      auto const bound = p2ssize / p5 - (f == 0);
       dot_c << "  { "
         "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
         multiplier << ", " <<
@@ -515,8 +508,9 @@ private:
         bound <<
         " },\n";
       multiplier = (multiplier * minverse5) % p2ssize;
+      p5 *= 5;
     }
-    dot_c <<"};\n";
+    dot_c <<"};\n\n";
 
     common_final(dot_c);
 

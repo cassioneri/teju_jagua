@@ -557,8 +557,8 @@ private:
       if (config_.use_compact_tbl() && f == f_done)
         continue;
 
-      auto const e = (config_.use_compact_tbl() ? -AMARU_LOG2_POW10(-f) : e2)
-        - f;
+      auto const e = (config_.use_compact_tbl() ?
+        e2 - AMARU_LOG10_POW2_REMAINDER(e2) : e2) - f;
 
       alpha_delta_maximum x;
       x.alpha   = f >= 0 ? pow2(e) : pow5(-f);

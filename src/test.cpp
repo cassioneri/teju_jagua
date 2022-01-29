@@ -62,17 +62,6 @@ int32_t logB1_powB2<5, 2>(int32_t n) {
 }
 
 /**
- * \brief Returns the integer part of log_2(10^n).
- *
- * This is a fast implementation under test. The maximal internal on which it
- * gives a correct result is to be found.
- */
-template <>
-int32_t logB1_powB2<2, 10>(int32_t n) {
-  return AMARU_LOG2_POW10(n) ;
-}
-
-/**
  * \brief Tests the fast implementation of the integer part of log_{B1}(B2^n)
  * given by
  *
@@ -185,6 +174,23 @@ TEST(log_tests, log10_pow2) {
   test_log<10, 2, 32>(log10_2_times_2_to_32, -70776, 70777);
 }
 
+TEST(log_tests, log10_pow2_remainder) {
+
+  for (int32_t e = -70776; e < 70777; ++e) {
+
+    auto const f  = AMARU_LOG10_POW2(e);
+    auto const r  = AMARU_LOG10_POW2_REMAINDER(e);
+
+    // e0 is the smallest value of e such that AMARU_LOG10_POW2(e) = f.
+    auto const e0 = e - static_cast<int32_t>(r);
+    auto const f0 = AMARU_LOG10_POW2(e0);
+    auto const f1 = AMARU_LOG10_POW2(e0 - 1);
+
+    ASSERT_EQ(f0, f) << "Note: e = " << e << ", e0 = " << e0;
+    ASSERT_LT(f1, f) << "Note: e = " << e << ", e0 = " << e0;
+  }
+}
+
 TEST(log_tests, log5_pow2) {
 
   auto const log5_2 =
@@ -193,20 +199,6 @@ TEST(log_tests, log5_pow2) {
   auto const log5_2_times_2_to_32 = get_x_times_2_to_32(log5_2);
   EXPECT_EQ(log5_2_times_2_to_32, 1849741732);
   test_log<5, 2, 32>(log5_2_times_2_to_32, -227267, 227268);
-}
-
-TEST(log_tests, log2_pow10) {
-
-  auto const log2_10 =
-    mp_float_t{"3.32192809488736234787031942948939017586483139302460"};
-
-  // Since log2_10 < 4, we divide it by 4 to get a result in [0, 1[, a
-  // pre-condition of get_32_bits_approximation. Consequently, the 30 lower bits
-  // of the multiplier correspond to the fractional part.
-
-  auto const log2_10_times_2_to_30 = get_x_times_2_to_32(log2_10 / 4);
-  EXPECT_EQ(log2_10_times_2_to_30, 3566893131);
-  test_log<2, 10, 30>(log2_10_times_2_to_30, -55266, 55267);
 }
 
 template <typename>

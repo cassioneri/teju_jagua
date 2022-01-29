@@ -64,15 +64,16 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     return make_decimal(negative, 0, 0);
 
   int32_t  const f = AMARU_LOG10_POW2(exponent);
-  int32_t  const e = exponent - f;
 
 #if defined(AMARU_USE_COMPACT_TBL)
-  uint32_t const extra = exponent + AMARU_LOG2_POW10(-f);
+  uint32_t const extra = AMARU_LOG10_POW2_REMAINDER(exponent);
   int32_t  const i     = f - dec_exponent_min;
 #else
   uint32_t const extra = 0;
   int32_t  const i     = exponent - bin_exponent_min;
 #endif
+
+  int32_t  const e = exponent - f;
 
   suint_t  const upper = multipliers[i].upper;
   suint_t  const lower = multipliers[i].lower;

@@ -717,8 +717,8 @@ int main() {
   try {
 
     auto const config = config_t{
-      /* use_same_shift  */ false,
-      /* use_compact_tbl */ false
+      /* use_same_shift  */ true,
+      /* use_compact_tbl */ true
     };
 
     auto const ieee32_info = info_t{

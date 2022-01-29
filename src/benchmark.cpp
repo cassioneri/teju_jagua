@@ -3,8 +3,6 @@
 
 #include "dragonbox.hpp"
 
-#include <ryu.h>
-
 #include <chrono>
 #include <cstdint>
 #include <cstring>
@@ -93,12 +91,6 @@ struct fp_traits_t<float> {
   static auto constexpr mantissa_size = uint32_t{23};
 
   static void
-  ryu(fp_t const value) {
-    auto ieee = to_ieee(value);
-    f2d(ieee.mantissa, ieee.exponent);
-  }
-
-  static void
   amaru(fp_t const value) {
     amaru_float(value);
   }
@@ -118,12 +110,6 @@ struct fp_traits_t<double> {
 
   static auto constexpr exponent_size = uint32_t{11};
   static auto constexpr mantissa_size = uint32_t{52};
-
-  static void
-  ryu(fp_t const value) {
-    auto ieee = to_ieee(value);
-    d2d(ieee.mantissa, ieee.exponent);
-  }
 
   static void
   amaru(fp_t const value) {

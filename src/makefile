@@ -1,4 +1,4 @@
-CPPFLAGS += -DNDEBUG -I ../../ryu/ryu -I ../../dragonbox/include/dragonbox
+CPPFLAGS += -DNDEBUG -I ../../dragonbox/include/dragonbox
 CFLAGS   += -O3 -Wall -Wextra -std=c11
 CXXFLAGS += -O3 -Wall -Wextra -std=c++17
 
@@ -21,12 +21,12 @@ test.o      : test.cpp ../include/common.h ../include/ieee.h \
 	../generated/ieee32.c ../generated/ieee64.c
 
 test        : test.o generated_ieee32.o generated_ieee64.o dragonbox.o
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^  ../../ryu/ryu/libryu.a -lgtest -lgtest_main
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^ -lgtest -lgtest_main
 
 benchmark.o : benchmark.cpp ../include/common.h ../include/ieee.h
 
 benchmark   : benchmark.o generated_ieee32.o generated_ieee64.o dragonbox.o
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^ ../../ryu/ryu/libryu.a
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^
 
 .PHONY: clean
 clean:

@@ -3,8 +3,6 @@
 
 #include "dragonbox.hpp"
 
-#include <ryu.h>
-
 #include <gtest/gtest.h>
 
 #include <boost/multiprecision/cpp_int.hpp>
@@ -244,13 +242,6 @@ struct fp_traits_t<float> {
   static auto constexpr mantissa_size = uint32_t{23};
 
   static rep_t
-  ryu(fp_t const value) {
-    auto ieee = to_ieee(value);
-    auto const ryu = f2d(ieee.mantissa, ieee.exponent);
-    return {false, ryu.exponent, ryu.mantissa};
-  }
-
-  static rep_t
   amaru(fp_t const value) {
     return amaru_float(value);
   }
@@ -272,13 +263,6 @@ struct fp_traits_t<double> {
   static auto constexpr mantissa_size = uint32_t{52};
 
   static rep_t
-  ryu(fp_t const value) {
-    auto ieee = to_ieee(value);
-    auto const ryu = d2d(ieee.mantissa, ieee.exponent);
-    return {false, ryu.exponent, ryu.mantissa};
-  }
-
-  static rep_t
   amaru(fp_t const value) {
     return amaru_double(value);
   }
@@ -295,7 +279,7 @@ void compare_to_other(T const value) {
   using          traits_t = fp_traits_t<T>;
   using          fp_t     = typename traits_t::fp_t;
   auto constexpr digits   = std::numeric_limits<fp_t>::digits10 + 2;
-  auto const other        = traits_t::ryu(value);
+  auto const other        = traits_t::dragonbox(value);
   auto const amaru        = traits_t::amaru(value);
   auto const ieee         = to_ieee(value);
 

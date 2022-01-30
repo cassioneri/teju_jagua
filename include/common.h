@@ -23,19 +23,19 @@ extern "C" {
 /**
  * \brief Returns the largest number f such that 10^f <= 2^e.
  *
- * \pre -70776 <= e && e < 70777.
+ * \pre -112815 <= e && e < 112816.
  */
 #define AMARU_LOG10_POW2(e) \
-  ((int32_t) ((((uint64_t) 1292913986) * (e)) >> 32))
+  ((int32_t) ((((uint64_t) 1292913987) * (e)) >> 32))
 
 /**
  * \brief Returns the the remainder e - e0, where e0 is the smallest number such
  * that AMARU_LOG10_POW2(e0) == AMARU_LOG10_POW2(e).
  *
- * \pre -70776 <= e && e < 70777.
+ * \pre -112815 <= e && e < 112816.
  */
 #define AMARU_LOG10_POW2_REMAINDER(e) \
-  (((uint32_t) (((uint64_t) 1292913986) * (e))) / 1292913986)
+  (((uint32_t) (((uint64_t) 1292913987) * (e))) / 1292913987)
 
 #ifdef __cplusplus
 }

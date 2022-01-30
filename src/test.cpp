@@ -27,14 +27,13 @@ TEST(log_tests, log10_pow2) {
     mp_float_t{".30102999566398119521373889472449302676818988146210"};
 
   auto const p32        = pow(mp_float_t{2.}, 32);
-  auto const multiplier = static_cast<uint32_t>(log10_2 * p32);
+  auto const multiplier = static_cast<uint32_t>(log10_2 * p32) + 1;
 
-  EXPECT_EQ(multiplier, 1292913986);
-
-  int32_t constexpr min = -70776;
-  int32_t constexpr max = 70777;
+  EXPECT_EQ(multiplier, 1292913987);
 
   {
+    int32_t constexpr min = -112815;
+
     // Tests n from 0 (inclusive) to min (inclusive).
 
     // Loop invariant: 10^correct    <= 2^n    < 10^(correct + 1)
@@ -73,7 +72,10 @@ TEST(log_tests, log10_pow2) {
     auto const approximation = int32_t(uint64_t(multiplier) * n >> 32);
     EXPECT_NE(correct, approximation) << "Minimum " << min << " isn't sharp.";
   }
+
   {
+    int32_t constexpr max = 112816;
+
     // Tests for n from 0 (inclusive) to max (non inclusive).
 
     // Loop invariant: 10^correct <= 2^n < 10^(correct + 1)
@@ -114,7 +116,7 @@ TEST(log_tests, log10_pow2) {
 
 TEST(log_tests, log10_pow2_remainder) {
 
-  for (int32_t e = -70776; e < 70777; ++e) {
+  for (int32_t e = -112815; e < 112816; ++e) {
 
     auto const f  = AMARU_LOG10_POW2(e);
     auto const r  = AMARU_LOG10_POW2_REMAINDER(e);

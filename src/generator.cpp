@@ -443,7 +443,7 @@ private:
     bool something_was_defined = false;
 
     if (config_.use_same_shift() && (something_was_defined = true))
-      dot_c << "#define AMARU_SHIFT " << shift << "\n";
+      dot_c << "#define AMARU_SHIFT " << shift - ssize << "\n";
 
     if (config_.use_compact_tbl() && (something_was_defined = true))
       dot_c << "#define AMARU_USE_COMPACT_TBL\n";
@@ -482,7 +482,7 @@ private:
 
       if (!config_.use_same_shift()) {
         auto const shift = fast_eaf.k;
-        dot_c << ", " << shift;
+        dot_c << ", " << shift - ssize;
       }
       dot_c << " }, // " << e2_or_f << "\n";
       ++e2_or_f;
@@ -682,7 +682,14 @@ private:
    */
   fast_eaf_t get_fast_eaf(alpha_delta_maximum const& x) const {
 
-    auto k    = info_.ssize() + 4;
+    // Making shift >= ssize, simplifies multiply_and_shift executed at runtime.
+    // Indeed, it ensures that the least significant limb of the product is
+    // irrelevant. For this reason, later on, the generator actually outputs
+    // shift - ssize (still labelling it as 'shift') so that Amaru doesn't need
+    // to do it at runtime. Moreover, when using a single shift, Amaru subtracts
+    // the exponent correction (in [0, 4]) from the shift amount. Here the
+    // generator ensures the final shift amount is non-negative.
+    auto k    = info_.ssize() + (config_.use_compact_tbl() ? 4 : 0);
     auto pow2 = integer_t{1} << k;
 
     integer_t q, r;

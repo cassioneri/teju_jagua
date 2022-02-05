@@ -47,7 +47,7 @@ suint_t multipliy_and_shift(suint_t const m, suint_t const upper,
   suint_t const lower, uint32_t const shift) {
   duint_t const upper_m = ((duint_t) upper) * m;
   duint_t const lower_m = ((duint_t) lower) * m;
-  return (upper_m + (lower_m >> ssize)) >> (shift - ssize);
+  return (upper_m + (lower_m >> ssize)) >> shift;
 }
 
 static inline

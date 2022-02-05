@@ -98,13 +98,8 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     duint_t const prod_a  = upper_m + (lower_m >> ssize);
     suint_t const a       = prod_a >> (shift - ssize + 1);
 
-    suint_t const m_c     = m_a + 1;
-    duint_t const prod_c  = prod_a + upper + 1;
-    suint_t const c_2     = prod_c >> (shift - ssize);
-    suint_t const c       = c_2 / 2;
-
-    suint_t const m_b     = m_c + 1;
-    duint_t const prod_b  = prod_c + upper + 1;
+    suint_t const m_b     = m_a + 2;
+    duint_t const prod_b  = prod_a + (2 * upper + 2);
     suint_t const b       = prod_b >> (shift - ssize + 1);
 
     suint_t const s       = 10 * (b / 10);
@@ -116,6 +111,11 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
     else if (s == a && is_multiple_of_pow5(m_a, f) && mantissa % 2 == 0)
       return remove_trailing_zeros(negative, f, s);
+
+    suint_t const m_c     = m_a + 1;
+    duint_t const prod_c  = prod_a + (upper + 1);
+    suint_t const c_2     = prod_c >> (shift - ssize);
+    suint_t const c       = c_2 / 2;
 
     if ((e >= 0 || -((int32_t) ssize) >= e || ((m_c & -m_c) >> -e) == 0 ||
       c % 2 == 1) && c_2 % 2 == 1)

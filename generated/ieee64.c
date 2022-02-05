@@ -21,7 +21,7 @@ typedef ieee64_t rep_t;
 static uint32_t const mantissa_size    = 52;
 static int32_t  const bin_exponent_min = -1074;
 
-#define AMARU_SHIFT 120
+#define AMARU_SHIFT 56
 #define AMARU_USE_COMPACT_TBL
 
 static struct {

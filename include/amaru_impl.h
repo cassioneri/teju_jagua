@@ -89,14 +89,25 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   uint32_t const shift = multipliers[i].shift - extra;
 #endif
 
-  suint_t const m_b = 2 * mantissa + 1;
-  suint_t const b   = multipliy_and_shift(m_b, upper, lower, shift) / 2;
-
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 
-    suint_t const s   = 10 * (b / 10);
-    suint_t const m_a = 2 * mantissa - 1;
-    suint_t const a   = multipliy_and_shift(m_a, upper, lower, shift) / 2;
+    suint_t const m_a     = 2 * mantissa - 1;
+    duint_t const upper_m = ((duint_t) upper) * m_a;
+    duint_t const lower_m = ((duint_t) lower) * m_a;
+
+    duint_t const prod_a  = upper_m + (lower_m >> ssize);
+    suint_t const a       = prod_a >> (shift - ssize + 1);
+
+    suint_t const m_c     = m_a + 1;
+    duint_t const prod_c  = prod_a + upper + 1;
+    suint_t const c_2     = prod_c >> (shift - ssize);
+    suint_t const c       = c_2 / 2;
+
+    suint_t const m_b     = m_c + 1;
+    duint_t const prod_b  = prod_c + upper + 1;
+    suint_t const b       = prod_b >> (shift - ssize + 1);
+
+    suint_t const s       = 10 * (b / 10);
 
     if (a < s) {
       if (!is_multiple_of_pow5(m_b, f + 1) || mantissa % 2 == 0)
@@ -105,10 +116,6 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
     else if (s == a && is_multiple_of_pow5(m_a, f) && mantissa % 2 == 0)
       return remove_trailing_zeros(negative, f, s);
-
-    suint_t const m_c = 2 * mantissa;
-    suint_t const c_2 = multipliy_and_shift(m_c, upper, lower, shift);
-    suint_t const c   = c_2 / 2;
 
     if ((e >= 0 || -((int32_t) ssize) >= e || ((m_c & -m_c) >> -e) == 0 ||
       c % 2 == 1) && c_2 % 2 == 1)
@@ -119,6 +126,9 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   }
 
   // mantissa = normal_mantissa_min
+
+  suint_t const m_b = 2 * mantissa + 1;
+  suint_t const b   = multipliy_and_shift(m_b, upper, lower, shift) / 2;
 
   suint_t const m_a = 4 * normal_mantissa_min - 1;
   suint_t const a_2 = multipliy_and_shift(m_a, upper, lower, shift);

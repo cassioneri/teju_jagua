@@ -87,7 +87,7 @@ struct info_t {
     exponent_size_      {exponent_size                       },
     bin_exponent_min_   {bin_exponent_min                    },
     bin_exponent_max_   {bin_exponent_max                    },
-    dec_exponent_min_   {AMARU_LOG10_POW2(bin_exponent_min)  },
+    dec_exponent_min_   {log10_pow2(bin_exponent_min)        },
     mantissa_size_      {mantissa_size                       },
     normal_mantissa_min_{AMARU_POW2(integer_t, mantissa_size)},
     normal_mantissa_max_{2 * normal_mantissa_min_            } {
@@ -480,7 +480,7 @@ private:
     auto const nibbles = ssize / 4;
 
     auto e2      = info_.bin_exponent_min();
-    auto e2_or_f = config_.use_compact_tbl() ? AMARU_LOG10_POW2(e2) : e2;
+    auto e2_or_f = config_.use_compact_tbl() ? log10_pow2(e2) : e2;
 
     for (auto const& fast_eaf : fast_eafs) {
 
@@ -558,17 +558,18 @@ private:
     std::vector<alpha_delta_maximum> maxima;
     maxima.reserve(info_.bin_exponent_max() - info_.bin_exponent_min() + 1);
 
-    auto f_done = AMARU_LOG10_POW2(info_.bin_exponent_min()) - 1;
+    auto f_done = log10_pow2(info_.bin_exponent_min()) - 1;
 
-    for (auto e2 = info_.bin_exponent_min(); e2 <= info_.bin_exponent_max(); ++e2) {
+    for (auto e2 = info_.bin_exponent_min(); e2 <= info_.bin_exponent_max();
+      ++e2) {
 
-      auto const f = AMARU_LOG10_POW2(e2);
+      auto const f = log10_pow2(e2);
 
       if (config_.use_compact_tbl() && f == f_done)
         continue;
 
       auto const e = (config_.use_compact_tbl() ?
-        e2 - AMARU_LOG10_POW2_REMAINDER(e2) : e2) - f;
+        e2 - log10_pow2_remainder(e2) : e2) - f;
 
       alpha_delta_maximum x;
       x.alpha   = f >= 0 ? pow2(e) : pow5(-f);

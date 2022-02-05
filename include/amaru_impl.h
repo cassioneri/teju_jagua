@@ -70,10 +70,10 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   if (exponent == bin_exponent_min && mantissa == 0)
     return make_decimal(negative, 0, 0);
 
-  int32_t  const f = AMARU_LOG10_POW2(exponent);
+  int32_t  const f = log10_pow2(exponent);
 
 #if defined(AMARU_USE_COMPACT_TBL)
-  uint32_t const extra = AMARU_LOG10_POW2_REMAINDER(exponent);
+  uint32_t const extra = log10_pow2_remainder(exponent);
   int32_t  const i     = f - dec_exponent_min;
 #else
   uint32_t const extra = 0;

@@ -13,12 +13,13 @@
 extern "C" {
 #endif
 
+static_assert(CHAR_BIT * sizeof(suint_t) == ssize,
+  "Size of suint_t does not match what the generator used.");
+
 static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
   "duint_t must be at least twice the size of suint_t.");
 
-static uint32_t const ssize               = CHAR_BIT * sizeof(suint_t);
-static int32_t  const dec_exponent_min    = AMARU_LOG10_POW2(bin_exponent_min);
-static suint_t  const normal_mantissa_min = AMARU_POW2(suint_t, mantissa_size);
+static suint_t const normal_mantissa_min = AMARU_POW2(suint_t, mantissa_size);
 
 static inline
 rep_t make_decimal(bool const negative, int32_t exponent, suint_t mantissa) {

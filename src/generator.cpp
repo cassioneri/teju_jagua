@@ -59,24 +59,25 @@ struct info_t {
   /**
    * \brief Constructor.
    *
-   * \param id              An identifier for the floating point number type
-   *                        (e.g., "ieee32" or "ieee64"). This is used in C/C++
-   *                        identifiers and, accordingly, is restricted to a
-   *                        corresponding set of characters. In particular, it
-   *                        contains no spaces - "long double" is forbidden.
-   * \param suint           C/C++ name of suint (e.g., "uint32_t" or
-   *                        "uint64_t"). It might contain spaces -- "unsigned
-   *                        long" is allowed.
-   * \param duint           C/C++ name of duint (e.g., "uint64_t" or
-   *                        "uint128_t").
-   * \param ssize           The size of suint in bits.
-   * \param exponent_size   Size of exponent in bits.
-   * \param exponent_min    Minimum exponent.
-   * \param exponent_max    Maximum exponent.
-   * \param mantissa_size   Size of mantissa in bits.
+   * \param id                An identifier for the floating point number type
+   *                          (e.g., "ieee32" or "ieee64"). This is used in
+   *                          C/C++ identifiers and, accordingly, is restricted
+   *                          to a corresponding set of characters. In
+   *                          particular, it must not contain spaces --
+   *                          "long double" is forbidden).
+   * \param suint             C/C++ name of suint (e.g., "uint32_t" or
+   *                          "uint64_t"). It might contain spaces -- "unsigned
+   *                          long" is allowed.
+   * \param duint             C/C++ name of duint (e.g., "uint64_t" or
+   *                          "uint128_t").
+   * \param ssize             The size of suint in bits.
+   * \param exponent_size     Size of exponent in bits.
+   * \param bin_exponent_min  Minimum exponent in binary.
+   * \param bin exponent_max  Maximum exponent in binary.
+   * \param mantissa_size     Size of mantissa in bits.
    */
   info_t(std::string id, std::string suint, std::string duint, uint32_t ssize,
-    uint32_t exponent_size, int32_t exponent_min, int32_t exponent_max,
+    uint32_t exponent_size, int32_t bin_exponent_min, int32_t bin_exponent_max,
     uint32_t mantissa_size) :
     id_                 {std::move(id)                       },
     suint_              {std::move(suint)                    },
@@ -84,8 +85,9 @@ struct info_t {
     rep_                {id_ + "_t"                          },
     ssize_              {ssize                               },
     exponent_size_      {exponent_size                       },
-    exponent_min_       {exponent_min                        },
-    exponent_max_       {exponent_max                        },
+    bin_exponent_min_   {bin_exponent_min                    },
+    bin_exponent_max_   {bin_exponent_max                    },
+    dec_exponent_min_   {AMARU_LOG10_POW2(bin_exponent_min)  },
     mantissa_size_      {mantissa_size                       },
     normal_mantissa_min_{AMARU_POW2(integer_t, mantissa_size)},
     normal_mantissa_max_{2 * normal_mantissa_min_            } {
@@ -141,18 +143,25 @@ struct info_t {
   }
 
   /**
-   * \brief Returns the minimum exponent. (As described in Amaru's
+   * \brief Returns the binary minimum exponent. (As described in Amaru's
    * representation.)
    */
-  int32_t const& exponent_min() const {
-    return exponent_min_;
+  int32_t const& bin_exponent_min() const {
+    return bin_exponent_min_;
   }
 
   /**
-   * \brief Returns the maximal exponent allowed in the implementation.
+   * \brief Returns the binary maximal exponent.
    */
-  int32_t const& exponent_max() const {
-    return exponent_max_;
+  int32_t const& bin_exponent_max() const {
+    return bin_exponent_max_;
+  }
+
+  /**
+   * \brief Returns the decimal minimum exponent.
+   */
+  int32_t const& dec_exponent_min() const {
+    return dec_exponent_min_;
   }
 
   /**
@@ -183,8 +192,9 @@ private:
   std::string const rep_;
   uint32_t    const ssize_;
   uint32_t    const exponent_size_;
-  int32_t     const exponent_min_;
-  int32_t     const exponent_max_;
+  int32_t     const bin_exponent_min_;
+  int32_t     const bin_exponent_max_;
+  int32_t     const dec_exponent_min_;
   uint32_t    const mantissa_size_;
   integer_t   const normal_mantissa_min_;
   integer_t   const normal_mantissa_max_;
@@ -435,10 +445,16 @@ private:
       "typedef " << info_.duint() << " duint_t;\n"
       "typedef " << info_.rep()   << " rep_t;\n"
       "\n"
-      "static uint32_t const mantissa_size    = " << info_.mantissa_size() <<
-      ";\n"
-      "static int32_t  const bin_exponent_min = " << info_.exponent_min() <<
-      ";\n\n";
+      "enum {\n"
+      "  ssize            = " << info_.ssize()            << ","
+      "\n"
+      "  mantissa_size    = " << info_.mantissa_size()    << ","
+      "\n"
+      "  bin_exponent_min = " << info_.bin_exponent_min() << ","
+      "\n"
+      "  dec_exponent_min = " << info_.dec_exponent_min() <<
+      "\n};"
+      "\n\n";
 
     bool something_was_defined = false;
 
@@ -463,7 +479,7 @@ private:
 
     auto const nibbles = ssize / 4;
 
-    auto e2      = info_.exponent_min();
+    auto e2      = info_.bin_exponent_min();
     auto e2_or_f = config_.use_compact_tbl() ? AMARU_LOG10_POW2(e2) : e2;
 
     for (auto const& fast_eaf : fast_eafs) {
@@ -540,11 +556,11 @@ private:
   std::vector<alpha_delta_maximum> get_maxima() const {
 
     std::vector<alpha_delta_maximum> maxima;
-    maxima.reserve(info_.exponent_max() - info_.exponent_min() + 1);
+    maxima.reserve(info_.bin_exponent_max() - info_.bin_exponent_min() + 1);
 
-    auto f_done = AMARU_LOG10_POW2(info_.exponent_min()) - 1;
+    auto f_done = AMARU_LOG10_POW2(info_.bin_exponent_min()) - 1;
 
-    for (auto e2 = info_.exponent_min(); e2 <= info_.exponent_max(); ++e2) {
+    for (auto e2 = info_.bin_exponent_min(); e2 <= info_.bin_exponent_max(); ++e2) {
 
       auto const f = AMARU_LOG10_POW2(e2);
 
@@ -557,7 +573,7 @@ private:
       alpha_delta_maximum x;
       x.alpha   = f >= 0 ? pow2(e) : pow5(-f);
       x.delta   = f >= 0 ? pow5(f) : pow2(-e);
-      x.maximum = get_maximum(x.alpha, x.delta, e2 == info_.exponent_min());
+      x.maximum = get_maximum(x.alpha, x.delta, e2 == info_.bin_exponent_min());
 
       maxima.emplace_back(std::move(x));
 
@@ -729,14 +745,14 @@ int main() {
     };
 
     auto const ieee32_info = info_t{
-      /* id            */ "ieee32",
-      /* suint         */ "uint32_t",
-      /* duint         */ "uint64_t",
-      /* ssize         */ 32,
-      /* exponent_size */ 8,
-      /* exponent_min  */ -149,
-      /* exponent_max  */ 104,
-      /* mantissa_size */ 23
+      /* id               */ "ieee32",
+      /* suint            */ "uint32_t",
+      /* duint            */ "uint64_t",
+      /* ssize            */ 32,
+      /* exponent_size    */ 8,
+      /* bin_exponent_min */ -149,
+      /* bin_exponent_max */ 104,
+      /* mantissa_size    */ 23
     };
     auto generator_32 = generator_t{ieee32_info, config};
     auto dot_h_32     = std::ofstream{"../generated/ieee32.h"};
@@ -744,14 +760,14 @@ int main() {
     generator_32.generate(dot_h_32, dot_c_32);
 
     auto const ieee64_info = info_t{
-      /* id            */ "ieee64",
-      /* suint         */ "uint64_t",
-      /* duint         */ "__uint128_t",
-      /* ssize         */ 64,
-      /* exponent_size */ 11,
-      /* exponent_min  */ -1074,
-      /* exponent_max  */ 971,
-      /* mantissa_size */ 52
+      /* id               */ "ieee64",
+      /* suint            */ "uint64_t",
+      /* duint            */ "__uint128_t",
+      /* ssize            */ 64,
+      /* exponent_size    */ 11,
+      /* bin_exponent_min */ -1074,
+      /* bin_exponent_max */ 971,
+      /* mantissa_size    */ 52
     };
     auto generator_64 = generator_t{ieee64_info, config};
     auto dot_h_64     = std::ofstream{"../generated/ieee64.h"};

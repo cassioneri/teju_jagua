@@ -127,7 +127,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
   // mantissa = normal_mantissa_min
 
-  suint_t const m_b = 2 * mantissa + 1;
+  suint_t const m_b = 2 * normal_mantissa_min + 1;
   suint_t const b   = multipliy_and_shift(m_b, upper, lower, shift) / 2;
 
   suint_t const m_a = 4 * normal_mantissa_min - 1;

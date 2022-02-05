@@ -25,17 +25,21 @@ extern "C" {
  *
  * \pre -112815 <= e && e < 112816.
  */
-#define AMARU_LOG10_POW2(e) \
-  ((int32_t) ((((uint64_t) 1292913987) * (e)) >> 32))
+static inline
+int32_t log10_pow2(int32_t e) {
+  return (int32_t) ((((uint64_t) 1292913987) * e) >> 32);
+}
 
 /**
  * \brief Returns the the remainder e - e0, where e0 is the smallest number such
- * that AMARU_LOG10_POW2(e0) == AMARU_LOG10_POW2(e).
+ * that log10_pow2(e0) == log10_pow2(e).
  *
  * \pre -112815 <= e && e < 112816.
  */
-#define AMARU_LOG10_POW2_REMAINDER(e) \
-  (((uint32_t) (((uint64_t) 1292913987) * (e))) / 1292913987)
+static inline
+uint32_t log10_pow2_remainder(int32_t e) {
+  return ((uint32_t) (((uint64_t) 1292913987) * (e))) / 1292913987;
+}
 
 #ifdef __cplusplus
 }

@@ -49,7 +49,7 @@ TEST(log_tests, log10_pow2) {
     for (int32_t n = 0; n >= min; --n) {
 
       // Test the real code.
-      ASSERT_EQ(AMARU_LOG10_POW2(n), correct) << "Note n = " << n;
+      ASSERT_EQ(log10_pow2(n), correct) << "Note n = " << n;
 
       auto const approximation = int32_t(uint64_t(multiplier) * n >> 32);
       ASSERT_EQ(approximation, correct) << "Note n = " << n;
@@ -66,7 +66,7 @@ TEST(log_tests, log10_pow2) {
 
     auto const n = min - 1;
 
-    EXPECT_NE(AMARU_LOG10_POW2(n), correct) <<
+    EXPECT_NE(log10_pow2(n), correct) <<
       "Minimum " << min << " isn't sharp.";
 
     auto const approximation = int32_t(uint64_t(multiplier) * n >> 32);
@@ -90,7 +90,7 @@ TEST(log_tests, log10_pow2) {
     for (int32_t n = 0; n < max; ++n) {
 
       // Test the real code.
-      ASSERT_EQ(AMARU_LOG10_POW2(n), correct) << "Note n = " << n;
+      ASSERT_EQ(log10_pow2(n), correct) << "Note n = " << n;
 
       auto const approximation = int32_t(uint64_t(multiplier) * n >> 32);
       ASSERT_EQ(approximation, correct) << "Note n = " << n;
@@ -106,7 +106,7 @@ TEST(log_tests, log10_pow2) {
     // Tests whether max is sharp.
 
     auto const n = max;
-    EXPECT_NE(AMARU_LOG10_POW2(n), correct)
+    EXPECT_NE(log10_pow2(n), correct)
       << "Maximum " << max << " isn't sharp.";
 
     auto const approximation = int32_t(uint64_t(multiplier) * n >> 32);
@@ -118,13 +118,13 @@ TEST(log_tests, log10_pow2_remainder) {
 
   for (int32_t e = -112815; e < 112816; ++e) {
 
-    auto const f  = AMARU_LOG10_POW2(e);
-    auto const r  = AMARU_LOG10_POW2_REMAINDER(e);
+    auto const f  = log10_pow2(e);
+    auto const r  = log10_pow2_remainder(e);
 
-    // e0 is the smallest value of e such that AMARU_LOG10_POW2(e) = f.
+    // e0 is the smallest value of e such that log10_pow2(e) = f.
     auto const e0 = e - static_cast<int32_t>(r);
-    auto const f0 = AMARU_LOG10_POW2(e0);
-    auto const f1 = AMARU_LOG10_POW2(e0 - 1);
+    auto const f0 = log10_pow2(e0);
+    auto const f1 = log10_pow2(e0 - 1);
 
     ASSERT_EQ(f0, f) << "Note: e = " << e << ", e0 = " << e0;
     ASSERT_LT(f1, f) << "Note: e = " << e << ", e0 = " << e0;

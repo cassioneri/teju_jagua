@@ -18,8 +18,12 @@ typedef uint64_t suint_t;
 typedef __uint128_t duint_t;
 typedef ieee64_t rep_t;
 
-static uint32_t const mantissa_size    = 52;
-static int32_t  const bin_exponent_min = -1074;
+enum {
+  ssize            = 64,
+  mantissa_size    = 52,
+  bin_exponent_min = -1074,
+  dec_exponent_min = -324
+};
 
 #define AMARU_SHIFT 56
 #define AMARU_USE_COMPACT_TBL

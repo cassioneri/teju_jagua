@@ -56,6 +56,13 @@ bool is_multiple_of_pow5(suint_t const m, int32_t const f) {
     m * minverse[f].multiplier <= minverse[f].bound;
 }
 
+static inline
+bool is_multiple_of_pow2(suint_t const m, int32_t const e) {
+  // My favourite, portable implementation is this:
+  // return 0 <= e && e < ((int32_t) ssize) && ((m & -m) >> e) != 0;
+  return e >= 0 && __builtin_ctzll(m) >= e;
+}
+
 rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   suint_t const mantissa) {
 
@@ -105,6 +112,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
     if ((e >= 0 || -((int32_t) ssize) >= e || ((m_c & -m_c) >> -e) == 0 ||
       c % 2 == 1) && c_2 % 2 == 1)
+//    if ((!is_multiple_of_pow2(m_c, -e) || c % 2 == 1) && c_2 % 2 == 1)
       return make_decimal(negative, f, c + 1);
 
     return make_decimal(negative, f, c);
@@ -133,6 +141,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
     if (c < a || (c_2 % 2 == 1 && (c % 2 == 1 ||
       !(-((int32_t) (mantissa_size + 1)) <= e && f <= 0))))
+//    if (c < a || (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow2(m_c, -e))))
       return make_decimal(negative, f, c + 1);
 
     return make_decimal(negative, f, c);
@@ -144,6 +153,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
   if (c_2 % 2 == 1 && (c % 2 == 1 || !(-((int32_t) (mantissa_size + 1)) <= e
     && f <= 1)))
+//  if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow2(m_c, -e)))
     return make_decimal(negative, f - 1, c + 1);
 
   return make_decimal(negative, f - 1, c);

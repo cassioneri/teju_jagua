@@ -139,7 +139,7 @@ void benchmark() {
 
   //std::random_device device;
   std::mt19937_64 device;
-  auto dist = std::uniform_int_distribution<suint_t> {0, mantissa_max};
+  auto dist = std::uniform_int_distribution<suint_t> {1, mantissa_max};
 
   auto           n_mantissas  = uint32_t{1000};
   auto constexpr n_iterations = uint32_t{1024};

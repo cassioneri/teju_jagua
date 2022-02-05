@@ -19,8 +19,6 @@ static_assert(CHAR_BIT * sizeof(suint_t) == ssize,
 static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
   "duint_t must be at least twice the size of suint_t.");
 
-static suint_t const normal_mantissa_min = AMARU_POW2(suint_t, mantissa_size);
-
 static inline
 rep_t make_decimal(bool const negative, int32_t exponent, suint_t mantissa) {
   rep_t const decimal = { negative, exponent, mantissa };
@@ -57,15 +55,10 @@ bool is_multiple_of_pow5(suint_t const m, int32_t const f) {
     m * minverse[f].multiplier <= minverse[f].bound;
 }
 
-static inline
-bool is_multiple_of_pow2(suint_t const m, int32_t const e) {
-  // My favourite, portable implementation is this:
-  // return 0 <= e && e < ((int32_t) ssize) && ((m & -m) >> e) != 0;
-  return e >= 0 && __builtin_ctzll(m) >= e;
-}
-
 rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   suint_t const mantissa) {
+
+  static suint_t const normal_mantissa_min = AMARU_POW2(suint_t, mantissa_size);
 
   if (exponent == bin_exponent_min && mantissa == 0)
     return make_decimal(negative, 0, 0);
@@ -111,9 +104,8 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     suint_t const c_2 = multipliy_and_shift(m_c, upper, lower, shift);
     suint_t const c   = c_2 / 2;
 
-    if ((e >= 0 || -((int32_t) ssize) >= e || ((m_c & -m_c) >> -e) == 0 ||
-      c % 2 == 1) && c_2 % 2 == 1)
-//    if ((!is_multiple_of_pow2(m_c, -e) || c % 2 == 1) && c_2 % 2 == 1)
+    if ((e >= 0 || -((int32_t) mantissa_size + 2) >= e ||
+      ((m_c & -m_c) >> -e) == 0 || c % 2 == 1) && c_2 % 2 == 1)
       return make_decimal(negative, f, c + 1);
 
     return make_decimal(negative, f, c);
@@ -140,9 +132,8 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     suint_t const c_2 = multipliy_and_shift(m_c, upper, lower, shift);
     suint_t const c   = c_2 / 2;
 
-    if (c < a || (c_2 % 2 == 1 && (c % 2 == 1 ||
-      !(-((int32_t) (mantissa_size + 1)) <= e && f <= 0))))
-//    if (c < a || (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow2(m_c, -e))))
+    if (c < a || (c_2 % 2 == 1 && (c % 2 == 1 || e > 0 ||
+      e < -((int32_t) (mantissa_size + 1)))))
       return make_decimal(negative, f, c + 1);
 
     return make_decimal(negative, f, c);
@@ -152,9 +143,8 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   suint_t const c_2 = multipliy_and_shift(m_c, upper, lower, shift);
   suint_t const c   = c_2 / 2;
 
-  if (c_2 % 2 == 1 && (c % 2 == 1 || !(-((int32_t) (mantissa_size + 1)) <= e
-    && f <= 1)))
-//  if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow2(m_c, -e)))
+  if (c_2 % 2 == 1 && (c % 2 == 1 || (e < -((int32_t) (mantissa_size + 1))
+    || f > 1)))
     return make_decimal(negative, f - 1, c + 1);
 
   return make_decimal(negative, f - 1, c);

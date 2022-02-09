@@ -96,7 +96,7 @@ struct fp_traits_t<float> {
   }
 
   static void
-  dragonbox(fp_t const value) {
+  other(fp_t const value) {
     dragonbox_float(value);
   }
 };
@@ -117,17 +117,24 @@ struct fp_traits_t<double> {
   }
 
   static void
-  dragonbox(fp_t const value) {
+  other(fp_t const value) {
     dragonbox_double(value);
   }
 };
 
 template <typename T>
-void benchmark() {
+__attribute__((noinline))
+std::chrono::nanoseconds benchmark(void (*f)(T), T value, uint32_t n_iterations) {
+  using clock_t = std::chrono::high_resolution_clock;
+  auto const start = clock_t::now();
+  for (auto n = n_iterations; n != 0; --n)
+    f(value);
+  auto const end = clock_t::now();
+  return end - start;
+}
 
-  using ns_t              = std::chrono::nanoseconds;
-  using clock_t           = std::chrono::high_resolution_clock;
-  using time_point_t      = std::chrono::time_point<clock_t>;
+template <typename T>
+void benchmark() {
 
   std::cout.precision(std::numeric_limits<T>::digits10 + 2);
   std::cout << "exponent, mantissa, integer, value, amaru, other\n";
@@ -142,7 +149,6 @@ void benchmark() {
   auto dist = std::uniform_int_distribution<suint_t> {1, mantissa_max};
 
   auto           n_mantissas  = uint32_t{1000};
-  auto constexpr n_iterations = uint32_t{1024};
 
   stats_t amaru_stats, other_stats;
 
@@ -160,22 +166,15 @@ void benchmark() {
     for (uint32_t exponent = 0; exponent < exponent_max; ++exponent) {
     #endif
 
-      auto const value = from_ieee<T>(exponent, mantissa);
+      auto const value            = from_ieee<T>(exponent, mantissa);
+      auto constexpr n_iterations = uint32_t{1024};
 
-      time_point_t start, end;
-
-      start = clock_t::now();
-      for (auto n = n_iterations; n != 0; --n)
-        traits_t::amaru(value);
-      end = clock_t::now();
-      auto const amaru = double(ns_t{end - start}.count()) / n_iterations;
+      auto const amaru = double(benchmark(traits_t::amaru, value, n_iterations)
+        .count()) / n_iterations;
       amaru_stats.update(amaru);
 
-      start = clock_t::now();
-      for (auto n = n_iterations; n != 0; --n)
-        traits_t::dragonbox(value);
-      end = clock_t::now();
-      auto const other = double(ns_t{end - start}.count()) / n_iterations;
+      auto const other = double(benchmark(traits_t::other, value, n_iterations)
+        .count()) / n_iterations;
       other_stats.update(other);
 
       suint_t integer;

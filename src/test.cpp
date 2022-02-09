@@ -258,13 +258,22 @@ TEST(double_tests, random_comparison_to_other) {
 
   auto number_of_tests = uint32_t{100000000};
 
+  uint64_t n = 0;
+
   // Using the "downto" operator :-D
   // https://stackoverflow.com/questions/1642028/what-is-the-operator-in-c-c
-  while (!HasFailure() && number_of_tests --> 0) {
+  //while (!HasFailure() && number_of_tests --> 0) {
+  while (true) {
     auto const i = dist(rd);
     traits_t::fp_t value;
     std::memcpy(&value, &i, sizeof(i));
     compare_to_other(value);
+
+    ++n;
+    if (HasFailure())
+      std::cout << "Failed for value = " << value << '\n';
+    if (n % 1000000000 == 0)
+      std::cout << "------ " << n << '\n';
   }
 }
 

@@ -2,7 +2,7 @@
 #include "../include/amaru_float.h"
 #include "../include/common.h"
 
-#include "dragonbox.hpp"
+#include "other.hpp"
 
 #include <gtest/gtest.h>
 
@@ -180,8 +180,8 @@ struct fp_traits_t<float> {
   }
 
   static rep_t
-  dragonbox(fp_t const value) {
-    return dragonbox_float(value);
+  other(fp_t const value) {
+    return other::decimal(value);
   }
 };
 
@@ -201,8 +201,8 @@ struct fp_traits_t<double> {
   }
 
   static rep_t
-  dragonbox(fp_t const value) {
-    return dragonbox_double(value);
+  other(fp_t const value) {
+    return other::decimal(value);
   }
 };
 
@@ -212,7 +212,7 @@ void compare_to_other(T const value) {
   using          traits_t = fp_traits_t<T>;
   using          fp_t     = typename traits_t::fp_t;
   auto constexpr digits   = std::numeric_limits<fp_t>::digits10 + 2;
-  auto const other        = traits_t::dragonbox(value);
+  auto const other        = traits_t::other(value);
   auto const amaru        = traits_t::amaru(value);
   auto const ieee         = to_ieee(value);
 

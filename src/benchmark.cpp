@@ -2,7 +2,7 @@
 #include "../include/amaru_float.h"
 #include "../include/common.h"
 
-#include "dragonbox.hpp"
+#include "other.hpp"
 
 #include <chrono>
 #include <cstdint>
@@ -54,7 +54,7 @@ to_ieee(T const value) {
   using traits_t = fp_traits_t<T>;
 
   typename traits_t::suint_t i;
-  memcpy(&i, &value, sizeof(value));
+  std::memcpy(&i, &value, sizeof(value));
 
   typename fp_traits_t<T>::rep_t ieee;
   ieee.mantissa = AMARU_LSB(i, traits_t::mantissa_size);
@@ -76,7 +76,7 @@ from_ieee(uint32_t exponent, typename fp_traits_t<T>::suint_t mantissa) {
     mantissa;
 
   T value;
-  memcpy(&value, &i, sizeof(i));
+  std::memcpy(&value, &i, sizeof(i));
 
   return value;
 }
@@ -97,8 +97,8 @@ struct fp_traits_t<float> {
   }
 
   static void
-  dragonbox(fp_t const value) {
-    dragonbox_float(value);
+  other(fp_t const value) {
+    other::decimal(value);
   }
 };
 
@@ -118,8 +118,8 @@ struct fp_traits_t<double> {
   }
 
   static void
-  dragonbox(fp_t const value) {
-    dragonbox_double(value);
+  other(fp_t const value) {
+    other::decimal(value);
   }
 };
 
@@ -174,7 +174,7 @@ void benchmark() {
 
       start = clock_t::now();
       for (auto n = n_iterations; n != 0; --n)
-        traits_t::dragonbox(value);
+        traits_t::other(value);
       end = clock_t::now();
       auto const other = double(ns_t{end - start}.count()) / n_iterations;
       other_stats.update(other);

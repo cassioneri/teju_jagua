@@ -17,16 +17,16 @@ generator      : generator.o
 
 amaru_double.o : amaru_double.c ../include/amaru_impl.h ../include/common.h $(AMARU_DOUBLE_H)
 amaru_float.o  : amaru_float.c  ../include/amaru_impl.h ../include/common.h $(AMARU_FLOAT_H)
-dragonbox.o    : dragonbox.cpp dragonbox.hpp
+other.o        : other.cpp other.hpp
 
 test.o         : test.cpp ../include/amaru_impl.h ../include/common.h $(AMARU_DOUBLE_H) $(AMARU_FLOAT_H)
 
-test           : test.o amaru_double.o amaru_float.o dragonbox.o
+test           : test.o amaru_double.o amaru_float.o other.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^ -lgtest -lgtest_main
 
 benchmark.o    : benchmark.cpp ../include/amaru_impl.h ../include/common.h $(AMARU_DOUBLE_H) $(AMARU_FLOAT_H)
 
-benchmark      : benchmark.o amaru_double.o amaru_float.o dragonbox.o
+benchmark      : benchmark.o amaru_double.o amaru_float.o other.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^
 
 .PHONY: clean

@@ -1,7 +1,8 @@
+#include "../include/amaru_double.h"
+#include "../include/amaru_float.h"
 #include "../include/common.h"
-#include "../include/ieee.h"
 
-#include "dragonbox.hpp"
+#include "other.hpp"
 
 #include <chrono>
 #include <cstdint>
@@ -53,7 +54,7 @@ to_ieee(T const value) {
   using traits_t = fp_traits_t<T>;
 
   typename traits_t::suint_t i;
-  memcpy(&i, &value, sizeof(value));
+  std::memcpy(&i, &value, sizeof(value));
 
   typename fp_traits_t<T>::rep_t ieee;
   ieee.mantissa = AMARU_LSB(i, traits_t::mantissa_size);
@@ -75,7 +76,7 @@ from_ieee(uint32_t exponent, typename fp_traits_t<T>::suint_t mantissa) {
     mantissa;
 
   T value;
-  memcpy(&value, &i, sizeof(i));
+  std::memcpy(&value, &i, sizeof(i));
 
   return value;
 }
@@ -92,12 +93,12 @@ struct fp_traits_t<float> {
 
   static void
   amaru(fp_t const value) {
-    amaru_float(value);
+    amaru_decimal_float(value);
   }
 
   static void
   other(fp_t const value) {
-    dragonbox_float(value);
+    other::decimal(value);
   }
 };
 
@@ -113,28 +114,21 @@ struct fp_traits_t<double> {
 
   static void
   amaru(fp_t const value) {
-    amaru_double(value);
+    amaru_decimal_double(value);
   }
 
   static void
   other(fp_t const value) {
-    dragonbox_double(value);
+    other::decimal(value);
   }
 };
 
 template <typename T>
-__attribute__((noinline))
-std::chrono::nanoseconds benchmark(void (*f)(T), T value, uint32_t n_iterations) {
-  using clock_t = std::chrono::high_resolution_clock;
-  auto const start = clock_t::now();
-  for (auto n = n_iterations; n != 0; --n)
-    f(value);
-  auto const end = clock_t::now();
-  return end - start;
-}
-
-template <typename T>
 void benchmark() {
+
+  using ns_t              = std::chrono::nanoseconds;
+  using clock_t           = std::chrono::high_resolution_clock;
+  using time_point_t      = std::chrono::time_point<clock_t>;
 
   std::cout.precision(std::numeric_limits<T>::digits10 + 2);
   std::cout << "exponent, mantissa, integer, value, amaru, other\n";
@@ -149,6 +143,7 @@ void benchmark() {
   auto dist = std::uniform_int_distribution<suint_t> {1, mantissa_max};
 
   auto           n_mantissas  = uint32_t{1000};
+  auto constexpr n_iterations = uint32_t{1024};
 
   stats_t amaru_stats, other_stats;
 
@@ -166,15 +161,22 @@ void benchmark() {
     for (uint32_t exponent = 0; exponent < exponent_max; ++exponent) {
     #endif
 
-      auto const value            = from_ieee<T>(exponent, mantissa);
-      auto constexpr n_iterations = uint32_t{1024};
+      auto const value = from_ieee<T>(exponent, mantissa);
 
-      auto const amaru = double(benchmark(traits_t::amaru, value, n_iterations)
-        .count()) / n_iterations;
+      time_point_t start, end;
+
+      start = clock_t::now();
+      for (auto n = n_iterations; n != 0; --n)
+        traits_t::amaru(value);
+      end = clock_t::now();
+      auto const amaru = double(ns_t{end - start}.count()) / n_iterations;
       amaru_stats.update(amaru);
 
-      auto const other = double(benchmark(traits_t::other, value, n_iterations)
-        .count()) / n_iterations;
+      start = clock_t::now();
+      for (auto n = n_iterations; n != 0; --n)
+        traits_t::other(value);
+      end = clock_t::now();
+      auto const other = double(ns_t{end - start}.count()) / n_iterations;
       other_stats.update(other);
 
       suint_t integer;

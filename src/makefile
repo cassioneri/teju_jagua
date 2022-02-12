@@ -1,31 +1,32 @@
-CPPFLAGS += -DNDEBUG -I ../../dragonbox/include/dragonbox
-CFLAGS   += -O3 -Wall -Wextra -std=c11
-CXXFLAGS += -O3 -Wall -Wextra -std=c++17
+CPPFLAGS      += -DNDEBUG -I ../include
+CFLAGS        += -O3 -Wall -Wextra -std=c11
+CXXFLAGS      += -O3 -Wall -Wextra -std=c++17
 
-all         : test benchmark
+AMARU_DOUBLE_H := ../include/amaru_double.h ../generated/ieee64.h ../generated/ieee64_impl.h
+AMARU_FLOAT_H  := ../include/amaru_float.h  ../generated/ieee32.h ../generated/ieee32_impl.h
 
-generator.o : generator.cpp ../include/common.h
+all            : test benchmark
 
-generator   : generator.o
+generator.o    : generator.cpp ../include/common.h
+
+generator      : generator.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^
 
-../generated/%.c : generator ../include/amaru_impl.h
+../generated/% : generator
 	./generator
 
-generated_%.o : ../generated/%.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $^
+amaru_double.o : amaru_double.c ../include/amaru_impl.h ../include/common.h $(AMARU_DOUBLE_H)
+amaru_float.o  : amaru_float.c  ../include/amaru_impl.h ../include/common.h $(AMARU_FLOAT_H)
+other.o        : other.cpp other.hpp
 
-dragonbox.o : dragonbox.cpp dragonbox.hpp
+test.o         : test.cpp ../include/amaru_impl.h ../include/common.h $(AMARU_DOUBLE_H) $(AMARU_FLOAT_H)
 
-test.o      : test.cpp ../include/common.h ../include/ieee.h \
-	../generated/ieee32.c ../generated/ieee64.c
-
-test        : test.o generated_ieee32.o generated_ieee64.o dragonbox.o
+test           : test.o amaru_double.o amaru_float.o other.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^ -lgtest -lgtest_main
 
-benchmark.o : benchmark.cpp ../include/common.h ../include/ieee.h
+benchmark.o    : benchmark.cpp ../include/amaru_impl.h ../include/common.h $(AMARU_DOUBLE_H) $(AMARU_FLOAT_H)
 
-benchmark   : benchmark.o generated_ieee32.o generated_ieee64.o dragonbox.o
+benchmark      : benchmark.o amaru_double.o amaru_float.o other.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^
 
 .PHONY: clean

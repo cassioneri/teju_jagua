@@ -31,14 +31,14 @@ int32_t log10_pow2(int32_t e) {
 }
 
 /**
- * \brief Returns the the remainder e - e0, where e0 is the smallest number such
+ * \brief Returns the remainder e - e0, where e0 is the smallest number such
  * that log10_pow2(e0) == log10_pow2(e).
  *
  * \pre -112815 <= e && e < 112816.
  */
 static inline
 uint32_t log10_pow2_remainder(int32_t e) {
-  return ((uint32_t) (((uint64_t) 1292913987) * (e))) / 1292913987;
+  return ((uint32_t) (((uint64_t) 1292913987) * e)) / 1292913987;
 }
 
 #ifdef __cplusplus

@@ -222,10 +222,13 @@ struct config_t {
    *                        30%) of the non compact one. In addition to saving
    *                        memory this might reduce cache misses, possibly,
    *                        boosting performance.
+   *
+   * \param directory       Directory where generated files are created.
    */
-  config_t(bool use_same_shift, bool use_compact_tbl) :
-    use_same_shift_ {use_same_shift },
-    use_compact_tbl_{use_compact_tbl} {
+  config_t(bool use_same_shift, bool use_compact_tbl, std::string directory) :
+    use_same_shift_ {use_same_shift      },
+    use_compact_tbl_{use_compact_tbl     },
+    directory_      {std::move(directory)} {
   }
 
   /**
@@ -242,9 +245,17 @@ struct config_t {
     return use_compact_tbl_;
   }
 
+  /**
+   * \brief Returns the directory where generated files are created.
+   */
+  std::string const& directory() const {
+    return directory_;
+  }
+
 private:
-  bool use_same_shift_;
-  bool use_compact_tbl_;
+  bool        use_same_shift_;
+  bool        use_compact_tbl_;
+  std::string directory_;
 };
 
 /**
@@ -264,15 +275,18 @@ struct generator_t {
     info_   {std::move(info)              },
     config_ {std::move(config)            },
     p2ssize_{integer_t{1} << info_.ssize()} {
+      auto const prefix = config_.directory() + "/" + info_.id();
+      decl_ = prefix + ".h";
+      impl_ = prefix + "_impl.h";
   }
 
   /**
-   * \brief Generates the implementation.
-   *
-   * \brief dot_h The output stream to receive the ".h" file content.
-   * \brief dot_c The output stream to receive the ".c" file content.
+   * \brief Generates the declaration and implementation.
    */
-  void generate(std::ostream& dot_h, std::ostream& dot_c) const {
+  void generate() const {
+
+    auto decl_stream = std::ofstream{decl_};
+    auto impl_stream = std::ofstream{impl_};
 
     std::cout << "Generation started.\n";
 
@@ -286,11 +300,11 @@ struct generator_t {
       throw amaru_exception("suint_t is not large enough for calculations to "
         "not overflow.");
 
-    std::cout << "  Generating \".h\".\n";
-    header(dot_h);
+    std::cout << "  Generating \"" << decl_ << "\".\n";
+    generate_decl(decl_stream);
 
-    std::cout << "  Generating \".c\".\n";
-    source(dot_c);
+    std::cout << "  Generating \"" << impl_ << "\".\n";
+    generate_impl(impl_stream);
 
     std::cout << "Generation finished.\n";
   }
@@ -342,13 +356,16 @@ private:
   }
 
   /**
-   * \brief Streams out the common initial part of header and source files.
+   * \brief Streams out the declaration file.
    *
-   * \brief stream The output stream to receive the content.
+   * \param stream Output stream to receive the content.
    */
-  void common_initial(std::ostream& stream) const {
+  void generate_decl(std::ostream& stream) const {
+
     stream <<
       "// This file is auto-generated. DO NOT EDIT IT.\n"
+      "\n"
+      "#pragma once\n"
       "\n"
       "#include <stdint.h>\n"
       "\n"
@@ -359,50 +376,34 @@ private:
       "#endif\n"
       "\n"
       "typedef struct {\n"
-      "  bool    negative;\n"
+      "  bool negative;\n"
       "  int32_t exponent;\n"
       "  " << info_.suint() << " mantissa;\n"
       "} " << info_.rep() << ";\n"
-      "\n";
-  }
-
-  /**
-   * \brief Streams out the common final part of header and source files.
-   *
-   * \brief stream The output stream to receive the content.
-   */
-  void common_final(std::ostream& stream) const {
-    stream <<
+      "\n" <<
+      info_.rep() << " amaru_decimal_" << info_.id() << "(bool negative, "
+        "int32_t exponent, " << info_.suint() << " mantissa);\n"
+      "\n" <<
       "#ifdef __cplusplus\n"
       "}\n"
       "#endif\n";
   }
 
   /**
-   * \brief Streams out the header file.
+   * \brief Streams out the implementation file.
    *
-   * \brief dot_h The output stream to receive the ".h" file content.
+   * \param stream Output stream to receive the content.
    */
-  void header(std::ostream& dot_h) const {
+  void generate_impl(std::ostream& stream) const {
 
-    dot_h << "#pragma once\n\n";
-    common_initial(dot_h);
-
-    dot_h <<
-      info_.rep() << " amaru_" << info_.id() << "(bool negative, int32_t "
-        "exponent, " << info_.suint() << " mantissa);\n\n";
-
-    common_final(dot_h);
-  }
-
-  /**
-   * \brief Streams out the source file.
-   *
-   * \brief dot_c The output stream to receive the ".c" file content.
-   */
-  void source(std::ostream& dot_c) const {
-
-    common_initial(dot_c);
+    stream << "// This file is auto-generated. DO NOT EDIT IT.\n"
+      "\n" <<
+      "#include \"" << decl_ << "\"\n"
+      "\n"
+      "#ifdef __cplusplus\n"
+      "extern \"C\" {\n"
+      "#endif\n"
+      "\n";
 
     auto const maxima = get_maxima();
     std::vector<fast_eaf_t> fast_eafs;
@@ -440,7 +441,7 @@ private:
     auto const ssize   = info_.ssize();
     auto const p2ssize = integer_t{1} << ssize;
 
-    dot_c <<
+    stream <<
       "typedef " << info_.suint() << " suint_t;\n"
       "typedef " << info_.duint() << " duint_t;\n"
       "typedef " << info_.rep()   << " rep_t;\n"
@@ -459,23 +460,23 @@ private:
     bool something_was_defined = false;
 
     if (config_.use_same_shift() && (something_was_defined = true))
-      dot_c << "#define AMARU_SHIFT " << shift - ssize << "\n";
+      stream << "#define AMARU_SHIFT " << shift - ssize << "\n";
 
     if (config_.use_compact_tbl() && (something_was_defined = true))
-      dot_c << "#define AMARU_USE_COMPACT_TBL\n";
+      stream << "#define AMARU_USE_COMPACT_TBL\n";
 
     if (something_was_defined)
-      dot_c << '\n';
+      stream << '\n';
 
-    dot_c <<
+    stream <<
       "static struct {\n"
       "  suint_t  const upper;\n"
       "  suint_t  const lower;\n";
 
     if (!config_.use_same_shift())
-      dot_c << "  uint32_t const shift;\n";
+      stream << "  uint32_t const shift;\n";
 
-    dot_c << "} const multipliers[] = {\n";
+    stream << "} const multipliers[] = {\n";
 
     auto const nibbles = ssize / 4;
 
@@ -490,21 +491,21 @@ private:
       if (upper >= p2ssize)
         throw amaru_exception{"Multiplier is out of range."};
 
-      dot_c << "  { ";
-      dot_c << "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
+      stream << "  { ";
+      stream << "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
             upper << ", ";
-      dot_c << "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
+      stream << "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
         lower << std::dec;
 
       if (!config_.use_same_shift()) {
         auto const shift = fast_eaf.k;
-        dot_c << ", " << shift - ssize;
+        stream << ", " << shift - ssize;
       }
-      dot_c << " }, // " << e2_or_f << "\n";
+      stream << " }, // " << e2_or_f << "\n";
       ++e2_or_f;
     }
 
-    dot_c << "};\n"
+    stream << "};\n"
       "\n"
       "static struct {\n"
       "  suint_t const multiplier;\n"
@@ -517,7 +518,7 @@ private:
 
     for (int32_t f = 0; p5 < info_.normal_mantissa_max(); ++f) {
       auto const bound = p2ssize / p5 - (f == 0);
-      dot_c << "  { "
+      stream << "  { "
         "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
         multiplier << ", " <<
         "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
@@ -526,22 +527,23 @@ private:
       multiplier = (multiplier * minverse5) % p2ssize;
       p5 *= 5;
     }
-    dot_c <<"};\n\n";
 
-    common_final(dot_c);
-
-    dot_c <<
+    stream << "};\n"
       "\n"
-      "#define AMARU_IMPL amaru_" << info_.id() << "\n"
+      "#ifdef __cplusplus\n"
+      "}\n"
+      "#endif\n"
+      "\n"
+      "#define AMARU_IMPL amaru_decimal_" << info_.id() << "\n"
       "#include \"../include/amaru_impl.h\"\n"
       "\n"
       "#undef AMARU_IMPL\n";
 
     if (config_.use_same_shift())
-      dot_c << "#undef AMARU_SHIFT\n";
+      stream << "#undef AMARU_SHIFT\n";
 
     if (config_.use_compact_tbl())
-      dot_c << "#undef AMARU_USE_COMPACT_TBL\n";
+      stream << "#undef AMARU_USE_COMPACT_TBL\n";
   }
 
   /**
@@ -731,9 +733,11 @@ private:
     throw amaru_exception{"Cannot find fast EAF."};
   }
 
-  info_t    info_;
-  config_t  config_;
-  integer_t p2ssize_;
+  info_t      info_;
+  config_t    config_;
+  integer_t   p2ssize_;
+  std::string decl_;
+  std::string impl_;
 };
 
 int main() {
@@ -742,7 +746,8 @@ int main() {
 
     auto const config = config_t{
       /* use_same_shift  */ true,
-      /* use_compact_tbl */ true
+      /* use_compact_tbl */ true,
+      /* directory       */ "../generated"
     };
 
     auto const ieee32_info = info_t{
@@ -756,9 +761,7 @@ int main() {
       /* mantissa_size    */ 23
     };
     auto generator_32 = generator_t{ieee32_info, config};
-    auto dot_h_32     = std::ofstream{"../generated/ieee32.h"};
-    auto dot_c_32     = std::ofstream{"../generated/ieee32.c"};
-    generator_32.generate(dot_h_32, dot_c_32);
+    generator_32.generate();
 
     auto const ieee64_info = info_t{
       /* id               */ "ieee64",
@@ -771,9 +774,7 @@ int main() {
       /* mantissa_size    */ 52
     };
     auto generator_64 = generator_t{ieee64_info, config};
-    auto dot_h_64     = std::ofstream{"../generated/ieee64.h"};
-    auto dot_c_64     = std::ofstream{"../generated/ieee64.c"};
-    generator_64.generate(dot_h_64, dot_c_64);
+    generator_64.generate();
   }
 
   catch (amaru_exception const& e) {

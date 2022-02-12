@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef AMARU_IMPL
 #error "Invalid inclusion of amaru_impl.h."
 #endif

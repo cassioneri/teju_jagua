@@ -1,5 +1,6 @@
+#include "../include/amaru_double.h"
+#include "../include/amaru_float.h"
 #include "../include/common.h"
-#include "../include/ieee.h"
 
 #include "dragonbox.hpp"
 
@@ -92,7 +93,7 @@ struct fp_traits_t<float> {
 
   static void
   amaru(fp_t const value) {
-    amaru_float(value);
+    amaru_decimal_float(value);
   }
 
   static void
@@ -113,7 +114,7 @@ struct fp_traits_t<double> {
 
   static void
   amaru(fp_t const value) {
-    amaru_double(value);
+    amaru_decimal_double(value);
   }
 
   static void

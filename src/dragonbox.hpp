@@ -1,6 +1,7 @@
-#include "../include/ieee.h"
+#pragma once
 
-#include <cstdint>
+#include "../generated/ieee32.h"
+#include "../generated/ieee64.h"
 
 extern "C" {
 

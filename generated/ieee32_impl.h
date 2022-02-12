@@ -1,18 +1,10 @@
 // This file is auto-generated. DO NOT EDIT IT.
 
-#include <stdint.h>
+#include "../generated/ieee32.h"
 
 #ifdef __cplusplus
 extern "C" {
-#else
-#include <stdbool.h>
 #endif
-
-typedef struct {
-  bool    negative;
-  int32_t exponent;
-  uint32_t mantissa;
-} ieee32_t;
 
 typedef uint32_t suint_t;
 typedef uint64_t duint_t;
@@ -132,7 +124,7 @@ static struct {
 }
 #endif
 
-#define AMARU_IMPL amaru_ieee32
+#define AMARU_IMPL amaru_decimal_ieee32
 #include "../include/amaru_impl.h"
 
 #undef AMARU_IMPL

@@ -85,6 +85,8 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   uint32_t const shift = multipliers[i].shift - extra;
 #endif
 
+  duint_t const inv10  = AMARU_POW2(duint_t, ssize) / 10 + 1;
+
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 
     suint_t const m_a     = 2 * mantissa - 1;
@@ -98,7 +100,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     duint_t const prod_b  = prod_a + (2 * upper + 2);
     suint_t const b       = (prod_b >> shift) / 2;
 
-    suint_t const s       = 10 * (b / 10);
+    suint_t const s       = 10 * ((inv10 * b) >> ssize);
 
     if (a < s) {
       if (!is_multiple_of_pow5(m_b, f + 1) || mantissa % 2 == 0)
@@ -138,7 +140,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
 
   if (b >= a) {
 
-    suint_t const s = 10 * (b / 10);
+    suint_t const s = 10 * ((inv10 * b) >> ssize);
 
     if (s >= a)
       return remove_trailing_zeros(negative, f, s);

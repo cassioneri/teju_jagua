@@ -1,9 +1,5 @@
-#include "../generated/ieee32.h"
-#include "../generated/ieee64.h"
-
-#include "dragonbox.h"
-
-#include <cstdint>
+#include "dragonbox.hpp"
+#include "../tp/dragonbox/include/dragonbox/dragonbox.h"
 
 extern "C" {
 

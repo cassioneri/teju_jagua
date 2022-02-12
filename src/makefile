@@ -1,4 +1,4 @@
-CPPFLAGS      += -DNDEBUG -I ../include -I ../../dragonbox/include/dragonbox
+CPPFLAGS      += -DNDEBUG -I ../include
 CFLAGS        += -O3 -Wall -Wextra -std=c11
 CXXFLAGS      += -O3 -Wall -Wextra -std=c++17
 

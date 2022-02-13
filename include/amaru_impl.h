@@ -108,7 +108,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     suint_t const c_2 = multipliy_and_shift(m_c, upper, lower, shift);
     suint_t const c   = c_2 / 2;
 
-    if ((e >= 0 || -((int32_t) mantissa_size + 2) >= e ||
+    if ((-e <= 0 || ((int32_t) mantissa_size + 2) <= -e ||
       ((m_c & -m_c) >> -e) == 0 || c % 2 == 1) && c_2 % 2 == 1)
       return make_decimal(negative, f, c + 1);
 

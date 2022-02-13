@@ -92,35 +92,36 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     suint_t const m_a     = 2 * mantissa - 1;
     duint_t const upper_m = ((duint_t) upper) * m_a;
     duint_t const lower_m = ((duint_t) lower) * m_a;
-
     duint_t const prod_a  = upper_m + (lower_m >> ssize);
     suint_t const a       = prod_a >> shift;
 
     suint_t const upper_p = upper + 1;
 
-    suint_t const m_b     = m_a + 2;
     duint_t const prod_b  = prod_a + 2 * upper_p;
     suint_t const b       = prod_b >> shift;
 
     suint_t const s       = 10 * ((inv10 * b) >> ssize);
 
     if (s == a) {
-      if (is_multiple_of_pow5(m_a, f) && mantissa % 2 == 0)
+      if (is_multiple_of_pow5(m_a, f) && m_a % 4 == 3)
          return remove_trailing_zeros(negative, f, s);
     }
-    else if (a < s && (!is_multiple_of_pow5(m_b, f + 1) || mantissa % 2 == 0))
-      return remove_trailing_zeros(negative, f, s);
+    else if (a < s) {
+      suint_t const m_b   = m_a + 2;
+      if (!is_multiple_of_pow5(m_b, f + 1) || m_b % 4 == 1)
+        return remove_trailing_zeros(negative, f, s);
+    }
 
     if ((a + b) % 2 == 1)
       return make_decimal(negative, f, (a + b) / 2 + 1);
 
-    suint_t const m_c     = m_b - 1;
-    duint_t const prod_c  = prod_b - upper_p;
+    suint_t const m_c     = m_a + 1;
+    duint_t const prod_c  = prod_a + upper_p;
     suint_t const c_2     = prod_c >> (shift - 1);
     suint_t const c       = c_2 / 2;
 
-    if ((-e <= 0 || ((int32_t) ssize) <= -e  || ((m_c & -m_c) >> -e) == 0 ||
-      c % 2 == 1) && c_2 % 2 == 1)
+    if ((e >= 0 || e <= -((int32_t) mantissa_size + 2) ||
+      ((m_c & -m_c) >> -e) == 0 || c % 2 == 1) && c_2 % 2 == 1)
       return make_decimal(negative, f, c + 1);
 
     return make_decimal(negative, f, c);

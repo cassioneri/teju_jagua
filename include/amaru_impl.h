@@ -88,28 +88,28 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   duint_t const inv10 = AMARU_POW2(duint_t, ssize) / 10 + 1;
 
   suint_t const m_b = 2 * mantissa + 1;
-  suint_t const b   = multipliy_and_shift(m_b, upper, lower, shift) / 2;
+  suint_t const b   = multipliy_and_shift(m_b, upper, lower, shift);
 
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 
     suint_t const s     = 10 * (inv10 * b >> ssize);
-    suint_t const m_a   = 2 * mantissa - 1;
-    suint_t const a     = multipliy_and_shift(m_a, upper, lower, shift) / 2;
+    suint_t const m_a   = m_b - 2;
+    suint_t const a     = multipliy_and_shift(m_a, upper, lower, shift);
 
-    if (a < s) {
-      if (!is_multiple_of_pow5(m_b, f + 1) || mantissa % 2 == 0)
+    if (s == a) {
+      if (is_multiple_of_pow5(m_a, f) && mantissa % 2 == 0)
         return remove_trailing_zeros(negative, f, s);
     }
 
-    else if (s == a && is_multiple_of_pow5(m_a, f) && mantissa % 2 == 0)
+    else if (a < s &&(!is_multiple_of_pow5(m_b, f + 1) || mantissa % 2 == 0))
       return remove_trailing_zeros(negative, f, s);
 
-    suint_t const m_c = 2 * mantissa;
-    suint_t const c_2 = multipliy_and_shift(m_c, upper, lower, shift);
+    suint_t const m_c = m_a + 1;
+    suint_t const c_2 = multipliy_and_shift(m_c, upper, lower, shift - 1);
     suint_t const c   = c_2 / 2;
 
-    if ((-e <= 0 || ((int32_t) mantissa_size + 2) <= -e ||
-      ((m_c & -m_c) >> -e) == 0 || c % 2 == 1) && c_2 % 2 == 1)
+    if ((-e <= 0 || ((int32_t) mantissa_size + 2) <= -e || c % 2 == 1 ||
+      ((m_c & -m_c) >> -e) == 0 ) && c_2 % 2 == 1)
       return make_decimal(negative, f, c + 1);
 
     return make_decimal(negative, f, c);
@@ -118,7 +118,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   // mantissa = normal_mantissa_min
 
   suint_t const m_a = 4 * normal_mantissa_min - 1;
-  suint_t const a_2 = multipliy_and_shift(m_a, upper, lower, shift);
+  suint_t const a_2 = multipliy_and_shift(m_a, upper, lower, shift - 1);
 
   bool const is_exact = mantissa_size % 4 == 2 && a_2 % 4 == 0 &&
     is_multiple_of_pow5(m_a, f);
@@ -133,7 +133,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
       return remove_trailing_zeros(negative, f, s);
 
     suint_t const m_c = 2 * normal_mantissa_min;
-    suint_t const c_2 = multipliy_and_shift(m_c, upper, lower, shift);
+    suint_t const c_2 = multipliy_and_shift(m_c, upper, lower, shift - 1);
     suint_t const c   = c_2 / 2;
 
     if (c < a || (c_2 % 2 == 1 && (c % 2 == 1 || e > 0 ||
@@ -144,7 +144,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
   }
 
   suint_t const m_c = 20 * normal_mantissa_min;
-  suint_t const c_2 = multipliy_and_shift(m_c, upper, lower, shift);
+  suint_t const c_2 = multipliy_and_shift(m_c, upper, lower, shift - 1);
   suint_t const c   = c_2 / 2;
 
   if (c_2 % 2 == 1 && (c % 2 == 1 || (e < -((int32_t) (mantissa_size + 1))

@@ -112,8 +112,8 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     else if (s == a && is_multiple_of_pow5(m_a, f) && mantissa % 2 == 0)
       return remove_trailing_zeros(negative, f, s);
 
-//    if ((a + b) % 2 == 1)
-//      return make_decimal(negative, f, (a + b + 1) / 2);
+    if ((a + b) % 2 == 1)
+      return make_decimal(negative, f, (a + b + 1) / 2);
 
     suint_t const m_c     = m_a + 1;
     duint_t const prod_c  = prod_a + upper_p;

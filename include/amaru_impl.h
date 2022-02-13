@@ -94,9 +94,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
     duint_t const prod_a  = upper_m + (lower_m >> ssize);
     suint_t const a       = prod_a >> shift;
 
-    suint_t const upper_p = upper + 1;
-
-    duint_t const prod_b  = prod_a + 2 * upper_p;
+    duint_t const prod_b  = prod_a + (2 * upper + 2);
     suint_t const b       = prod_b >> shift;
 
     suint_t const s       = 10 * ((inv10 * b) >> ssize);
@@ -115,7 +113,7 @@ rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
       return make_decimal(negative, f, (a + b) / 2 + 1);
 
     suint_t const m_c     = m_a + 1;
-    duint_t const prod_c  = prod_a + upper_p;
+    duint_t const prod_c  = prod_a + (upper + 1);
     suint_t const c_2     = prod_c >> (shift - 1);
     suint_t const c       = c_2 / 2;
 

@@ -460,7 +460,7 @@ private:
     bool something_was_defined = false;
 
     if (config_.use_same_shift() && (something_was_defined = true))
-      stream << "#define AMARU_SHIFT " << shift - ssize << "\n";
+      stream << "#define AMARU_SHIFT " << shift - ssize + 1 << "\n";
 
     if (config_.use_compact_tbl() && (something_was_defined = true))
       stream << "#define AMARU_USE_COMPACT_TBL\n";
@@ -493,13 +493,13 @@ private:
 
       stream << "  { ";
       stream << "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
-            upper << ", ";
+        upper << ", ";
       stream << "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
         lower << std::dec;
 
       if (!config_.use_same_shift()) {
         auto const shift = fast_eaf.k;
-        stream << ", " << shift - ssize;
+        stream << ", " << shift - ssize + 1;
       }
       stream << " }, // " << e2_or_f << "\n";
       ++e2_or_f;

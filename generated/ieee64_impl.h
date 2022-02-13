@@ -17,7 +17,7 @@ enum {
   dec_exponent_min = -324
 };
 
-#define AMARU_SHIFT 56
+#define AMARU_SHIFT 57
 #define AMARU_USE_COMPACT_TBL
 
 static struct {

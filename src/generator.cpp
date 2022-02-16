@@ -80,6 +80,7 @@ struct info_t {
     uint32_t exponent_size, int32_t bin_exponent_min, int32_t bin_exponent_max,
     uint32_t mantissa_size) :
     id_                 {std::move(id)                       },
+    function_           {"amaru_bin_to_dec_" + id_           },
     suint_              {std::move(suint)                    },
     duint_              {std::move(duint)                    },
     rep_                {id_ + "_t"                          },
@@ -98,6 +99,13 @@ struct info_t {
    */
   std::string const& id() const {
     return id_;
+  }
+
+  /**
+   * \brief Returns the name of Amaru's function.
+   */
+  std::string const& function() const {
+    return function_;
   }
 
   /**
@@ -187,6 +195,7 @@ struct info_t {
 private:
 
   std::string const id_;
+  std::string const function_;
   std::string const suint_;
   std::string const duint_;
   std::string const rep_;
@@ -276,8 +285,22 @@ struct generator_t {
     config_ {std::move(config)            },
     p2ssize_{integer_t{1} << info_.ssize()} {
       auto const prefix = config_.directory() + "/" + info_.id();
-      decl_ = prefix + ".h";
-      impl_ = prefix + "_impl.h";
+      dot_h_ = prefix + ".h";
+      dot_c_ = prefix + ".c";
+  }
+
+  /**
+   * \brief Returns the name of the .h file.
+   */
+  std::string const& dot_h() const {
+    return dot_h_;
+  }
+
+  /**
+   * \brief Returns the name of the .c file.
+   */
+  std::string const& dot_c() const {
+    return dot_c_;
   }
 
   /**
@@ -285,8 +308,8 @@ struct generator_t {
    */
   void generate() const {
 
-    auto decl_stream = std::ofstream{decl_};
-    auto impl_stream = std::ofstream{impl_};
+    auto dot_h_stream = std::ofstream{dot_h()};
+    auto dot_c_stream = std::ofstream{dot_c()};
 
     std::cout << "Generation started.\n";
 
@@ -300,11 +323,11 @@ struct generator_t {
       throw amaru_exception("suint_t is not large enough for calculations to "
         "not overflow.");
 
-    std::cout << "  Generating \"" << decl_ << "\".\n";
-    generate_decl(decl_stream);
+    std::cout << "  Generating \"" << dot_h() << "\".\n";
+    generate_dot_h(dot_h_stream);
 
-    std::cout << "  Generating \"" << impl_ << "\".\n";
-    generate_impl(impl_stream);
+    std::cout << "  Generating \"" << dot_c() << "\".\n";
+    generate_dot_c(dot_c_stream);
 
     std::cout << "Generation finished.\n";
   }
@@ -356,23 +379,22 @@ private:
   }
 
   /**
-   * \brief Streams out the declaration file.
+   * \brief Streams out the .h file.
    *
    * \param stream Output stream to receive the content.
    */
-  void generate_decl(std::ostream& stream) const {
+  void generate_dot_h(std::ostream& stream) const {
 
     stream <<
       "// This file is auto-generated. DO NOT EDIT IT.\n"
       "\n"
       "#pragma once\n"
       "\n"
+      "#include <stdbool.h>\n"
       "#include <stdint.h>\n"
       "\n"
       "#ifdef __cplusplus\n"
       "extern \"C\" {\n"
-      "#else\n"
-      "#include <stdbool.h>\n"
       "#endif\n"
       "\n"
       "typedef struct {\n"
@@ -381,7 +403,7 @@ private:
       "  " << info_.suint() << " mantissa;\n"
       "} " << info_.rep() << ";\n"
       "\n" <<
-      info_.rep() << " amaru_decimal_" << info_.id() << "(bool negative, "
+        info_.rep() << ' ' << info_.function() << "(bool negative, "
         "int32_t exponent, " << info_.suint() << " mantissa);\n"
       "\n" <<
       "#ifdef __cplusplus\n"
@@ -390,15 +412,15 @@ private:
   }
 
   /**
-   * \brief Streams out the implementation file.
+   * \brief Streams out the .c file.
    *
    * \param stream Output stream to receive the content.
    */
-  void generate_impl(std::ostream& stream) const {
+  void generate_dot_c(std::ostream& stream) const {
 
     stream << "// This file is auto-generated. DO NOT EDIT IT.\n"
       "\n" <<
-      "#include \"" << decl_ << "\"\n"
+      "#include \"" << dot_h() << "\"\n"
       "\n"
       "#ifdef __cplusplus\n"
       "extern \"C\" {\n"
@@ -534,10 +556,10 @@ private:
       "}\n"
       "#endif\n"
       "\n"
-      "#define AMARU_IMPL amaru_decimal_" << info_.id() << "\n"
-      "#include \"../include/amaru_impl.h\"\n"
+      "#define AMARU_FUNCTION " << info_.function() << "\n"
+      "#include \"../include/amaru.h\"\n"
       "\n"
-      "#undef AMARU_IMPL\n";
+      "#undef AMARU_FUNCTION\n";
 
     if (config_.use_same_shift())
       stream << "#undef AMARU_SHIFT\n";
@@ -736,8 +758,8 @@ private:
   info_t      info_;
   config_t    config_;
   integer_t   p2ssize_;
-  std::string decl_;
-  std::string impl_;
+  std::string dot_h_;
+  std::string dot_c_;
 };
 
 int main() {

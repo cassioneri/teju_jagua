@@ -1,34 +1,53 @@
-CPPFLAGS      += -DNDEBUG -I ../include
-CFLAGS        += -O3 -Wall -Wextra -std=c11
-CXXFLAGS      += -O3 -Wall -Wextra -std=c++17
+CPPFLAGS         += -DNDEBUG -I ../include
+CFLAGS           += -O3 -Wall -Wextra -std=c11
+CXXFLAGS         += -O3 -Wall -Wextra -std=c++17
 
-AMARU_DOUBLE_H := ../include/amaru_double.h ../generated/ieee64.h ../generated/ieee64_impl.h
-AMARU_FLOAT_H  := ../include/amaru_float.h  ../generated/ieee32.h ../generated/ieee32_impl.h
+GENERATED        := ieee32 ieee64
 
-all            : test benchmark
+GENERATED_H      := $(patsubst %,../generated/%.h,$(GENERATED))
+GENERATED_C      := $(patsubst %,../generated/%.c,$(GENERATED))
+GENERATED_O      := $(patsubst %,%.c.o,$(GENERATED))
 
-generator.o    : generator.cpp ../include/common.h
+DERIVED_H        := $(patsubst %,../inlude/%_conv.h,$(GENERATED))
+DERIVED_C        := $(patsubst %,%_conv.c,$(GENERATED))
+DERIVED_O        := $(patsubst %,%_conv.c.o,$(GENERATED))
 
-generator      : generator.o
+all              : amaru.a benchmark test
+
+generator.cpp.o  : generator.cpp ../include/common.h
+
+generator        : generator.cpp.o
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^
 
-../generated/% : generator
+../generated/%.c : generator
 	./generator
 
-amaru_double.o : amaru_double.c ../include/amaru_impl.h ../include/common.h $(AMARU_DOUBLE_H)
-amaru_float.o  : amaru_float.c  ../include/amaru_impl.h ../include/common.h $(AMARU_FLOAT_H)
-other.o        : other.cpp other.hpp
+$(GENERATED_O)   : %.c.o : ../generated/%.c ../include/amaru.h ../include/common.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
-test.o         : test.cpp ../include/amaru_impl.h ../include/common.h $(AMARU_DOUBLE_H) $(AMARU_FLOAT_H)
+$(DERIVED_O)     : %_conv.c.o : %_conv.c ../include/%_conv.h ../generated/%.h ../include/common.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
-test           : test.o amaru_double.o amaru_float.o other.o
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^ -lgtest -lgtest_main
+%.cpp.o : %.cpp
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ -c $<
 
-benchmark.o    : benchmark.cpp ../include/amaru_impl.h ../include/common.h $(AMARU_DOUBLE_H) $(AMARU_FLOAT_H)
+other.cpp.o      : other.cpp other.hpp
+benchmark.o      : benchmark.cpp ../include/common.h $(DERIVED_H)
+test.cpp.o       : test.cpp ../include/amaru.h ../include/common.h $(GENERATED_H)
 
-benchmark      : benchmark.o amaru_double.o amaru_float.o other.o
+amaru.a          : $(GENERATED_O) $(DERIVED_O)
+	$(AR) r $@ $^
+
+benchmark        : benchmark.cpp.o other.cpp.o amaru.a
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^
+
+test             : test.cpp.o other.cpp.o amaru.a
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $^ -lgtest -lgtest_main
 
 .PHONY: clean
 clean:
-	rm -f *.o generator test benchmark
+	rm -f $(GENERATED_O) $(DERIVED_O) amaru.a \
+		generator generator.cpp.o \
+		other.cpp.o \
+		benchmark benchmark.cpp.o \
+		test test.cpp.o

@@ -1,6 +1,6 @@
-#include "../include/amaru_double.h"
-#include "../include/amaru_float.h"
 #include "../include/common.h"
+#include "../include/ieee32_conv.h"
+#include "../include/ieee64_conv.h"
 
 #include "other.hpp"
 
@@ -93,7 +93,7 @@ struct fp_traits_t<float> {
 
   static void
   amaru(fp_t const value) {
-    amaru_decimal_float(value);
+    amaru_val_to_dec_ieee32(value);
   }
 
   static void
@@ -114,7 +114,7 @@ struct fp_traits_t<double> {
 
   static void
   amaru(fp_t const value) {
-    amaru_decimal_double(value);
+    amaru_val_to_dec_ieee64(value);
   }
 
   static void
@@ -138,7 +138,6 @@ void benchmark() {
   auto const exponent_max = AMARU_POW2(suint_t, traits_t::exponent_size) - 1;
   auto const mantissa_max = AMARU_POW2(suint_t, traits_t::mantissa_size) - 1;
 
-  //std::random_device device;
   std::mt19937_64 device;
   auto dist = std::uniform_int_distribution<suint_t> {1, mantissa_max};
 
@@ -152,14 +151,9 @@ void benchmark() {
     // Force mantissa = 0 to be in the set.
     auto const mantissa = n_mantissas == 0 ? 0 : dist(device);
 
-    #if 0
-    (void) exponent_max;
-    for (uint32_t exponent = 148; exponent <= 152; ++exponent) {
-    #else
     // If exponent == exponent_max, then value is infinity or NaN. Hence, we
     // exclude exponent_max.
     for (uint32_t exponent = 0; exponent < exponent_max; ++exponent) {
-    #endif
 
       auto const value = from_ieee<T>(exponent, mantissa);
 

@@ -124,9 +124,9 @@ static struct {
 }
 #endif
 
-#define AMARU_IMPL amaru_decimal_ieee32
-#include "../include/amaru_impl.h"
+#define AMARU_FUNCTION amaru_bin_to_dec_ieee32
+#include "../include/amaru.h"
 
-#undef AMARU_IMPL
+#undef AMARU_FUNCTION
 #undef AMARU_SHIFT
 #undef AMARU_USE_COMPACT_TBL

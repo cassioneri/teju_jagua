@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef AMARU_IMPL
-#error "Invalid inclusion of amaru_impl.h."
+#ifndef AMARU_FUNCTION
+#error "Invalid inclusion of amaru.h."
 #endif
 
 #include "common.h"
@@ -58,7 +58,7 @@ bool is_multiple_of_pow5(suint_t const m, int32_t const f) {
     m * minverse[f].multiplier <= minverse[f].bound;
 }
 
-rep_t AMARU_IMPL(bool const negative, int32_t const exponent,
+rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
   suint_t const mantissa) {
 
   static suint_t const normal_mantissa_min = AMARU_POW2(suint_t, mantissa_size);

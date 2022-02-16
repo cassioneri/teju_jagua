@@ -1,6 +1,6 @@
-#include "../include/amaru_double.h"
-#include "../include/amaru_float.h"
 #include "../include/common.h"
+#include "../include/ieee32_conv.h"
+#include "../include/ieee64_conv.h"
 
 #include "other.hpp"
 
@@ -176,7 +176,7 @@ struct fp_traits_t<float> {
 
   static rep_t
   amaru(fp_t const value) {
-    return amaru_decimal_float(value);
+    return amaru_val_to_dec_ieee32(value);
   }
 
   static rep_t
@@ -197,7 +197,7 @@ struct fp_traits_t<double> {
 
   static rep_t
   amaru(fp_t const value) {
-    return amaru_decimal_double(value);
+    return amaru_val_to_dec_ieee64(value);
   }
 
   static rep_t
@@ -259,22 +259,13 @@ TEST(double_tests, random_comparison_to_other) {
 
   auto number_of_tests = uint32_t{100000000};
 
-  uint64_t n = 0;
-
   // Using the "downto" operator :-D
   // https://stackoverflow.com/questions/1642028/what-is-the-operator-in-c-c
-  //while (!HasFailure() && number_of_tests --> 0) {
-  while (true) {
+  while (!HasFailure() && number_of_tests --> 0) {
     auto const i = dist(rd);
     traits_t::fp_t value;
     std::memcpy(&value, &i, sizeof(i));
     compare_to_other(value);
-
-    ++n;
-    if (HasFailure())
-      std::cout << "Failed for value = " << value << '\n';
-    if (n % 1000000000 == 0)
-      std::cout << "------ " << n << '\n';
   }
 }
 

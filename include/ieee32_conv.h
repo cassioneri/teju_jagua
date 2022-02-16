@@ -6,7 +6,8 @@
 extern "C" {
 #endif
 
-ieee32_t amaru_decimal_float(float value);
+uint32_t amaru_val_to_str_ieee32(float val, char* str);
+ieee32_t amaru_val_to_dec_ieee32(float val);
 
 #ifdef __cplusplus
 }

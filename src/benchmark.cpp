@@ -124,11 +124,25 @@ struct fp_traits_t<double> {
 };
 
 template <typename T>
-void benchmark() {
+__attribute__((noinline))
+double benchmark(T value, void (*function)(T), uint32_t n_iterations) {
 
-  using ns_t              = std::chrono::nanoseconds;
-  using clock_t           = std::chrono::high_resolution_clock;
-  using time_point_t      = std::chrono::time_point<clock_t>;
+  using ns_t    = std::chrono::nanoseconds;
+  using clock_t = std::chrono::high_resolution_clock;
+
+  for (auto n = 20; n != 0; --n)
+    function(value);
+
+  auto const start = clock_t::now();
+  for (auto n = n_iterations; n != 0; --n)
+    function(value);
+  auto const end = clock_t::now();
+
+  return double(ns_t{end - start}.count()) / n_iterations;
+}
+
+template <typename T>
+void benchmark() {
 
   std::cout.precision(std::numeric_limits<T>::digits10 + 2);
   std::cout << "exponent, mantissa, integer, value, amaru, other\n";
@@ -149,7 +163,7 @@ void benchmark() {
   while (n_mantissas--) {
 
     // Force mantissa = 0 to be in the set.
-    auto const mantissa = n_mantissas == 0 ? 0 : dist(device);
+    auto const mantissa = /*n_mantissas == 0 ? 0 :*/ dist(device);
 
     // If exponent == exponent_max, then value is infinity or NaN. Hence, we
     // exclude exponent_max.
@@ -157,20 +171,10 @@ void benchmark() {
 
       auto const value = from_ieee<T>(exponent, mantissa);
 
-      time_point_t start, end;
-
-      start = clock_t::now();
-      for (auto n = n_iterations; n != 0; --n)
-        traits_t::amaru(value);
-      end = clock_t::now();
-      auto const amaru = double(ns_t{end - start}.count()) / n_iterations;
+      auto const amaru = benchmark(value, &traits_t::amaru, n_iterations);
       amaru_stats.update(amaru);
 
-      start = clock_t::now();
-      for (auto n = n_iterations; n != 0; --n)
-        traits_t::other(value);
-      end = clock_t::now();
-      auto const other = double(ns_t{end - start}.count()) / n_iterations;
+      auto const other = benchmark(value, &traits_t::other, n_iterations);
       other_stats.update(other);
 
       suint_t integer;

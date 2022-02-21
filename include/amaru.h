@@ -63,8 +63,8 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
 
   static suint_t const normal_mantissa_min = AMARU_POW2(suint_t, mantissa_size);
 
-  if (exponent == bin_exponent_min && mantissa == 0)
-    return make_decimal(negative, 0, 0);
+//  if (exponent == bin_exponent_min && mantissa == 0)
+//    return make_decimal(negative, 0, 0);
 
   int32_t  const f = log10_pow2(exponent);
 
@@ -88,37 +88,49 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
 
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 
-    suint_t const m_a     = 2 * mantissa - 1;
-    duint_t const upper_m = ((duint_t) upper) * m_a;
-    duint_t const lower_m = ((duint_t) lower) * m_a;
+    suint_t const m       = 2 * mantissa - 1;
+
+#if defined(AMARU_USE_COMPACT_TBL)
+    duint_t const upper_m = ((duint_t) upper) * m;
+    duint_t const lower_m = ((duint_t) lower) * m;
     duint_t const prod_a  = upper_m + (lower_m >> ssize);
     suint_t const a       = prod_a >> shift;
 
     duint_t const prod_b  = prod_a + (2 * upper + 2);
     suint_t const b       = prod_b >> shift;
+#else
+    suint_t const a       = multipliy_and_shift(m    , upper, lower, shift);
+    suint_t const b       = multipliy_and_shift(m + 2, upper, lower, shift);
+#endif
 
     suint_t const s       = 10 * ((inv10 * b) >> ssize);
 
-    if (s == a) {
-      if (is_multiple_of_pow5(m_a, f) && m_a % 4 == 3)
+    if (s < a)
+      ;
+    else if (s == a) {
+      if (mantissa % 2 == 0 && is_multiple_of_pow5(m, f))
          return remove_trailing_zeros(negative, f, s);
     }
-    else if (a < s) {
-      suint_t const m_b   = m_a + 2;
-      if (!is_multiple_of_pow5(m_b, f + 1) || m_b % 4 == 1)
+    else if (s == b) {
+      if (mantissa % 2 == 0 || !is_multiple_of_pow5(m + 2, f))
         return remove_trailing_zeros(negative, f, s);
     }
+    else
+      return remove_trailing_zeros(negative, f, s);
 
-    if ((a + b) % 2 == 1)
+    if ((a ^ b) % 2 == 1)
       return make_decimal(negative, f, (a + b) / 2 + 1);
 
-    suint_t const m_c     = m_a + 1;
-    duint_t const prod_c  = prod_a + (upper + 1);
-    suint_t const c_2     = prod_c >> (shift - 1);
-    suint_t const c       = c_2 / 2;
+#if defined(AMARU_USE_COMPACT_TBL)
+    duint_t const prod_c = prod_a + (upper + 1);
+    suint_t const c_2    = prod_c >> (shift - 1);
+#else
+    suint_t const c_2    = multipliy_and_shift(m + 1, upper, lower, shift - 1);
+#endif
 
-    if ((e >= 0 || e <= -((int32_t) mantissa_size + 2) ||
-      ((m_c & -m_c) >> -e) == 0 || c % 2 == 1) && c_2 % 2 == 1)
+    suint_t const c      = c_2 / 2;
+
+    if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2 | 1, -f)))
       return make_decimal(negative, f, c + 1);
 
     return make_decimal(negative, f, c);

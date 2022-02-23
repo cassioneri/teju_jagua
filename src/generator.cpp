@@ -571,9 +571,10 @@ private:
   /**
    * \brief Gets the maxima of all primary problems. (See get_maximum_primary.)
    *
-   * It returns a vector v of size info_.exponent_max() - info_.exponent_min() +
-   * 1 such that v[i] contains the maximum of the primary problem corresponding
-   * to exponent = info_.exponent_min() + i.
+   * It returns a vector v of size
+   *     info_.bin_exponent_max() - info_.bin_exponent_min() + 1
+   * such that v[i] contains the maximum of the primary problem corresponding to
+   * exponent = info_.bin_exponent_min() + i.
    *
    * \returns The vector v.
    */

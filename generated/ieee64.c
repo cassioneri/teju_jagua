@@ -14,10 +14,10 @@ enum {
   ssize            = 64,
   mantissa_size    = 52,
   bin_exponent_min = -1074,
-  dec_exponent_min = -324
+  dec_exponent_min = -324,
+  shift            = 57
 };
 
-#define AMARU_SHIFT 57
 #define AMARU_USE_COMPACT_TBL
 
 static struct {

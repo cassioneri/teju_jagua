@@ -453,24 +453,16 @@ private:
       "typedef " << info_.rep()   << " rep_t;\n"
       "\n"
       "enum {\n"
-      "  ssize            = " << info_.ssize()            << ","
-      "\n"
-      "  mantissa_size    = " << info_.mantissa_size()    << ","
-      "\n"
-      "  bin_exponent_min = " << info_.bin_exponent_min() << ","
-      "\n"
-      "  dec_exponent_min = " << info_.dec_exponent_min() <<
-      "\n};\n"
-      "\n"
-      "#define AMARU_SHIFT " << shift - ssize + 1 << "\n";
+      "  ssize            = " << info_.ssize()            << ",\n"
+      "  mantissa_size    = " << info_.mantissa_size()    << ",\n"
+      "  bin_exponent_min = " << info_.bin_exponent_min() << ",\n"
+      "  dec_exponent_min = " << info_.dec_exponent_min() << ",\n"
+      "  shift            = " << shift - ssize + 1        << "\n"
+      "};\n"
+      "\n";
 
-    bool something_was_defined = false;
-
-    if (config_.use_compact_tbl() && (something_was_defined = true))
-      stream << "#define AMARU_USE_COMPACT_TBL\n";
-
-    if (something_was_defined)
-      stream << '\n';
+    if (config_.use_compact_tbl())
+      stream << "#define AMARU_USE_COMPACT_TBL\n\n";
 
     stream <<
       "static struct {\n"

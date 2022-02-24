@@ -217,12 +217,6 @@ struct config_t {
   /**
    * \brief Constructor.
    *
-   * \param use_same_shift  Tells if Amaru should use the same shift for all
-   *                        exponents. It saves memory and makes Amaru faster.
-   *                        Unfortunately, such shift might might be too large
-   *                        for practical use, in which case, the generator
-   *                        throws.
-   *
    * \param use_compact_tbl Tells if the multipliers table should have an entry
    *                        per decimal (compact) or per binary exponent
    *                        (complete). The compact form requires a few more
@@ -234,17 +228,9 @@ struct config_t {
    *
    * \param directory       Directory where generated files are created.
    */
-  config_t(bool use_same_shift, bool use_compact_tbl, std::string directory) :
-    use_same_shift_ {use_same_shift      },
+  config_t(bool use_compact_tbl, std::string directory) :
     use_compact_tbl_{use_compact_tbl     },
     directory_      {std::move(directory)} {
-  }
-
-  /**
-   * \brief Returns if Amaru should use the same shift for all exponents.
-   */
-  bool use_same_shift() const {
-    return use_same_shift_;
   }
 
   /**
@@ -262,7 +248,6 @@ struct config_t {
   }
 
 private:
-  bool        use_same_shift_;
   bool        use_compact_tbl_;
   std::string directory_;
 };
@@ -434,6 +419,7 @@ private:
     auto shift = uint32_t{0};
 
     // Calculates minimal fast EAFs (i.e., those with minimal shift).
+
     for (auto const& x : maxima) {
       fast_eafs.emplace_back(get_fast_eaf(x));
       auto const s = fast_eafs.back().k;
@@ -442,22 +428,20 @@ private:
     }
 
     // Replace minimal fast EAFs to use the same shift.
-    if (config_.use_same_shift()) {
 
-      auto const p2shift = integer_t{1} << shift;
+    auto const p2shift = integer_t{1} << shift;
 
-      for (uint32_t i = 0; i < maxima.size(); ++i) {
+    for (uint32_t i = 0; i < maxima.size(); ++i) {
 
-        auto const& x = maxima[i];
+      auto const& x = maxima[i];
 
-        integer_t q, r;
-        divide_qr(x.alpha << shift, x.delta, q, r);
+      integer_t q, r;
+      divide_qr(x.alpha << shift, x.delta, q, r);
 
-        if (x.maximum >= rational_t{p2shift, x.delta - r})
-          throw amaru_exception{"Unable to use same shift."};
+      if (x.maximum >= rational_t{p2shift, x.delta - r})
+        throw amaru_exception{"Unable to use same shift."};
 
-        fast_eafs[i] = fast_eaf_t{q + 1, shift};
-      }
+      fast_eafs[i] = fast_eaf_t{q + 1, shift};
     }
 
     auto const ssize   = info_.ssize();
@@ -476,13 +460,11 @@ private:
       "  bin_exponent_min = " << info_.bin_exponent_min() << ","
       "\n"
       "  dec_exponent_min = " << info_.dec_exponent_min() <<
-      "\n};"
-      "\n\n";
+      "\n};\n"
+      "\n"
+      "#define AMARU_SHIFT " << shift - ssize + 1 << "\n";
 
     bool something_was_defined = false;
-
-    if (config_.use_same_shift() && (something_was_defined = true))
-      stream << "#define AMARU_SHIFT " << shift - ssize + 1 << "\n";
 
     if (config_.use_compact_tbl() && (something_was_defined = true))
       stream << "#define AMARU_USE_COMPACT_TBL\n";
@@ -493,12 +475,8 @@ private:
     stream <<
       "static struct {\n"
       "  suint_t  const upper;\n"
-      "  suint_t  const lower;\n";
-
-    if (!config_.use_same_shift())
-      stream << "  uint32_t const shift;\n";
-
-    stream << "} const multipliers[] = {\n";
+      "  suint_t  const lower;\n"
+      "} const multipliers[] = {\n";
 
     auto const nibbles = ssize / 4;
 
@@ -513,17 +491,10 @@ private:
       if (upper >= p2ssize)
         throw amaru_exception{"Multiplier is out of range."};
 
-      stream << "  { ";
-      stream << "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
-        upper << ", ";
-      stream << "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
-        lower << std::dec;
-
-      if (!config_.use_same_shift()) {
-        auto const shift = fast_eaf.k;
-        stream << ", " << shift - ssize + 1;
-      }
-      stream << " }, // " << e2_or_f << "\n";
+      stream << "  { " <<
+        "0x" << std::hex << std::setw(nibbles) << std::setfill('0') << upper << ", "
+        "0x" << std::hex << std::setw(nibbles) << std::setfill('0') << lower <<
+        std::dec << " }, // " << e2_or_f << "\n";
       ++e2_or_f;
     }
 
@@ -559,10 +530,8 @@ private:
       "#define AMARU_FUNCTION " << info_.function() << "\n"
       "#include \"../include/amaru.h\"\n"
       "\n"
-      "#undef AMARU_FUNCTION\n";
-
-    if (config_.use_same_shift())
-      stream << "#undef AMARU_SHIFT\n";
+      "#undef AMARU_FUNCTION\n"
+      "#undef AMARU_SHIFT\n";
 
     if (config_.use_compact_tbl())
       stream << "#undef AMARU_USE_COMPACT_TBL\n";
@@ -768,7 +737,6 @@ int main() {
   try {
 
     auto const config = config_t{
-      /* use_same_shift  */ true,
       /* use_compact_tbl */ true,
       /* directory       */ "../generated"
     };

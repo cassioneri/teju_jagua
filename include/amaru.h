@@ -92,11 +92,7 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
 
   suint_t  const upper = multipliers[i].upper;
   suint_t  const lower = multipliers[i].lower;
-#if defined(AMARU_SHIFT)
   uint32_t const shift = AMARU_SHIFT - extra;
-#else
-  uint32_t const shift = multipliers[i].shift - extra;
-#endif
 
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 

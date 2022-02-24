@@ -58,7 +58,7 @@ rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
 
 static inline
 suint_t multipliy_and_shift(suint_t const m, suint_t const upper,
-  suint_t const lower, uint32_t const shift) {
+  suint_t const lower) {
   duint_t const upper_m = ((duint_t) upper) * m;
   duint_t const lower_m = ((duint_t) lower) * m;
   return (upper_m + (lower_m >> ssize)) >> shift;
@@ -106,8 +106,8 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
     duint_t const prod_b  = prod_a + (2 * upper + 2);
     suint_t const b       = (prod_b << extra) >> shift;
 #else
-    suint_t const a       = multipliy_and_shift(m << extra, upper, lower, shift);
-    suint_t const b       = multipliy_and_shift((m + 2) << extra, upper, lower, shift);
+    suint_t const a       = multipliy_and_shift(m << extra, upper, lower);
+    suint_t const b       = multipliy_and_shift((m + 2) << extra, upper, lower);
 #endif
 
     suint_t const s       = 10 * ((inv10 * b) >> ssize);
@@ -132,7 +132,7 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
     duint_t const prod_c = prod_a + (upper + 1);
     suint_t const c_2    = (prod_c << (extra + 1)) >> shift;
 #else
-    suint_t const c_2    = multipliy_and_shift((m + 1) << (extra + 1), upper, lower, shift);
+    suint_t const c_2    = multipliy_and_shift((m + 1) << (extra + 1), upper, lower);
 #endif
 
     suint_t const c      = c_2 / 2;
@@ -146,10 +146,10 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
   // mantissa = normal_mantissa_min
 
   suint_t const m_b = 2 * normal_mantissa_min + 1;
-  suint_t const b   = multipliy_and_shift(m_b << extra, upper, lower, shift);
+  suint_t const b   = multipliy_and_shift(m_b << extra, upper, lower);
 
   suint_t const m_a = 4 * normal_mantissa_min - 1;
-  suint_t const a_2 = multipliy_and_shift(m_a << (extra + 1), upper, lower, shift);
+  suint_t const a_2 = multipliy_and_shift(m_a << (extra + 1), upper, lower);
 
   bool const is_exact = mantissa_size % 4 == 2 && a_2 % 4 == 0 &&
     is_multiple_of_pow5(m_a, f);
@@ -164,7 +164,7 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
       return remove_trailing_zeros(negative, f, s);
 
     suint_t const m_c = 2 * normal_mantissa_min;
-    suint_t const c_2 = multipliy_and_shift(m_c << (extra + 1), upper, lower, shift);
+    suint_t const c_2 = multipliy_and_shift(m_c << (extra + 1), upper, lower);
     suint_t const c   = c_2 / 2;
 
     if (c < a || (c_2 % 2 == 1 && (c % 2 == 1 || e > 0 ||
@@ -175,7 +175,7 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
   }
 
   suint_t const m_c = 20 * normal_mantissa_min;
-  suint_t const c_2 = multipliy_and_shift(m_c << (extra + 1), upper, lower, shift);
+  suint_t const c_2 = multipliy_and_shift(m_c << (extra + 1), upper, lower);
   suint_t const c   = c_2 / 2;
 
   if (c_2 % 2 == 1 && (c % 2 == 1 || (e < -((int32_t) (mantissa_size + 1))

@@ -78,34 +78,36 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
 //  if (exponent == bin_exponent_min && mantissa == 0)
 //    return make_decimal(negative, 0, 0);
 
-  int32_t  const f        = log10_pow2(exponent);
-  int32_t  const e        = exponent - f;
+  int32_t  const f     = log10_pow2(exponent);
+  int32_t  const e     = exponent - f;
 #if defined(AMARU_USE_COMPACT_TBL)
-  uint32_t const extra    = log10_pow2_remainder(exponent);
-  int32_t  const i        = f - dec_exponent_min;
+  uint32_t const extra = log10_pow2_remainder(exponent);
+  int32_t  const i     = f - dec_exponent_min;
 #else
-  uint32_t const extra    = 0;
-  int32_t  const i        = exponent - bin_exponent_min;
+  uint32_t const extra = 0;
+  int32_t  const i     = exponent - bin_exponent_min;
 #endif
-  suint_t  const upper    = multipliers[i].upper;
-  suint_t  const lower    = multipliers[i].lower;
+  suint_t  const upper = multipliers[i].upper;
+  suint_t  const lower = multipliers[i].lower;
 
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 
-    suint_t const m       = 2 * mantissa - 1;
+    suint_t const m_a  = (2 * mantissa - 1) << extra;
+    suint_t const a    = multipliy_and_shift(m_a, upper, lower);
 
-    suint_t const a       = multipliy_and_shift(m << extra, upper, lower);
-    suint_t const b       = multipliy_and_shift((m + 2) << extra, upper, lower);
-    suint_t const s       = 10 * ((inv10 * b) >> ssize);
+    suint_t const m_b  = (2 * mantissa + 1) << extra;
+    suint_t const b    = multipliy_and_shift(m_b, upper, lower);
+
+    suint_t const s    = 10 * ((inv10 * b) >> ssize);
 
     if (s < a)
       ;
     else if (s == a) {
-      if (mantissa % 2 == 0 && is_multiple_of_pow5(m, f))
+      if (mantissa % 2 == 0 && is_multiple_of_pow5(m_a, f))
          return remove_trailing_zeros(negative, f, s);
     }
     else if (s == b) {
-      if (mantissa % 2 == 0 || !is_multiple_of_pow5(m + 2, f))
+      if (mantissa % 2 == 0 || !is_multiple_of_pow5(m_b, f))
         return remove_trailing_zeros(negative, f, s);
     }
     else
@@ -114,7 +116,8 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
     if ((a ^ b) % 2 == 1)
       return make_decimal(negative, f, (a + b) / 2 + 1);
 
-    suint_t const c_2 = multipliy_and_shift((m + 1) << (extra + 1), upper, lower);
+    suint_t const m_c = 2 * 2 * mantissa;
+    suint_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower);
     suint_t const c   = c_2 / 2;
 
     if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2 | 1, -f)))
@@ -128,8 +131,8 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
   suint_t const m_b = 2 * normal_mantissa_min + 1;
   suint_t const b   = multipliy_and_shift(m_b << extra, upper, lower);
 
-  suint_t const m_a = 4 * normal_mantissa_min - 1;
-  suint_t const a_2 = multipliy_and_shift(m_a << (extra + 1), upper, lower);
+  suint_t const m_a = 2 * (4 * normal_mantissa_min - 1);
+  suint_t const a_2 = multipliy_and_shift(m_a << extra, upper, lower);
 
   bool const is_exact = mantissa_size % 4 == 2 && a_2 % 4 == 0 &&
     is_multiple_of_pow5(m_a, f);
@@ -143,8 +146,8 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
     if (s >= a)
       return remove_trailing_zeros(negative, f, s);
 
-    suint_t const m_c = 2 * normal_mantissa_min;
-    suint_t const c_2 = multipliy_and_shift(m_c << (extra + 1), upper, lower);
+    suint_t const m_c = 2 * 2 * normal_mantissa_min;
+    suint_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower);
     suint_t const c   = c_2 / 2;
 
     if (c < a || (c_2 % 2 == 1 && (c % 2 == 1 || e > 0 ||
@@ -154,8 +157,8 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
     return make_decimal(negative, f, c);
   }
 
-  suint_t const m_c = 20 * normal_mantissa_min;
-  suint_t const c_2 = multipliy_and_shift(m_c << (extra + 1), upper, lower);
+  suint_t const m_c = 2 * 20 * normal_mantissa_min;
+  suint_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower);
   suint_t const c   = c_2 / 2;
 
   if (c_2 % 2 == 1 && (c % 2 == 1 || (e < -((int32_t) (mantissa_size + 1))

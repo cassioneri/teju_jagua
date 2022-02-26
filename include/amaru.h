@@ -33,25 +33,17 @@ static inline
 rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
   suint_t mantissa) {
 
-//  suint_t const minv5 = -(((suint_t) -1) / 5);
-//
-//  mantissa = (mantissa * minv5) / 2;
-//  ++exponent;
-//
-//  duint_t product = inv10 * mantissa;
-//  while ((suint_t) product < inv10) {
-//    ++exponent;
-//    mantissa = (suint_t) (product >> ssize);
-//    product  = inv10 * mantissa;
-//  }
+  suint_t const minv5 = -(((suint_t) -1) / 5);
+
+  mantissa = (mantissa * minv5) / 2;
+  ++exponent;
 
   duint_t product = inv10 * mantissa;
-
-  do {
+  while ((suint_t) product < inv10) {
     ++exponent;
     mantissa = (suint_t) (product >> ssize);
     product  = inv10 * mantissa;
-  } while ((suint_t) product < inv10);
+  }
 
   return make_decimal(negative, exponent, mantissa);
 }

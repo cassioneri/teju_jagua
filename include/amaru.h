@@ -81,11 +81,11 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
 
   if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
 
-    suint_t const m_a  = (2 * mantissa - 1) << extra;
-    suint_t const a    = multipliy_and_shift(m_a, upper, lower);
-
     suint_t const m_b  = (2 * mantissa + 1) << extra;
     suint_t const b    = multipliy_and_shift(m_b, upper, lower);
+
+    suint_t const m_a  = (2 * mantissa - 1) << extra;
+    suint_t const a    = multipliy_and_shift(m_a, upper, lower);
 
     suint_t const s    = 10 * ((inv10 * b) >> ssize);
 

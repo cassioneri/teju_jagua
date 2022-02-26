@@ -42,7 +42,6 @@ rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
     mantissa = product / 2;
     product  = mantissa * minv5;
   }
-
   return make_decimal(negative, exponent, mantissa);
 }
 
@@ -51,7 +50,7 @@ suint_t multipliy_and_shift(suint_t const m, suint_t const upper,
   suint_t const lower) {
   duint_t const upper_m = ((duint_t) upper) * m;
   duint_t const lower_m = ((duint_t) lower) * m;
-  return (upper_m + (lower_m >> ssize)) >> shift;
+  return (upper_m + (lower_m >> ssize)) >> (shift - ssize);
 }
 
 static inline

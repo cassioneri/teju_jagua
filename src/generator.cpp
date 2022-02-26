@@ -403,6 +403,8 @@ private:
    */
   void generate_dot_c(std::ostream& stream) const {
 
+    auto const ssize = info_.ssize();
+
     stream << "// This file is auto-generated. DO NOT EDIT IT.\n"
       "\n" <<
       "#include \"" << dot_h() << "\"\n"
@@ -427,6 +429,12 @@ private:
         shift = s;
     }
 
+    // Optimal shift is 2 * size since it prevents multipliy_and_shift to
+    // deal with partial limbs. In addition to subtract 1 to compensate the
+    // increment adjustment made when the shift is output.
+    if (config_.use_compact_tbl())
+      shift = 2 * ssize - 1;
+
     // Replace minimal fast EAFs to use the same shift.
 
     auto const p2shift = integer_t{1} << shift;
@@ -444,7 +452,6 @@ private:
       fast_eafs[i] = fast_eaf_t{q + 1, shift};
     }
 
-    auto const ssize   = info_.ssize();
     auto const p2ssize = integer_t{1} << ssize;
 
     stream <<
@@ -457,7 +464,9 @@ private:
       "  mantissa_size    = " << info_.mantissa_size()    << ",\n"
       "  bin_exponent_min = " << info_.bin_exponent_min() << ",\n"
       "  dec_exponent_min = " << info_.dec_exponent_min() << ",\n"
-      "  shift            = " << shift - ssize + 1        << "\n"
+      // Instead of Amaru dividing multipliy_and_shift(m_a, upper, lower) by 2
+      // we increment the shift here so this has the same effect.
+      "  shift            = " << shift + 1                << "\n"
       "};\n"
       "\n";
 
@@ -688,10 +697,8 @@ private:
     // Indeed, it ensures that the least significant limb of the product is
     // irrelevant. For this reason, later on, the generator actually outputs
     // shift - ssize (still labelling it as 'shift') so that Amaru doesn't need
-    // to do it at runtime. Moreover, when using a single shift, Amaru subtracts
-    // the exponent correction (in [0, 4]) from the shift amount. Here the
-    // generator ensures the final shift amount is non-negative.
-    auto k    = info_.ssize() + (config_.use_compact_tbl() ? 4 : 0);
+    // to do it at runtime.
+    auto k    = info_.ssize();
     auto pow2 = integer_t{1} << k;
 
     integer_t q, r;
@@ -760,11 +767,11 @@ int main() {
   }
 
   catch (amaru_exception const& e) {
-    std::printf("Generation failed: %s.\n", e.what());
+    std::printf("Generation failed: %s\n", e.what());
   }
 
   catch (std::exception const& e) {
-    std::printf("std::exception thrown: %s.\n", e.what());
+    std::printf("std::exception thrown: %s\n", e.what());
   }
 
   catch (...) {

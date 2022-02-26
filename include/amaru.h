@@ -21,8 +21,6 @@ static_assert(CHAR_BIT * sizeof(suint_t) == ssize,
 static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
   "duint_t must be at least twice the size of suint_t.");
 
-static duint_t const inv10 = AMARU_POW2(duint_t, ssize) / 10 + 1;
-
 static inline
 rep_t make_decimal(bool const negative, int32_t exponent, suint_t mantissa) {
   rep_t const decimal = { negative, exponent, mantissa };
@@ -38,11 +36,11 @@ rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
   mantissa = (mantissa * minv5) / 2;
   ++exponent;
 
-  duint_t product = inv10 * mantissa;
-  while ((suint_t) product < inv10) {
+  suint_t product = mantissa * minv5;
+  while (product % 2 == 0 && product <= -minv5) {
     ++exponent;
-    mantissa = (suint_t) (product >> ssize);
-    product  = inv10 * mantissa;
+    mantissa = product / 2;
+    product  = mantissa * minv5;
   }
 
   return make_decimal(negative, exponent, mantissa);
@@ -65,7 +63,8 @@ bool is_multiple_of_pow5(suint_t const m, int32_t const f) {
 rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
   suint_t const mantissa) {
 
-  static suint_t const normal_mantissa_min = AMARU_POW2(suint_t, mantissa_size);
+  suint_t  const normal_mantissa_min = AMARU_POW2(suint_t, mantissa_size);
+  duint_t  const inv10               = AMARU_POW2(duint_t, ssize) / 10 + 1;
 
 //  if (exponent == bin_exponent_min && mantissa == 0)
 //    return make_decimal(negative, 0, 0);

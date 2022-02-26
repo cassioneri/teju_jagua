@@ -69,7 +69,6 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
 //    return make_decimal(negative, 0, 0);
 
   int32_t  const f     = log10_pow2(exponent);
-  int32_t  const e     = exponent - f;
 #if defined(AMARU_USE_COMPACT_TBL)
   uint32_t const extra = log10_pow2_remainder(exponent);
   int32_t  const i     = f - dec_exponent_min;
@@ -100,7 +99,7 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
       if (mantissa % 2 == 0 || !is_multiple_of_pow5(m_b, f))
         return remove_trailing_zeros(negative, f, s);
     }
-    else
+    else // a < s < b
       return remove_trailing_zeros(negative, f, s);
 
     if ((a ^ b) % 2 == 1)
@@ -110,24 +109,18 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
     suint_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower);
     suint_t const c   = c_2 / 2;
 
-    if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2 | 1, -f)))
+    if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2, -f)))
       return make_decimal(negative, f, c + 1);
 
     return make_decimal(negative, f, c);
   }
 
-  // mantissa = normal_mantissa_min
-
   suint_t const m_b = 2 * normal_mantissa_min + 1;
   suint_t const b   = multipliy_and_shift(m_b << extra, upper, lower);
 
-  suint_t const m_a = 2 * (4 * normal_mantissa_min - 1);
-  suint_t const a_2 = multipliy_and_shift(m_a << extra, upper, lower);
-
-  bool const is_exact = mantissa_size % 4 == 2 && a_2 % 4 == 0 &&
-    is_multiple_of_pow5(m_a, f);
-
-  suint_t const a  = a_2 / 4 + !is_exact;
+  suint_t const m_a = 4 * normal_mantissa_min - 1;
+  suint_t const a   = multipliy_and_shift(m_a << extra, upper, lower) / 2 +
+    !is_multiple_of_pow5(m_a, f);
 
   if (b >= a) {
 
@@ -140,8 +133,7 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
     suint_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower);
     suint_t const c   = c_2 / 2;
 
-    if (c < a || (c_2 % 2 == 1 && (c % 2 == 1 || e > 0 ||
-      e < -((int32_t) (mantissa_size + 1)))))
+    if (c < a || (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2, -f))))
       return make_decimal(negative, f, c + 1);
 
     return make_decimal(negative, f, c);
@@ -151,8 +143,7 @@ rep_t AMARU_FUNCTION(bool const negative, int32_t const exponent,
   suint_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower);
   suint_t const c   = c_2 / 2;
 
-  if (c_2 % 2 == 1 && (c % 2 == 1 || (e < -((int32_t) (mantissa_size + 1))
-    || f > 1)))
+  if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2, -f)))
     return make_decimal(negative, f - 1, c + 1);
 
   return make_decimal(negative, f - 1, c);

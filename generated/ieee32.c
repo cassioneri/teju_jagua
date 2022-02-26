@@ -118,6 +118,9 @@ static struct {
   { 0x22e90e21, 0x00002af3 },
   { 0x3a2e9c6d, 0x00000897 },
   { 0x3ed61f49, 0x000001b7 },
+  { 0x0c913975, 0x00000057 },
+  { 0xcf503eb1, 0x00000011 },
+  { 0xf6433fbd, 0x00000003 },
 };
 
 #ifdef __cplusplus

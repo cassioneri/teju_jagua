@@ -510,7 +510,13 @@ private:
     auto multiplier = integer_t{1};
     auto p5 = integer_t{1};
 
-    for (int32_t f = 0; p5 < info_.normal_mantissa_max(); ++f) {
+    // Amaru checks whether is_multiple_of_pow5(C, f) for
+    // 1. C  = 2 * mantissa + 1 <= 2 * mantissa_max + 1;
+    // 2. C <= 2 * mantissa * 2^e * 5^{-f} <= 20 * mantissa_max;
+    // 3. C  = 20 * mantissa_min * 2^e * 5^{-f} <= 200 * mantissa_min;
+    // Hence, 200 * mantissa_max is a conservative bound, i.e.,
+    // If 5^f > 200 * mantissa_max, then is_multiple_of_pow5(C, f) == false;
+    for (int32_t f = 0; p5 <= 200 * info_.normal_mantissa_max(); ++f) {
       auto const bound = p2ssize / p5 - (f == 0);
       stream << "  { "
         "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<

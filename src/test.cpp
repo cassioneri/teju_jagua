@@ -246,6 +246,33 @@ TEST(float_tests, exhaustive_comparison_to_other) {
   }
 }
 
+template <typename T>
+class TypedTests : public testing::Test {
+};
+
+TYPED_TEST_SUITE_P(TypedTests);
+
+TYPED_TEST_P(TypedTests, mantissa_min_all_exponents) {
+
+  using traits_t           = fp_traits_t<TypeParam>;
+  using fp_t               = typename traits_t::fp_t;
+  using suint_t            = typename traits_t::suint_t;
+
+  auto const exponent_max  = (uint32_t{1} << traits_t::exponent_size) - 1;
+
+  for (uint32_t exponent = 1; !this->HasFailure() && exponent < exponent_max;
+    ++exponent) {
+    auto const bits = suint_t{exponent} << traits_t::mantissa_size;
+    fp_t value;
+    std::memcpy(&value, &bits, sizeof(bits));
+    compare_to_other(value);
+  }
+}
+
+REGISTER_TYPED_TEST_SUITE_P(TypedTests, mantissa_min_all_exponents);
+using FpTypes = ::testing::Types<float, double>;
+INSTANTIATE_TYPED_TEST_SUITE_P(TypedTests, TypedTests, FpTypes);
+
 TEST(double_tests, random_comparison_to_other) {
 
   using traits_t = fp_traits_t<double>;

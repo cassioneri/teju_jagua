@@ -522,8 +522,7 @@ private:
       "#define AMARU_FUNCTION " << info_.function() << "\n"
       "#include \"../include/amaru.h\"\n"
       "\n"
-      "#undef AMARU_FUNCTION\n"
-      "#undef AMARU_SHIFT\n";
+      "#undef AMARU_FUNCTION\n";
 
     if (config_.use_compact_tbl())
       stream << "#undef AMARU_USE_COMPACT_TBL\n";

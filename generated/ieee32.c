@@ -128,5 +128,4 @@ static struct {
 #include "../include/amaru.h"
 
 #undef AMARU_FUNCTION
-#undef AMARU_SHIFT
 #undef AMARU_USE_COMPACT_TBL

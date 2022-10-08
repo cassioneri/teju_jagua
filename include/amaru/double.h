@@ -6,8 +6,11 @@
 extern "C" {
 #endif
 
-uint32_t amaru_val_to_str_ieee64(double val, char* str);
-ieee64_t amaru_val_to_dec_ieee64(double val);
+ieee64_t
+amaru_from_double_to_decimal(double value);
+
+uint32_t
+amaru_from_double_to_string(double value, char* str);
 
 #ifdef __cplusplus
 }

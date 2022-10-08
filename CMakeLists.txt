@@ -39,4 +39,22 @@ set(BOOST_MP_STANDALONE on)
 set(BUILD_TESTING off)
 FetchContent_MakeAvailable(json)
 
+#---------------------------------------------------------------------------
+# Google Test
+#---------------------------------------------------------------------------
+
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG        release-1.12.1
+  SOURCE_DIR     ${CMAKE_SOURCE_DIR}/tp/googletest
+)
+
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+#---------------------------------------------------------------------------
+# Amaru
+#---------------------------------------------------------------------------
+
 add_subdirectory(src)

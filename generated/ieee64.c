@@ -1,6 +1,6 @@
 // This file was auto-generated. DO NOT EDIT IT.
 
-#include "amaru/generated/ieee64.h"
+#include "ieee64.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -681,7 +681,7 @@ static struct {
 #endif
 
 #define AMARU_FUNCTION amaru_bin_to_dec_ieee64
-#include "../include/amaru.h"
+#include "amaru/amaru.h"
 
 #undef AMARU_FUNCTION
 #undef AMARU_USE_COMPACT_TBL

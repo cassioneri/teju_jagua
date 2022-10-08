@@ -1,6 +1,5 @@
-#include "../generated/ieee64.h"
-#include "../include/common.h"
-#include "../include/ieee64_conv.h"
+#include "amaru/common.h"
+#include "amaru/double.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -9,18 +8,15 @@
 extern "C" {
 #endif
 
-uint32_t amaru_val_to_str_ieee64(double const val, char* str) {
-  (void) val, (void) str;
-  return 0;
-}
-ieee64_t amaru_val_to_dec_ieee64(double const val) {
+ieee64_t
+amaru_from_double_to_decimal(double const value) {
 
   uint32_t const mantissa_size = 52;
   uint32_t const exponent_size = 11;
   int32_t  const exponent_min  = -1074;
 
   uint64_t bits;
-  memcpy(&bits, &val, sizeof(val));
+  memcpy(&bits, &value, sizeof(value));
 
   // Breakdown into ieee64 fields.
 
@@ -29,7 +25,7 @@ ieee64_t amaru_val_to_dec_ieee64(double const val) {
   bits >>= mantissa_size;
   ieee.exponent = AMARU_LSB(bits, exponent_size);
   bits >>= exponent_size;
-  ieee.negative = bits;
+  ieee.is_negative = bits;
 
   // Conversion to Amaru's binary representation.
 
@@ -40,9 +36,16 @@ ieee64_t amaru_val_to_dec_ieee64(double const val) {
     binary.exponent -= 1;
   }
 
-  return amaru_bin_to_dec_ieee64(binary.negative, binary.exponent,
+  return amaru_bin_to_dec_ieee64(binary.is_negative, binary.exponent,
     binary.mantissa);
 }
+
+uint32_t
+amaru_from_double_to_string(double const value, char* str) {
+  (void) value, (void) str;
+  return 0;
+}
+
 
 #ifdef __cplusplus
 }

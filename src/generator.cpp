@@ -22,14 +22,16 @@ namespace amaru {
 /**
  * \brief Returns 2^n.
  */
-integer_t pow2(uint32_t n) {
+integer_t
+pow2(uint32_t n) {
   return integer_t{1} << n;
 }
 
 /**
  * \brief Returns 5^n.
  */
-integer_t pow5(uint32_t n) {
+integer_t
+pow5(uint32_t n) {
   if (n == 0)
     return 1;
   auto const p1 = pow5(n / 2);
@@ -39,7 +41,7 @@ integer_t pow5(uint32_t n) {
 /**
  * \brief Exception thrown by the generator.
  */
-struct amaru_exception : std::range_error {
+struct amaru_exception_t : std::range_error {
   using std::range_error::range_error;
 };
 
@@ -80,7 +82,8 @@ struct info_t {
 
 }; // struct info_t
 
-void to_json(nlohmann::json& json, info_t const& info) {
+void
+to_json(nlohmann::json& json, info_t const& info) {
   json = nlohmann::json{
       {"id"              , info.id              },
       {"suint"           , info.suint           },
@@ -93,7 +96,8 @@ void to_json(nlohmann::json& json, info_t const& info) {
   };
 }
 
-void from_json(nlohmann::json const& json, info_t& info) {
+void
+from_json(nlohmann::json const& json, info_t& info) {
     json.at("id"              ).get_to(info.id              );
     json.at("suint"           ).get_to(info.suint           );
     json.at("duint"           ).get_to(info.duint           );
@@ -117,13 +121,15 @@ struct config_t {
 
 }; // struct config_t
 
-void to_json(nlohmann::json& json, config_t const& config) {
+void
+to_json(nlohmann::json& json, config_t const& config) {
   json = nlohmann::json{
     {"compact", config.compact}
   };
 }
 
-void from_json(nlohmann::json const& json, config_t& config) {
+void
+from_json(nlohmann::json const& json, config_t& config) {
   json.at("compact"  ).get_to(config.compact  );
 }
 
@@ -155,7 +161,8 @@ struct generator_t {
   /**
    * \brief Returns the identifier for the floating point number type.
    */
-  std::string const& id() const {
+  std::string const&
+  id() const {
     return info_.id;
   }
 
@@ -163,7 +170,8 @@ struct generator_t {
    * \brief Returns the C/C++ name of the type used for mantissa storage and
    * calculations.
    */
-  std::string const& suint() const {
+  std::string const&
+  suint() const {
     return info_.suint;
   }
 
@@ -171,63 +179,72 @@ struct generator_t {
    * \brief Returns the C/C++ name of the type used for larger mantissa
    * calculations.
    */
-  std::string const& duint() const {
+  std::string const&
+  duint() const {
     return info_.duint;
   }
 
   /**
    * \brief Returns the size of suint in bits.
    */
-  std::uint32_t const& ssize() const {
+  std::uint32_t const&
+  ssize() const {
     return info_.ssize;
   }
 
   /**
    * \brief Returns the size of exponent in bits.
    */
-  std::uint32_t const& exponent_size() const {
+  std::uint32_t const&
+  exponent_size() const {
     return info_.exponent_size;
   }
 
   /**
    * \brief Returns the minimum binary exponent.
    */
-  std::int32_t const& bin_exponent_min() const {
+  std::int32_t const&
+  bin_exponent_min() const {
     return info_.bin_exponent_min;
   }
 
   /**
    * \brief Returns maximum binary exponent.
    */
-  std::int32_t const& bin_exponent_max() const {
+  std::int32_t const&
+  bin_exponent_max() const {
     return info_.bin_exponent_max;
   }
 
   /**
    * \brief Returns the size of mantissa in bits.
    */
-  std::uint32_t const& mantissa_size() const {
+  std::uint32_t const&
+  mantissa_size() const {
     return info_.mantissa_size;
   }
 
   /**
    * \brief Returns the name of Amaru's conversion function.
    */
-  std::string const& function() const {
+  std::string const&
+  function() const {
     return function_;
   }
 
   /**
    * \brief Returns the C/C++ name of Amaru's representation type.
    */
-  std::string const& rep() const {
+  std::string const&
+  rep() const {
     return rep_;
   }
 
   /**
    * \brief Returns the decimal minimum exponent.
    */
-  std::int32_t const& dec_exponent_min() const {
+  std::int32_t const&
+  dec_exponent_min() const {
     return dec_exponent_min_;
   }
 
@@ -237,7 +254,8 @@ struct generator_t {
    * Mantissas for normal floating point numbers are elements of the interval
    * [normal_mantissa_min(), normal_mantissa_max()[.
    */
-  integer_t const& normal_mantissa_min() const {
+  integer_t const&
+  normal_mantissa_min() const {
     return normal_mantissa_min_;
   }
 
@@ -247,42 +265,48 @@ struct generator_t {
    * Mantissas for normal floating point numbers are elements of the interval
    * [normal_mantissa_min(), normal_mantissa_max()[.
    */
-  integer_t const& normal_mantissa_max() const {
+  integer_t const&
+  normal_mantissa_max() const {
     return normal_mantissa_max_;
   }
 
   /**
    * \brief Returns whether using a compact table of multipliers.
    */
-  bool compact() const {
+  bool
+  compact() const {
     return config_.compact;
   }
 
   /**
    * \brief Returns the directory where generated files are saved.
    */
-  std::string const& directory() const {
+  std::string const&
+  directory() const {
     return config_.directory;
   }
 
   /**
    * \brief Returns the name of the generated .h file.
    */
-  std::string const& dot_h() const {
+  std::string const&
+  dot_h() const {
     return dot_h_;
   }
 
   /**
    * \brief Returns the name of the generated .c file.
    */
-  std::string const& dot_c() const {
+  std::string const&
+  dot_c() const {
     return dot_c_;
   }
 
   /**
    * \brief Generates the declaration and implementation.
    */
-  void generate() const {
+  void
+  generate() const {
 
     auto dot_h_stream = std::ofstream{directory() + dot_h()};
     auto dot_c_stream = std::ofstream{directory() + dot_c()};
@@ -291,12 +315,12 @@ struct generator_t {
 
     // Overflow check 1:
     if (2 * normal_mantissa_max() + 1 >= p2ssize_)
-      throw amaru_exception("suint_t is not large enough for calculations to "
+      throw amaru_exception_t("suint_t is not large enough for calculations to "
         "not overflow.");
 
     // Overflow check 2:
     if (20 * normal_mantissa_min() >= p2ssize_)
-      throw amaru_exception("suint_t is not large enough for calculations to "
+      throw amaru_exception_t("suint_t is not large enough for calculations to "
         "not overflow.");
 
     std::cout << "  Generating \"" << dot_h() << "\".\n";
@@ -339,7 +363,8 @@ private:
    *
    *     phi(m) := m / (delta - alpha * m % delta).
    */
-  static rational_t phi(integer_t const& alpha, integer_t const& delta,
+  static rational_t
+  phi(integer_t const& alpha, integer_t const& delta,
     integer_t const& m) {
     return {m, delta - alpha * m % delta};
   }
@@ -349,7 +374,8 @@ private:
    *
    *     phi'(m') := m' / (1 + (alpha' * m' - 1) % delta').
    */
-  static rational_t phi_p(integer_t const& alpha, integer_t const& delta,
+  static rational_t
+  phi_p(integer_t const& alpha, integer_t const& delta,
     integer_t const& m) {
     return {m, 1 + (alpha * m - 1) % delta};
   }
@@ -359,7 +385,8 @@ private:
    *
    * \param stream Output stream to receive the content.
    */
-  void generate_dot_h(std::ostream& stream) const {
+  void
+  generate_dot_h(std::ostream& stream) const {
 
     stream <<
       "// This file was auto-generated. DO NOT EDIT IT.\n"
@@ -374,12 +401,12 @@ private:
       "#endif\n"
       "\n"
       "typedef struct {\n"
-      "  bool negative;\n"
+      "  bool is_negative;\n"
       "  int32_t exponent;\n"
       "  " << suint() << " mantissa;\n"
       "} " << rep() << ";\n"
       "\n" <<
-        rep() << ' ' << function() << "(bool negative, "
+        rep() << ' ' << function() << "(bool is_negative, "
         "int32_t exponent, " << suint() << " mantissa);\n"
       "\n" <<
       "#ifdef __cplusplus\n"
@@ -392,11 +419,12 @@ private:
    *
    * \param stream Output stream to receive the content.
    */
-  void generate_dot_c(std::ostream& stream) const {
+  void
+  generate_dot_c(std::ostream& stream) const {
 
     stream << "// This file was auto-generated. DO NOT EDIT IT.\n"
       "\n" <<
-      "#include \"amaru/generated/" << dot_h() << "\"\n"
+      "#include \"" << dot_h() << "\"\n"
       "\n"
       "#ifdef __cplusplus\n"
       "extern \"C\" {\n"
@@ -436,7 +464,7 @@ private:
       divide_qr(x.alpha << shift, x.delta, q, r);
 
       if (x.maximum >= rational_t{p2shift, x.delta - r})
-        throw amaru_exception{"Unable to use same shift."};
+        throw amaru_exception_t{"Unable to use same shift."};
 
       fast_eafs[i] = fast_eaf_t{q + 1, shift};
     }
@@ -479,7 +507,7 @@ private:
       divide_qr(fast_eaf.U, p2ssize, upper, lower);
 
       if (upper >= p2ssize)
-        throw amaru_exception{"Multiplier is out of range."};
+        throw amaru_exception_t{"Multiplier is out of range."};
 
       stream << "  { " <<
         "0x" << std::hex << std::setw(nibbles) << std::setfill('0') << upper << ", "
@@ -524,7 +552,7 @@ private:
       "#endif\n"
       "\n"
       "#define AMARU_FUNCTION " << function() << "\n"
-      "#include \"../include/amaru.h\"\n"
+      "#include \"amaru/amaru.h\"\n"
       "\n"
       "#undef AMARU_FUNCTION\n";
 
@@ -542,7 +570,8 @@ private:
    *
    * \returns The vector v.
    */
-  std::vector<alpha_delta_maximum> get_maxima() const {
+  std::vector<alpha_delta_maximum>
+  get_maxima() const {
 
     std::vector<alpha_delta_maximum> maxima;
     maxima.reserve(bin_exponent_max() - bin_exponent_min() + 1);
@@ -576,8 +605,9 @@ private:
    *
    * \pre 0 <= alpha && alpha < delta && a < b.
    */
-  static rational_t get_maximum_primary(integer_t const& alpha,
-    integer_t const& delta, integer_t const& a, integer_t const& b) {
+  static rational_t
+  get_maximum_primary(integer_t const& alpha, integer_t const& delta,
+    integer_t const& a, integer_t const& b) {
 
     auto const b_minus_1 = b - 1;
     auto const maximum1  = phi(alpha, delta, b_minus_1);
@@ -608,8 +638,9 @@ private:
    *
    * \pre 0 < alpha' && 0 < delta' && 1 <= a' && a' < b'.
    */
-  static rational_t get_maximum_secondary(integer_t const& alpha_p,
-    integer_t const& delta_p, integer_t const& a_p, integer_t const& b_p) {
+  static rational_t
+  get_maximum_secondary(integer_t const& alpha_p, integer_t const& delta_p,
+    integer_t const& a_p, integer_t const& b_p) {
 
     if (alpha_p == 0)
       return b_p - 1;
@@ -642,8 +673,9 @@ private:
    *
    * \pre 0 <= alpha && 0 < delta.
    */
-  rational_t get_maximum(integer_t alpha, integer_t const& delta,
-    bool start_at_1 = false) const {
+  rational_t
+  get_maximum(integer_t alpha, integer_t const& delta, bool start_at_1 = false)
+    const {
 
     auto const mantissa_min = normal_mantissa_min();
     auto const mantissa_max = normal_mantissa_max();
@@ -684,7 +716,8 @@ private:
    * \param x               The container of alpha, beta and the solution of
    *                        the primary maximisation problem.
    */
-  fast_eaf_t get_fast_eaf(alpha_delta_maximum const& x) const {
+  fast_eaf_t
+  get_fast_eaf(alpha_delta_maximum const& x) const {
 
     // Making shift >= ssize, simplifies multiply_and_shift executed at runtime.
     // Indeed, it ensures that the least significant limb of the product is
@@ -713,7 +746,7 @@ private:
       }
     }
 
-    throw amaru_exception{"Cannot find fast EAF."};
+    throw amaru_exception_t{"Cannot find fast EAF."};
   }
 
   info_t       info_;
@@ -728,7 +761,8 @@ private:
   std::string  dot_c_;
 };
 
-void report_usage(FILE* const stream, const char* const prog) noexcept {
+void
+report_usage(FILE* const stream, const char* const prog) noexcept {
   std::fprintf(stream, "Usage: %s [OPTION]... CONFIG DIR\n"
     "Generate Amaru source files for the given JSON configuration file CONFIG. "
     "The files are saved in directory DIR.\n"
@@ -738,13 +772,15 @@ void report_usage(FILE* const stream, const char* const prog) noexcept {
     prog);
 }
 
-void report_error(const char* const prog, const char* const msg) noexcept {
+void
+report_error(const char* const prog, const char* const msg) noexcept {
   std::fprintf(stderr, "%s: error: %s.\n", prog, msg);
   report_usage(stderr, prog);
   std::exit(-1);
 }
 
-generator_t parse(const char* const filename, const char* const dir) {
+generator_t
+parse(const char* const filename, const char* const dir) {
 
   std::ifstream file(filename);
   auto const data = nlohmann::json::parse(file);
@@ -760,7 +796,8 @@ generator_t parse(const char* const filename, const char* const dir) {
 
 } // namespace amaru
 
-int main(int const argc, const char* const argv[]) {
+int
+main(int const argc, const char* const argv[]) {
 
   using namespace amaru;
 
@@ -774,7 +811,7 @@ int main(int const argc, const char* const argv[]) {
 
   }
 
-  catch (amaru_exception const& e) {
+  catch (amaru_exception_t const& e) {
     report_error(argv[0], e.what());
   }
 

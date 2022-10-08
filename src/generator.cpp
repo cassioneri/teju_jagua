@@ -1,6 +1,7 @@
-#include "common.h"
+#include "amaru/common.h"
 
 #include <boost/multiprecision/cpp_int.hpp>
+#include <nlohmann/json.hpp>
 
 #include <climits>
 #include <cstdint>
@@ -15,6 +16,8 @@
 
 using integer_t  = boost::multiprecision::cpp_int;
 using rational_t = boost::multiprecision::cpp_rational;
+
+namespace amaru {
 
 /**
  * \brief Returns 2^n.
@@ -41,85 +44,180 @@ struct amaru_exception : std::range_error {
 };
 
 /**
- * \brief Meta information about a floating point number type.
- *
- * Surprisingly, the name of the type is not necessary because Amaru doesn't
- * work directly with values of this type. Instead, they are decoded elsewhere
- * into Amaru's representation of floating point numbers which is a struct
- * containing sign, exponent and mantissa fields.
- *
- * Amaru needs, however, to know two unsigned integer types:
- *
- *    suint : used for mantissa storage and calculations.
- *    duint : used for even bigger calculations. It must be, at least, double
- *            the size of suint.
+ * \brief Information about a floating point number type.
  */
 struct info_t {
+
+  // An identifier for the floating point number type (e.g., "ieee32" or
+  // "ieee64".) This is used in C/C++ identifiers and, accordingly, the set of
+  // accepted characters is defined by the C and C++ standards. In particular,
+  // it must not contain spaces -- "long double" is forbidden.
+  std::string id;
+
+  // C/C++ name of the type used for mantissa storage and calculations (e.g.,
+  // "uint32_t" or "uint64_t".) It might contain spaces -- "unsigned long" is
+  // allowed.
+  std::string suint;
+
+  // C/C++ name of the type used for larger mantissa calculations (e.g.,
+  // "uint64_t" or "uint128_t".) It must be, at least, double the size of suint.
+  std::string duint;
+
+  // The size of suint in bits (e.g., 64.)
+  std::uint32_t ssize;
+
+  // Size of exponent in bits (e.g., 11.)
+  std::uint32_t exponent_size;
+
+  // Minimum binary exponent (e.g., -1074.)
+  std::int32_t bin_exponent_min;
+
+  // Maximum binary exponent (e.g., 971.)
+  std::int32_t bin_exponent_max;
+
+  // Size of mantissa in bits (e.g., 52).
+  std::uint32_t mantissa_size;
+
+}; // struct info_t
+
+void to_json(nlohmann::json& json, info_t const& info) {
+  json = nlohmann::json{
+      {"id"              , info.id              },
+      {"suint"           , info.suint           },
+      {"duint"           , info.duint           },
+      {"ssize"           , info.ssize           },
+      {"exponent_size"   , info.exponent_size   },
+      {"bin_exponent_min", info.bin_exponent_min},
+      {"bin_exponent_max", info.bin_exponent_max},
+      {"mantissa_size"   , info.mantissa_size   }
+  };
+}
+
+void from_json(nlohmann::json const& json, info_t& info) {
+    json.at("id"              ).get_to(info.id              );
+    json.at("suint"           ).get_to(info.suint           );
+    json.at("duint"           ).get_to(info.duint           );
+    json.at("ssize"           ).get_to(info.ssize           );
+    json.at("exponent_size"   ).get_to(info.exponent_size   );
+    json.at("bin_exponent_min").get_to(info.bin_exponent_min);
+    json.at("bin_exponent_max").get_to(info.bin_exponent_max);
+    json.at("mantissa_size"   ).get_to(info.mantissa_size   );
+}
+
+/**
+ * \brief Configuration of Amaru's implementation.
+ */
+struct config_t {
+
+  // Specifies if Amaru should use a compact table of multipliers.
+  bool compact;
+
+  // Directory where generated files are saved.
+  std::string directory;
+
+}; // struct config_t
+
+void to_json(nlohmann::json& json, config_t const& config) {
+  json = nlohmann::json{
+      {"compact"  , config.compact  },
+      {"directory", config.directory}
+  };
+}
+
+void from_json(nlohmann::json const& json, config_t& config) {
+    json.at("compact"  ).get_to(config.compact  );
+    json.at("directory").get_to(config.directory);
+}
+
+/**
+ * \brief Generator of Amaru's implementation for a given floating point number
+ * type.
+ */
+struct generator_t {
 
   /**
    * \brief Constructor.
    *
-   * \param id                An identifier for the floating point number type
-   *                          (e.g., "ieee32" or "ieee64"). This is used in
-   *                          C/C++ identifiers and, accordingly, is restricted
-   *                          to a corresponding set of characters. In
-   *                          particular, it must not contain spaces --
-   *                          "long double" is forbidden).
-   * \param suint             C/C++ name of suint (e.g., "uint32_t" or
-   *                          "uint64_t"). It might contain spaces -- "unsigned
-   *                          long" is allowed.
-   * \param duint             C/C++ name of duint (e.g., "uint64_t" or
-   *                          "uint128_t").
-   * \param ssize             The size of suint in bits.
-   * \param exponent_size     Size of exponent in bits.
-   * \param bin_exponent_min  Minimum exponent in binary.
-   * \param bin exponent_max  Maximum exponent in binary.
-   * \param mantissa_size     Size of mantissa in bits.
+   * \param info            The information on the floating point number type.
+   * \param config          The implementation configuration.
    */
-  info_t(std::string id, std::string suint, std::string duint, uint32_t ssize,
-    uint32_t exponent_size, int32_t bin_exponent_min, int32_t bin_exponent_max,
-    uint32_t mantissa_size) :
-    id_                 {std::move(id)                       },
-    function_           {"amaru_bin_to_dec_" + id_           },
-    suint_              {std::move(suint)                    },
-    duint_              {std::move(duint)                    },
-    rep_                {id_ + "_t"                          },
-    ssize_              {ssize                               },
-    exponent_size_      {exponent_size                       },
-    bin_exponent_min_   {bin_exponent_min                    },
-    bin_exponent_max_   {bin_exponent_max                    },
-    dec_exponent_min_   {log10_pow2(bin_exponent_min)        },
-    mantissa_size_      {mantissa_size                       },
-    normal_mantissa_min_{AMARU_POW2(integer_t, mantissa_size)},
-    normal_mantissa_max_{2 * normal_mantissa_min_            } {
+  generator_t(info_t info, config_t config) :
+    info_               {std::move(info)                           },
+    function_           {"amaru_bin_to_dec_" + info_.id            },
+    rep_                {info_.id + "_t"                           },
+    dec_exponent_min_   {log10_pow2(info_.bin_exponent_min)        },
+    normal_mantissa_min_{AMARU_POW2(integer_t, info_.mantissa_size)},
+    normal_mantissa_max_{2 * normal_mantissa_min_                  },
+    config_             {std::move(config)                         },
+    p2ssize_            {integer_t{1} << info_.ssize               } {
+      auto const prefix = config_.directory + "/" + info_.id;
+      dot_h_ = prefix + ".h";
+      dot_c_ = prefix + ".c";
   }
 
   /**
-   * \brief Returns the id.
+   * \brief Returns the identifier for the floating point number type.
    */
   std::string const& id() const {
-    return id_;
+    return info_.id;
   }
 
   /**
-   * \brief Returns the name of Amaru's function.
+   * \brief Returns the C/C++ name of the type used for mantissa storage and
+   * calculations.
+   */
+  std::string const& suint() const {
+    return info_.suint;
+  }
+
+  /**
+   * \brief Returns the C/C++ name of the type used for larger mantissa
+   * calculations.
+   */
+  std::string const& duint() const {
+    return info_.duint;
+  }
+
+  /**
+   * \brief Returns the size of suint in bits.
+   */
+  std::uint32_t const& ssize() const {
+    return info_.ssize;
+  }
+
+  /**
+   * \brief Returns the size of exponent in bits.
+   */
+  std::uint32_t const& exponent_size() const {
+    return info_.exponent_size;
+  }
+
+  /**
+   * \brief Returns the minimum binary exponent.
+   */
+  std::int32_t const& bin_exponent_min() const {
+    return info_.bin_exponent_min;
+  }
+
+  /**
+   * \brief Returns maximum binary exponent.
+   */
+  std::int32_t const& bin_exponent_max() const {
+    return info_.bin_exponent_max;
+  }
+
+  /**
+   * \brief Returns the size of mantissa in bits.
+   */
+  std::uint32_t const& mantissa_size() const {
+    return info_.mantissa_size;
+  }
+
+  /**
+   * \brief Returns the name of Amaru's conversion function.
    */
   std::string const& function() const {
     return function_;
-  }
-
-  /**
-   * \brief Returns the C/C++ name of suint.
-   */
-  std::string const& suint() const {
-    return suint_;
-  }
-
-  /**
-   * \brief Returns the C/C++ name of duint.
-   */
-  std::string const& duint() const {
-    return duint_;
   }
 
   /**
@@ -130,45 +228,9 @@ struct info_t {
   }
 
   /**
-   * \brief Returns the size in bits of suint.
-   */
-  uint32_t const& ssize() const {
-    return ssize_;
-  }
-
-  /**
-   * \brief Returns size of exponent in bits.
-   */
-  uint32_t const& exponent_size() const {
-    return exponent_size_;
-  }
-
-  /**
-   * \brief Returns the size of mantissa in bits.
-   */
-  uint32_t const& mantissa_size() const {
-    return mantissa_size_;
-  }
-
-  /**
-   * \brief Returns the binary minimum exponent. (As described in Amaru's
-   * representation.)
-   */
-  int32_t const& bin_exponent_min() const {
-    return bin_exponent_min_;
-  }
-
-  /**
-   * \brief Returns the binary maximal exponent.
-   */
-  int32_t const& bin_exponent_max() const {
-    return bin_exponent_max_;
-  }
-
-  /**
    * \brief Returns the decimal minimum exponent.
    */
-  int32_t const& dec_exponent_min() const {
+  std::int32_t const& dec_exponent_min() const {
     return dec_exponent_min_;
   }
 
@@ -192,97 +254,29 @@ struct info_t {
     return normal_mantissa_max_;
   }
 
-private:
-
-  std::string const id_;
-  std::string const function_;
-  std::string const suint_;
-  std::string const duint_;
-  std::string const rep_;
-  uint32_t    const ssize_;
-  uint32_t    const exponent_size_;
-  int32_t     const bin_exponent_min_;
-  int32_t     const bin_exponent_max_;
-  int32_t     const dec_exponent_min_;
-  uint32_t    const mantissa_size_;
-  integer_t   const normal_mantissa_min_;
-  integer_t   const normal_mantissa_max_;
-};
-
-/**
- * \brief Configuration of Amaru's implementation.
- */
-struct config_t {
-
   /**
-   * \brief Constructor.
-   *
-   * \param use_compact_tbl Tells if the multipliers table should have an entry
-   *                        per decimal (compact) or per binary exponent
-   *                        (complete). The compact form requires a few more
-   *                        instructions at runtime. However, the size of the
-   *                        compact table asymptotically goes to log_10(2) (or
-   *                        30%) of the non compact one. In addition to saving
-   *                        memory this might reduce cache misses, possibly,
-   *                        boosting performance.
-   *
-   * \param directory       Directory where generated files are created.
+   * \brief Returns whether using a compact table of multipliers.
    */
-  config_t(bool use_compact_tbl, std::string directory) :
-    use_compact_tbl_{use_compact_tbl     },
-    directory_      {std::move(directory)} {
+  bool compact() const {
+    return config_.compact;
   }
 
   /**
-   * \brief Returns if Amaru should use a compact table of multipliers.
-   */
-  bool use_compact_tbl() const {
-    return use_compact_tbl_;
-  }
-
-  /**
-   * \brief Returns the directory where generated files are created.
+   * \brief Returns the directory where generated files are saved.
    */
   std::string const& directory() const {
-    return directory_;
-  }
-
-private:
-  bool        use_compact_tbl_;
-  std::string directory_;
-};
-
-/**
- * \brief Generator of Amaru's implementation for a given floating point number
- * type.
- */
-struct generator_t {
-
-  /**
-   * \brief Constructor.
-   *
-   * \param info            The meta information of the floating point number
-   *                        type whose implementation is to be generated.
-   * \param config          Configures implementation details.
-   */
-  generator_t(info_t info, config_t config) :
-    info_   {std::move(info)              },
-    config_ {std::move(config)            },
-    p2ssize_{integer_t{1} << info_.ssize()} {
-      auto const prefix = config_.directory() + "/" + info_.id();
-      dot_h_ = prefix + ".h";
-      dot_c_ = prefix + ".c";
+    return config_.directory;
   }
 
   /**
-   * \brief Returns the name of the .h file.
+   * \brief Returns the name of the generated .h file.
    */
   std::string const& dot_h() const {
     return dot_h_;
   }
 
   /**
-   * \brief Returns the name of the .c file.
+   * \brief Returns the name of the generated .c file.
    */
   std::string const& dot_c() const {
     return dot_c_;
@@ -299,12 +293,12 @@ struct generator_t {
     std::cout << "Generation started.\n";
 
     // Overflow check 1:
-    if (2 * info_.normal_mantissa_max() + 1 >= p2ssize_)
+    if (2 * normal_mantissa_max() + 1 >= p2ssize_)
       throw amaru_exception("suint_t is not large enough for calculations to "
         "not overflow.");
 
     // Overflow check 2:
-    if (20 * info_.normal_mantissa_min() >= p2ssize_)
+    if (20 * normal_mantissa_min() >= p2ssize_)
       throw amaru_exception("suint_t is not large enough for calculations to "
         "not overflow.");
 
@@ -385,11 +379,11 @@ private:
       "typedef struct {\n"
       "  bool negative;\n"
       "  int32_t exponent;\n"
-      "  " << info_.suint() << " mantissa;\n"
-      "} " << info_.rep() << ";\n"
+      "  " << suint() << " mantissa;\n"
+      "} " << rep() << ";\n"
       "\n" <<
-        info_.rep() << ' ' << info_.function() << "(bool negative, "
-        "int32_t exponent, " << info_.suint() << " mantissa);\n"
+        rep() << ' ' << function() << "(bool negative, "
+        "int32_t exponent, " << suint() << " mantissa);\n"
       "\n" <<
       "#ifdef __cplusplus\n"
       "}\n"
@@ -402,8 +396,6 @@ private:
    * \param stream Output stream to receive the content.
    */
   void generate_dot_c(std::ostream& stream) const {
-
-    auto const ssize = info_.ssize();
 
     stream << "// This file is auto-generated. DO NOT EDIT IT.\n"
       "\n" <<
@@ -432,8 +424,8 @@ private:
     // Optimal shift is 2 * size since it prevents multipliy_and_shift to
     // deal with partial limbs. In addition to subtract 1 to compensate the
     // increment adjustment made when the shift is output.
-    if (config_.use_compact_tbl())
-      shift = 2 * ssize - 1;
+    if (config_.compact)
+      shift = 2 * ssize() - 1;
 
     // Replace minimal fast EAFs to use the same shift.
 
@@ -452,25 +444,25 @@ private:
       fast_eafs[i] = fast_eaf_t{q + 1, shift};
     }
 
-    auto const p2ssize = integer_t{1} << ssize;
+    auto const p2ssize = integer_t{1} << ssize();
 
     stream <<
-      "typedef " << info_.suint() << " suint_t;\n"
-      "typedef " << info_.duint() << " duint_t;\n"
-      "typedef " << info_.rep()   << " rep_t;\n"
+      "typedef " << suint() << " suint_t;\n"
+      "typedef " << duint() << " duint_t;\n"
+      "typedef " << rep()   << " rep_t;\n"
       "\n"
       "enum {\n"
-      "  ssize            = " << info_.ssize()            << ",\n"
-      "  mantissa_size    = " << info_.mantissa_size()    << ",\n"
-      "  bin_exponent_min = " << info_.bin_exponent_min() << ",\n"
-      "  dec_exponent_min = " << info_.dec_exponent_min() << ",\n"
+      "  ssize            = " << ssize()            << ",\n"
+      "  mantissa_size    = " << mantissa_size()    << ",\n"
+      "  bin_exponent_min = " << bin_exponent_min() << ",\n"
+      "  dec_exponent_min = " << dec_exponent_min() << ",\n"
       // Instead of Amaru dividing multipliy_and_shift(m_a, upper, lower) by 2
       // we increment the shift here so this has the same effect.
       "  shift            = " << shift + 1                << "\n"
       "};\n"
       "\n";
 
-    if (config_.use_compact_tbl())
+    if (compact())
       stream << "#define AMARU_USE_COMPACT_TBL\n\n";
 
     stream <<
@@ -479,10 +471,10 @@ private:
       "  suint_t  const lower;\n"
       "} const multipliers[] = {\n";
 
-    auto const nibbles = ssize / 4;
+    auto const nibbles = ssize() / 4;
 
-    auto e2      = info_.bin_exponent_min();
-    auto e2_or_f = config_.use_compact_tbl() ? log10_pow2(e2) : e2;
+    auto e2      = bin_exponent_min();
+    auto e2_or_f = compact() ? log10_pow2(e2) : e2;
 
     for (auto const& fast_eaf : fast_eafs) {
 
@@ -516,7 +508,7 @@ private:
     // 3. C  = 20 * mantissa_min * 2^e * 5^{-f} <= 200 * mantissa_min;
     // Hence, 200 * mantissa_max is a conservative bound, i.e.,
     // If 5^f > 200 * mantissa_max, then is_multiple_of_pow5(C, f) == false;
-    for (int32_t f = 0; p5 <= 200 * info_.normal_mantissa_max(); ++f) {
+    for (int32_t f = 0; p5 <= 200 * normal_mantissa_max(); ++f) {
       auto const bound = p2ssize / p5 - (f == 0);
       stream << "  { "
         "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
@@ -534,12 +526,12 @@ private:
       "}\n"
       "#endif\n"
       "\n"
-      "#define AMARU_FUNCTION " << info_.function() << "\n"
+      "#define AMARU_FUNCTION " << function() << "\n"
       "#include \"../include/amaru.h\"\n"
       "\n"
       "#undef AMARU_FUNCTION\n";
 
-    if (config_.use_compact_tbl())
+    if (config_.compact)
       stream << "#undef AMARU_USE_COMPACT_TBL\n";
   }
 
@@ -556,25 +548,23 @@ private:
   std::vector<alpha_delta_maximum> get_maxima() const {
 
     std::vector<alpha_delta_maximum> maxima;
-    maxima.reserve(info_.bin_exponent_max() - info_.bin_exponent_min() + 1);
+    maxima.reserve(bin_exponent_max() - bin_exponent_min() + 1);
 
-    auto f_done = log10_pow2(info_.bin_exponent_min()) - 1;
+    auto f_done = log10_pow2(bin_exponent_min()) - 1;
 
-    for (auto e2 = info_.bin_exponent_min(); e2 <= info_.bin_exponent_max();
-      ++e2) {
+    for (auto e2 = bin_exponent_min(); e2 <= bin_exponent_max(); ++e2) {
 
       auto const f = log10_pow2(e2);
 
-      if (config_.use_compact_tbl() && f == f_done)
+      if (config_.compact && f == f_done)
         continue;
 
-      auto const e = (config_.use_compact_tbl() ?
-        e2 - log10_pow2_remainder(e2) : e2) - f;
+      auto const e = (config_.compact ? e2 - log10_pow2_remainder(e2) : e2) - f;
 
       alpha_delta_maximum x;
       x.alpha   = f >= 0 ? pow2(e) : pow5(-f);
       x.delta   = f >= 0 ? pow5(f) : pow2(-e);
-      x.maximum = get_maximum(x.alpha, x.delta, e2 == info_.bin_exponent_min());
+      x.maximum = get_maximum(x.alpha, x.delta, e2 == bin_exponent_min());
 
       maxima.emplace_back(std::move(x));
 
@@ -658,16 +648,16 @@ private:
   rational_t get_maximum(integer_t alpha, integer_t const& delta,
     bool start_at_1 = false) const {
 
-    auto const mantissa_min = info_.normal_mantissa_min();
-    auto const mantissa_max = info_.normal_mantissa_max();
+    auto const mantissa_min = normal_mantissa_min();
+    auto const mantissa_max = normal_mantissa_max();
 
     alpha %= delta;
 
     // Usual interval.
 
     auto const a = start_at_1 ? integer_t{1} : integer_t{2 * mantissa_min};
-    auto const b = config_.use_compact_tbl() ?
-        integer_t{16 * mantissa_max - 15} : integer_t{2 * mantissa_max};
+    auto const b = compact() ? integer_t{16 * mantissa_max - 15} :
+      integer_t{2 * mantissa_max};
 
     auto const max_ab = get_maximum_primary(alpha, delta, a, b);
 
@@ -681,7 +671,7 @@ private:
       return std::max(max_m_a, max_m_c);
     };
 
-    if (!config_.use_compact_tbl())
+    if (!config_.compact)
       return std::max(max_ab, max_extras(mantissa_min));
 
     return std::max({max_ab, max_extras(mantissa_min),
@@ -704,14 +694,14 @@ private:
     // irrelevant. For this reason, later on, the generator actually outputs
     // shift - ssize (still labelling it as 'shift') so that Amaru doesn't need
     // to do it at runtime.
-    auto k    = info_.ssize();
+    auto k    = ssize();
     auto pow2 = integer_t{1} << k;
 
     integer_t q, r;
     divide_qr(pow2 * x.alpha, x.delta, q, r);
 
     // It should return from inside the loop but let's set an upper bound.
-    while (k < 3 * info_.ssize()) {
+    while (k < 3 * ssize()) {
 
       if (x.maximum < rational_t{pow2, x.delta - r})
         return { q + 1, k };
@@ -729,58 +719,72 @@ private:
     throw amaru_exception{"Cannot find fast EAF."};
   }
 
-  info_t      info_;
-  config_t    config_;
-  integer_t   p2ssize_;
-  std::string dot_h_;
-  std::string dot_c_;
+  info_t       info_;
+  std::string  function_;
+  std::string  rep_;
+  std::int32_t dec_exponent_min_;
+  integer_t    normal_mantissa_min_;
+  integer_t    normal_mantissa_max_;
+  config_t     config_;
+  integer_t    p2ssize_;
+  std::string  dot_h_;
+  std::string  dot_c_;
 };
 
-int main() {
+void report_usage(FILE* const stream, const char* const prog) noexcept {
+  std::fprintf(stream, "Usage: %s [OPTION]... FILE\n"
+    "Generate Amaru source files for the given JSON configuration FILE.\n"
+    "\n"
+    "Options:\n"
+    "  --h        shows this message and exits.\n",
+    prog);
+}
+
+void report_error(const char* const prog, const char* const msg) noexcept {
+  std::fprintf(stderr, "%s: error: %s.\n", prog, msg);
+  report_usage(stderr, prog);
+  std::exit(-1);
+}
+
+generator_t read_config(const char* const filename) {
+
+  using namespace nlohmann;
+
+  std::ifstream file(filename);
+  auto const data = json::parse(file);
+
+  auto info   = data["info"  ].get<info_t  >();
+  auto config = data["config"].get<config_t>();
+
+  return { std::move(info), std::move(config) };
+}
+
+} // namespace amaru
+
+int main(int const argc, const char* const argv[]) {
+
+  using namespace amaru;
+
+  if (argc != 2)
+    report_error(argv[0], "expected a single argument (JSON configuration "
+      "file");
 
   try {
 
-    auto const config = config_t{
-      /* use_compact_tbl */ true,
-      /* directory       */ "../generated"
-    };
+    auto const generator = read_config(argv[1]);
+    generator.generate();
 
-    auto const ieee32_info = info_t{
-      /* id               */ "ieee32",
-      /* suint            */ "uint32_t",
-      /* duint            */ "uint64_t",
-      /* ssize            */ 32,
-      /* exponent_size    */ 8,
-      /* bin_exponent_min */ -149,
-      /* bin_exponent_max */ 104,
-      /* mantissa_size    */ 23
-    };
-    auto generator_32 = generator_t{ieee32_info, config};
-    generator_32.generate();
-
-    auto const ieee64_info = info_t{
-      /* id               */ "ieee64",
-      /* suint            */ "uint64_t",
-      /* duint            */ "__uint128_t",
-      /* ssize            */ 64,
-      /* exponent_size    */ 11,
-      /* bin_exponent_min */ -1074,
-      /* bin_exponent_max */ 971,
-      /* mantissa_size    */ 52
-    };
-    auto generator_64 = generator_t{ieee64_info, config};
-    generator_64.generate();
   }
 
   catch (amaru_exception const& e) {
-    std::printf("Generation failed: %s\n", e.what());
+    report_error(argv[0], e.what());
   }
 
   catch (std::exception const& e) {
-    std::printf("std::exception thrown: %s\n", e.what());
+    report_error(argv[0], e.what());
   }
 
   catch (...) {
-    std::printf("Unknown exception thrown.\n");
+    report_error(argv[0], "unknown error");
   }
 }

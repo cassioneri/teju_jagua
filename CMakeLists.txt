@@ -25,7 +25,18 @@ set(BUILD_TESTING off)
 FetchContent_MakeAvailable(multiprecision)
 
 #---------------------------------------------------------------------------
-#
+# nlohmann JSON
 #---------------------------------------------------------------------------
+
+FetchContent_Declare(
+  json
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG        v3.11.2
+  SOURCE_DIR     ${CMAKE_SOURCE_DIR}/tp/json
+)
+
+set(BOOST_MP_STANDALONE on)
+set(BUILD_TESTING off)
+FetchContent_MakeAvailable(json)
 
 add_subdirectory(src)

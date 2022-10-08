@@ -1,4 +1,4 @@
-// This file is auto-generated. DO NOT EDIT IT.
+// This file was auto-generated. DO NOT EDIT IT.
 
 #pragma once
 

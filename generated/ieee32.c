@@ -1,6 +1,6 @@
-// This file is auto-generated. DO NOT EDIT IT.
+// This file was auto-generated. DO NOT EDIT IT.
 
-#include "../generated/ieee32.h"
+#include "amaru/generated/ieee32.h"
 
 #ifdef __cplusplus
 extern "C" {

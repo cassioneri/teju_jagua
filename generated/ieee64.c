@@ -1,6 +1,6 @@
-// This file is auto-generated. DO NOT EDIT IT.
+// This file was auto-generated. DO NOT EDIT IT.
 
-#include "/home/cassio/amaru/generated/ieee64.h"
+#include "amaru/generated/ieee64.h"
 
 #ifdef __cplusplus
 extern "C" {

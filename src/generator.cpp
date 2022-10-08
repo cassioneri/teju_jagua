@@ -119,14 +119,12 @@ struct config_t {
 
 void to_json(nlohmann::json& json, config_t const& config) {
   json = nlohmann::json{
-      {"compact"  , config.compact  },
-      {"directory", config.directory}
+    {"compact", config.compact}
   };
 }
 
 void from_json(nlohmann::json const& json, config_t& config) {
-    json.at("compact"  ).get_to(config.compact  );
-    json.at("directory").get_to(config.directory);
+  json.at("compact"  ).get_to(config.compact  );
 }
 
 /**
@@ -143,16 +141,15 @@ struct generator_t {
    */
   generator_t(info_t info, config_t config) :
     info_               {std::move(info)                           },
+    config_             {std::move(config)                         },
     function_           {"amaru_bin_to_dec_" + info_.id            },
     rep_                {info_.id + "_t"                           },
     dec_exponent_min_   {log10_pow2(info_.bin_exponent_min)        },
     normal_mantissa_min_{AMARU_POW2(integer_t, info_.mantissa_size)},
     normal_mantissa_max_{2 * normal_mantissa_min_                  },
-    config_             {std::move(config)                         },
-    p2ssize_            {integer_t{1} << info_.ssize               } {
-      auto const prefix = config_.directory + "/" + info_.id;
-      dot_h_ = prefix + ".h";
-      dot_c_ = prefix + ".c";
+    p2ssize_            {integer_t{1} << info_.ssize               },
+    dot_h_              {info_.id + ".h"                           },
+    dot_c_              {info_.id + ".c"                           } {
   }
 
   /**
@@ -287,8 +284,8 @@ struct generator_t {
    */
   void generate() const {
 
-    auto dot_h_stream = std::ofstream{dot_h()};
-    auto dot_c_stream = std::ofstream{dot_c()};
+    auto dot_h_stream = std::ofstream{directory() + dot_h()};
+    auto dot_c_stream = std::ofstream{directory() + dot_c()};
 
     std::cout << "Generation started.\n";
 
@@ -365,7 +362,7 @@ private:
   void generate_dot_h(std::ostream& stream) const {
 
     stream <<
-      "// This file is auto-generated. DO NOT EDIT IT.\n"
+      "// This file was auto-generated. DO NOT EDIT IT.\n"
       "\n"
       "#pragma once\n"
       "\n"
@@ -397,9 +394,9 @@ private:
    */
   void generate_dot_c(std::ostream& stream) const {
 
-    stream << "// This file is auto-generated. DO NOT EDIT IT.\n"
+    stream << "// This file was auto-generated. DO NOT EDIT IT.\n"
       "\n" <<
-      "#include \"" << dot_h() << "\"\n"
+      "#include \"amaru/generated/" << dot_h() << "\"\n"
       "\n"
       "#ifdef __cplusplus\n"
       "extern \"C\" {\n"
@@ -720,20 +717,21 @@ private:
   }
 
   info_t       info_;
+  config_t     config_;
   std::string  function_;
   std::string  rep_;
   std::int32_t dec_exponent_min_;
   integer_t    normal_mantissa_min_;
   integer_t    normal_mantissa_max_;
-  config_t     config_;
   integer_t    p2ssize_;
   std::string  dot_h_;
   std::string  dot_c_;
 };
 
 void report_usage(FILE* const stream, const char* const prog) noexcept {
-  std::fprintf(stream, "Usage: %s [OPTION]... FILE\n"
-    "Generate Amaru source files for the given JSON configuration FILE.\n"
+  std::fprintf(stream, "Usage: %s [OPTION]... CONFIG DIR\n"
+    "Generate Amaru source files for the given JSON configuration file CONFIG. "
+    "The files are saved in directory DIR.\n"
     "\n"
     "Options:\n"
     "  --h        shows this message and exits.\n",
@@ -746,15 +744,16 @@ void report_error(const char* const prog, const char* const msg) noexcept {
   std::exit(-1);
 }
 
-generator_t read_config(const char* const filename) {
-
-  using namespace nlohmann;
+generator_t parse(const char* const filename, const char* const dir) {
 
   std::ifstream file(filename);
-  auto const data = json::parse(file);
+  auto const data = nlohmann::json::parse(file);
 
   auto info   = data["info"  ].get<info_t  >();
   auto config = data["config"].get<config_t>();
+  config.directory = dir;
+  if (config.directory.back() != '/')
+    config.directory.append(1, '/');
 
   return { std::move(info), std::move(config) };
 }
@@ -765,13 +764,12 @@ int main(int const argc, const char* const argv[]) {
 
   using namespace amaru;
 
-  if (argc != 2)
-    report_error(argv[0], "expected a single argument (JSON configuration "
-      "file");
+  if (argc != 3)
+    report_error(argv[0], "expected two arguments");
 
   try {
 
-    auto const generator = read_config(argv[1]);
+    auto const generator = parse(argv[1], argv[2]);
     generator.generate();
 
   }

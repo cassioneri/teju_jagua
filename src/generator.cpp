@@ -1,4 +1,4 @@
-#include "../include/common.h"
+#include "common.h"
 
 #include <boost/multiprecision/cpp_int.hpp>
 

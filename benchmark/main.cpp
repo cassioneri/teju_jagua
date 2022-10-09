@@ -108,8 +108,8 @@ __attribute__((noinline))
 double
 benchmark(T value, void (*function)(T), std::uint32_t n_iterations) {
 
-  using ns_t    = std::chrono::nanoseconds;
-  using clock_t = std::chrono::high_resolution_clock;
+  using clock_t = std::chrono::steady_clock;
+  using tickt_t = clock_t::period;
 
   for (auto n = 20; n != 0; --n)
     function(value);
@@ -119,7 +119,7 @@ benchmark(T value, void (*function)(T), std::uint32_t n_iterations) {
     function(value);
   auto const end = clock_t::now();
 
-  return double(ns_t{end - start}.count()) / n_iterations;
+  return double((end - start).count()) / n_iterations;
 }
 
 template <typename T>

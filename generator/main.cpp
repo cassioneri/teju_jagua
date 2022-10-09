@@ -23,7 +23,7 @@ namespace amaru {
  * \brief Returns 2^n.
  */
 integer_t
-pow2(uint32_t n) {
+pow2(std::uint32_t n) {
   return integer_t{1} << n;
 }
 
@@ -31,7 +31,7 @@ pow2(uint32_t n) {
  * \brief Returns 5^n.
  */
 integer_t
-pow5(uint32_t n) {
+pow5(std::uint32_t n) {
   if (n == 0)
     return 1;
   auto const p1 = pow5(n / 2);
@@ -343,8 +343,8 @@ private:
    * This type stores U and k.
    */
   struct fast_eaf_t {
-    integer_t U;
-    uint32_t  k;
+    integer_t     U;
+    std::uint32_t k;
   };
 
   /**

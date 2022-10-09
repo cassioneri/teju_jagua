@@ -17,7 +17,8 @@
 // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
 struct stats_t {
 
-  void update(double const x) {
+  void
+  update(double const x) {
     ++count_;
     auto const delta    = x - mean_;
     mean_              += delta / count_;
@@ -25,22 +26,25 @@ struct stats_t {
     m2_                += delta * delta2;
   }
 
-  double mean() const {
+  double
+  mean() const {
     return mean_;
   }
 
-  double variance() const {
+  double
+  variance() const {
     return m2_ / (count_ - 1);
   }
 
-  double stddev() const {
+  double
+  stddev() const {
     return sqrt(variance());
   }
 
 private:
-  uint64_t count_ = 0;
-  double   mean_  = 0;
-  double   m2_    = 0;
+  std::uint64_t count_ = 0;
+  double        mean_  = 0;
+  double        m2_    = 0;
 };
 
 template <typename>
@@ -67,7 +71,7 @@ to_ieee(T const value) {
 
 template <typename T>
 T
-from_ieee(uint32_t exponent, typename fp_traits_t<T>::suint_t mantissa) {
+from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::suint_t mantissa) {
 
   using         traits_t  = fp_traits_t<T>;
   using         suint_t   = typename traits_t::suint_t;
@@ -85,8 +89,8 @@ struct fp_traits_t<float> {
 
   using suint_t = std::uint32_t;
 
-  static auto constexpr exponent_size = uint32_t{8};
-  static auto constexpr mantissa_size = uint32_t{23};
+  static auto constexpr exponent_size = std::uint32_t{8};
+  static auto constexpr mantissa_size = std::uint32_t{23};
 
   static void
   amaru(float const value) {
@@ -120,7 +124,8 @@ struct fp_traits_t<double> {
 
 template <typename T>
 __attribute__((noinline))
-double benchmark(T value, void (*function)(T), uint32_t n_iterations) {
+double
+benchmark(T value, void (*function)(T), std::uint32_t n_iterations) {
 
   using ns_t    = std::chrono::nanoseconds;
   using clock_t = std::chrono::high_resolution_clock;
@@ -137,7 +142,8 @@ double benchmark(T value, void (*function)(T), uint32_t n_iterations) {
 }
 
 template <typename T>
-void benchmark() {
+void
+benchmark() {
 
   std::cout.precision(std::numeric_limits<T>::digits10 + 2);
   std::cout << "exponent, mantissa, integer, value, amaru, other\n";
@@ -150,8 +156,8 @@ void benchmark() {
   std::mt19937_64 device;
   auto dist = std::uniform_int_distribution<suint_t> {1, mantissa_max};
 
-  auto           n_mantissas  = uint32_t{1000};
-  auto constexpr n_iterations = uint32_t{1024};
+  auto           n_mantissas  = std::uint32_t{1000};
+  auto constexpr n_iterations = std::uint32_t{1024};
 
   stats_t amaru_stats, dragonbox_stats;
 
@@ -162,7 +168,7 @@ void benchmark() {
 
     // If exponent == exponent_max, then value is infinity or NaN. Hence, we
     // exclude exponent_max.
-    for (uint32_t exponent = 0; exponent < exponent_max; ++exponent) {
+    for (std::uint32_t exponent = 0; exponent < exponent_max; ++exponent) {
 
       auto const value = from_ieee<T>(exponent, mantissa);
 

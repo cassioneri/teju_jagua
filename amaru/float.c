@@ -8,30 +8,40 @@
 extern "C" {
 #endif
 
-ieee32_t
-amaru_from_float_to_decimal(float const value) {
+enum {
+  mantissa_size =   23,
+  exponent_size =    8,
+  exponent_min  = -149
+};
 
-  uint32_t const mantissa_size = 23;
-  uint32_t const exponent_size = 8;
-  int32_t  const exponent_min  = -149;
+ieee32_t
+amaru_from_float_to_fields(float const value) {
 
   uint32_t bits;
   memcpy(&bits, &value, sizeof(value));
 
   // Breakdown into ieee32 fields.
 
-  ieee32_t ieee;
-  ieee.mantissa = AMARU_LSB(bits, mantissa_size);
+  ieee32_t binary;
+  binary.mantissa = AMARU_LSB(bits, mantissa_size);
   bits >>= mantissa_size;
-  ieee.exponent = AMARU_LSB(bits, exponent_size);
+  binary.exponent = AMARU_LSB(bits, exponent_size);
   bits >>= exponent_size;
-  ieee.is_negative = bits;
+  binary.is_negative = bits;
+
+  return binary;
+}
+
+ieee32_t
+amaru_from_float_to_decimal(float const value) {
 
   // Conversion to Amaru's binary representation.
 
-  ieee32_t binary = ieee;
+  ieee32_t binary        = amaru_from_float_to_fields(value);
+  uint32_t ieee_exponent = binary.exponent;
+
   binary.exponent += exponent_min;
-  if (ieee.exponent != 0) {
+  if (ieee_exponent != 0) {
     binary.mantissa += AMARU_POW2(uint32_t, mantissa_size);
     binary.exponent -= 1;
   }

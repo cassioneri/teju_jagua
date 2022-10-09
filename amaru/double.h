@@ -7,6 +7,9 @@ extern "C" {
 #endif
 
 ieee64_t
+amaru_from_double_to_fields(double value);
+
+ieee64_t
 amaru_from_double_to_decimal(double value);
 
 uint32_t

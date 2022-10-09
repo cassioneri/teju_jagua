@@ -135,25 +135,6 @@ template <typename>
 struct fp_traits_t;
 
 template <typename T>
-typename fp_traits_t<T>::amaru_t
-to_ieee(T const value) {
-
-  using traits_t = fp_traits_t<T>;
-
-  typename traits_t::suint_t i;
-  std::memcpy(&i, &value, sizeof(value));
-
-  typename fp_traits_t<T>::amaru_t ieee;
-  ieee.mantissa = AMARU_LSB(i, traits_t::mantissa_size);
-  i >>= traits_t::mantissa_size;
-  ieee.exponent = AMARU_LSB(i, traits_t::exponent_size);
-  i >>= traits_t::exponent_size;
-  ieee.is_negative = i;
-
-  return ieee;
-}
-
-template <typename T>
 T
 get_next(T value) {
   typename fp_traits_t<T>::suint_t i;
@@ -172,6 +153,11 @@ struct fp_traits_t<float> {
 
   static auto constexpr exponent_size = uint32_t{8};
   static auto constexpr mantissa_size = uint32_t{23};
+
+  static ieee32_t
+  fields(float const value) {
+    return amaru_from_float_to_fields(value);
+  }
 
   static amaru_t
   amaru(float const value) {
@@ -210,12 +196,17 @@ struct fp_traits_t<double> {
   static auto constexpr exponent_size = uint32_t{11};
   static auto constexpr mantissa_size = uint32_t{52};
 
-  static auto
+  static ieee64_t
+  fields(double const value) {
+    return amaru_from_double_to_fields(value);
+  }
+
+  static amaru_t
   amaru(double const value) {
     return amaru_from_double_to_decimal(value);
   }
 
-  static auto
+  static other_t
   other(double const value) {
     return amaru::dragonbox::to_decimal(value);
   }
@@ -243,7 +234,7 @@ void compare_to_other(T const value) {
   auto constexpr digits   = std::numeric_limits<T>::digits10 + 2;
   auto const     amaru    = traits_t::amaru(value);
   auto const     other    = traits_t::other(value);
-  auto const     ieee     = to_ieee(value);
+  auto const     ieee     = traits_t::fields(value);
 
   EXPECT_EQ(traits_t::exponent(other), amaru.exponent) << "Note: "
     "value = " << std::setprecision(digits) << value << ", "
@@ -263,7 +254,7 @@ TEST(float_tests, exhaustive_comparison_to_other) {
 
   while (std::isfinite(value) && !HasFailure()) {
 
-    auto const ieee = to_ieee(value);
+    auto const ieee = fp_traits_t<float>::fields(value);
     if (ieee.exponent != exponent) {
       exponent = ieee.exponent;
       std::cerr << "Exponent: " << exponent << std::endl;

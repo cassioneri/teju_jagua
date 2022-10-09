@@ -8,30 +8,40 @@
 extern "C" {
 #endif
 
-ieee64_t
-amaru_from_double_to_decimal(double const value) {
+enum {
+  mantissa_size =    52,
+  exponent_size =    11,
+  exponent_min  = -1074
+};
 
-  uint32_t const mantissa_size = 52;
-  uint32_t const exponent_size = 11;
-  int32_t  const exponent_min  = -1074;
+ieee64_t
+amaru_from_double_to_fields(double const value) {
 
   uint64_t bits;
   memcpy(&bits, &value, sizeof(value));
 
   // Breakdown into ieee64 fields.
 
-  ieee64_t ieee;
-  ieee.mantissa = AMARU_LSB(bits, mantissa_size);
+  ieee64_t binary;
+  binary.mantissa = AMARU_LSB(bits, mantissa_size);
   bits >>= mantissa_size;
-  ieee.exponent = AMARU_LSB(bits, exponent_size);
+  binary.exponent = AMARU_LSB(bits, exponent_size);
   bits >>= exponent_size;
-  ieee.is_negative = bits;
+  binary.is_negative = bits;
+
+  return binary;
+}
+
+ieee64_t
+amaru_from_double_to_decimal(double const value) {
 
   // Conversion to Amaru's binary representation.
 
-  ieee64_t binary = ieee;
+  ieee64_t binary        = amaru_from_double_to_fields(value);
+  uint32_t ieee_exponent = binary.exponent;
+
   binary.exponent += exponent_min;
-  if (ieee.exponent != 0) {
+  if (ieee_exponent != 0) {
     binary.mantissa += AMARU_POW2(uint64_t, mantissa_size);
     binary.exponent -= 1;
   }

@@ -51,25 +51,6 @@ template <typename>
 struct fp_traits_t;
 
 template <typename T>
-typename fp_traits_t<T>::rep_t
-to_ieee(T const value) {
-
-  using traits_t = fp_traits_t<T>;
-
-  typename traits_t::suint_t i;
-  std::memcpy(&i, &value, sizeof(value));
-
-  typename fp_traits_t<T>::rep_t ieee;
-  ieee.mantissa = AMARU_LSB(i, traits_t::mantissa_size);
-  i >>= traits_t::mantissa_size;
-  ieee.exponent = AMARU_LSB(i, traits_t::exponent_size);
-  i >>= traits_t::exponent_size;
-  ieee.negative = i;
-
-  return ieee;
-}
-
-template <typename T>
 T
 from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::suint_t mantissa) {
 
@@ -146,7 +127,7 @@ void
 benchmark() {
 
   std::cout.precision(std::numeric_limits<T>::digits10 + 2);
-  std::cout << "exponent, mantissa, integer, value, amaru, other\n";
+  std::cout << "exponent, mantissa, integer, value, amaru, dragonbox\n";
 
   using traits_t          = fp_traits_t<T>;
   using suint_t           = typename traits_t::suint_t;

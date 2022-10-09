@@ -1,6 +1,7 @@
-#include "../include/common.h"
-#include "../include/ieee32_conv.h"
-#include "../include/ieee64_conv.h"
+#include "amaru/common.h"
+#include "amaru/double.h"
+#include "amaru/float.h"
+#include "other/other.hpp"
 
 #include <chrono>
 #include <cstdint>
@@ -11,8 +12,6 @@
 
 #include <sys/types.h>
 #include <unistd.h>
-
-#include "other.hpp"
 
 // Welford's online algorithm
 // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
@@ -84,42 +83,38 @@ from_ieee(uint32_t exponent, typename fp_traits_t<T>::suint_t mantissa) {
 template <>
 struct fp_traits_t<float> {
 
-  using fp_t    = float;
-  using suint_t = uint32_t;
-  using rep_t   = ieee32_t;
+  using suint_t = std::uint32_t;
 
   static auto constexpr exponent_size = uint32_t{8};
   static auto constexpr mantissa_size = uint32_t{23};
 
   static void
-  amaru(fp_t const value) {
-    amaru_val_to_dec_ieee32(value);
+  amaru(float const value) {
+    amaru_from_float_to_decimal(value);
   }
 
   static void
-  other(fp_t const value) {
-    other::decimal(value);
+  dragonbox(float const value) {
+    amaru::dragonbox::to_decimal(value);
   }
 };
 
 template <>
 struct fp_traits_t<double> {
 
-  using fp_t    = double;
-  using suint_t = uint64_t;
-  using rep_t   = ieee64_t;
+  using suint_t = std::uint64_t;
 
   static auto constexpr exponent_size = uint32_t{11};
   static auto constexpr mantissa_size = uint32_t{52};
 
   static void
-  amaru(fp_t const value) {
-    amaru_val_to_dec_ieee64(value);
+  amaru(double const value) {
+    amaru_from_double_to_decimal(value);
   }
 
   static void
-  other(fp_t const value) {
-    other::decimal(value);
+  dragonbox(double const value) {
+    amaru::dragonbox::to_decimal(value);
   }
 };
 
@@ -158,7 +153,7 @@ void benchmark() {
   auto           n_mantissas  = uint32_t{1000};
   auto constexpr n_iterations = uint32_t{1024};
 
-  stats_t amaru_stats, other_stats;
+  stats_t amaru_stats, dragonbox_stats;
 
   while (n_mantissas--) {
 
@@ -174,28 +169,30 @@ void benchmark() {
       auto const amaru = benchmark(value, &traits_t::amaru, n_iterations);
       amaru_stats.update(amaru);
 
-      auto const other = benchmark(value, &traits_t::other, n_iterations);
-      other_stats.update(other);
+      auto const dragonbox = benchmark(value, &traits_t::dragonbox,
+        n_iterations);
+      dragonbox_stats.update(dragonbox);
 
       suint_t integer;
       std::memcpy(&integer, &value, sizeof(value));
 
       std::cout <<
-        exponent << ", " <<
-        mantissa << ", " <<
-        integer  << ", " <<
-        value    << ", " <<
-        amaru    << ", " <<
-        other    << "\n";
+        exponent  << ", " <<
+        mantissa  << ", " <<
+        integer   << ", " <<
+        value     << ", " <<
+        amaru     << ", " <<
+        dragonbox << "\n";
     }
   }
 
-  std::cerr << "amaru (mean)   = " << amaru_stats.mean()   << '\n';
-  std::cerr << "amaru (stddev) = " << amaru_stats.stddev() << '\n';
-  std::cerr << "other (mean)   = " << other_stats.mean()   << '\n';
-  std::cerr << "other (stddev) = " << other_stats.stddev() << '\n';
-  std::cerr << "speed up       = " << other_stats.mean() / amaru_stats.mean()
-    << '\n';
+  std::cerr << "amaru (mean)         = " << amaru_stats    .mean()   << '\n';
+  std::cerr << "amaru (stddev)       = " << amaru_stats    .stddev() << '\n';
+
+  std::cerr << "dragonbox (mean)     = " << dragonbox_stats.mean()   << '\n';
+  std::cerr << "dragonbox (stddev)   = " << dragonbox_stats.stddev() << '\n';
+  std::cerr << "dragonbox (relative) = " <<
+    dragonbox_stats.mean() / amaru_stats.mean() << '\n';
 }
 
 int main() {

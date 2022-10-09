@@ -13,6 +13,7 @@ project(amaru
 )
 
 add_subdirectory(amaru)
+add_subdirectory(benchmark)
 add_subdirectory(generator)
 add_subdirectory(other)
 add_subdirectory(test)

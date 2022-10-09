@@ -166,7 +166,7 @@ get_next(T value) {
 template <>
 struct fp_traits_t<float> {
 
-  using suint_t = uint32_t;
+  using suint_t = std::uint32_t;
   using amaru_t = ieee32_t;
   using other_t = amaru::dragonbox::result_float_t;
 
@@ -203,7 +203,7 @@ struct fp_traits_t<float> {
 template <>
 struct fp_traits_t<double> {
 
-  using suint_t = uint64_t;
+  using suint_t = std::uint64_t;
   using amaru_t = ieee64_t;
   using other_t = amaru::dragonbox::result_double_t;
 

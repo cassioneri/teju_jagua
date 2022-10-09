@@ -1,31 +1,54 @@
 cmake_minimum_required(VERSION 3.1)
 
+#---------------------------------------------------------------------------
+# amaru
+#---------------------------------------------------------------------------
+
 project(amaru
   VERSION 1.0
-  DESCRIPTION "The Incan dragon-like creature from the underworld which \
-    efficiently finds decimal representations of float point numbers."
+  DESCRIPTION "The Incan dragon-like creature which comes from the underworld \
+    to help us efficiently finding decimal representations of float point \
+    numbers."
   LANGUAGES C CXX
 )
+
+add_subdirectory(amaru)
+add_subdirectory(generator)
+add_subdirectory(other)
+add_subdirectory(test)
 
 include(FetchContent)
 
 #---------------------------------------------------------------------------
-# Boost Multiprecision
+# dragonbox
 #---------------------------------------------------------------------------
 
 FetchContent_Declare(
-  multiprecision
-  GIT_REPOSITORY https://github.com/boostorg/multiprecision.git
-  GIT_TAG        Boost_1_80_0
-  SOURCE_DIR     ${CMAKE_SOURCE_DIR}/tp/multiprecision
+  dragonbox
+  GIT_REPOSITORY https://github.com/jk-jeon/dragonbox.git
+  GIT_TAG        1.1.3
+  SOURCE_DIR     ${CMAKE_SOURCE_DIR}/tp/dragonbox
 )
 
-set(BOOST_MP_STANDALONE on)
-set(BUILD_TESTING off)
-FetchContent_MakeAvailable(multiprecision)
+set(DRAGONBOX_INSTALL_TO_CHARS off)
+FetchContent_MakeAvailable(dragonbox)
 
 #---------------------------------------------------------------------------
-# nlohmann JSON
+# googletest
+#---------------------------------------------------------------------------
+
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG        release-1.12.1
+  SOURCE_DIR     ${CMAKE_SOURCE_DIR}/tp/googletest
+)
+
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+#---------------------------------------------------------------------------
+# json
 #---------------------------------------------------------------------------
 
 FetchContent_Declare(
@@ -40,21 +63,16 @@ set(BUILD_TESTING off)
 FetchContent_MakeAvailable(json)
 
 #---------------------------------------------------------------------------
-# Google Test
+# multiprecision
 #---------------------------------------------------------------------------
 
 FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG        release-1.12.1
-  SOURCE_DIR     ${CMAKE_SOURCE_DIR}/tp/googletest
+  multiprecision
+  GIT_REPOSITORY https://github.com/boostorg/multiprecision.git
+  GIT_TAG        Boost_1_80_0
+  SOURCE_DIR     ${CMAKE_SOURCE_DIR}/tp/multiprecision
 )
 
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-
-#---------------------------------------------------------------------------
-# Amaru
-#---------------------------------------------------------------------------
-
-add_subdirectory(src)
+set(BOOST_MP_STANDALONE on)
+set(BUILD_TESTING off)
+FetchContent_MakeAvailable(multiprecision)

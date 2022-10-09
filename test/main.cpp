@@ -1,11 +1,12 @@
 #include "amaru/common.h"
 #include "amaru/double.h"
 #include "amaru/float.h"
-
-#include <gtest/gtest.h>
+#include "other/other.hpp"
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/multiprecision/cpp_bin_float.hpp>
+
+#include <gtest/gtest.h>
 
 #include <cmath>
 #include <cstdint>
@@ -14,9 +15,6 @@
 #include <iomanip>
 #include <random>
 #include <type_traits>
-
-#include "../include/amaru/double.h"
-#include "../include/amaru/float.h"
 
 namespace {
 
@@ -168,72 +166,73 @@ get_next(T value) {
 template <>
 struct fp_traits_t<float> {
 
-  using fp_t    = float;
   using suint_t = uint32_t;
   using amaru_t = ieee32_t;
+  using other_t = amaru::dragonbox::result_float_t;
 
   static auto constexpr exponent_size = uint32_t{8};
   static auto constexpr mantissa_size = uint32_t{23};
 
   static amaru_t
-  amaru(fp_t const value) {
+  amaru(float const value) {
     return amaru_from_float_to_decimal(value);
   }
 
-//  static bool
-//  is_negative(amaru_t rep) {
-//    return rep.is_negative;
-//  }
-//
-//  static std::int32_t
-//  exponent(amaru_t rep) {
-//    return rep.exponent;
-//  }
-//
-//  static std::uint32_t
-//  mantissa(amaru_t rep) {
-//    return rep.mantissa;
-//  }
-
-  static rep_t
-  other(fp_t const value) {
-    return other::decimal(value);
+  static other_t
+  other(float const value) {
+    return amaru::dragonbox::to_decimal(value);
   }
+
+  static bool
+  is_negative(other_t rep) {
+    return { rep.is_negative };
+  }
+
+  static std::int32_t
+  exponent(other_t rep) {
+    return { rep.exponent };
+  }
+
+  static suint_t
+  mantissa(other_t rep) {
+    return { rep.significand };
+  }
+
 };
 
 template <>
 struct fp_traits_t<double> {
 
-  using fp_t    = double;
   using suint_t = uint64_t;
   using amaru_t = ieee64_t;
+  using other_t = amaru::dragonbox::result_double_t;
 
   static auto constexpr exponent_size = uint32_t{11};
   static auto constexpr mantissa_size = uint32_t{52};
 
-  static amaru_t
-  amaru(fp_t const value) {
+  static auto
+  amaru(double const value) {
     return amaru_from_double_to_decimal(value);
   }
 
-//  static bool
-//  is_negative(amaru_t rep) {
-//    return rep.is_negative;
-//  }
-//
-//  static std::int32_t
-//  exponent(amaru_t rep) {
-//    return rep.exponent;
-//  }
-//
-//  static std::uint32_t
-//  mantissa(amaru_t rep) {
-//    return rep.mantissa;
-//  }
+  static auto
+  other(double const value) {
+    return amaru::dragonbox::to_decimal(value);
+  }
 
-  static rep_t
-  other(fp_t const value) {
-    return other::decimal(value);
+  static bool
+  is_negative(other_t rep) {
+    return { rep.is_negative };
+  }
+
+  static std::int32_t
+  exponent(other_t rep) {
+    return { rep.exponent };
+  }
+
+  static suint_t
+  mantissa(other_t rep) {
+    return { rep.significand };
   }
 };
 
@@ -241,24 +240,22 @@ template <typename T>
 void compare_to_other(T const value) {
 
   using          traits_t = fp_traits_t<T>;
-  using          fp_t     = typename traits_t::fp_t;
-  auto constexpr digits   = std::numeric_limits<fp_t>::digits10 + 2;
-  auto const amaru        = traits_t::amaru(value);
-  auto const other        = traits_t::other(value);
-  auto const ieee         = to_ieee(value);
+  auto constexpr digits   = std::numeric_limits<T>::digits10 + 2;
+  auto const     amaru    = traits_t::amaru(value);
+  auto const     other    = traits_t::other(value);
+  auto const     ieee     = to_ieee(value);
 
-//  EXPECT_EQ(other.exponent, amaru.exponent) << "Note: "
-//    "value = " << std::setprecision(digits) << value << ", "
-//    "ieee.exponent = " << ieee.exponent << ", "
-//    "ieee.mantissa = " << ieee.mantissa;
-//
-//  EXPECT_EQ(other.mantissa, amaru.mantissa) << "Note: "
-//    "value = " << std::setprecision(digits) << value << ", "
-//    "ieee.exponent = " << ieee.exponent << ", "
-//    "ieee.mantissa = " << ieee.mantissa;
+  EXPECT_EQ(traits_t::exponent(other), amaru.exponent) << "Note: "
+    "value = " << std::setprecision(digits) << value << ", "
+    "ieee.exponent = " << ieee.exponent << ", "
+    "ieee.mantissa = " << ieee.mantissa;
+
+  EXPECT_EQ(traits_t::mantissa(other), amaru.mantissa) << "Note: "
+    "value = " << std::setprecision(digits) << value << ", "
+    "ieee.exponent = " << ieee.exponent << ", "
+    "ieee.mantissa = " << ieee.mantissa;
 }
 
-#if 0
 TEST(float_tests, exhaustive_comparison_to_other) {
 
   auto value    = std::numeric_limits<float>::denorm_min();
@@ -287,7 +284,7 @@ TYPED_TEST_SUITE_P(TypedTests);
 TYPED_TEST_P(TypedTests, mantissa_min_all_exponents) {
 
   using traits_t           = fp_traits_t<TypeParam>;
-  using fp_t               = typename traits_t::fp_t;
+  using fp_t               = TypeParam;
   using suint_t            = typename traits_t::suint_t;
 
   auto const exponent_max  = (uint32_t{1} << traits_t::exponent_size) - 1;
@@ -310,8 +307,8 @@ TEST(double_tests, random_comparison_to_other) {
   using traits_t = fp_traits_t<double>;
 
   traits_t::suint_t uint_max;
-  auto const fp_max = std::numeric_limits<traits_t::fp_t>::max();
-  std::memcpy(&uint_max, &fp_max, sizeof(fp_max));
+  auto const double_max = std::numeric_limits<double>::max();
+  std::memcpy(&uint_max, &double_max, sizeof(double_max));
 
   std::random_device rd;
   auto dist = std::uniform_int_distribution<traits_t::suint_t>{1, uint_max};
@@ -322,7 +319,7 @@ TEST(double_tests, random_comparison_to_other) {
   // https://stackoverflow.com/questions/1642028/what-is-the-operator-in-c-c
   while (!HasFailure() && number_of_tests --> 0) {
     auto const i = dist(rd);
-    traits_t::fp_t value;
+    double value;
     std::memcpy(&value, &i, sizeof(i));
     compare_to_other(value);
   }
@@ -332,6 +329,5 @@ TEST(ad_hoc_test, a_particular_case) {
   auto const value = 1.f;
   compare_to_other(value);
 }
-#endif
 
 } // namespace <anonymous>

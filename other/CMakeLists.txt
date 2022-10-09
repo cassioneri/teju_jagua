@@ -1,0 +1,11 @@
+add_library(other OBJECT
+  other.cpp
+)
+
+target_include_directories(other PUBLIC
+  "${CMAKE_SOURCE_DIR}"
+)
+
+target_link_libraries(other
+  dragonbox::dragonbox
+)

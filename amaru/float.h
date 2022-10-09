@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../generated/ieee32.h"
+#include "amaru/generated/ieee32.h"
 
 #ifdef __cplusplus
 extern "C" {

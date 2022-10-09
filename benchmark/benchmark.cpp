@@ -2,8 +2,6 @@
 #include "../include/ieee32_conv.h"
 #include "../include/ieee64_conv.h"
 
-#include "other.hpp"
-
 #include <chrono>
 #include <cstdint>
 #include <cstring>
@@ -13,6 +11,8 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+
+#include "other.hpp"
 
 // Welford's online algorithm
 // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance

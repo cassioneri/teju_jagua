@@ -79,6 +79,16 @@ struct fp_traits_t<float> {
   }
 
   static void
+  amaru_full(float const value) {
+    amaru_from_float_to_decimal_full(value);
+  }
+
+  static void
+  dragonbox_compact(float const value) {
+    amaru::dragonbox_compact::to_decimal(value);
+  }
+
+  static void
   dragonbox_full(float const value) {
     amaru::dragonbox_full::to_decimal(value);
   }
@@ -95,6 +105,16 @@ struct fp_traits_t<double> {
   static void
   amaru_compact(double const value) {
     amaru_from_double_to_decimal_compact(value);
+  }
+
+  static void
+  amaru_full(double const value) {
+    amaru_from_double_to_decimal_full(value);
+  }
+
+  static void
+  dragonbox_compact(double const value) {
+    amaru::dragonbox_compact::to_decimal(value);
   }
 
   static void
@@ -141,7 +161,8 @@ benchmark() {
   auto           n_mantissas  = std::uint32_t{1000};
   auto constexpr n_iterations = std::uint32_t{1024};
 
-  stats_t amaru_compact_stats, dragonbox_full_stats;
+  stats_t amaru_compact_stats, amaru_full_stats, dragonbox_compact_stats,
+    dragonbox_full_stats;
 
   while (n_mantissas--) {
 
@@ -154,36 +175,57 @@ benchmark() {
 
       auto const value = from_ieee<T>(exponent, mantissa);
 
-      auto const amaru_compact = benchmark(value, &traits_t::amaru_compact,
-        n_iterations);
+      auto const amaru_compact = benchmark(value,
+        &traits_t::amaru_compact, n_iterations);
       amaru_compact_stats.update(amaru_compact);
 
-      auto const dragonbox_full = benchmark(value, &traits_t::dragonbox_full,
-        n_iterations);
+      auto const amaru_full = benchmark(value,
+        &traits_t::amaru_full, n_iterations);
+      amaru_full_stats.update(amaru_full);
+
+      auto const dragonbox_compact = benchmark(value,
+        &traits_t::dragonbox_compact, n_iterations);
+      dragonbox_compact_stats.update(dragonbox_compact);
+
+      auto const dragonbox_full = benchmark(value,
+        &traits_t::dragonbox_full, n_iterations);
       dragonbox_full_stats.update(dragonbox_full);
 
       suint_t integer;
       std::memcpy(&integer, &value, sizeof(value));
 
       std::cout <<
-        exponent       << ", " <<
-        mantissa       << ", " <<
-        integer        << ", " <<
-        value          << ", " <<
-        amaru_compact  << ", " <<
-        dragonbox_full << "\n";
+        exponent          << ", " <<
+        mantissa          << ", " <<
+        integer           << ", " <<
+        value             << ", " <<
+        amaru_compact     << ", " <<
+        amaru_full        << ", " <<
+        dragonbox_compact << ", " <<
+        dragonbox_full    << "\n";
     }
   }
 
   std::cerr <<
-    "amaru_compact  (mean)   = " << amaru_compact_stats .mean()   << "\n"
-    "amaru_compact  (stddev) = " << amaru_compact_stats .stddev() << "\n"
+    "amaru_compact     (mean)   = " << amaru_compact_stats    .mean  () << "\n"
+    "amaru_compact     (stddev) = " << amaru_compact_stats    .stddev() << "\n"
+    "amaru_compact     (rel.)   = " <<
+      amaru_compact_stats.mean() / amaru_full_stats.mean() << "\n"
 
-    "dragonbox_full (mean)     = " << dragonbox_full_stats.mean()   << "\n"
-    "dragonbox_full (stddev)   = " << dragonbox_full_stats.stddev() << "\n"
+    "amaru_full        (mean)   = " << amaru_full_stats       .mean  () << "\n"
+    "amaru_full        (stddev) = " << amaru_full_stats       .stddev() << "\n"
+    "amaru_compact     (rel.)   = " <<
+      amaru_full_stats.mean() / amaru_full_stats.mean() << "\n"
 
-    "dragonbox_full (relative) = " <<
-    dragonbox_full_stats.mean() / amaru_compact_stats.mean() << '\n';
+    "dragonbox_compact (mean)   = " << dragonbox_compact_stats.mean  () << "\n"
+    "dragonbox_compact (stddev) = " << dragonbox_compact_stats.stddev() << "\n"
+    "dragonbox_compact (rel.)   = " <<
+      dragonbox_compact_stats.mean() / amaru_full_stats.mean() << "\n"
+
+    "dragonbox_full    (mean)   = " << dragonbox_full_stats   .mean  () << "\n"
+    "dragonbox_full    (stddev) = " << dragonbox_full_stats   .stddev() << "\n"
+    "dragonbox_full    (rel.)   = " <<
+      dragonbox_full_stats.mean() / amaru_full_stats.mean() << '\n';
 }
 
 int main() {

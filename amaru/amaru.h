@@ -5,7 +5,7 @@
 #error "Invalid inclusion of amaru.h."
 #endif
 
-#include "common.h"
+#include "amaru/common.h"
 
 #include <assert.h>
 #include <limits.h>

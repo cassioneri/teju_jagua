@@ -1,0 +1,79 @@
+{
+  "version": 5,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 1,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "ninja",
+      "hidden" : true,
+      "generator": "Ninja"
+    },
+    {
+      "name": "linux",
+      "hidden" : true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "release",
+      "hidden" : true,
+      "cacheVariables": {
+          "CMAKE_BUILD_TYPE" : "Release"
+      }
+    },
+    {
+      "name": "debug",
+      "hidden" : true,
+      "cacheVariables": {
+          "CMAKE_BUILD_TYPE" : "Debug"
+      }
+    },
+    {
+      "name": "gcc",
+      "hidden" : true,
+      "cacheVariables": {
+          "CMAKE_C_COMPILER" : "gcc",
+          "CMAKE_CXX_COMPILER" : "g++"
+      }
+    },
+    {
+      "name": "clang.linux",
+      "hidden" : true,
+      "inherits": [ "linux" ],
+      "cacheVariables": {
+          "CMAKE_C_COMPILER" : "clang",
+          "CMAKE_CXX_COMPILER" : "clang++"
+      }
+    },
+    {
+      "name": "gcc.release",
+      "description": "GCC release build on Linux using Ninja generator",
+      "inherits" : [ "gcc", "release", "linux", "ninja" ],
+      "binaryDir": "${sourceDir}/build/gcc.release"
+    },
+    {
+      "name": "gcc.debug",
+      "description": "GCC debug build on Linux using Ninja generator",
+      "inherits" : [ "gcc", "debug", "linux", "ninja" ],
+      "binaryDir": "${sourceDir}/build/gcc.debug"
+    },
+    {
+      "name": "clang.release",
+      "description": "Clang release build on Linux using Ninja generator",
+      "inherits" : [ "clang.linux", "release", "ninja" ],
+      "binaryDir": "${sourceDir}/build/clang.release"
+    },
+    {
+      "name": "clang.debug",
+      "description": "Clang debug build on Linux using Ninja generator",
+      "inherits" : [ "clang.linux", "debug", "ninja" ],
+      "binaryDir": "${sourceDir}/build/clang.debug"
+    }
+  ]
+}

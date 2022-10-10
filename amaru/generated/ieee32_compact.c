@@ -126,7 +126,7 @@ static struct {
 }
 #endif
 
-#define AMARU_FUNCTION amaru_binary_to_decimal_ieee32
+#define AMARU_FUNCTION amaru_binary_to_decimal_ieee32_compact
 #include "amaru/amaru.h"
 
 #undef AMARU_FUNCTION

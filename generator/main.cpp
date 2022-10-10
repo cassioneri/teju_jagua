@@ -151,17 +151,16 @@ struct generator_t {
   generator_t(info_t info, config_t config) :
     info_                 {std::move(info)                       },
     config_               {std::move(config)                     },
-    upper_id_             {to_upper(id())                        },
-    compact_or_full_      {is_compact() ? "_compact" : "_full"   },
-    upper_compact_or_full_{to_upper(compact_or_full())           },
-    function_             {"amaru_binary_to_decimal_" + id()     },
+    compact_or_full_      {is_compact() ? "compact" : "full"     },
+    function_             {"amaru_binary_to_decimal_"
+      + id() + "_" + compact_or_full()                           },
     rep_                  {id() + "_t"                           },
     dec_exponent_min_     {log10_pow2(bin_exponent_min())        },
     normal_mantissa_min_  {AMARU_POW2(integer_t, mantissa_size())},
     normal_mantissa_max_  {2 * normal_mantissa_min()             },
     p2_size_              {integer_t{1} << size()                },
-    dot_h_                {id() + compact_or_full() + ".h"       },
-    dot_c_                {id() + compact_or_full() + ".c"       } {
+    dot_h_                {id() + "_" + compact_or_full() + ".h" },
+    dot_c_                {id() + "_" + compact_or_full() + ".c" } {
   }
 
   /**
@@ -231,18 +230,8 @@ struct generator_t {
   }
 
   std::string const&
-  upper_id() const {
-    return upper_id_;
-  }
-
-  std::string const&
   compact_or_full() const {
     return compact_or_full_;
-  }
-
-  std::string const&
-  upper_compact_or_full() const {
-    return upper_compact_or_full_;
   }
 
   /**
@@ -419,14 +408,16 @@ private:
   void
   generate_dot_h(std::ostream& stream) const {
 
-    std::string const guard = "AMARU_AMARU_GENERATED_" + upper_id() +
-      upper_compact_or_full() + "_H_";
+    std::string const include_guard = "AMARU_AMARU_GENERATED_" + to_upper(id())
+      + "_" + to_upper(compact_or_full()) + "_H_";
+
+    std::string const define_guard = "AMARU_IS_" + to_upper(rep()) + "_DEFINED";
 
     stream <<
       "// This file was auto-generated. DO NOT EDIT IT.\n"
       "\n"
-      "#ifndef " << guard << "\n"
-      "#define " << guard << "\n"
+      "#ifndef " << include_guard << "\n"
+      "#define " << include_guard << "\n"
       "\n"
       "#include <stdbool.h>\n"
       "#include <stdint.h>\n"
@@ -435,11 +426,16 @@ private:
       "extern \"C\" {\n"
       "#endif\n"
       "\n"
+      "#ifndef " << define_guard << "\n"
+      "#define " << define_guard << "\n"
+      "\n"
       "typedef struct {\n"
       "  bool is_negative;\n"
       "  int32_t exponent;\n"
       "  " << suint() << " mantissa;\n"
       "} " << rep() << ";\n"
+      "\n"
+      "#endif // " << define_guard << "\n"
       "\n" <<
         rep() << ' ' << function() << "(bool is_negative, "
         "int32_t exponent, " << suint() << " mantissa);\n"
@@ -448,7 +444,7 @@ private:
       "}\n"
       "#endif\n"
       "\n"
-      "#endif // " << guard <<
+      "#endif // " << include_guard <<
       "\n";
   }
 
@@ -784,9 +780,7 @@ private:
 
   info_t       info_;
   config_t     config_;
-  std::string  upper_id_;
   std::string  compact_or_full_;
-  std::string  upper_compact_or_full_;
   std::string  function_;
   std::string  rep_;
   std::int32_t dec_exponent_min_;

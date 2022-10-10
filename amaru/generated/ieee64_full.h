@@ -1,7 +1,7 @@
 // This file was auto-generated. DO NOT EDIT IT.
 
-#ifndef AMARU_AMARU_GENERATED_IEEE64_COMPACT_H_
-#define AMARU_AMARU_GENERATED_IEEE64_COMPACT_H_
+#ifndef AMARU_AMARU_GENERATED_IEEE64_FULL_H_
+#define AMARU_AMARU_GENERATED_IEEE64_FULL_H_
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -21,10 +21,10 @@ typedef struct {
 
 #endif // AMARU_IS_IEEE64_T_DEFINED
 
-ieee64_t amaru_binary_to_decimal_ieee64_compact(bool is_negative, int32_t exponent, uint64_t mantissa);
+ieee64_t amaru_binary_to_decimal_ieee64_full(bool is_negative, int32_t exponent, uint64_t mantissa);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // AMARU_AMARU_GENERATED_IEEE64_COMPACT_H_
+#endif // AMARU_AMARU_GENERATED_IEEE64_FULL_H_

@@ -1,0 +1,15 @@
+{
+  "config": {
+    "is_compact" : false
+  },
+  "info": {
+    "id"              : "ieee32",
+    "suint"           : "uint32_t",
+    "duint"           : "uint64_t",
+    "size"            :   32,
+    "exponent_size"   :    8,
+    "bin_exponent_min": -149,
+    "bin_exponent_max":  104,
+    "mantissa_size"   :   23
+  }
+}

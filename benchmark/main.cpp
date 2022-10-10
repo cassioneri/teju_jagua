@@ -1,6 +1,6 @@
-#include <amaru/double_compact.h>
-#include <amaru/float_compact.h>
 #include "amaru/common.h"
+#include "amaru/double.h"
+#include "amaru/float.h"
 #include "other/other.hpp"
 
 #include <chrono>

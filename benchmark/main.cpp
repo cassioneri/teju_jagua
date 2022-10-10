@@ -1,6 +1,6 @@
+#include <amaru/double_compact.h>
+#include <amaru/float_compact.h>
 #include "amaru/common.h"
-#include "amaru/double.h"
-#include "amaru/float.h"
 #include "other/other.hpp"
 
 #include <chrono>
@@ -74,8 +74,8 @@ struct fp_traits_t<float> {
   static auto constexpr mantissa_size = std::uint32_t{23};
 
   static void
-  amaru(float const value) {
-    amaru_from_float_to_decimal(value);
+  amaru_compact(float const value) {
+    amaru_from_float_to_decimal_compact(value);
   }
 
   static void
@@ -93,8 +93,8 @@ struct fp_traits_t<double> {
   static auto constexpr mantissa_size = uint32_t{52};
 
   static void
-  amaru(double const value) {
-    amaru_from_double_to_decimal(value);
+  amaru_compact(double const value) {
+    amaru_from_double_to_decimal_compact(value);
   }
 
   static void
@@ -140,7 +140,7 @@ benchmark() {
   auto           n_mantissas  = std::uint32_t{1000};
   auto constexpr n_iterations = std::uint32_t{1024};
 
-  stats_t amaru_stats, dragonbox_stats;
+  stats_t amaru_compact_stats, dragonbox_stats;
 
   while (n_mantissas--) {
 
@@ -153,8 +153,9 @@ benchmark() {
 
       auto const value = from_ieee<T>(exponent, mantissa);
 
-      auto const amaru = benchmark(value, &traits_t::amaru, n_iterations);
-      amaru_stats.update(amaru);
+      auto const amaru = benchmark(value, &traits_t::amaru_compact,
+        n_iterations);
+      amaru_compact_stats.update(amaru);
 
       auto const dragonbox = benchmark(value, &traits_t::dragonbox,
         n_iterations);
@@ -173,13 +174,13 @@ benchmark() {
     }
   }
 
-  std::cerr << "amaru (mean)         = " << amaru_stats    .mean()   << '\n';
-  std::cerr << "amaru (stddev)       = " << amaru_stats    .stddev() << '\n';
+  std::cerr << "amaru (mean)         = " << amaru_compact_stats    .mean()   << '\n';
+  std::cerr << "amaru (stddev)       = " << amaru_compact_stats    .stddev() << '\n';
 
   std::cerr << "dragonbox (mean)     = " << dragonbox_stats.mean()   << '\n';
   std::cerr << "dragonbox (stddev)   = " << dragonbox_stats.stddev() << '\n';
   std::cerr << "dragonbox (relative) = " <<
-    dragonbox_stats.mean() / amaru_stats.mean() << '\n';
+    dragonbox_stats.mean() / amaru_compact_stats.mean() << '\n';
 }
 
 int main() {

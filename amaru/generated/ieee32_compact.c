@@ -1,6 +1,6 @@
 // This file was auto-generated. DO NOT EDIT IT.
 
-#include "ieee32.h"
+#include "ieee32_compact.h"
 
 #ifdef __cplusplus
 extern "C" {

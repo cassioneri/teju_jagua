@@ -1,6 +1,6 @@
+#include <amaru/double_compact.h>
+#include <amaru/float_compact.h>
 #include "amaru/common.h"
-#include "amaru/double.h"
-#include "amaru/float.h"
 #include "other/other.hpp"
 
 #include <boost/multiprecision/cpp_int.hpp>
@@ -160,8 +160,8 @@ struct fp_traits_t<float> {
   }
 
   static amaru_t
-  amaru(float const value) {
-    return amaru_from_float_to_decimal(value);
+  amaru_compact(float const value) {
+    return amaru_from_float_to_decimal_compact(value);
   }
 
   static other_t
@@ -202,8 +202,8 @@ struct fp_traits_t<double> {
   }
 
   static amaru_t
-  amaru(double const value) {
-    return amaru_from_double_to_decimal(value);
+  amaru_compact(double const value) {
+    return amaru_from_double_to_decimal_compact(value);
   }
 
   static other_t
@@ -231,17 +231,17 @@ template <typename T>
 void compare_to_other(T const value) {
 
   using          traits_t = fp_traits_t<T>;
-  auto constexpr digits   = std::numeric_limits<T>::digits10 + 2;
-  auto const     amaru    = traits_t::amaru(value);
-  auto const     other    = traits_t::other(value);
-  auto const     ieee     = traits_t::fields(value);
+  auto constexpr digits        = std::numeric_limits<T>::digits10 + 2;
+  auto const     amaru_compact = traits_t::amaru_compact(value);
+  auto const     other         = traits_t::other(value);
+  auto const     ieee          = traits_t::fields(value);
 
-  EXPECT_EQ(traits_t::exponent(other), amaru.exponent) << "Note: "
+  EXPECT_EQ(traits_t::exponent(other), amaru_compact.exponent) << "Note: "
     "value = " << std::setprecision(digits) << value << ", "
     "ieee.exponent = " << ieee.exponent << ", "
     "ieee.mantissa = " << ieee.mantissa;
 
-  EXPECT_EQ(traits_t::mantissa(other), amaru.mantissa) << "Note: "
+  EXPECT_EQ(traits_t::mantissa(other), amaru_compact.mantissa) << "Note: "
     "value = " << std::setprecision(digits) << value << ", "
     "ieee.exponent = " << ieee.exponent << ", "
     "ieee.mantissa = " << ieee.mantissa;

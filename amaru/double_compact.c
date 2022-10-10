@@ -1,6 +1,6 @@
-#include "common.h"
-#include "double.h"
+#include "double_compact.h"
 
+#include "common.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -33,7 +33,7 @@ amaru_from_double_to_fields(double const value) {
 }
 
 ieee64_t
-amaru_from_double_to_decimal(double const value) {
+amaru_from_double_to_decimal_compact(double const value) {
 
   // Conversion to Amaru's binary representation.
 
@@ -51,7 +51,7 @@ amaru_from_double_to_decimal(double const value) {
 }
 
 uint32_t
-amaru_from_double_to_string(double const value, char* str) {
+amaru_from_double_to_string_compact(double const value, char* str) {
   (void) value, (void) str;
   return 0;
 }

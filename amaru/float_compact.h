@@ -1,7 +1,7 @@
 #ifndef AMARU_AMARU_FLOAT_H_
 #define AMARU_AMARU_FLOAT_H_
 
-#include "amaru/generated/ieee32.h"
+#include "amaru/generated/ieee32_compact.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,10 +11,10 @@ ieee32_t
 amaru_from_float_to_fields(float value);
 
 ieee32_t
-amaru_from_float_to_decimal(float value);
+amaru_from_float_to_decimal_compact(float value);
 
 uint32_t
-amaru_from_float_to_string(float value, char* str);
+amaru_from_float_to_string_compact(float value, char* str);
 
 #ifdef __cplusplus
 }

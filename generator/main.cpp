@@ -160,8 +160,8 @@ struct generator_t {
     normal_mantissa_min_  {AMARU_POW2(integer_t, mantissa_size())},
     normal_mantissa_max_  {2 * normal_mantissa_min()             },
     p2_size_              {integer_t{1} << size()                },
-    dot_h_                {id() + ".h"                           },
-    dot_c_                {id() + ".c"                           } {
+    dot_h_                {id() + compact_or_full() + ".h"       },
+    dot_c_                {id() + compact_or_full() + ".c"       } {
   }
 
   /**

@@ -1,6 +1,6 @@
-#include "common.h"
-#include "float.h"
+#include "float_compact.h"
 
+#include "common.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -33,7 +33,7 @@ amaru_from_float_to_fields(float const value) {
 }
 
 ieee32_t
-amaru_from_float_to_decimal(float const value) {
+amaru_from_float_to_decimal_compact(float const value) {
 
   // Conversion to Amaru's binary representation.
 
@@ -51,7 +51,7 @@ amaru_from_float_to_decimal(float const value) {
 }
 
 uint32_t
-amaru_from_float_to_string(float const value, char* str) {
+amaru_from_float_to_string_compact(float const value, char* str) {
   (void) value, (void) str;
   return 0;
 }

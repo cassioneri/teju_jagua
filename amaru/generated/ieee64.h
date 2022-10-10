@@ -1,7 +1,7 @@
 // This file was auto-generated. DO NOT EDIT IT.
 
-#ifndef AMARU_GENERATED_IEEE64_COMPACT_H_
-#define AMARU_GENERATED_IEEE64_COMPACT_H_
+#ifndef AMARU_AMARU_GENERATED_IEEE64_COMPACT_H_
+#define AMARU_AMARU_GENERATED_IEEE64_COMPACT_H_
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -22,4 +22,4 @@ ieee64_t amaru_binary_to_decimal_ieee64(bool is_negative, int32_t exponent, uint
 }
 #endif
 
-#endif // AMARU_GENERATED_IEEE64_COMPACT_H_
+#endif // AMARU_AMARU_GENERATED_IEEE64_COMPACT_H_

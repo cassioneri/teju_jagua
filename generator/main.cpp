@@ -419,7 +419,7 @@ private:
   void
   generate_dot_h(std::ostream& stream) const {
 
-    std::string const guard = "AMARU_GENERATED_" + upper_id() +
+    std::string const guard = "AMARU_AMARU_GENERATED_" + upper_id() +
       upper_compact_or_full() + "_H_";
 
     stream <<

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AMARU_AMAHU_AMARU_H_
+#define AMARU_AMAHU_AMARU_H_
 
 #ifndef AMARU_FUNCTION
 #error "Invalid inclusion of amaru.h."
@@ -148,3 +149,5 @@ rep_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
 #ifdef __cplusplus
 }
 #endif
+
+#endif // AMARU_AMAHU_AMARU_H_

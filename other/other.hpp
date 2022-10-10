@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AMARU_OTHER_OTHER_H_
+#define AMARU_OTHER_OTHER_H_
 
 #include <dragonbox/dragonbox.h>
 
@@ -17,3 +18,5 @@ to_decimal(double value);
 
 } // namespace dragonbox
 } // namespace amaru
+
+#endif // AMARU_OTHER_OTHER_H_

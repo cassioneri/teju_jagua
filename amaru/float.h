@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AMARU_AMARU_FLOAT_H_
+#define AMARU_AMARU_FLOAT_H_
 
 #include "amaru/generated/ieee32.h"
 
@@ -18,3 +19,5 @@ amaru_from_float_to_string(float value, char* str);
 #ifdef __cplusplus
 }
 #endif
+
+#endif // AMARU_AMARU_FLOAT_H_

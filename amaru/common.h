@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AMARU_AMARU_COMMON_H_
+#define AMARU_AMARU_COMMON_H_
 
 #include <limits.h>
 #include <stdint.h>
@@ -44,3 +45,5 @@ uint32_t log10_pow2_remainder(int32_t e) {
 #ifdef __cplusplus
 }
 #endif
+
+#endif // AMARU_AMARU_COMMON_H_

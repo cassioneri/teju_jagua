@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AMARU_AMARU_DOUBLE_H_
+#define AMARU_AMARU_DOUBLE_H_
 
 #include "amaru/generated/ieee64.h"
 
@@ -18,3 +19,5 @@ amaru_from_double_to_string(double value, char* str);
 #ifdef __cplusplus
 }
 #endif
+
+#endif // AMARU_AMARU_DOUBLE_H_

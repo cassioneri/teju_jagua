@@ -15,7 +15,7 @@ typedef struct {
   uint64_t mantissa;
 } ieee64_t;
 
-ieee64_t amaru_bin_to_dec_ieee64(bool is_negative, int32_t exponent, uint64_t mantissa);
+ieee64_t amaru_binary_to_decimal_ieee64(bool is_negative, int32_t exponent, uint64_t mantissa);
 
 #ifdef __cplusplus
 }

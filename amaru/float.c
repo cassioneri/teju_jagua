@@ -46,7 +46,7 @@ amaru_from_float_to_decimal(float const value) {
     binary.exponent -= 1;
   }
 
-  return amaru_bin_to_dec_ieee32(binary.is_negative, binary.exponent,
+  return amaru_binary_to_decimal_ieee32(binary.is_negative, binary.exponent,
     binary.mantissa);
 }
 

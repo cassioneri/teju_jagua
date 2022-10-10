@@ -679,7 +679,7 @@ static struct {
 }
 #endif
 
-#define AMARU_FUNCTION amaru_bin_to_dec_ieee64
+#define AMARU_FUNCTION amaru_binary_to_decimal_ieee64
 #include "amaru/amaru.h"
 
 #undef AMARU_FUNCTION

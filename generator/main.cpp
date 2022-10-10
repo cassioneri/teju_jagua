@@ -148,12 +148,12 @@ struct generator_t {
   generator_t(info_t info, config_t config) :
     info_               {std::move(info)                           },
     config_             {std::move(config)                         },
-    function_           {"amaru_bin_to_dec_" + info_.id            },
+    function_           {"amaru_binary_to_decimal_" + info_.id     },
     rep_                {info_.id + "_t"                           },
     dec_exponent_min_   {log10_pow2(info_.bin_exponent_min)        },
     normal_mantissa_min_{AMARU_POW2(integer_t, info_.mantissa_size)},
     normal_mantissa_max_{2 * normal_mantissa_min_                  },
-    p2_size_            {integer_t{1} << info_.size               },
+    p2_size_            {integer_t{1} << info_.size                },
     dot_h_              {info_.id + ".h"                           },
     dot_c_              {info_.id + ".c"                           } {
   }

@@ -101,14 +101,14 @@ to_json(nlohmann::json& json, info_t const& info) {
 
 void
 from_json(nlohmann::json const& json, info_t& info) {
-    json.at("id"              ).get_to(info.id              );
-    json.at("suint"           ).get_to(info.suint           );
-    json.at("duint"           ).get_to(info.duint           );
-    json.at("size"            ).get_to(info.size           );
-    json.at("exponent_size"   ).get_to(info.exponent_size   );
-    json.at("bin_exponent_min").get_to(info.bin_exponent_min);
-    json.at("bin_exponent_max").get_to(info.bin_exponent_max);
-    json.at("mantissa_size"   ).get_to(info.mantissa_size   );
+  json.at("id"              ).get_to(info.id              );
+  json.at("suint"           ).get_to(info.suint           );
+  json.at("duint"           ).get_to(info.duint           );
+  json.at("size"            ).get_to(info.size           );
+  json.at("exponent_size"   ).get_to(info.exponent_size   );
+  json.at("bin_exponent_min").get_to(info.bin_exponent_min);
+  json.at("bin_exponent_max").get_to(info.bin_exponent_max);
+  json.at("mantissa_size"   ).get_to(info.mantissa_size   );
 }
 
 /**
@@ -490,7 +490,7 @@ private:
 
     auto const p2shift = integer_t{1} << shift;
 
-    for (uint32_t i = 0; i < maxima.size(); ++i) {
+    for (std::uint32_t i = 0; i < maxima.size(); ++i) {
 
       auto const& x = maxima[i];
 
@@ -512,13 +512,13 @@ private:
       "\n"
       "enum {\n"
       "  is_compact       = " << is_compact()       << ",\n"
-      "  size             = " << size()            << ",\n"
+      "  size             = " << size()             << ",\n"
       "  mantissa_size    = " << mantissa_size()    << ",\n"
       "  bin_exponent_min = " << bin_exponent_min() << ",\n"
       "  dec_exponent_min = " << dec_exponent_min() << ",\n"
       // Instead of Amaru dividing multipliy_and_shift(m_a, upper, lower) by 2
       // we increment the shift here so this has the same effect.
-      "  shift            = " << shift + 1                << "\n"
+      "  shift            = " << shift + 1          << "\n"
       "};\n"
       "\n";
 
@@ -542,7 +542,8 @@ private:
         throw amaru_exception_t{"Multiplier is out of range."};
 
       stream << "  { " <<
-        "0x" << std::hex << std::setw(nibbles) << std::setfill('0') << upper << ", "
+        "0x" << std::hex << std::setw(nibbles) << std::setfill('0') << upper <<
+        ", "
         "0x" << std::hex << std::setw(nibbles) << std::setfill('0') << lower <<
         std::dec << " }, // " << e2_or_f << "\n";
       ++e2_or_f;
@@ -593,9 +594,9 @@ private:
    * \brief Gets the maxima of all primary problems. (See get_maximum_primary.)
    *
    * It returns a vector v of size
-   *     info_.bin_exponent_max() - info_.bin_exponent_min() + 1
+   *     bin_exponent_max() - bin_exponent_min() + 1
    * such that v[i] contains the maximum of the primary problem corresponding to
-   * exponent = info_.bin_exponent_min() + i.
+   * exponent = bin_exponent_min() + i.
    *
    * \returns The vector v.
    */

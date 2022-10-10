@@ -147,8 +147,8 @@ void
 benchmark() {
 
   std::cout.precision(std::numeric_limits<T>::digits10 + 2);
-  std::cout << "exponent, mantissa, integer, value, amaru_compact, "
-    "dragonbox_full\n";
+  std::cout << "exponent, mantissa, integer, value, amaru\\\\_compact, "
+    "amaru\\\\_full, dragonbox\\\\_compact, dragonbox\\\\_full\n";
 
   using traits_t          = fp_traits_t<T>;
   using suint_t           = typename traits_t::suint_t;
@@ -158,7 +158,7 @@ benchmark() {
   std::mt19937_64 device;
   auto dist = std::uniform_int_distribution<suint_t> {1, mantissa_max};
 
-  auto           n_mantissas  = std::uint32_t{1000};
+  auto           n_mantissas  = std::uint32_t{50};
   auto constexpr n_iterations = std::uint32_t{1024};
 
   stats_t amaru_compact_stats, amaru_full_stats, dragonbox_compact_stats,

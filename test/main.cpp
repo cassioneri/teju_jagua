@@ -176,17 +176,17 @@ struct fp_traits_t<float> {
 
   static bool
   is_negative(other_t rep) {
-    return { rep.is_negative };
+    return bool{rep.is_negative};
   }
 
   static std::int32_t
   exponent(other_t rep) {
-    return { rep.exponent };
+    return std::int32_t{rep.exponent};
   }
 
   static suint_t
   mantissa(other_t rep) {
-    return { rep.significand };
+    return suint_t{rep.significand};
   }
 
 };
@@ -223,17 +223,17 @@ struct fp_traits_t<double> {
 
   static bool
   is_negative(other_t rep) {
-    return { rep.is_negative };
+    return bool{rep.is_negative};
   }
 
   static std::int32_t
   exponent(other_t rep) {
-    return { rep.exponent };
+    return std::int32_t{rep.exponent};
   }
 
   static suint_t
   mantissa(other_t rep) {
-    return { rep.significand };
+    return suint_t{rep.significand};
   }
 };
 

@@ -164,6 +164,11 @@ struct fp_traits_t<float> {
     return amaru_from_float_to_decimal_compact(value);
   }
 
+  static amaru_t
+  amaru_full(float const value) {
+    return amaru_from_float_to_decimal_full(value);
+  }
+
   static other_t
   other(float const value) {
     return amaru::dragonbox::to_decimal(value);
@@ -206,6 +211,11 @@ struct fp_traits_t<double> {
     return amaru_from_double_to_decimal_compact(value);
   }
 
+  static amaru_t
+  amaru_full(double const value) {
+    return amaru_from_double_to_decimal_full(value);
+  }
+
   static other_t
   other(double const value) {
     return amaru::dragonbox::to_decimal(value);
@@ -233,10 +243,16 @@ void compare_to_other(T const value) {
   using          traits_t = fp_traits_t<T>;
   auto constexpr digits        = std::numeric_limits<T>::digits10 + 2;
   auto const     amaru_compact = traits_t::amaru_compact(value);
+  auto const     amaru_full    = traits_t::amaru_full(value);
   auto const     other         = traits_t::other(value);
   auto const     ieee          = traits_t::fields(value);
 
   EXPECT_EQ(traits_t::exponent(other), amaru_compact.exponent) << "Note: "
+    "value = " << std::setprecision(digits) << value << ", "
+    "ieee.exponent = " << ieee.exponent << ", "
+    "ieee.mantissa = " << ieee.mantissa;
+
+  EXPECT_EQ(traits_t::exponent(other), amaru_full.exponent) << "Note: "
     "value = " << std::setprecision(digits) << value << ", "
     "ieee.exponent = " << ieee.exponent << ", "
     "ieee.mantissa = " << ieee.mantissa;

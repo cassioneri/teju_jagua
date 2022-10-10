@@ -3,12 +3,15 @@
 #include <boost/multiprecision/cpp_int.hpp>
 #include <nlohmann/json.hpp>
 
+#include <algorithm>
+#include <cctype>
 #include <climits>
 #include <cstdint>
 #include <cstdio>
 #include <exception>
 #include <iomanip>
 #include <ios>
+#include <iterator>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -146,16 +149,19 @@ struct generator_t {
    * \param config          The implementation configuration.
    */
   generator_t(info_t info, config_t config) :
-    info_               {std::move(info)                           },
-    config_             {std::move(config)                         },
-    function_           {"amaru_binary_to_decimal_" + info_.id     },
-    rep_                {info_.id + "_t"                           },
-    dec_exponent_min_   {log10_pow2(info_.bin_exponent_min)        },
-    normal_mantissa_min_{AMARU_POW2(integer_t, info_.mantissa_size)},
-    normal_mantissa_max_{2 * normal_mantissa_min_                  },
-    p2_size_            {integer_t{1} << info_.size                },
-    dot_h_              {info_.id + ".h"                           },
-    dot_c_              {info_.id + ".c"                           } {
+    info_                 {std::move(info)                       },
+    config_               {std::move(config)                     },
+    upper_id_             {to_upper(id())                        },
+    compact_or_full_      {is_compact() ? "_compact" : "_full"   },
+    upper_compact_or_full_{to_upper(compact_or_full())           },
+    function_             {"amaru_binary_to_decimal_" + id()     },
+    rep_                  {id() + "_t"                           },
+    dec_exponent_min_     {log10_pow2(bin_exponent_min())        },
+    normal_mantissa_min_  {AMARU_POW2(integer_t, mantissa_size())},
+    normal_mantissa_max_  {2 * normal_mantissa_min()             },
+    p2_size_              {integer_t{1} << size()                },
+    dot_h_                {id() + ".h"                           },
+    dot_c_                {id() + ".c"                           } {
   }
 
   /**
@@ -222,6 +228,21 @@ struct generator_t {
   std::uint32_t const&
   mantissa_size() const {
     return info_.mantissa_size;
+  }
+
+  std::string const&
+  upper_id() const {
+    return upper_id_;
+  }
+
+  std::string const&
+  compact_or_full() const {
+    return compact_or_full_;
+  }
+
+  std::string const&
+  upper_compact_or_full() const {
+    return upper_compact_or_full_;
   }
 
   /**
@@ -335,6 +356,16 @@ struct generator_t {
 private:
 
   /**
+   * \brief Converts a given string to upper case letters.
+   */
+  static std::string to_upper(std::string const& str) {
+    std::string result;
+    std::transform(str.begin(), str.end(), std::back_inserter(result),
+      [](char const c) { return static_cast<char>(std::toupper(c)); });
+    return result;
+  }
+
+  /**
    * \brief Fast EAF coefficients.
    *
    * For given alpha > 0 and delta > 0, we often find U > 0 and k >= 0 such that
@@ -388,10 +419,14 @@ private:
   void
   generate_dot_h(std::ostream& stream) const {
 
+    std::string const guard = "AMARU_GENERATED_" + upper_id() +
+      upper_compact_or_full() + "_H_";
+
     stream <<
       "// This file was auto-generated. DO NOT EDIT IT.\n"
       "\n"
-      "#pragma once\n"
+      "#ifndef " << guard << "\n"
+      "#define " << guard << "\n"
       "\n"
       "#include <stdbool.h>\n"
       "#include <stdint.h>\n"
@@ -411,7 +446,10 @@ private:
       "\n" <<
       "#ifdef __cplusplus\n"
       "}\n"
-      "#endif\n";
+      "#endif\n"
+      "\n"
+      "#endif // " << guard <<
+      "\n";
   }
 
   /**
@@ -746,6 +784,9 @@ private:
 
   info_t       info_;
   config_t     config_;
+  std::string  upper_id_;
+  std::string  compact_or_full_;
+  std::string  upper_compact_or_full_;
   std::string  function_;
   std::string  rep_;
   std::int32_t dec_exponent_min_;

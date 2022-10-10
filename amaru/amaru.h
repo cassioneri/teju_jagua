@@ -86,7 +86,9 @@ rep_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
 
     suint_t const s    = 10 * ((inv10 * b) >> size);
 
-    if (s == a) {
+    if (s < a)
+      ;
+    else if (s == a) {
       if (mantissa % 2 == 0 && is_multiple_of_pow5(m_a, f))
          return remove_trailing_zeros(is_negative, f, s);
     }

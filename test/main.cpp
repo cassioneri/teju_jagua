@@ -149,7 +149,7 @@ struct fp_traits_t<float> {
 
   using suint_t = std::uint32_t;
   using amaru_t = ieee32_t;
-  using other_t = amaru::dragonbox::result_float_t;
+  using other_t = amaru::dragonbox_full::result_float_t;
 
   static auto constexpr exponent_size = uint32_t{8};
   static auto constexpr mantissa_size = uint32_t{23};
@@ -171,7 +171,7 @@ struct fp_traits_t<float> {
 
   static other_t
   other(float const value) {
-    return amaru::dragonbox::to_decimal(value);
+    return amaru::dragonbox_full::to_decimal(value);
   }
 
   static bool
@@ -196,7 +196,7 @@ struct fp_traits_t<double> {
 
   using suint_t = std::uint64_t;
   using amaru_t = ieee64_t;
-  using other_t = amaru::dragonbox::result_double_t;
+  using other_t = amaru::dragonbox_full::result_double_t;
 
   static auto constexpr exponent_size = uint32_t{11};
   static auto constexpr mantissa_size = uint32_t{52};
@@ -218,7 +218,7 @@ struct fp_traits_t<double> {
 
   static other_t
   other(double const value) {
-    return amaru::dragonbox::to_decimal(value);
+    return amaru::dragonbox_full::to_decimal(value);
   }
 
   static bool

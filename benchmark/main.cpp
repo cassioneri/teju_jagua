@@ -79,8 +79,8 @@ struct fp_traits_t<float> {
   }
 
   static void
-  dragonbox(float const value) {
-    amaru::dragonbox::to_decimal(value);
+  dragonbox_full(float const value) {
+    amaru::dragonbox_full::to_decimal(value);
   }
 };
 
@@ -98,8 +98,8 @@ struct fp_traits_t<double> {
   }
 
   static void
-  dragonbox(double const value) {
-    amaru::dragonbox::to_decimal(value);
+  dragonbox_full(double const value) {
+    amaru::dragonbox_full::to_decimal(value);
   }
 };
 
@@ -127,7 +127,8 @@ void
 benchmark() {
 
   std::cout.precision(std::numeric_limits<T>::digits10 + 2);
-  std::cout << "exponent, mantissa, integer, value, amaru, dragonbox\n";
+  std::cout << "exponent, mantissa, integer, value, amaru_compact, "
+    "dragonbox_full\n";
 
   using traits_t          = fp_traits_t<T>;
   using suint_t           = typename traits_t::suint_t;
@@ -140,7 +141,7 @@ benchmark() {
   auto           n_mantissas  = std::uint32_t{1000};
   auto constexpr n_iterations = std::uint32_t{1024};
 
-  stats_t amaru_compact_stats, dragonbox_stats;
+  stats_t amaru_compact_stats, dragonbox_full_stats;
 
   while (n_mantissas--) {
 
@@ -153,34 +154,36 @@ benchmark() {
 
       auto const value = from_ieee<T>(exponent, mantissa);
 
-      auto const amaru = benchmark(value, &traits_t::amaru_compact,
+      auto const amaru_compact = benchmark(value, &traits_t::amaru_compact,
         n_iterations);
-      amaru_compact_stats.update(amaru);
+      amaru_compact_stats.update(amaru_compact);
 
-      auto const dragonbox = benchmark(value, &traits_t::dragonbox,
+      auto const dragonbox_full = benchmark(value, &traits_t::dragonbox_full,
         n_iterations);
-      dragonbox_stats.update(dragonbox);
+      dragonbox_full_stats.update(dragonbox_full);
 
       suint_t integer;
       std::memcpy(&integer, &value, sizeof(value));
 
       std::cout <<
-        exponent  << ", " <<
-        mantissa  << ", " <<
-        integer   << ", " <<
-        value     << ", " <<
-        amaru     << ", " <<
-        dragonbox << "\n";
+        exponent       << ", " <<
+        mantissa       << ", " <<
+        integer        << ", " <<
+        value          << ", " <<
+        amaru_compact  << ", " <<
+        dragonbox_full << "\n";
     }
   }
 
-  std::cerr << "amaru (mean)         = " << amaru_compact_stats    .mean()   << '\n';
-  std::cerr << "amaru (stddev)       = " << amaru_compact_stats    .stddev() << '\n';
+  std::cerr <<
+    "amaru_compact  (mean)   = " << amaru_compact_stats .mean()   << "\n"
+    "amaru_compact  (stddev) = " << amaru_compact_stats .stddev() << "\n"
 
-  std::cerr << "dragonbox (mean)     = " << dragonbox_stats.mean()   << '\n';
-  std::cerr << "dragonbox (stddev)   = " << dragonbox_stats.stddev() << '\n';
-  std::cerr << "dragonbox (relative) = " <<
-    dragonbox_stats.mean() / amaru_compact_stats.mean() << '\n';
+    "dragonbox_full (mean)     = " << dragonbox_full_stats.mean()   << "\n"
+    "dragonbox_full (stddev)   = " << dragonbox_full_stats.stddev() << "\n"
+
+    "dragonbox_full (relative) = " <<
+    dragonbox_full_stats.mean() / amaru_compact_stats.mean() << '\n';
 }
 
 int main() {

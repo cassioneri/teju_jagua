@@ -64,7 +64,7 @@ rep_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
   suint_t const mantissa) {
 
   suint_t  const normal_mantissa_min = AMARU_POW2(suint_t, mantissa_size);
-  duint_t  const inv10               = AMARU_POW2(duint_t, size) / 10 + 1;
+  duint_t  const inv10               = ((suint_t) -1) / 10 + 1;
 
 //  if (exponent == bin_exponent_min && mantissa == 0)
 //    return make_decimal(is_negative, 0, 0);

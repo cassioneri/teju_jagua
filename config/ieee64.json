@@ -1,7 +1,6 @@
 {
   "config": {
-    "compact" : true,
-    "directory" : "/home/cassio/amaru/generated"
+    "is_compact" : true
   },
   "info": {
     "id"              : "ieee64",

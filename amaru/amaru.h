@@ -69,13 +69,9 @@ rep_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
 //    return make_decimal(is_negative, 0, 0);
 
   int32_t  const f     = log10_pow2(exponent);
-#if defined(AMARU_USE_COMPACT_TBL)
-  uint32_t const extra = log10_pow2_remainder(exponent);
-  int32_t  const i     = f - dec_exponent_min;
-#else
-  uint32_t const extra = 0;
-  int32_t  const i     = exponent - bin_exponent_min;
-#endif
+  uint32_t const extra = is_compact ? log10_pow2_remainder(exponent) : 0;
+  int32_t  const i     = is_compact ? f - dec_exponent_min :
+    exponent - bin_exponent_min;
   suint_t  const upper = multipliers[i].upper;
   suint_t  const lower = multipliers[i].lower;
 

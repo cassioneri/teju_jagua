@@ -11,14 +11,13 @@ typedef uint64_t duint_t;
 typedef ieee32_t rep_t;
 
 enum {
+  is_compact       = 1,
   ssize            = 32,
   mantissa_size    = 23,
   bin_exponent_min = -149,
   dec_exponent_min = -45,
   shift            = 64
 };
-
-#define AMARU_USE_COMPACT_TBL
 
 static struct {
   suint_t  const upper;
@@ -131,4 +130,3 @@ static struct {
 #include "amaru/amaru.h"
 
 #undef AMARU_FUNCTION
-#undef AMARU_USE_COMPACT_TBL

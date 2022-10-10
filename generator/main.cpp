@@ -114,7 +114,7 @@ from_json(nlohmann::json const& json, info_t& info) {
 struct config_t {
 
   // Specifies if Amaru should use a compact table of multipliers.
-  bool compact;
+  bool is_compact;
 
   // Directory where generated files are saved.
   std::string directory;
@@ -124,13 +124,13 @@ struct config_t {
 void
 to_json(nlohmann::json& json, config_t const& config) {
   json = nlohmann::json{
-    {"compact", config.compact}
+    {"is_compact", config.is_compact}
   };
 }
 
 void
 from_json(nlohmann::json const& json, config_t& config) {
-  json.at("compact"  ).get_to(config.compact  );
+  json.at("is_compact").get_to(config.is_compact);
 }
 
 /**
@@ -274,8 +274,8 @@ struct generator_t {
    * \brief Returns whether using a compact table of multipliers.
    */
   bool
-  compact() const {
-    return config_.compact;
+  is_compact() const {
+    return config_.is_compact;
   }
 
   /**
@@ -449,7 +449,7 @@ private:
     // Optimal shift is 2 * size since it prevents multipliy_and_shift to
     // deal with partial limbs. In addition to subtract 1 to compensate the
     // increment adjustment made when the shift is output.
-    if (config_.compact)
+    if (is_compact())
       shift = 2 * ssize() - 1;
 
     // Replace minimal fast EAFs to use the same shift.
@@ -477,6 +477,7 @@ private:
       "typedef " << rep()   << " rep_t;\n"
       "\n"
       "enum {\n"
+      "  is_compact       = " << is_compact()       << ",\n"
       "  ssize            = " << ssize()            << ",\n"
       "  mantissa_size    = " << mantissa_size()    << ",\n"
       "  bin_exponent_min = " << bin_exponent_min() << ",\n"
@@ -487,9 +488,6 @@ private:
       "};\n"
       "\n";
 
-    if (compact())
-      stream << "#define AMARU_USE_COMPACT_TBL\n\n";
-
     stream <<
       "static struct {\n"
       "  suint_t  const upper;\n"
@@ -499,7 +497,7 @@ private:
     auto const nibbles = ssize() / 4;
 
     auto e2      = bin_exponent_min();
-    auto e2_or_f = compact() ? log10_pow2(e2) : e2;
+    auto e2_or_f = is_compact() ? log10_pow2(e2) : e2;
 
     for (auto const& fast_eaf : fast_eafs) {
 
@@ -555,9 +553,6 @@ private:
       "#include \"amaru/amaru.h\"\n"
       "\n"
       "#undef AMARU_FUNCTION\n";
-
-    if (config_.compact)
-      stream << "#undef AMARU_USE_COMPACT_TBL\n";
   }
 
   /**
@@ -582,10 +577,10 @@ private:
 
       auto const f = log10_pow2(e2);
 
-      if (config_.compact && f == f_done)
+      if (is_compact() && f == f_done)
         continue;
 
-      auto const e = (config_.compact ? e2 - log10_pow2_remainder(e2) : e2) - f;
+      auto const e = (is_compact() ? e2 - log10_pow2_remainder(e2) : e2) - f;
 
       alpha_delta_maximum x;
       x.alpha   = f >= 0 ? pow2(e) : pow5(-f);
@@ -685,7 +680,7 @@ private:
     // Usual interval.
 
     auto const a = start_at_1 ? integer_t{1} : integer_t{2 * mantissa_min};
-    auto const b = compact() ? integer_t{16 * mantissa_max - 15} :
+    auto const b = is_compact() ? integer_t{16 * mantissa_max - 15} :
       integer_t{2 * mantissa_max};
 
     auto const max_ab = get_maximum_primary(alpha, delta, a, b);
@@ -700,7 +695,7 @@ private:
       return std::max(max_m_a, max_m_c);
     };
 
-    if (!config_.compact)
+    if (!is_compact())
       return std::max(max_ab, max_extras(mantissa_min));
 
     return std::max({max_ab, max_extras(mantissa_min),

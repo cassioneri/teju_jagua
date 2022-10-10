@@ -6,7 +6,7 @@
     "id"              : "ieee64",
     "suint"           : "uint64_t",
     "duint"           : "__uint128_t",
-    "ssize"           :    64,
+    "size"            :    64,
     "exponent_size"   :    11,
     "bin_exponent_min": -1074,
     "bin_exponent_max":   971,

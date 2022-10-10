@@ -12,7 +12,7 @@ typedef ieee32_t rep_t;
 
 enum {
   is_compact       = 1,
-  ssize            = 32,
+  size             = 32,
   mantissa_size    = 23,
   bin_exponent_min = -149,
   dec_exponent_min = -45,

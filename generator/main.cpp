@@ -66,7 +66,7 @@ struct info_t {
   std::string duint;
 
   // The size of suint in bits (e.g., 64.)
-  std::uint32_t ssize;
+  std::uint32_t size;
 
   // Size of exponent in bits (e.g., 11.)
   std::uint32_t exponent_size;
@@ -88,7 +88,7 @@ to_json(nlohmann::json& json, info_t const& info) {
       {"id"              , info.id              },
       {"suint"           , info.suint           },
       {"duint"           , info.duint           },
-      {"ssize"           , info.ssize           },
+      {"size"            , info.size           },
       {"exponent_size"   , info.exponent_size   },
       {"bin_exponent_min", info.bin_exponent_min},
       {"bin_exponent_max", info.bin_exponent_max},
@@ -101,7 +101,7 @@ from_json(nlohmann::json const& json, info_t& info) {
     json.at("id"              ).get_to(info.id              );
     json.at("suint"           ).get_to(info.suint           );
     json.at("duint"           ).get_to(info.duint           );
-    json.at("ssize"           ).get_to(info.ssize           );
+    json.at("size"            ).get_to(info.size           );
     json.at("exponent_size"   ).get_to(info.exponent_size   );
     json.at("bin_exponent_min").get_to(info.bin_exponent_min);
     json.at("bin_exponent_max").get_to(info.bin_exponent_max);
@@ -153,7 +153,7 @@ struct generator_t {
     dec_exponent_min_   {log10_pow2(info_.bin_exponent_min)        },
     normal_mantissa_min_{AMARU_POW2(integer_t, info_.mantissa_size)},
     normal_mantissa_max_{2 * normal_mantissa_min_                  },
-    p2ssize_            {integer_t{1} << info_.ssize               },
+    p2_size_            {integer_t{1} << info_.size               },
     dot_h_              {info_.id + ".h"                           },
     dot_c_              {info_.id + ".c"                           } {
   }
@@ -188,8 +188,8 @@ struct generator_t {
    * \brief Returns the size of suint in bits.
    */
   std::uint32_t const&
-  ssize() const {
-    return info_.ssize;
+  size() const {
+    return info_.size;
   }
 
   /**
@@ -314,12 +314,12 @@ struct generator_t {
     std::cout << "Generation started.\n";
 
     // Overflow check 1:
-    if (2 * normal_mantissa_max() + 1 >= p2ssize_)
+    if (2 * normal_mantissa_max() + 1 >= p2_size_)
       throw amaru_exception_t("suint_t is not large enough for calculations to "
         "not overflow.");
 
     // Overflow check 2:
-    if (20 * normal_mantissa_min() >= p2ssize_)
+    if (20 * normal_mantissa_min() >= p2_size_)
       throw amaru_exception_t("suint_t is not large enough for calculations to "
         "not overflow.");
 
@@ -450,7 +450,7 @@ private:
     // deal with partial limbs. In addition to subtract 1 to compensate the
     // increment adjustment made when the shift is output.
     if (is_compact())
-      shift = 2 * ssize() - 1;
+      shift = 2 * size() - 1;
 
     // Replace minimal fast EAFs to use the same shift.
 
@@ -469,7 +469,7 @@ private:
       fast_eafs[i] = fast_eaf_t{q + 1, shift};
     }
 
-    auto const p2ssize = integer_t{1} << ssize();
+    auto const p2_size = integer_t{1} << size();
 
     stream <<
       "typedef " << suint() << " suint_t;\n"
@@ -478,7 +478,7 @@ private:
       "\n"
       "enum {\n"
       "  is_compact       = " << is_compact()       << ",\n"
-      "  ssize            = " << ssize()            << ",\n"
+      "  size             = " << size()            << ",\n"
       "  mantissa_size    = " << mantissa_size()    << ",\n"
       "  bin_exponent_min = " << bin_exponent_min() << ",\n"
       "  dec_exponent_min = " << dec_exponent_min() << ",\n"
@@ -494,7 +494,7 @@ private:
       "  suint_t  const lower;\n"
       "} const multipliers[] = {\n";
 
-    auto const nibbles = ssize() / 4;
+    auto const nibbles = size() / 4;
 
     auto e2      = bin_exponent_min();
     auto e2_or_f = is_compact() ? log10_pow2(e2) : e2;
@@ -502,9 +502,9 @@ private:
     for (auto const& fast_eaf : fast_eafs) {
 
       integer_t upper, lower;
-      divide_qr(fast_eaf.U, p2ssize, upper, lower);
+      divide_qr(fast_eaf.U, p2_size, upper, lower);
 
-      if (upper >= p2ssize)
+      if (upper >= p2_size)
         throw amaru_exception_t{"Multiplier is out of range."};
 
       stream << "  { " <<
@@ -521,7 +521,7 @@ private:
       "  suint_t const bound;\n"
       "} const minverse[] = {\n";
 
-    auto const minverse5  = integer_t{p2ssize - (p2ssize - 1) / 5};
+    auto const minverse5  = integer_t{p2_size - (p2_size - 1) / 5};
     auto multiplier = integer_t{1};
     auto p5 = integer_t{1};
 
@@ -532,14 +532,14 @@ private:
     // Hence, 200 * mantissa_max is a conservative bound, i.e.,
     // If 5^f > 200 * mantissa_max, then is_multiple_of_pow5(C, f) == false;
     for (int32_t f = 0; p5 <= 200 * normal_mantissa_max(); ++f) {
-      auto const bound = p2ssize / p5 - (f == 0);
+      auto const bound = p2_size / p5 - (f == 0);
       stream << "  { "
         "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
         multiplier << ", " <<
         "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
         bound <<
         " },\n";
-      multiplier = (multiplier * minverse5) % p2ssize;
+      multiplier = (multiplier * minverse5) % p2_size;
       p5 *= 5;
     }
 
@@ -714,19 +714,19 @@ private:
   fast_eaf_t
   get_fast_eaf(alpha_delta_maximum const& x) const {
 
-    // Making shift >= ssize, simplifies multiply_and_shift executed at runtime.
+    // Making shift >= size, simplifies multiply_and_shift executed at runtime.
     // Indeed, it ensures that the least significant limb of the product is
     // irrelevant. For this reason, later on, the generator actually outputs
-    // shift - ssize (still labelling it as 'shift') so that Amaru doesn't need
+    // shift - size (still labelling it as 'shift') so that Amaru doesn't need
     // to do it at runtime.
-    auto k    = ssize();
+    auto k    = size();
     auto pow2 = integer_t{1} << k;
 
     integer_t q, r;
     divide_qr(pow2 * x.alpha, x.delta, q, r);
 
     // It should return from inside the loop but let's set an upper bound.
-    while (k < 3 * ssize()) {
+    while (k < 3 * size()) {
 
       if (x.maximum < rational_t{pow2, x.delta - r})
         return { q + 1, k };
@@ -751,7 +751,7 @@ private:
   std::int32_t dec_exponent_min_;
   integer_t    normal_mantissa_min_;
   integer_t    normal_mantissa_max_;
-  integer_t    p2ssize_;
+  integer_t    p2_size_;
   std::string  dot_h_;
   std::string  dot_c_;
 };

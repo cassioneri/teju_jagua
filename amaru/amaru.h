@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-static_assert(CHAR_BIT * sizeof(suint_t) == ssize,
+static_assert(CHAR_BIT * sizeof(suint_t) == size,
   "Size of suint_t does not match what the generator used.");
 
 static_assert(sizeof(duint_t) >= 2 * sizeof(suint_t),
@@ -50,7 +50,7 @@ suint_t multipliy_and_shift(suint_t const m, suint_t const upper,
   suint_t const lower) {
   duint_t const upper_m = ((duint_t) upper) * m;
   duint_t const lower_m = ((duint_t) lower) * m;
-  return (upper_m + (lower_m >> ssize)) >> (shift - ssize);
+  return (upper_m + (lower_m >> size)) >> (shift - size);
 }
 
 static inline
@@ -63,7 +63,7 @@ rep_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
   suint_t const mantissa) {
 
   suint_t  const normal_mantissa_min = AMARU_POW2(suint_t, mantissa_size);
-  duint_t  const inv10               = AMARU_POW2(duint_t, ssize) / 10 + 1;
+  duint_t  const inv10               = AMARU_POW2(duint_t, size) / 10 + 1;
 
 //  if (exponent == bin_exponent_min && mantissa == 0)
 //    return make_decimal(is_negative, 0, 0);
@@ -83,7 +83,7 @@ rep_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
     suint_t const m_a  = (2 * mantissa - 1) << extra;
     suint_t const a    = multipliy_and_shift(m_a, upper, lower);
 
-    suint_t const s    = 10 * ((inv10 * b) >> ssize);
+    suint_t const s    = 10 * ((inv10 * b) >> size);
 
     if (s < a)
       ;
@@ -120,7 +120,7 @@ rep_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
 
   if (b >= a) {
 
-    suint_t const s = 10 * ((inv10 * b) >> ssize);
+    suint_t const s = 10 * ((inv10 * b) >> size);
 
     if (s >= a)
       return remove_trailing_zeros(is_negative, f, s);

@@ -12,11 +12,11 @@ typedef ieee64_t rep_t;
 
 enum {
   is_compact       = 1,
-  ssize            = 64,
+  size             = 64,
   mantissa_size    = 52,
   bin_exponent_min = -1074,
   dec_exponent_min = -324,
-  shift             = 128
+  shift            = 128
 };
 
 static struct {

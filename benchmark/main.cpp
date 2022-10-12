@@ -206,26 +206,29 @@ benchmark() {
     }
   }
 
+  auto const baseline = std::min(amaru_compact_stats.mean(),
+    amaru_full_stats.mean());
+
   std::cerr <<
     "amaru_compact     (mean)   = " << amaru_compact_stats    .mean  () << "\n"
     "amaru_compact     (stddev) = " << amaru_compact_stats    .stddev() << "\n"
     "amaru_compact     (rel.)   = " <<
-      amaru_compact_stats.mean() / amaru_compact_stats.mean() << "\n"
+      amaru_compact_stats.mean() / baseline << "\n"
 
     "amaru_full        (mean)   = " << amaru_full_stats       .mean  () << "\n"
     "amaru_full        (stddev) = " << amaru_full_stats       .stddev() << "\n"
     "amaru_full        (rel.)   = " <<
-      amaru_full_stats.mean() / amaru_compact_stats.mean() << "\n"
+      amaru_full_stats.mean() / baseline << "\n"
 
     "dragonbox_compact (mean)   = " << dragonbox_compact_stats.mean  () << "\n"
     "dragonbox_compact (stddev) = " << dragonbox_compact_stats.stddev() << "\n"
     "dragonbox_compact (rel.)   = " <<
-      dragonbox_compact_stats.mean() / amaru_compact_stats.mean() << "\n"
+      dragonbox_compact_stats.mean() / baseline << "\n"
 
     "dragonbox_full    (mean)   = " << dragonbox_full_stats   .mean  () << "\n"
     "dragonbox_full    (stddev) = " << dragonbox_full_stats   .stddev() << "\n"
     "dragonbox_full    (rel.)   = " <<
-      dragonbox_full_stats.mean() / amaru_compact_stats.mean() << '\n';
+      dragonbox_full_stats.mean() / baseline << '\n';
 }
 
 int main() {

@@ -167,7 +167,7 @@ benchmark() {
   while (n_mantissas--) {
 
     // Force mantissa = 0 to be in the set.
-    auto const mantissa = /*n_mantissas == 0 ? 0 :*/ dist(device);
+    auto const mantissa = n_mantissas == 0 ? 0 : dist(device);
 
     // If exponent == exponent_max, then value is infinity or NaN. Hence, we
     // exclude exponent_max.

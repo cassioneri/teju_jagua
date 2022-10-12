@@ -1,6 +1,8 @@
 #include "amaru/common.h"
 #include "amaru/double.h"
 
+#include <math.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -13,6 +15,12 @@ enum {
   exponent_size =    11,
   exponent_min  = -1074
 };
+
+static ieee64_t
+zero(bool const is_negative) {
+  ieee64_t result = { is_negative, 0, 0 };
+  return result;
+}
 
 ieee64_t
 amaru_from_double_to_fields(double const value) {
@@ -35,6 +43,9 @@ amaru_from_double_to_fields(double const value) {
 ieee64_t
 amaru_from_double_to_decimal_compact(double const value) {
 
+  if (value == 0)
+    return zero(signbit(value));
+
   // Conversion to Amaru's binary representation.
 
   ieee64_t binary        = amaru_from_double_to_fields(value);
@@ -52,6 +63,9 @@ amaru_from_double_to_decimal_compact(double const value) {
 
 ieee64_t
 amaru_from_double_to_decimal_full(double const value) {
+
+  if (value == 0)
+    return zero(signbit(value));
 
   // Conversion to Amaru's binary representation.
 

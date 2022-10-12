@@ -66,9 +66,6 @@ rep_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
   suint_t  const normal_mantissa_min = AMARU_POW2(suint_t, mantissa_size);
   duint_t  const inv10               = ((suint_t) -1) / 10 + 1;
 
-//  if (exponent == bin_exponent_min && mantissa == 0)
-//    return make_decimal(is_negative, 0, 0);
-
   int32_t  const f     = log10_pow2(exponent);
   uint32_t const extra = is_compact ? log10_pow2_remainder(exponent) : 0;
   int32_t  const i     = is_compact ? f - dec_exponent_min :
@@ -88,16 +85,17 @@ rep_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
 
     if (s < a)
       ;
-    else if (s == a) {
-      if (mantissa % 2 == 0 && is_multiple_of_pow5(m_a, f))
-         return remove_trailing_zeros(is_negative, f, s);
-    }
+
     else if (s == b) {
       if (mantissa % 2 == 0 || !is_multiple_of_pow5(m_b, f))
         return remove_trailing_zeros(is_negative, f, s);
     }
-    else if (s > a) // a < s < b
+
+    else if (s > a)
       return remove_trailing_zeros(is_negative, f, s);
+
+    else /* s == a */ if (mantissa % 2 == 0 && is_multiple_of_pow5(m_a, f))
+       return remove_trailing_zeros(is_negative, f, s);
 
     if ((a ^ b) % 2 == 1)
       return make_decimal(is_negative, f, (a + b) / 2 + 1);
@@ -106,10 +104,10 @@ rep_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
     suint_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower);
     suint_t const c   = c_2 / 2;
 
-    if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2, -f)))
-      return make_decimal(is_negative, f, c + 1);
+    if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f)))
+      return make_decimal(is_negative, f, c);
 
-    return make_decimal(is_negative, f, c);
+    return make_decimal(is_negative, f, c + 1);
   }
 
   suint_t const m_b = 2 * normal_mantissa_min + 1;

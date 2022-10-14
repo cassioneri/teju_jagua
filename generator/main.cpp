@@ -106,31 +106,6 @@ from_json(nlohmann::json const& json, info_t& info) {
 }
 
 /**
- * \brief Configuration of Amaru's implementation.
- */
-struct config_t {
-
-  // Specifies if Amaru should use a compact table of multipliers.
-  bool is_compact;
-
-  // Directory where generated files are saved.
-  std::string directory;
-
-}; // struct config_t
-
-void
-to_json(nlohmann::json& json, config_t const& config) {
-  json = nlohmann::json{
-    {"is_compact", config.is_compact}
-  };
-}
-
-void
-from_json(nlohmann::json const& json, config_t& config) {
-  json.at("is_compact").get_to(config.is_compact);
-}
-
-/**
  * \brief Generator of Amaru's implementation for a given floating point number
  * type.
  */
@@ -142,10 +117,10 @@ struct generator_t {
    * \param info            The information on the floating point number type.
    * \param config          The implementation configuration.
    */
-  generator_t(info_t info, config_t config, config2_t config2) :
+  generator_t(info_t info, config2_t config2, std::string directory) :
     info_                 {std::move(info)                       },
-    config_               {std::move(config)                     },
     config2_              {std::move(config2)                    },
+    directory_            {std::move(directory)                  },
     compact_or_full_      {is_compact() ? "compact" : "full"     },
     function_             {"amaru_binary_to_decimal_"
       + id() + "_" + compact_or_full()                           },
@@ -280,7 +255,7 @@ struct generator_t {
    */
   bool
   is_compact() const {
-    return config_.is_compact;
+    return config2_.storage.exponent == base_t::decimal;
   }
 
   /**
@@ -288,7 +263,7 @@ struct generator_t {
    */
   std::string const&
   directory() const {
-    return config_.directory;
+    return directory_;
   }
 
   /**
@@ -774,8 +749,8 @@ private:
   }
 
   info_t       info_;
-  config_t     config_;
   config2_t    config2_;
+  std::string  directory_;
   std::string  compact_or_full_;
   std::string  function_;
   std::string  rep_;
@@ -812,14 +787,13 @@ parse(const char* const filename, const char* const dir) {
   auto const data = nlohmann::json::parse(file);
 
   auto info    = data["info"  ].get<info_t  >();
-  auto config  = data["config"].get<config_t>();
   auto config2 = data["new"].get<config2_t>();
 
-  config.directory = dir;
-  if (config.directory.back() != '/')
-    config.directory.append(1, '/');
+  std::string directory = dir;
+  if (directory.back() != '/')
+    directory.append(1, '/');
 
-  return { std::move(info), std::move(config),  std::move(config2) };
+  return { std::move(info), std::move(config2), std::move(directory) };
 }
 
 } // namespace amaru

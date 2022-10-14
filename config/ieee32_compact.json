@@ -1,5 +1,5 @@
 {
-  "id"  : "ieee32",
+  "id"  : "ieee32_compact",
   "size": 32,
 
   "exponent": {

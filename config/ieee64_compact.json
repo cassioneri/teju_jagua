@@ -1,5 +1,5 @@
 {
-  "id"  : "ieee64",
+  "id"  : "ieee64_compact",
   "size": 64,
 
   "exponent": {
@@ -14,7 +14,7 @@
   
   "storage": {
     "limbs"   : 2,
-    "exponent": "binary"
+    "exponent": "decimal"
   },
 
   "calculation": {

@@ -57,16 +57,14 @@ struct generator_t {
   generator_t(config_t config, std::string directory) :
     config_             {std::move(config)                     },
     directory_          {std::move(directory)                  },
-    compact_or_full_    {is_compact() ? "compact" : "full"     },
-    function_           {"amaru_binary_to_decimal_"
-      + id() + "_" + compact_or_full()                         },
+    function_           {"amaru_binary_to_decimal_" + id()     },
     fields_             {get_fields(size())                    },
     dec_exponent_min_   {log10_pow2(bin_exponent_min())        },
     normal_mantissa_min_{AMARU_POW2(integer_t, mantissa_size())},
     normal_mantissa_max_{2 * normal_mantissa_min()             },
     p2_size_            {integer_t{1} << size()                },
-    dot_h_              {id() + "_" + compact_or_full() + ".h" },
-    dot_c_              {id() + "_" + compact_or_full() + ".c" } {
+    dot_h_              {id() + ".h"                           },
+    dot_c_              {id() + ".c"                           } {
   }
 
   /**
@@ -115,11 +113,6 @@ struct generator_t {
   std::uint32_t const&
   mantissa_size() const {
     return config_.mantissa.size;
-  }
-
-  std::string const&
-  compact_or_full() const {
-    return compact_or_full_;
   }
 
   /**
@@ -307,7 +300,7 @@ private:
   generate_dot_h(std::ostream& stream) const {
 
     std::string const include_guard = "AMARU_AMARU_GENERATED_" + to_upper(id())
-      + "_" + to_upper(compact_or_full()) + "_H_";
+      + "_H_";
 
     stream <<
       "// This file was auto-generated. DO NOT EDIT IT.\n"
@@ -676,7 +669,6 @@ private:
 
   config_t     config_;
   std::string  directory_;
-  std::string  compact_or_full_;
   std::string  function_;
   std::string  fields_;
   std::int32_t dec_exponent_min_;

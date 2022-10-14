@@ -23,12 +23,7 @@ from_json(nlohmann::json const& src, config_t::storage_t& tgt) {
 
 void
 from_json(nlohmann::json const& src, config_t::calculation_t& tgt) {
-
   src["limbs"].get_to(tgt.limbs);
-
-  if (!(tgt.limbs == 1 || tgt.limbs == 2 || tgt.limbs == 4))
-    throw exception_t{"Constraint violation: "
-      "calculation.limbs in { 1, 2, 4}."};
 }
 
 void
@@ -64,6 +59,10 @@ validate(config_t const& json) {
   if (!(json.storage.limbs == 1 || json.storage.limbs == 2))
     throw exception_t{"Constraint violation: "
       "storage.limbs in { 1, 2 }."};
+
+  if (!(json.calculation.limbs == 1 || json.calculation.limbs == 2))
+    throw exception_t{"Constraint violation: "
+      "calculation.limbs in { 1, 2, 4 }."};
 }
 
 } // namespace amaru

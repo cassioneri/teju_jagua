@@ -154,7 +154,7 @@ struct generator_t {
     compact_or_full_      {is_compact() ? "compact" : "full"     },
     function_             {"amaru_binary_to_decimal_"
       + id() + "_" + compact_or_full()                           },
-    rep_                  {id() + "_t"                           },
+    rep_                  {get_rep(size())                       },
     dec_exponent_min_     {log10_pow2(bin_exponent_min())        },
     normal_mantissa_min_  {AMARU_POW2(integer_t, mantissa_size())},
     normal_mantissa_max_  {2 * normal_mantissa_min()             },
@@ -367,6 +367,16 @@ private:
     std::uint32_t k;
   };
 
+  std::string get_rep(uint32_t size) {
+    switch (size) {
+      case 32:
+        return "amaru_fields_32_t";
+      case 64:
+        return "amaru_fields_64_t";
+    }
+    throw amaru_exception_t{"Size must be in {32, 64}."};
+  };
+
   /**
    * \brief Stores alpha, delta (usually pow2(e) and pow2(f)) and the maximum of
    *     m / (delta - alpha * m % delta)
@@ -411,13 +421,13 @@ private:
     std::string const include_guard = "AMARU_AMARU_GENERATED_" + to_upper(id())
       + "_" + to_upper(compact_or_full()) + "_H_";
 
-    std::string const define_guard = "AMARU_IS_" + to_upper(rep()) + "_DEFINED";
-
     stream <<
       "// This file was auto-generated. DO NOT EDIT IT.\n"
       "\n"
       "#ifndef " << include_guard << "\n"
       "#define " << include_guard << "\n"
+      "\n"
+      "#include \"amaru/types.h\"\n"
       "\n"
       "#include <stdbool.h>\n"
       "#include <stdint.h>\n"
@@ -425,17 +435,6 @@ private:
       "#ifdef __cplusplus\n"
       "extern \"C\" {\n"
       "#endif\n"
-      "\n"
-      "#ifndef " << define_guard << "\n"
-      "#define " << define_guard << "\n"
-      "\n"
-      "typedef struct {\n"
-      "  bool is_negative;\n"
-      "  int32_t exponent;\n"
-      "  " << suint() << " mantissa;\n"
-      "} " << rep() << ";\n"
-      "\n"
-      "#endif // " << define_guard << "\n"
       "\n" <<
         rep() << ' ' << function() << "(bool is_negative, "
         "int32_t exponent, " << suint() << " mantissa);\n"

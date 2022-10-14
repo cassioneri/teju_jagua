@@ -8,13 +8,13 @@
 extern "C" {
 #endif
 
-ieee32_t
+amaru_fields_32_t
 amaru_from_float_to_fields(float value);
 
-ieee32_t
+amaru_fields_32_t
 amaru_from_float_to_decimal_compact(float value);
 
-ieee32_t
+amaru_fields_32_t
 amaru_from_float_to_decimal_full(float value);
 
 uint32_t

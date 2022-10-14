@@ -8,7 +8,7 @@ extern "C" {
 
 typedef uint64_t suint_t;
 typedef __uint128_t duint_t;
-typedef ieee64_t rep_t;
+typedef amaru_fields_64_t rep_t;
 
 enum {
   is_compact       = 1,

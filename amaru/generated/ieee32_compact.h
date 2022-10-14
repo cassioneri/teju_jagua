@@ -3,6 +3,8 @@
 #ifndef AMARU_AMARU_GENERATED_IEEE32_COMPACT_H_
 #define AMARU_AMARU_GENERATED_IEEE32_COMPACT_H_
 
+#include "amaru/types.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -10,18 +12,7 @@
 extern "C" {
 #endif
 
-#ifndef AMARU_IS_IEEE32_T_DEFINED
-#define AMARU_IS_IEEE32_T_DEFINED
-
-typedef struct {
-  bool is_negative;
-  int32_t exponent;
-  uint32_t mantissa;
-} ieee32_t;
-
-#endif // AMARU_IS_IEEE32_T_DEFINED
-
-ieee32_t amaru_binary_to_decimal_ieee32_compact(bool is_negative, int32_t exponent, uint32_t mantissa);
+amaru_fields_32_t amaru_binary_to_decimal_ieee32_compact(bool is_negative, int32_t exponent, uint32_t mantissa);
 
 #ifdef __cplusplus
 }

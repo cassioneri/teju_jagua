@@ -8,13 +8,13 @@
 extern "C" {
 #endif
 
-ieee64_t
+amaru_fields_64_t
 amaru_from_double_to_fields(double value);
 
-ieee64_t
+amaru_fields_64_t
 amaru_from_double_to_decimal_compact(double value);
 
-ieee64_t
+amaru_fields_64_t
 amaru_from_double_to_decimal_full(double value);
 
 uint32_t

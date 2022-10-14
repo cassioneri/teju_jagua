@@ -16,13 +16,13 @@ enum {
   exponent_min  = -149
 };
 
-static ieee32_t
+static amaru_fields_32_t
 zero(bool const is_negative) {
-  ieee32_t result = { is_negative, 0, 0 };
+  amaru_fields_32_t result = { is_negative, 0, 0 };
   return result;
 }
 
-ieee32_t
+amaru_fields_32_t
 amaru_from_float_to_fields(float const value) {
 
   uint32_t bits;
@@ -30,7 +30,7 @@ amaru_from_float_to_fields(float const value) {
 
   // Breakdown into ieee32 fields.
 
-  ieee32_t binary;
+  amaru_fields_32_t binary;
   binary.mantissa = AMARU_LSB(bits, mantissa_size);
   bits >>= mantissa_size;
   binary.exponent = AMARU_LSB(bits, exponent_size);
@@ -40,7 +40,7 @@ amaru_from_float_to_fields(float const value) {
   return binary;
 }
 
-ieee32_t
+amaru_fields_32_t
 amaru_from_float_to_decimal_compact(float const value) {
 
   if (value == 0)
@@ -48,8 +48,8 @@ amaru_from_float_to_decimal_compact(float const value) {
 
   // Conversion to Amaru's binary representation.
 
-  ieee32_t binary        = amaru_from_float_to_fields(value);
-  uint32_t ieee_exponent = binary.exponent;
+  amaru_fields_32_t binary        = amaru_from_float_to_fields(value);
+  uint32_t          ieee_exponent = binary.exponent;
 
   binary.exponent += exponent_min;
   if (ieee_exponent != 0) {
@@ -61,7 +61,7 @@ amaru_from_float_to_decimal_compact(float const value) {
     binary.exponent, binary.mantissa);
 }
 
-ieee32_t
+amaru_fields_32_t
 amaru_from_float_to_decimal_full(float const value) {
 
   if (value == 0)
@@ -69,8 +69,8 @@ amaru_from_float_to_decimal_full(float const value) {
 
   // Conversion to Amaru's binary representation.
 
-  ieee32_t binary        = amaru_from_float_to_fields(value);
-  uint32_t ieee_exponent = binary.exponent;
+  amaru_fields_32_t binary        = amaru_from_float_to_fields(value);
+  uint32_t          ieee_exponent = binary.exponent;
 
   binary.exponent += exponent_min;
   if (ieee_exponent != 0) {

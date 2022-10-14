@@ -53,7 +53,7 @@ struct fp_traits_t;
 template <>
 struct fp_traits_t<float> {
 
-  using limb_t = amaru_32_limb1_t;
+  using limb_t = amaru32_limb1_t;
 
   static auto constexpr exponent_size = std::uint32_t{8};
   static auto constexpr mantissa_size = std::uint32_t{23};
@@ -82,7 +82,7 @@ struct fp_traits_t<float> {
 template <>
 struct fp_traits_t<double> {
 
-  using limb_t = amaru_64_limb1_t;
+  using limb_t = amaru64_limb1_t;
 
   static auto constexpr exponent_size = uint32_t{11};
   static auto constexpr mantissa_size = uint32_t{52};

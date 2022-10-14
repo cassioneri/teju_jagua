@@ -8,34 +8,34 @@
 #define AMARU_HAS_UINT_128_T
 #endif
 
-typedef uint32_t amaru_32_limb1_t;
-typedef uint64_t amaru_32_limb2_t;
+typedef uint32_t amaru32_limb1_t;
+typedef uint64_t amaru32_limb2_t;
 #ifdef AMARU_HAS_UINT_128_T
-#define AMARU_32_MAX_LIMBS 4
-typedef __uint128_t amaru_32_limb4_t;
+#define AMARU32_MAX_LIMBS 4
+typedef __uint128_t amaru32_limb4_t;
 #else
-#define AMARU_32_MAX_LIMBS 2
+#define AMARU32_MAX_LIMBS 2
 #endif
 
 typedef struct {
   bool             is_negative;
   int32_t          exponent;
-  amaru_32_limb1_t mantissa;
-} amaru_fields_32_t;
+  amaru32_limb1_t mantissa;
+} amaru32_fields_t;
 
 
-typedef uint64_t amaru_64_limb1_t ;
+typedef uint64_t amaru64_limb1_t ;
 #ifdef AMARU_HAS_UINT_128_T
-#define AMARU_64_MAX_LIMBS 2
-typedef __uint128_t amaru_64_limb2_t;
+#define AMARU64_MAX_LIMBS 2
+typedef __uint128_t amaru64_limb2_t;
 #else
-#define AMARU_64_MAX_LIMBS 1
+#define AMARU64_MAX_LIMBS 1
 #endif
 
 typedef struct {
   bool             is_negative;
   int32_t          exponent;
-  amaru_64_limb1_t mantissa;
-} amaru_fields_64_t;
+  amaru64_limb1_t mantissa;
+} amaru64_fields_t;
 
 #endif // AMARU_AMARU_TYPES_H_

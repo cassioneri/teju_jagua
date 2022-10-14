@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-amaru_fields_32_t amaru_binary_to_decimal_ieee32_compact(bool is_negative, int32_t exponent, amaru_32_limb1_t mantissa);
+amaru32_fields_t amaru_binary_to_decimal_ieee32_compact(bool is_negative, int32_t exponent, amaru32_limb1_t mantissa);
 
 #ifdef __cplusplus
 }

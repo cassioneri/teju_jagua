@@ -41,7 +41,7 @@ rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
   return make_decimal(negative, exponent, mantissa);
 }
 
-#if AMARU_32_MAX_LIMBS >= 2
+#if AMARU_MAX_LIMBS >= 2
 static inline
 amaru_limb1_t multipliy_and_shift(amaru_limb1_t const m, amaru_limb1_t const upper,
   amaru_limb1_t const lower) {

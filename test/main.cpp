@@ -148,14 +148,14 @@ get_next(T value) {
 template <>
 struct fp_traits_t<float> {
 
-  using limb_t  = amaru_32_limb1_t;
-  using amaru_t = amaru_fields_32_t;
+  using limb_t  = amaru32_limb1_t;
+  using amaru_t = amaru32_fields_t;
   using other_t = amaru::dragonbox_full::result_float_t;
 
   static auto constexpr exponent_size = uint32_t{8};
   static auto constexpr mantissa_size = uint32_t{23};
 
-  static amaru_fields_32_t
+  static amaru32_fields_t
   fields(float const value) {
     return amaru_from_float_to_fields(value);
   }
@@ -195,14 +195,14 @@ struct fp_traits_t<float> {
 template <>
 struct fp_traits_t<double> {
 
-  using limb_t  = amaru_64_limb1_t;
-  using amaru_t = amaru_fields_64_t;
+  using limb_t  = amaru64_limb1_t;
+  using amaru_t = amaru64_fields_t;
   using other_t = amaru::dragonbox_full::result_double_t;
 
   static auto constexpr exponent_size = uint32_t{11};
   static auto constexpr mantissa_size = uint32_t{52};
 
-  static amaru_fields_64_t
+  static amaru64_fields_t
   fields(double const value) {
     return amaru_from_double_to_fields(value);
   }

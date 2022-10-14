@@ -16,13 +16,13 @@ enum {
   exponent_min  = -1074
 };
 
-static amaru_fields_64_t
+static amaru64_fields_t
 zero(bool const is_negative) {
-  amaru_fields_64_t result = { is_negative, 0, 0 };
+  amaru64_fields_t result = { is_negative, 0, 0 };
   return result;
 }
 
-amaru_fields_64_t
+amaru64_fields_t
 amaru_from_double_to_fields(double const value) {
 
   uint64_t bits;
@@ -30,7 +30,7 @@ amaru_from_double_to_fields(double const value) {
 
   // Breakdown into ieee64 fields.
 
-  amaru_fields_64_t binary;
+  amaru64_fields_t binary;
   binary.mantissa = AMARU_LSB(bits, mantissa_size);
   bits >>= mantissa_size;
   binary.exponent = AMARU_LSB(bits, exponent_size);
@@ -40,7 +40,7 @@ amaru_from_double_to_fields(double const value) {
   return binary;
 }
 
-amaru_fields_64_t
+amaru64_fields_t
 amaru_from_double_to_decimal_compact(double const value) {
 
   if (value == 0)
@@ -48,8 +48,8 @@ amaru_from_double_to_decimal_compact(double const value) {
 
   // Conversion to Amaru's binary representation.
 
-  amaru_fields_64_t binary        = amaru_from_double_to_fields(value);
-  uint32_t          ieee_exponent = binary.exponent;
+  amaru64_fields_t binary        = amaru_from_double_to_fields(value);
+  uint32_t         ieee_exponent = binary.exponent;
 
   binary.exponent += exponent_min;
   if (ieee_exponent != 0) {
@@ -61,7 +61,7 @@ amaru_from_double_to_decimal_compact(double const value) {
     binary.exponent, binary.mantissa);
 }
 
-amaru_fields_64_t
+amaru64_fields_t
 amaru_from_double_to_decimal_full(double const value) {
 
   if (value == 0)
@@ -69,8 +69,8 @@ amaru_from_double_to_decimal_full(double const value) {
 
   // Conversion to Amaru's binary representation.
 
-  amaru_fields_64_t binary        = amaru_from_double_to_fields(value);
-  uint32_t          ieee_exponent = binary.exponent;
+  amaru64_fields_t binary        = amaru_from_double_to_fields(value);
+  uint32_t         ieee_exponent = binary.exponent;
 
   binary.exponent += exponent_min;
   if (ieee_exponent != 0) {

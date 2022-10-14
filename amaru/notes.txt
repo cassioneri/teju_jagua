@@ -47,7 +47,7 @@ TYPES (MANUAL)
     bool                 is_binary;
     int32_t              exponent;
     amaru_<size>_limb1_t mantissa;
-  } amaru_fields_<size>_t;
+  } amaru_<size>_fields_t;
 
 DATA (GENERATED)
 ----------------

@@ -6,19 +6,16 @@
 extern "C" {
 #endif
 
-typedef amaru_64_limb1_t amaru_limb1_t;
+#define AMARU_MAX_LIMBS AMARU64_MAX_LIMBS
 
-#if AMARU_64_MAX_LIMBS >= 2
-
-typedef amaru_64_limb2_t amaru_limb2_t;
-
-#elif AMARU_64_MAX_LIMBS >= 4
-
-typedef amaru_64_limb4_t amaru_limb4_t;
-
+typedef amaru64_limb1_t amaru_limb1_t;
+#if AMARU64_MAX_LIMBS >= 2
+typedef amaru64_limb2_t amaru_limb2_t;
+#elif AMARU64_MAX_LIMBS >= 4
+typedef amaru64_limb4_t amaru_limb4_t;
 #endif
 
-typedef amaru_fields_64_t rep_t;
+typedef amaru64_fields_t rep_t;
 
 enum {
   is_compact       = 0,
@@ -2122,3 +2119,4 @@ static struct {
 #include "amaru/amaru.h"
 
 #undef AMARU_FUNCTION
+#undef AMARU_MAX_LIMBS

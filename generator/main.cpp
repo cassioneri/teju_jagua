@@ -235,9 +235,9 @@ private:
   std::string get_rep(uint32_t size) {
     switch (size) {
       case 32:
-        return "amaru_fields_32_t";
+        return "amaru32_fields_t";
       case 64:
-        return "amaru_fields_64_t";
+        return "amaru64_fields_t";
     }
     throw exception_t{"Size must be in {32, 64}."};
   };
@@ -325,7 +325,7 @@ private:
       "#endif\n"
       "\n" <<
         rep() << ' ' << function() << "(bool is_negative, "
-        "int32_t exponent, amaru_" << size() << "_limb1_t mantissa);\n"
+        "int32_t exponent, amaru" << size() << "_limb1_t mantissa);\n"
       "\n" <<
       "#ifdef __cplusplus\n"
       "}\n"
@@ -351,19 +351,16 @@ private:
       "extern \"C\" {\n"
       "#endif\n"
       "\n"
-      "typedef amaru_" << size() << "_limb1_t amaru_limb1_t;\n"
+      "#define AMARU_MAX_LIMBS AMARU" << size() << "_MAX_LIMBS\n"
       "\n"
-      "#if AMARU_" << size() << "_MAX_LIMBS >= 2\n"
-      "\n"
-      "typedef amaru_" << size() << "_limb2_t amaru_limb2_t;\n"
-      "\n"
-      "#elif AMARU_" << size() << "_MAX_LIMBS >= 4\n"
-      "\n"
-      "typedef amaru_" << size() << "_limb4_t amaru_limb4_t;\n"
-      "\n"
+      "typedef amaru" << size() << "_limb1_t amaru_limb1_t;\n"
+      "#if AMARU" << size() << "_MAX_LIMBS >= 2\n"
+      "typedef amaru" << size() << "_limb2_t amaru_limb2_t;\n"
+      "#elif AMARU" << size() << "_MAX_LIMBS >= 4\n"
+      "typedef amaru" << size() << "_limb4_t amaru_limb4_t;\n"
       "#endif\n"
       "\n"
-      "typedef amaru_fields_" << size() << "_t rep_t;\n"
+      "typedef amaru" << size() << "_fields_t rep_t;\n"
       "\n";
 
     auto const maxima = get_maxima();
@@ -484,7 +481,8 @@ private:
       "#define AMARU_FUNCTION " << function() << "\n"
       "#include \"amaru/amaru.h\"\n"
       "\n"
-      "#undef AMARU_FUNCTION\n";
+      "#undef AMARU_FUNCTION\n"
+      "#undef AMARU_MAX_LIMBS\n";
   }
 
   /**

@@ -578,13 +578,34 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   auto const p2_size = integer_t{1} << size();
 
   stream <<
+    "static amaru_data_t const amaru_data = {\n"
+    "  /* size: */ " << size() << ",\n"
+    "  /* exponent: */ {\n"
+    "    /* minimum: */ " << bin_exponent_min() << "\n"
+    "  },\n"
+    "  /* mantissa: */ {\n"
+    "    /* size: */ " << mantissa_size() << "\n"
+    "  },\n"
+    "  /* storage: */ {\n"
+    "    /* limbs: */ " << storage_limbs() << ",\n"
+    "    /* index_offset: */ " << index_offset() << "\n"
+    "  },\n"
+    "  /* calculation: */ {\n"
+    "    /* is_compact: */ " << is_compact() << ",\n"
+    // Instead of Amaru dividing multipliy_and_shift(m_a, upper, lower) by 2
+    // we increment the shift here so this has the same effect.
+    "    /* shift: */ " << shift + 1 << "\n"
+    "  }\n"
+    "};\n"
+    "\n";
+
+  stream <<
     "enum {\n"
     "  is_compact       = " << is_compact()                   << ",\n"
     "  size             = " << size()                         << ",\n"
     "  mantissa_size    = " << mantissa_size()                << ",\n"
     "  bin_exponent_min = " << bin_exponent_min()             << ",\n"
     "  dec_exponent_min = " << log10_pow2(bin_exponent_min()) << ",\n"
-    //"  dec_exponent_min = " << dec_exponent_min() << ",\n"
     // Instead of Amaru dividing multipliy_and_shift(m_a, upper, lower) by 2
     // we increment the shift here so this has the same effect.
     "  shift            = " << shift + 1          << "\n"

@@ -38,4 +38,22 @@ typedef struct {
   amaru64_limb1_t mantissa;
 } amaru64_fields_t;
 
+typedef struct {
+  uint32_t size;
+  struct {
+   int32_t minimum;
+ } exponent;
+  struct {
+    int32_t size;
+  } mantissa;
+  struct {
+    uint32_t limbs;
+    int32_t index_offset;
+  } storage;
+  struct {
+    bool is_compact;
+    uint32_t shift;
+  } calculation;
+} amaru_data_t;
+
 #endif // AMARU_AMARU_TYPES_H_

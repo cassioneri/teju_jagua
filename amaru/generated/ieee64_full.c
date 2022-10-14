@@ -17,6 +17,24 @@ typedef amaru64_limb4_t amaru_limb4_t;
 
 typedef amaru64_fields_t amaru_fields_t;
 
+static amaru_data_t const amaru_data = {
+  /* size: */ 64,
+  /* exponent: */ {
+    /* minimum: */ -1074
+  },
+  /* mantissa: */ {
+    /* size: */ 52
+  },
+  /* storage: */ {
+    /* limbs: */ 2,
+    /* index_offset: */ -1074
+  },
+  /* calculation: */ {
+    /* is_compact: */ 0,
+    /* shift: */ 116
+  }
+};
+
 enum {
   is_compact       = 0,
   size             = 64,

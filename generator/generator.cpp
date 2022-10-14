@@ -225,13 +225,13 @@ struct generator_t::impl_t {
    * \brief Returns the minimum binary exponent.
    */
   std::int32_t
-  bin_exponent_min() const;
+  exponent_min() const;
 
   /**
    * \brief Returns maximum binary exponent.
    */
   std::int32_t
-  bin_exponent_max() const;
+  exponent_max() const;
 
   /**
    * \brief Returns the size of mantissa in bits.
@@ -319,9 +319,9 @@ struct generator_t::impl_t {
    * \brief Gets the maxima of all primary problems. (See get_maximum_primary.)
    *
    * It returns a vector v of size
-   *     bin_exponent_max() - bin_exponent_min() + 1
+   *     exponent_max() - exponent_min() + 1
    * such that v[i] contains the maximum of the primary problem corresponding to
-   * exponent = bin_exponent_min() + i.
+   * exponent = exponent_min() + i.
    *
    * \returns The vector v.
    */
@@ -364,7 +364,7 @@ generator_t::generator_t(config_t config, std::string directory) :
   mantissa_min_{AMARU_POW2(integer_t, self().mantissa_size())},
   mantissa_max_{2 * self().mantissa_min()                    },
   index_offset_{get_index_offset(self().storage_base(),
-    self().bin_exponent_min())                               },
+    self().exponent_min())                                   },
   directory_   {std::move(directory)                         },
   dot_h_       {self().id() + ".h"                           },
   dot_c_       {self().id() + ".c"                           } {
@@ -423,12 +423,12 @@ generator_t::impl_t::function() const {
 }
 
 std::int32_t
-generator_t::impl_t::bin_exponent_min() const {
+generator_t::impl_t::exponent_min() const {
   return self.config_.exponent.minimum;
 }
 
 std::int32_t
-generator_t::impl_t::bin_exponent_max() const {
+generator_t::impl_t::exponent_max() const {
   return self.config_.exponent.maximum;
 }
 
@@ -581,7 +581,7 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
     "static amaru_data_t const amaru_data = {\n"
     "  /* size: */ " << size() << ",\n"
     "  /* exponent: */ {\n"
-    "    /* minimum: */ " << bin_exponent_min() << "\n"
+    "    /* minimum: */ " << exponent_min() << "\n"
     "  },\n"
     "  /* mantissa: */ {\n"
     "    /* size: */ " << mantissa_size() << "\n"
@@ -601,14 +601,14 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
 
   stream <<
     "enum {\n"
-    "  is_compact       = " << is_compact()                   << ",\n"
-    "  size             = " << size()                         << ",\n"
-    "  mantissa_size    = " << mantissa_size()                << ",\n"
-    "  bin_exponent_min = " << bin_exponent_min()             << ",\n"
-    "  dec_exponent_min = " << log10_pow2(bin_exponent_min()) << ",\n"
+    "  is_compact       = " << is_compact()               << ",\n"
+    "  size             = " << size()                     << ",\n"
+    "  mantissa_size    = " << mantissa_size()            << ",\n"
+    "  bin_exponent_min = " << exponent_min()             << ",\n"
+    "  dec_exponent_min = " << log10_pow2(exponent_min()) << ",\n"
     // Instead of Amaru dividing multipliy_and_shift(m_a, upper, lower) by 2
     // we increment the shift here so this has the same effect.
-    "  shift            = " << shift + 1          << "\n"
+    "  shift            = " << shift + 1                  << "\n"
     "};\n"
     "\n";
 
@@ -620,7 +620,7 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
 
   auto const nibbles = size() / 4;
 
-  auto e2      = bin_exponent_min();
+  auto e2      = exponent_min();
   auto e2_or_f = is_compact() ? log10_pow2(e2) : e2;
 
   for (auto const& fast_eaf : fast_eafs) {
@@ -685,11 +685,11 @@ std::vector<alpha_delta_maximum_t>
 generator_t::impl_t::get_maxima() const {
 
   std::vector<alpha_delta_maximum_t> maxima;
-  maxima.reserve(bin_exponent_max() - bin_exponent_min() + 1);
+  maxima.reserve(exponent_max() - exponent_min() + 1);
 
-  auto f_done = log10_pow2(bin_exponent_min()) - 1;
+  auto f_done = log10_pow2(exponent_min()) - 1;
 
-  for (auto e2 = bin_exponent_min(); e2 <= bin_exponent_max(); ++e2) {
+  for (auto e2 = exponent_min(); e2 <= exponent_max(); ++e2) {
 
     auto const f = log10_pow2(e2);
 
@@ -702,7 +702,7 @@ generator_t::impl_t::get_maxima() const {
     alpha_delta_maximum_t x;
     x.alpha   = f >= 0 ? pow2(e) : pow5(-f);
     x.delta   = f >= 0 ? pow5(f) : pow2(-e);
-    x.maximum = get_maximum(x.alpha, x.delta, e2 == bin_exponent_min());
+    x.maximum = get_maximum(x.alpha, x.delta, e2 == exponent_min());
 
     maxima.emplace_back(std::move(x));
 

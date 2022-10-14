@@ -11,7 +11,10 @@
 typedef uint32_t amaru_32_limb1_t;
 typedef uint64_t amaru_32_limb2_t;
 #ifdef AMARU_HAS_UINT_128_T
-typedef __uint128_t amaru_32_limb4_t ;
+#define AMARU_32_MAX_LIMBS 4
+typedef __uint128_t amaru_32_limb4_t;
+#else
+#define AMARU_32_MAX_LIMBS 2
 #endif
 
 typedef struct {
@@ -20,9 +23,13 @@ typedef struct {
   amaru_32_limb1_t mantissa;
 } amaru_fields_32_t;
 
+
 typedef uint64_t amaru_64_limb1_t ;
 #ifdef AMARU_HAS_UINT_128_T
+#define AMARU_64_MAX_LIMBS 2
 typedef __uint128_t amaru_64_limb2_t;
+#else
+#define AMARU_64_MAX_LIMBS 1
 #endif
 
 typedef struct {

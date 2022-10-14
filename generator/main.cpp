@@ -43,36 +43,6 @@ pow5(std::uint32_t n) {
 }
 
 /**
- * \brief Information about a floating point number type.
- */
-struct info_t {
-
-  // C/C++ name of the type used for mantissa storage and calculations (e.g.,
-  // "uint32_t" or "uint64_t".) It might contain spaces -- "unsigned long" is
-  // allowed.
-  std::string suint;
-
-  // C/C++ name of the type used for larger mantissa calculations (e.g.,
-  // "uint64_t" or "uint128_t".) It must be, at least, double the size of suint.
-  std::string duint;
-
-}; // struct info_t
-
-void
-to_json(nlohmann::json& json, info_t const& info) {
-  json = nlohmann::json{
-      {"suint"           , info.suint           },
-      {"duint"           , info.duint           }
-  };
-}
-
-void
-from_json(nlohmann::json const& json, info_t& info) {
-  json.at("suint"           ).get_to(info.suint           );
-  json.at("duint"           ).get_to(info.duint           );
-}
-
-/**
  * \brief Generator of Amaru's implementation for a given floating point number
  * type.
  */
@@ -84,20 +54,19 @@ struct generator_t {
    * \param info            The information on the floating point number type.
    * \param config          The implementation configuration.
    */
-  generator_t(info_t info, config_t config, std::string directory) :
-    info_                 {std::move(info)                       },
-    config_               {std::move(config)                     },
-    directory_            {std::move(directory)                  },
-    compact_or_full_      {is_compact() ? "compact" : "full"     },
-    function_             {"amaru_binary_to_decimal_"
-      + id() + "_" + compact_or_full()                           },
-    rep_                  {get_rep(size())                       },
-    dec_exponent_min_     {log10_pow2(bin_exponent_min())        },
-    normal_mantissa_min_  {AMARU_POW2(integer_t, mantissa_size())},
-    normal_mantissa_max_  {2 * normal_mantissa_min()             },
-    p2_size_              {integer_t{1} << size()                },
-    dot_h_                {id() + "_" + compact_or_full() + ".h" },
-    dot_c_                {id() + "_" + compact_or_full() + ".c" } {
+  generator_t(config_t config, std::string directory) :
+    config_             {std::move(config)                     },
+    directory_          {std::move(directory)                  },
+    compact_or_full_    {is_compact() ? "compact" : "full"     },
+    function_           {"amaru_binary_to_decimal_"
+      + id() + "_" + compact_or_full()                         },
+    rep_                {get_rep(size())                       },
+    dec_exponent_min_   {log10_pow2(bin_exponent_min())        },
+    normal_mantissa_min_{AMARU_POW2(integer_t, mantissa_size())},
+    normal_mantissa_max_{2 * normal_mantissa_min()             },
+    p2_size_            {integer_t{1} << size()                },
+    dot_h_              {id() + "_" + compact_or_full() + ".h" },
+    dot_c_              {id() + "_" + compact_or_full() + ".c" } {
   }
 
   /**
@@ -109,25 +78,7 @@ struct generator_t {
   }
 
   /**
-   * \brief Returns the C/C++ name of the type used for mantissa storage and
-   * calculations.
-   */
-  std::string const&
-  suint() const {
-    return info_.suint;
-  }
-
-  /**
-   * \brief Returns the C/C++ name of the type used for larger mantissa
-   * calculations.
-   */
-  std::string const&
-  duint() const {
-    return info_.duint;
-  }
-
-  /**
-   * \brief Returns the size of suint in bits.
+   * \brief Returns the size of the limb in bits.
    */
   std::uint32_t
   size() const {
@@ -262,12 +213,12 @@ struct generator_t {
 
     // Overflow check 1:
     if (2 * normal_mantissa_max() + 1 >= p2_size_)
-      throw exception_t("suint_t is not large enough for calculations to "
+      throw exception_t("The limb is not large enough for calculations to "
         "not overflow.");
 
     // Overflow check 2:
     if (20 * normal_mantissa_min() >= p2_size_)
-      throw exception_t("suint_t is not large enough for calculations to "
+      throw exception_t("The limb is not large enough for calculations to "
         "not overflow.");
 
     std::cout << "  Generating \"" << dot_h() << "\".\n";
@@ -374,7 +325,7 @@ private:
       "#endif\n"
       "\n" <<
         rep() << ' ' << function() << "(bool is_negative, "
-        "int32_t exponent, " << suint() << " mantissa);\n"
+        "int32_t exponent, amaru_" << size() << "_limb1_t mantissa);\n"
       "\n" <<
       "#ifdef __cplusplus\n"
       "}\n"
@@ -399,6 +350,20 @@ private:
       "#ifdef __cplusplus\n"
       "extern \"C\" {\n"
       "#endif\n"
+      "\n"
+      "typedef amaru_" << size() << "_limb1_t amaru_limb1_t;\n"
+      "\n"
+      "#if AMARU_" << size() << "_MAX_LIMBS >= 2\n"
+      "\n"
+      "typedef amaru_" << size() << "_limb2_t amaru_limb2_t;\n"
+      "\n"
+      "#elif AMARU_" << size() << "_MAX_LIMBS >= 4\n"
+      "\n"
+      "typedef amaru_" << size() << "_limb4_t amaru_limb4_t;\n"
+      "\n"
+      "#endif\n"
+      "\n"
+      "typedef amaru_fields_" << size() << "_t rep_t;\n"
       "\n";
 
     auto const maxima = get_maxima();
@@ -442,10 +407,6 @@ private:
     auto const p2_size = integer_t{1} << size();
 
     stream <<
-      "typedef " << suint() << " suint_t;\n"
-      "typedef " << duint() << " duint_t;\n"
-      "typedef " << rep()   << " rep_t;\n"
-      "\n"
       "enum {\n"
       "  is_compact       = " << is_compact()       << ",\n"
       "  size             = " << size()             << ",\n"
@@ -460,8 +421,8 @@ private:
 
     stream <<
       "static struct {\n"
-      "  suint_t  const upper;\n"
-      "  suint_t  const lower;\n"
+      "  amaru_limb1_t const upper;\n"
+      "  amaru_limb1_t const lower;\n"
       "} const multipliers[] = {\n";
 
     auto const nibbles = size() / 4;
@@ -488,8 +449,8 @@ private:
     stream << "};\n"
       "\n"
       "static struct {\n"
-      "  suint_t const multiplier;\n"
-      "  suint_t const bound;\n"
+      "  amaru_limb1_t const multiplier;\n"
+      "  amaru_limb1_t const bound;\n"
       "} const minverse[] = {\n";
 
     auto const minverse5  = integer_t{p2_size - (p2_size - 1) / 5};
@@ -715,7 +676,6 @@ private:
     throw exception_t{"Cannot find fast EAF."};
   }
 
-  info_t       info_;
   config_t     config_;
   std::string  directory_;
   std::string  compact_or_full_;
@@ -753,14 +713,13 @@ parse(const char* const filename, const char* const dir) {
   std::ifstream file(filename);
   auto const data = nlohmann::json::parse(file);
 
-  auto info    = data["info"  ].get<info_t  >();
-  auto config2 = data["new"].get<config_t>();
+  auto config = data["new"].get<config_t>();
 
   std::string directory = dir;
   if (directory.back() != '/')
     directory.append(1, '/');
 
-  return { std::move(info), std::move(config2), std::move(directory) };
+  return { std::move(config), std::move(directory) };
 }
 
 } // namespace amaru

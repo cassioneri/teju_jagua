@@ -6,8 +6,18 @@
 extern "C" {
 #endif
 
-typedef uint32_t suint_t;
-typedef uint64_t duint_t;
+typedef amaru_32_limb1_t amaru_limb1_t;
+
+#if AMARU_32_MAX_LIMBS >= 2
+
+typedef amaru_32_limb2_t amaru_limb2_t;
+
+#elif AMARU_32_MAX_LIMBS >= 4
+
+typedef amaru_32_limb4_t amaru_limb4_t;
+
+#endif
+
 typedef amaru_fields_32_t rep_t;
 
 enum {
@@ -20,8 +30,8 @@ enum {
 };
 
 static struct {
-  suint_t  const upper;
-  suint_t  const lower;
+  amaru_limb1_t const upper;
+  amaru_limb1_t const lower;
 } const multipliers[] = {
   { 0xb35dbf82, 0x1ae4f38c }, // -45
   { 0x8f7e32ce, 0x7bea5c70 }, // -44
@@ -103,8 +113,8 @@ static struct {
 };
 
 static struct {
-  suint_t const multiplier;
-  suint_t const bound;
+  amaru_limb1_t const multiplier;
+  amaru_limb1_t const bound;
 } const minverse[] = {
   { 0x00000001, 0xffffffff },
   { 0xcccccccd, 0x33333333 },

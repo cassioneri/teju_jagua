@@ -1,5 +1,6 @@
 add_executable(generator
   config.cpp
+  generator.cpp
   main.cpp
 )
 

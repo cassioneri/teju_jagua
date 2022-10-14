@@ -48,7 +48,8 @@ private:
   integer_t    p2_size_;
   std::string  dot_h_;
   std::string  dot_c_;
-};
+
+}; // struct generator_t
 
 } // namespace amaru
 

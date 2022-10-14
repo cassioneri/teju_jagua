@@ -50,25 +50,10 @@ private:
 template <typename>
 struct fp_traits_t;
 
-template <typename T>
-T
-from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::limb_t mantissa) {
-
-  using         traits_t  = fp_traits_t<T>;
-  using         limb_t    = typename traits_t::limb_t;
-  limb_t const i          = (limb_t(exponent) << traits_t::mantissa_size) |
-    mantissa;
-
-  T value;
-  std::memcpy(&value, &i, sizeof(i));
-
-  return value;
-}
-
 template <>
 struct fp_traits_t<float> {
 
-  using limb_t = std::uint32_t;
+  using limb_t = amaru_32_limb1_t;
 
   static auto constexpr exponent_size = std::uint32_t{8};
   static auto constexpr mantissa_size = std::uint32_t{23};
@@ -97,7 +82,7 @@ struct fp_traits_t<float> {
 template <>
 struct fp_traits_t<double> {
 
-  using limb_t = std::uint64_t;
+  using limb_t = amaru_64_limb1_t;
 
   static auto constexpr exponent_size = uint32_t{11};
   static auto constexpr mantissa_size = uint32_t{52};
@@ -122,6 +107,21 @@ struct fp_traits_t<double> {
     amaru::dragonbox_full::to_decimal(value);
   }
 };
+
+template <typename T>
+T
+from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::limb_t mantissa) {
+
+  using        traits_t = fp_traits_t<T>;
+  using        limb_t   = typename traits_t::limb_t;
+  limb_t const i        = (limb_t(exponent) << traits_t::mantissa_size) |
+    mantissa;
+
+  T value;
+  std::memcpy(&value, &i, sizeof(i));
+
+  return value;
+}
 
 template <typename T>
 __attribute__((noinline))

@@ -148,7 +148,7 @@ get_next(T value) {
 template <>
 struct fp_traits_t<float> {
 
-  using limb_t  = std::uint32_t;
+  using limb_t  = amaru_32_limb1_t;
   using amaru_t = amaru_fields_32_t;
   using other_t = amaru::dragonbox_full::result_float_t;
 
@@ -195,7 +195,7 @@ struct fp_traits_t<float> {
 template <>
 struct fp_traits_t<double> {
 
-  using limb_t  = std::uint64_t;
+  using limb_t  = amaru_64_limb1_t;
   using amaru_t = amaru_fields_64_t;
   using other_t = amaru::dragonbox_full::result_double_t;
 

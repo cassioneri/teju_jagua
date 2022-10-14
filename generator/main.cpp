@@ -37,6 +37,7 @@ parse(const char* const filename, const char* const dir) {
   auto const data = nlohmann::json::parse(file);
 
   auto config = data.get<config_t>();
+  validate(config);
 
   std::string directory = dir;
   if (directory.back() != '/')

@@ -52,11 +52,11 @@ struct fp_traits_t;
 
 template <typename T>
 T
-from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::suint_t mantissa) {
+from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::limb_t mantissa) {
 
   using         traits_t  = fp_traits_t<T>;
-  using         suint_t   = typename traits_t::suint_t;
-  suint_t const i         = (suint_t(exponent) << traits_t::mantissa_size) |
+  using         limb_t    = typename traits_t::limb_t;
+  limb_t const i          = (limb_t(exponent) << traits_t::mantissa_size) |
     mantissa;
 
   T value;
@@ -68,7 +68,7 @@ from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::suint_t mantissa) {
 template <>
 struct fp_traits_t<float> {
 
-  using suint_t = std::uint32_t;
+  using limb_t = std::uint32_t;
 
   static auto constexpr exponent_size = std::uint32_t{8};
   static auto constexpr mantissa_size = std::uint32_t{23};
@@ -97,7 +97,7 @@ struct fp_traits_t<float> {
 template <>
 struct fp_traits_t<double> {
 
-  using suint_t = std::uint64_t;
+  using limb_t = std::uint64_t;
 
   static auto constexpr exponent_size = uint32_t{11};
   static auto constexpr mantissa_size = uint32_t{52};
@@ -151,12 +151,12 @@ benchmark() {
     "amaru\\\\_full, dragonbox\\\\_compact, dragonbox\\\\_full\n";
 
   using traits_t          = fp_traits_t<T>;
-  using suint_t           = typename traits_t::suint_t;
-  auto const exponent_max = AMARU_POW2(suint_t, traits_t::exponent_size) - 1;
-  auto const mantissa_max = AMARU_POW2(suint_t, traits_t::mantissa_size) - 1;
+  using limb_t            = typename traits_t::limb_t;
+  auto const exponent_max = AMARU_POW2(limb_t, traits_t::exponent_size) - 1;
+  auto const mantissa_max = AMARU_POW2(limb_t, traits_t::mantissa_size) - 1;
 
   std::mt19937_64 device;
-  auto dist = std::uniform_int_distribution<suint_t> {1, mantissa_max};
+  auto dist = std::uniform_int_distribution<limb_t> {1, mantissa_max};
 
   auto           n_mantissas  = std::uint32_t{50};
   auto constexpr n_iterations = std::uint32_t{1024};
@@ -191,7 +191,7 @@ benchmark() {
         &traits_t::dragonbox_full, n_iterations);
       dragonbox_full_stats.update(dragonbox_full);
 
-      suint_t integer;
+      limb_t integer;
       std::memcpy(&integer, &value, sizeof(value));
 
       std::cout <<

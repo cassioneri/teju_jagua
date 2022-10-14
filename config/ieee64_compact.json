@@ -22,10 +22,5 @@
     "calculation": {
       "limbs": 2
     }
-  },
-
-  "info": {
-    "suint"           : "uint64_t",
-    "duint"           : "__uint128_t"
   }
 }

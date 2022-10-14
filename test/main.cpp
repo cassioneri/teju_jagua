@@ -138,7 +138,7 @@ struct fp_traits_t;
 template <typename T>
 T
 get_next(T value) {
-  typename fp_traits_t<T>::suint_t i;
+  typename fp_traits_t<T>::limb_t i;
   std::memcpy(&i, &value, sizeof(value));
   ++i;
   std::memcpy(&value, &i, sizeof(value));
@@ -148,7 +148,7 @@ get_next(T value) {
 template <>
 struct fp_traits_t<float> {
 
-  using suint_t = std::uint32_t;
+  using limb_t  = std::uint32_t;
   using amaru_t = amaru_fields_32_t;
   using other_t = amaru::dragonbox_full::result_float_t;
 
@@ -185,9 +185,9 @@ struct fp_traits_t<float> {
     return std::int32_t{rep.exponent};
   }
 
-  static suint_t
+  static limb_t
   mantissa(other_t rep) {
-    return suint_t{rep.significand};
+    return limb_t{rep.significand};
   }
 
 };
@@ -195,7 +195,7 @@ struct fp_traits_t<float> {
 template <>
 struct fp_traits_t<double> {
 
-  using suint_t = std::uint64_t;
+  using limb_t  = std::uint64_t;
   using amaru_t = amaru_fields_64_t;
   using other_t = amaru::dragonbox_full::result_double_t;
 
@@ -232,9 +232,9 @@ struct fp_traits_t<double> {
     return std::int32_t{rep.exponent};
   }
 
-  static suint_t
+  static limb_t
   mantissa(other_t rep) {
-    return suint_t{rep.significand};
+    return limb_t{rep.significand};
   }
 };
 
@@ -293,13 +293,13 @@ TYPED_TEST_P(TypedTests, mantissa_min_all_exponents) {
 
   using traits_t           = fp_traits_t<TypeParam>;
   using fp_t               = TypeParam;
-  using suint_t            = typename traits_t::suint_t;
+  using limb_t             = typename traits_t::limb_t;
 
   auto const exponent_max  = (uint32_t{1} << traits_t::exponent_size) - 1;
 
   for (uint32_t exponent = 1; !this->HasFailure() && exponent < exponent_max;
     ++exponent) {
-    auto const bits = suint_t{exponent} << traits_t::mantissa_size;
+    auto const bits = limb_t{exponent} << traits_t::mantissa_size;
     fp_t value;
     std::memcpy(&value, &bits, sizeof(bits));
     compare_to_other(value);
@@ -314,12 +314,12 @@ TEST(double_tests, random_comparison_to_other) {
 
   using traits_t = fp_traits_t<double>;
 
-  traits_t::suint_t uint_max;
+  traits_t::limb_t uint_max;
   auto const double_max = std::numeric_limits<double>::max();
   std::memcpy(&uint_max, &double_max, sizeof(double_max));
 
   std::random_device rd;
-  auto dist = std::uniform_int_distribution<traits_t::suint_t>{1, uint_max};
+  auto dist = std::uniform_int_distribution<traits_t::limb_t>{1, uint_max};
 
   auto number_of_tests = uint32_t{100000000};
 

@@ -17,14 +17,14 @@ extern "C" {
 #endif
 
 static inline
-rep_t make_decimal(bool const is_negative, int32_t exponent,
+amaru_fields_t make_decimal(bool const is_negative, int32_t exponent,
   amaru_limb1_t mantissa) {
-  rep_t const decimal = { is_negative, exponent, mantissa };
+  amaru_fields_t const decimal = { is_negative, exponent, mantissa };
   return decimal;
 }
 
 static inline
-rep_t remove_trailing_zeros(bool const negative, int32_t exponent,
+amaru_fields_t remove_trailing_zeros(bool const negative, int32_t exponent,
   amaru_limb1_t mantissa) {
 
   amaru_limb1_t const minv5 = -(((amaru_limb1_t) -1) / 5);
@@ -57,7 +57,7 @@ bool is_multiple_of_pow5(amaru_limb1_t const m, int32_t const f) {
     m * minverse[f].multiplier <= minverse[f].bound;
 }
 
-rep_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
+amaru_fields_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
   amaru_limb1_t const mantissa) {
 
   amaru_limb1_t const normal_mantissa_min = AMARU_POW2(amaru_limb1_t,

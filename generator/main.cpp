@@ -60,7 +60,7 @@ struct generator_t {
     compact_or_full_    {is_compact() ? "compact" : "full"     },
     function_           {"amaru_binary_to_decimal_"
       + id() + "_" + compact_or_full()                         },
-    rep_                {get_rep(size())                       },
+    fields_             {get_fields(size())                    },
     dec_exponent_min_   {log10_pow2(bin_exponent_min())        },
     normal_mantissa_min_{AMARU_POW2(integer_t, mantissa_size())},
     normal_mantissa_max_{2 * normal_mantissa_min()             },
@@ -131,11 +131,11 @@ struct generator_t {
   }
 
   /**
-   * \brief Returns the C/C++ name of Amaru's representation type.
+   * \brief Returns the C/C++ name of Amaru's fields type.
    */
   std::string const&
-  rep() const {
-    return rep_;
+  fields() const {
+    return fields_;
   }
 
   /**
@@ -232,7 +232,7 @@ struct generator_t {
 
 private:
 
-  std::string get_rep(uint32_t size) {
+  std::string get_fields(uint32_t size) {
     switch (size) {
       case 32:
         return "amaru32_fields_t";
@@ -324,7 +324,7 @@ private:
       "extern \"C\" {\n"
       "#endif\n"
       "\n" <<
-        rep() << ' ' << function() << "(bool is_negative, "
+        fields() << ' ' << function() << "(bool is_negative, "
         "int32_t exponent, amaru" << size() << "_limb1_t mantissa);\n"
       "\n" <<
       "#ifdef __cplusplus\n"
@@ -360,7 +360,7 @@ private:
       "typedef amaru" << size() << "_limb4_t amaru_limb4_t;\n"
       "#endif\n"
       "\n"
-      "typedef amaru" << size() << "_fields_t rep_t;\n"
+      "typedef amaru" << size() << "_fields_t amaru_fields_t;\n"
       "\n";
 
     auto const maxima = get_maxima();
@@ -678,7 +678,7 @@ private:
   std::string  directory_;
   std::string  compact_or_full_;
   std::string  function_;
-  std::string  rep_;
+  std::string  fields_;
   std::int32_t dec_exponent_min_;
   integer_t    normal_mantissa_min_;
   integer_t    normal_mantissa_max_;

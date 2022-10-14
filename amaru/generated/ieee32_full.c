@@ -15,7 +15,7 @@ typedef amaru32_limb2_t amaru_limb2_t;
 typedef amaru32_limb4_t amaru_limb4_t;
 #endif
 
-typedef amaru32_fields_t rep_t;
+typedef amaru32_fields_t amaru_fields_t;
 
 enum {
   is_compact       = 0,

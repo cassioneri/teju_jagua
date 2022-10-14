@@ -24,17 +24,8 @@
     }
   },
 
-  "config": {
-    "is_compact" : false
-  },
   "info": {
-    "id"              : "ieee64",
     "suint"           : "uint64_t",
-    "duint"           : "__uint128_t",
-    "size"            :    64,
-    "exponent_size"   :    11,
-    "bin_exponent_min": -1074,
-    "bin_exponent_max":   971,
-    "mantissa_size"   :    52
+    "duint"           : "__uint128_t"
   }
 }

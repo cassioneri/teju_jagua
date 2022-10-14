@@ -27,10 +27,10 @@ static amaru_data_t const amaru_data = {
   },
   /* storage: */ {
     /* limbs: */ 2,
+    /* is_compact: */ 0,
     /* index_offset: */ -149
   },
   /* calculation: */ {
-    /* is_compact: */ 0,
     /* shift: */ 55
   }
 };

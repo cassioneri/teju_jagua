@@ -47,12 +47,6 @@ pow5(std::uint32_t n) {
  */
 struct info_t {
 
-  // An identifier for the floating point number type (e.g., "ieee32" or
-  // "ieee64".) This is used in C/C++ identifiers and, accordingly, the set of
-  // accepted characters is defined by the C and C++ standards. In particular,
-  // it must not contain spaces -- "long double" is forbidden.
-  std::string id;
-
   // C/C++ name of the type used for mantissa storage and calculations (e.g.,
   // "uint32_t" or "uint64_t".) It might contain spaces -- "unsigned long" is
   // allowed.
@@ -62,47 +56,20 @@ struct info_t {
   // "uint64_t" or "uint128_t".) It must be, at least, double the size of suint.
   std::string duint;
 
-  // The size of suint in bits (e.g., 64.)
-  std::uint32_t size;
-
-  // Size of exponent in bits (e.g., 11.)
-  std::uint32_t exponent_size;
-
-  // Minimum binary exponent (e.g., -1074.)
-  std::int32_t bin_exponent_min;
-
-  // Maximum binary exponent (e.g., 971.)
-  std::int32_t bin_exponent_max;
-
-  // Size of mantissa in bits (e.g., 52).
-  std::uint32_t mantissa_size;
-
 }; // struct info_t
 
 void
 to_json(nlohmann::json& json, info_t const& info) {
   json = nlohmann::json{
-      {"id"              , info.id              },
       {"suint"           , info.suint           },
-      {"duint"           , info.duint           },
-      {"size"            , info.size           },
-      {"exponent_size"   , info.exponent_size   },
-      {"bin_exponent_min", info.bin_exponent_min},
-      {"bin_exponent_max", info.bin_exponent_max},
-      {"mantissa_size"   , info.mantissa_size   }
+      {"duint"           , info.duint           }
   };
 }
 
 void
 from_json(nlohmann::json const& json, info_t& info) {
-  json.at("id"              ).get_to(info.id              );
   json.at("suint"           ).get_to(info.suint           );
   json.at("duint"           ).get_to(info.duint           );
-  json.at("size"            ).get_to(info.size           );
-  json.at("exponent_size"   ).get_to(info.exponent_size   );
-  json.at("bin_exponent_min").get_to(info.bin_exponent_min);
-  json.at("bin_exponent_max").get_to(info.bin_exponent_max);
-  json.at("mantissa_size"   ).get_to(info.mantissa_size   );
 }
 
 /**
@@ -138,7 +105,7 @@ struct generator_t {
    */
   std::string const&
   id() const {
-    return info_.id;
+    return config_.id;
   }
 
   /**
@@ -162,9 +129,9 @@ struct generator_t {
   /**
    * \brief Returns the size of suint in bits.
    */
-  std::uint32_t const&
+  std::uint32_t
   size() const {
-    return info_.size;
+    return config_.size;
   }
 
   /**
@@ -172,7 +139,7 @@ struct generator_t {
    */
   std::uint32_t const&
   exponent_size() const {
-    return info_.exponent_size;
+    return config_.exponent.size;
   }
 
   /**
@@ -180,7 +147,7 @@ struct generator_t {
    */
   std::int32_t const&
   bin_exponent_min() const {
-    return info_.bin_exponent_min;
+    return config_.exponent.minimum;
   }
 
   /**
@@ -188,7 +155,7 @@ struct generator_t {
    */
   std::int32_t const&
   bin_exponent_max() const {
-    return info_.bin_exponent_max;
+    return config_.exponent.maximum;
   }
 
   /**
@@ -196,7 +163,7 @@ struct generator_t {
    */
   std::uint32_t const&
   mantissa_size() const {
-    return info_.mantissa_size;
+    return config_.mantissa.size;
   }
 
   std::string const&

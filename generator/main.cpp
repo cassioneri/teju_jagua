@@ -1,4 +1,6 @@
 #include "amaru/common.h"
+#include "generator/config.hpp"
+#include "generator/exception.hpp"
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <nlohmann/json.hpp>
@@ -8,7 +10,6 @@
 #include <climits>
 #include <cstdint>
 #include <cstdio>
-#include <exception>
 #include <iomanip>
 #include <ios>
 #include <iterator>
@@ -40,13 +41,6 @@ pow5(std::uint32_t n) {
   auto const p1 = pow5(n / 2);
   return p1 * p1 * (n % 2 == 0 ? 1 : 5);
 }
-
-/**
- * \brief Exception thrown by the generator.
- */
-struct amaru_exception_t : std::range_error {
-  using std::range_error::range_error;
-};
 
 /**
  * \brief Information about a floating point number type.
@@ -148,9 +142,10 @@ struct generator_t {
    * \param info            The information on the floating point number type.
    * \param config          The implementation configuration.
    */
-  generator_t(info_t info, config_t config) :
+  generator_t(info_t info, config_t config, config2_t config2) :
     info_                 {std::move(info)                       },
     config_               {std::move(config)                     },
+    config2_              {std::move(config2)                    },
     compact_or_full_      {is_compact() ? "compact" : "full"     },
     function_             {"amaru_binary_to_decimal_"
       + id() + "_" + compact_or_full()                           },
@@ -325,12 +320,12 @@ struct generator_t {
 
     // Overflow check 1:
     if (2 * normal_mantissa_max() + 1 >= p2_size_)
-      throw amaru_exception_t("suint_t is not large enough for calculations to "
+      throw exception_t("suint_t is not large enough for calculations to "
         "not overflow.");
 
     // Overflow check 2:
     if (20 * normal_mantissa_min() >= p2_size_)
-      throw amaru_exception_t("suint_t is not large enough for calculations to "
+      throw exception_t("suint_t is not large enough for calculations to "
         "not overflow.");
 
     std::cout << "  Generating \"" << dot_h() << "\".\n";
@@ -343,6 +338,16 @@ struct generator_t {
   }
 
 private:
+
+  std::string get_rep(uint32_t size) {
+    switch (size) {
+      case 32:
+        return "amaru_fields_32_t";
+      case 64:
+        return "amaru_fields_64_t";
+    }
+    throw exception_t{"Size must be in {32, 64}."};
+  };
 
   /**
    * \brief Converts a given string to upper case letters.
@@ -365,16 +370,6 @@ private:
   struct fast_eaf_t {
     integer_t     U;
     std::uint32_t k;
-  };
-
-  std::string get_rep(uint32_t size) {
-    switch (size) {
-      case 32:
-        return "amaru_fields_32_t";
-      case 64:
-        return "amaru_fields_64_t";
-    }
-    throw amaru_exception_t{"Size must be in {32, 64}."};
   };
 
   /**
@@ -497,7 +492,7 @@ private:
       divide_qr(x.alpha << shift, x.delta, q, r);
 
       if (x.maximum >= rational_t{p2shift, x.delta - r})
-        throw amaru_exception_t{"Unable to use same shift."};
+        throw exception_t{"Unable to use same shift."};
 
       fast_eafs[i] = fast_eaf_t{q + 1, shift};
     }
@@ -538,7 +533,7 @@ private:
       divide_qr(fast_eaf.U, p2_size, upper, lower);
 
       if (upper >= p2_size)
-        throw amaru_exception_t{"Multiplier is out of range."};
+        throw exception_t{"Multiplier is out of range."};
 
       stream << "  { " <<
         "0x" << std::hex << std::setw(nibbles) << std::setfill('0') << upper <<
@@ -775,11 +770,12 @@ private:
       }
     }
 
-    throw amaru_exception_t{"Cannot find fast EAF."};
+    throw exception_t{"Cannot find fast EAF."};
   }
 
   info_t       info_;
   config_t     config_;
+  config2_t    config2_;
   std::string  compact_or_full_;
   std::string  function_;
   std::string  rep_;
@@ -815,13 +811,15 @@ parse(const char* const filename, const char* const dir) {
   std::ifstream file(filename);
   auto const data = nlohmann::json::parse(file);
 
-  auto info   = data["info"  ].get<info_t  >();
-  auto config = data["config"].get<config_t>();
+  auto info    = data["info"  ].get<info_t  >();
+  auto config  = data["config"].get<config_t>();
+  auto config2 = data["new"].get<config2_t>();
+
   config.directory = dir;
   if (config.directory.back() != '/')
     config.directory.append(1, '/');
 
-  return { std::move(info), std::move(config) };
+  return { std::move(info), std::move(config),  std::move(config2) };
 }
 
 } // namespace amaru
@@ -841,7 +839,7 @@ main(int const argc, const char* const argv[]) {
 
   }
 
-  catch (amaru_exception_t const& e) {
+  catch (exception_t const& e) {
     report_error(argv[0], e.what());
   }
 

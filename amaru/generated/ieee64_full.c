@@ -6,16 +6,7 @@
 extern "C" {
 #endif
 
-#define AMARU_MAX_LIMBS AMARU64_MAX_LIMBS
-
-typedef amaru64_limb1_t amaru_limb1_t;
-#if AMARU64_MAX_LIMBS >= 2
-typedef amaru64_limb2_t amaru_limb2_t;
-#elif AMARU64_MAX_LIMBS >= 4
-typedef amaru64_limb4_t amaru_limb4_t;
-#endif
-
-typedef amaru64_fields_t amaru_fields_t;
+#define AMARU_SIZE 64
 
 static amaru_data_t const amaru_data = {
   /* size: */ 64,
@@ -45,8 +36,8 @@ enum {
 };
 
 static struct {
-  amaru_limb1_t const upper;
-  amaru_limb1_t const lower;
+  amaru64_limb1_t const upper;
+  amaru64_limb1_t const lower;
 } const multipliers[] = {
   { 0x00278676e4ad38c6, 0xea5b01e8b09aa0d2 }, // -1074
   { 0x004f0cedc95a718d, 0xd4b603d1613541a4 }, // -1073
@@ -2097,8 +2088,8 @@ static struct {
 };
 
 static struct {
-  amaru_limb1_t const multiplier;
-  amaru_limb1_t const bound;
+  amaru64_limb1_t const multiplier;
+  amaru64_limb1_t const bound;
 } const minverse[] = {
   { 0x0000000000000001, 0xffffffffffffffff },
   { 0xcccccccccccccccd, 0x3333333333333333 },
@@ -2135,6 +2126,3 @@ static struct {
 
 #define AMARU_FUNCTION amaru_binary_to_decimal_ieee64_full
 #include "amaru/amaru.h"
-
-#undef AMARU_FUNCTION
-#undef AMARU_MAX_LIMBS

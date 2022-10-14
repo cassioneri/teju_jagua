@@ -1,8 +1,31 @@
 #ifndef AMARU_AMAHU_AMARU_H_
 #define AMARU_AMAHU_AMARU_H_
 
-#ifndef AMARU_FUNCTION
-#error "Invalid inclusion of amaru.h."
+#if AMARU_SIZE == 32
+
+#define AMARU_MAX_LIMBS AMARU32_MAX_LIMBS
+
+typedef amaru32_limb1_t amaru_limb1_t;
+#if AMARU_MAX_LIMBS >= 2
+typedef amaru32_limb2_t amaru_limb2_t;
+#elif AMARU_MAX_LIMBS >= 4
+typedef amaru32_limb4_t amaru_limb4_t;
+#endif
+
+typedef amaru32_fields_t amaru_fields_t;
+
+#elif AMARU_SIZE == 64
+
+#define AMARU_MAX_LIMBS AMARU64_MAX_LIMBS
+
+typedef amaru64_limb1_t amaru_limb1_t;
+#if AMARU_MAX_LIMBS >= 2
+typedef amaru64_limb2_t amaru_limb2_t;
+#elif AMARU_MAX_LIMBS >= 4
+typedef amaru64_limb4_t amaru_limb4_t;
+#endif
+typedef amaru64_fields_t amaru_fields_t;
+
 #endif
 
 #include "amaru/common.h"

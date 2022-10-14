@@ -6,16 +6,7 @@
 extern "C" {
 #endif
 
-#define AMARU_MAX_LIMBS AMARU32_MAX_LIMBS
-
-typedef amaru32_limb1_t amaru_limb1_t;
-#if AMARU32_MAX_LIMBS >= 2
-typedef amaru32_limb2_t amaru_limb2_t;
-#elif AMARU32_MAX_LIMBS >= 4
-typedef amaru32_limb4_t amaru_limb4_t;
-#endif
-
-typedef amaru32_fields_t amaru_fields_t;
+#define AMARU_SIZE 32
 
 static amaru_data_t const amaru_data = {
   /* size: */ 32,
@@ -45,8 +36,8 @@ enum {
 };
 
 static struct {
-  amaru_limb1_t const upper;
-  amaru_limb1_t const lower;
+  amaru32_limb1_t const upper;
+  amaru32_limb1_t const lower;
 } const multipliers[] = {
   { 0xb35dbf82, 0x1ae4f38c }, // -45
   { 0x8f7e32ce, 0x7bea5c70 }, // -44
@@ -128,8 +119,8 @@ static struct {
 };
 
 static struct {
-  amaru_limb1_t const multiplier;
-  amaru_limb1_t const bound;
+  amaru32_limb1_t const multiplier;
+  amaru32_limb1_t const bound;
 } const minverse[] = {
   { 0x00000001, 0xffffffff },
   { 0xcccccccd, 0x33333333 },
@@ -153,6 +144,3 @@ static struct {
 
 #define AMARU_FUNCTION amaru_binary_to_decimal_ieee32_compact
 #include "amaru/amaru.h"
-
-#undef AMARU_FUNCTION
-#undef AMARU_MAX_LIMBS

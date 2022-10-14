@@ -1,26 +1,23 @@
 {
-  "new": {
+  "id"  : "ieee64",
+  "size": 64,
 
-    "id"  : "ieee64",
-    "size": 64,
+  "exponent": {
+    "size"   :    11,
+    "minimum": -1074,
+    "maximum":   971
+  },
 
-    "exponent": {
-      "size"   :    11,
-      "minimum": -1074,
-      "maximum":   971
-    },
+  "mantissa": {
+    "size": 52
+  },
+  
+  "storage": {
+    "limbs"   : 2,
+    "exponent": "binary"
+  },
 
-    "mantissa": {
-      "size": 52
-    },
-    
-    "storage": {
-      "limbs"   : 2,
-      "exponent": "binary"
-    },
-
-    "calculation": {
-      "limbs": 2
-    }
+  "calculation": {
+    "limbs": 2
   }
 }

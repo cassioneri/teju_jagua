@@ -711,7 +711,7 @@ parse(const char* const filename, const char* const dir) {
   std::ifstream file(filename);
   auto const data = nlohmann::json::parse(file);
 
-  auto config = data["new"].get<config_t>();
+  auto config = data.get<config_t>();
 
   std::string directory = dir;
   if (directory.back() != '/')

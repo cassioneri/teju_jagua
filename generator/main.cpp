@@ -117,9 +117,9 @@ struct generator_t {
    * \param info            The information on the floating point number type.
    * \param config          The implementation configuration.
    */
-  generator_t(info_t info, config2_t config2, std::string directory) :
+  generator_t(info_t info, config_t config, std::string directory) :
     info_                 {std::move(info)                       },
-    config2_              {std::move(config2)                    },
+    config_               {std::move(config)                     },
     directory_            {std::move(directory)                  },
     compact_or_full_      {is_compact() ? "compact" : "full"     },
     function_             {"amaru_binary_to_decimal_"
@@ -255,7 +255,7 @@ struct generator_t {
    */
   bool
   is_compact() const {
-    return config2_.storage.exponent == base_t::decimal;
+    return config_.storage.exponent == base_t::decimal;
   }
 
   /**
@@ -749,7 +749,7 @@ private:
   }
 
   info_t       info_;
-  config2_t    config2_;
+  config_t     config_;
   std::string  directory_;
   std::string  compact_or_full_;
   std::string  function_;
@@ -787,7 +787,7 @@ parse(const char* const filename, const char* const dir) {
   auto const data = nlohmann::json::parse(file);
 
   auto info    = data["info"  ].get<info_t  >();
-  auto config2 = data["new"].get<config2_t>();
+  auto config2 = data["new"].get<config_t>();
 
   std::string directory = dir;
   if (directory.back() != '/')

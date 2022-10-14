@@ -41,28 +41,28 @@ validate(config_t const& json) {
 
   if (!(json.size == 32 || json.size == 64))
     throw exception_t{"Constraint violation: "
-      "size in { 32, 64 }."};
+      "size in { 32, 64 }"};
 
   if (!(json.exponent.minimum <= json.exponent.maximum))
     throw exception_t{"Constraint violation: "
-      "exponent.minimum <= exponent.maximum."};
+      "exponent.minimum <= exponent.maximum"};
 
   auto const p2size = std::uint64_t(1) << json.exponent.size;
   if (!(json.exponent.maximum - json.exponent.minimum < p2size))
     throw exception_t{"Constraint violation: "
-      "exponent.maximum - exponent.minimum <= 2^{exponent.size}."};
+      "exponent.maximum - exponent.minimum <= 2^{exponent.size}"};
 
   if (!(uint64_t(json.exponent.size) + json.mantissa.size <= json.size))
     throw exception_t{"Constraint violation: "
-      "exponent.size + mantissa.size <= size."};
+      "exponent.size + mantissa.size <= size"};
 
   if (!(json.storage.limbs == 1 || json.storage.limbs == 2))
     throw exception_t{"Constraint violation: "
-      "storage.limbs in { 1, 2 }."};
+      "storage.limbs in { 1, 2 }"};
 
   if (!(json.calculation.limbs == 1 || json.calculation.limbs == 2))
     throw exception_t{"Constraint violation: "
-      "calculation.limbs in { 1, 2, 4 }."};
+      "calculation.limbs in { 1, 2, 4 }"};
 }
 
 } // namespace amaru

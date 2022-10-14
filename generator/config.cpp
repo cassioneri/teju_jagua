@@ -17,8 +17,8 @@ from_json(nlohmann::json const& src, config_t::mantissa_t& tgt) {
 
 void
 from_json(nlohmann::json const& src, config_t::storage_t& tgt) {
-  src["limbs"   ].get_to(tgt.limbs   );
-  src["exponent"].get_to(tgt.exponent);
+  src["limbs"].get_to(tgt.limbs);
+  src["base" ].get_to(tgt.base );
 }
 
 void

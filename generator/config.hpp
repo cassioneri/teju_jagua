@@ -54,7 +54,7 @@ struct config_t {
 
   struct storage_t {
     std::uint32_t limbs;
-    base_t        exponent;
+    base_t        base;
     struct {
       // ???
     } external;

@@ -436,7 +436,7 @@ generator_t::impl_t::normal_mantissa_max() const {
 
 bool
 generator_t::impl_t::is_compact() const {
-  return self.config_.storage.exponent == base_t::decimal;
+  return self.config_.storage.base == base_t::decimal;
 }
 
 std::string const&

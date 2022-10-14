@@ -13,8 +13,8 @@
   },
   
   "storage": {
-    "limbs"   : 2,
-    "exponent": "decimal"
+    "limbs": 2,
+    "base" : "decimal"
   },
 
   "calculation": {

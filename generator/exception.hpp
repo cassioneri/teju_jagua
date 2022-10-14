@@ -8,8 +8,8 @@ namespace amaru {
 /**
  * \brief Exception thrown by the generator.
  */
-struct exception_t : std::range_error {
-  using std::range_error::range_error;
+struct exception_t : std::runtime_error {
+  using std::runtime_error::runtime_error;
 };
 
 } // namespace amaru

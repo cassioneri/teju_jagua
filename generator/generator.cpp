@@ -24,7 +24,7 @@ pow2(std::uint32_t const n) {
  * \brief Returns 5^n.
  */
 integer_t
-pow5(std::uint32_t n) {
+pow5(std::uint32_t const n) {
   if (n == 0)
     return 1;
   auto const p1 = pow5(n / 2);
@@ -142,8 +142,10 @@ get_fields(uint32_t const size) {
     case 64:
       return "amaru64_fields_t";
   }
-  throw exception_t{"Size must be in {32, 64}."};
-};
+
+  // Should never get here since size is previously validated.
+  return {};
+}
 
 /**
  * \brief Converts a given string to upper case letters.
@@ -661,7 +663,7 @@ generator_t::impl_t::get_maxima() const {
 
 rational_t
 generator_t::impl_t::get_maximum(integer_t alpha, integer_t const& delta,
-  bool start_at_1) const {
+  bool const start_at_1) const {
 
   auto const mantissa_min = normal_mantissa_min();
   auto const mantissa_max = normal_mantissa_max();

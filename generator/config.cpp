@@ -47,7 +47,7 @@ validate(config_t const& json) {
     throw exception_t{"Constraint violation: "
       "exponent.minimum <= exponent.maximum."};
 
-  auto const p2size = std::uint64_t(1) << json.size;
+  auto const p2size = std::uint64_t(1) << json.exponent.size;
   if (!(json.exponent.maximum - json.exponent.minimum < p2size))
     throw exception_t{"Constraint violation: "
       "exponent.maximum - exponent.minimum <= 2^{exponent.size}."};

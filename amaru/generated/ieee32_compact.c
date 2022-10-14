@@ -36,12 +36,12 @@ static amaru_data_t const amaru_data = {
 };
 
 enum {
-  is_compact       = 1,
-  size             = 32,
-  mantissa_size    = 23,
-  bin_exponent_min = -149,
-  dec_exponent_min = -45,
-  shift            = 64
+  is_compact    = 1,
+  size          = 32,
+  mantissa_size = 23,
+  exponent_min  = -149,
+  index_offset  = -45,
+  shift         = 64
 };
 
 static struct {

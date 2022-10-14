@@ -48,10 +48,10 @@ typedef struct {
   } mantissa;
   struct {
     uint32_t limbs;
-    int32_t index_offset;
+    uint32_t is_compact;
+    int32_t  index_offset;
   } storage;
   struct {
-    bool is_compact;
     uint32_t shift;
   } calculation;
 } amaru_data_t;

@@ -579,36 +579,36 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
 
   stream <<
     "static amaru_data_t const amaru_data = {\n"
-    "  /* size: */ " << size() << ",\n"
+    "  /* size: */ "           << size()          << ",\n"
     "  /* exponent: */ {\n"
-    "    /* minimum: */ " << exponent_min() << "\n"
+    "    /* minimum: */ "      << exponent_min()  << "\n"
     "  },\n"
     "  /* mantissa: */ {\n"
-    "    /* size: */ " << mantissa_size() << "\n"
+    "    /* size: */ "         << mantissa_size() << "\n"
     "  },\n"
     "  /* storage: */ {\n"
-    "    /* limbs: */ " << storage_limbs() << ",\n"
-    "    /* index_offset: */ " << index_offset() << "\n"
+    "    /* limbs: */ "        << storage_limbs() << ",\n"
+    "    /* is_compact: */ "   << is_compact()    << ",\n"
+    "    /* index_offset: */ " << index_offset()  << "\n"
     "  },\n"
     "  /* calculation: */ {\n"
-    "    /* is_compact: */ " << is_compact() << ",\n"
     // Instead of Amaru dividing multipliy_and_shift(m_a, upper, lower) by 2
     // we increment the shift here so this has the same effect.
-    "    /* shift: */ " << shift + 1 << "\n"
+    "    /* shift: */ "        << shift + 1 << "\n"
     "  }\n"
     "};\n"
     "\n";
 
   stream <<
     "enum {\n"
-    "  is_compact       = " << is_compact()               << ",\n"
-    "  size             = " << size()                     << ",\n"
-    "  mantissa_size    = " << mantissa_size()            << ",\n"
-    "  bin_exponent_min = " << exponent_min()             << ",\n"
-    "  dec_exponent_min = " << log10_pow2(exponent_min()) << ",\n"
+    "  is_compact    = " << is_compact()    << ",\n"
+    "  size          = " << size()          << ",\n"
+    "  mantissa_size = " << mantissa_size() << ",\n"
+    "  exponent_min  = " << exponent_min()  << ",\n"
+    "  index_offset  = " << index_offset()  << ",\n"
     // Instead of Amaru dividing multipliy_and_shift(m_a, upper, lower) by 2
     // we increment the shift here so this has the same effect.
-    "  shift            = " << shift + 1                  << "\n"
+    "  shift         = " << shift + 1       << "\n"
     "};\n"
     "\n";
 

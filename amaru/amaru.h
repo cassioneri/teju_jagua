@@ -60,26 +60,24 @@ bool is_multiple_of_pow5(amaru_limb1_t const m, int32_t const f) {
 amaru_fields_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
   amaru_limb1_t const mantissa) {
 
-  amaru_limb1_t const normal_mantissa_min = AMARU_POW2(amaru_limb1_t,
-    mantissa_size);
-  amaru_limb2_t const inv10               = ((amaru_limb1_t) -1) / 10 + 1;
+  amaru_limb1_t const mantissa_min = AMARU_POW2(amaru_limb1_t, mantissa_size);
+  amaru_limb2_t const inv10        = ((amaru_limb1_t) -1) / 10 + 1;
 
   int32_t  const f     = log10_pow2(exponent);
   uint32_t const extra = is_compact ? log10_pow2_remainder(exponent) : 0;
-  int32_t  const i     = is_compact ? f - dec_exponent_min :
-    exponent - bin_exponent_min;
+  int32_t  const i     = (is_compact ? f : exponent) - index_offset;
   amaru_limb1_t  const upper = multipliers[i].upper;
   amaru_limb1_t  const lower = multipliers[i].lower;
 
-  if (mantissa != normal_mantissa_min || exponent == bin_exponent_min) {
+  if (mantissa != mantissa_min || exponent == exponent_min) {
 
-    amaru_limb1_t const m_b  = (2 * mantissa + 1) << extra;
-    amaru_limb1_t const b    = multipliy_and_shift(m_b, upper, lower);
+    amaru_limb1_t const m_b = (2 * mantissa + 1) << extra;
+    amaru_limb1_t const b   = multipliy_and_shift(m_b, upper, lower);
 
-    amaru_limb1_t const m_a  = (2 * mantissa - 1) << extra;
-    amaru_limb1_t const a    = multipliy_and_shift(m_a, upper, lower);
+    amaru_limb1_t const m_a = (2 * mantissa - 1) << extra;
+    amaru_limb1_t const a   = multipliy_and_shift(m_a, upper, lower);
 
-    amaru_limb1_t const s    = 10 * ((inv10 * b) >> size);
+    amaru_limb1_t const s   = 10 * ((inv10 * b) >> size);
 
     if (s < a)
       ;
@@ -108,10 +106,10 @@ amaru_fields_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
     return make_decimal(is_negative, f, c + 1);
   }
 
-  amaru_limb1_t const m_b = 2 * normal_mantissa_min + 1;
+  amaru_limb1_t const m_b = 2 * mantissa_min + 1;
   amaru_limb1_t const b   = multipliy_and_shift(m_b << extra, upper, lower);
 
-  amaru_limb1_t const m_a = 4 * normal_mantissa_min - 1;
+  amaru_limb1_t const m_a = 4 * mantissa_min - 1;
   amaru_limb1_t const a   = multipliy_and_shift(m_a << extra, upper, lower) / 2
     + !is_multiple_of_pow5(m_a, f);
 
@@ -122,7 +120,7 @@ amaru_fields_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
     if (s >= a)
       return remove_trailing_zeros(is_negative, f, s);
 
-    amaru_limb1_t const m_c = 2 * 2 * normal_mantissa_min;
+    amaru_limb1_t const m_c = 2 * 2 * mantissa_min;
     amaru_limb1_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower);
     amaru_limb1_t const c   = c_2 / 2;
 
@@ -132,7 +130,7 @@ amaru_fields_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
     return make_decimal(is_negative, f, c);
   }
 
-  amaru_limb1_t const m_c = 2 * 20 * normal_mantissa_min;
+  amaru_limb1_t const m_c = 2 * 20 * mantissa_min;
   amaru_limb1_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower);
   amaru_limb1_t const c   = c_2 / 2;
 

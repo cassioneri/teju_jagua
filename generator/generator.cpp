@@ -186,6 +186,11 @@ struct alpha_delta_maximum_t {
   rational_t maximum;
 };
 
+std::int32_t
+get_index_offset(base_t const base, std::int32_t const exponent_min) {
+  return base == base_t::decimal ? log10_pow2(exponent_min) : exponent_min;
+}
+
 }
 
 struct generator_t::impl_t {
@@ -203,6 +208,18 @@ struct generator_t::impl_t {
    */
   std::uint32_t
   size() const;
+
+  /**
+   * \brief Returns the C/C++ name of Amaru's fields type.
+   */
+  std::string const&
+  fields() const;
+
+  /**
+   * \brief Returns the name of Amaru's conversion function.
+   */
+  std::string const&
+  function() const;
 
   /**
    * \brief Returns the minimum binary exponent.
@@ -223,31 +240,13 @@ struct generator_t::impl_t {
   mantissa_size() const;
 
   /**
-   * \brief Returns the name of Amaru's conversion function.
-   */
-  std::string const&
-  function() const;
-
-  /**
-   * \brief Returns the C/C++ name of Amaru's fields type.
-   */
-  std::string const&
-  fields() const;
-
-  /**
-   * \brief Returns the decimal minimum exponent.
-   */
-  std::int32_t
-  dec_exponent_min() const;
-
-  /**
    * \brief Returns the normal (inclusive) minimal mantissa.
    *
    * Mantissas for normal floating point numbers are elements of the interval
    * [normal_mantissa_min(), normal_mantissa_max()[.
    */
   integer_t const&
-  normal_mantissa_min() const;
+  mantissa_min() const;
 
   /**
    * \brief Returns the normal (exclusive) maximal mantissa.
@@ -256,7 +255,25 @@ struct generator_t::impl_t {
    * [normal_mantissa_min(), normal_mantissa_max()[.
    */
   integer_t const&
-  normal_mantissa_max() const;
+  mantissa_max() const;
+
+  /**
+   * \brief Returns the number of storage limbs.
+   */
+  std::uint32_t
+  storage_limbs() const;
+
+  /**
+   * \brief Returns the storage exponent.
+   */
+  base_t
+  storage_base() const;
+
+  /**
+   * \brief Returns the number of storage limbs.
+   */
+  std::int32_t
+  index_offset() const;
 
   /**
    * \brief Returns whether using a compact table of multipliers.
@@ -341,33 +358,34 @@ generator_t::self() const {
 }
 
 generator_t::generator_t(config_t config, std::string directory) :
-  config_             {std::move(config)                            },
-  directory_          {std::move(directory)                         },
-  function_           {"amaru_binary_to_decimal_" + self().id()     },
-  fields_             {get_fields(self().size())                    },
-  dec_exponent_min_   {log10_pow2(self().bin_exponent_min())        },
-  normal_mantissa_min_{AMARU_POW2(integer_t, self().mantissa_size())},
-  normal_mantissa_max_{2 * self().normal_mantissa_min()             },
-  p2_size_            {integer_t{1} << self().size()                },
-  dot_h_              {self().id() + ".h"                           },
-  dot_c_              {self().id() + ".c"                           } {
+  config_      {std::move(config)                            },
+  fields_      {get_fields(self().size())                    },
+  function_    {"amaru_binary_to_decimal_" + self().id()     },
+  mantissa_min_{AMARU_POW2(integer_t, self().mantissa_size())},
+  mantissa_max_{2 * self().mantissa_min()                    },
+  index_offset_{get_index_offset(self().storage_base(),
+    self().bin_exponent_min())                               },
+  directory_   {std::move(directory)                         },
+  dot_h_       {self().id() + ".h"                           },
+  dot_c_       {self().id() + ".c"                           } {
 }
 
 void
 generator_t::generate() const {
 
-  auto dot_h_stream = std::ofstream{self().directory() + self().dot_h()};
-  auto dot_c_stream = std::ofstream{self().directory() + self().dot_c()};
+  auto const p2_size      = integer_t{1} << self().size();
+  auto       dot_h_stream = std::ofstream{self().directory() + self().dot_h()};
+  auto       dot_c_stream = std::ofstream{self().directory() + self().dot_c()};
 
   std::cout << "Generation started.\n";
 
   // Overflow check 1:
-  if (2 * self().normal_mantissa_max() + 1 >= p2_size_)
+  if (2 * self().mantissa_max() + 1 >= p2_size)
     throw exception_t("The limb is not large enough for calculations to "
       "not overflow.");
 
   // Overflow check 2:
-  if (20 * self().normal_mantissa_min() >= p2_size_)
+  if (20 * self().mantissa_min() >= p2_size)
     throw exception_t("The limb is not large enough for calculations to "
       "not overflow.");
 
@@ -394,6 +412,16 @@ generator_t::impl_t::size() const {
   return self.config_.size;
 }
 
+std::string const&
+generator_t::impl_t::fields() const {
+  return self.fields_;
+}
+
+std::string const&
+generator_t::impl_t::function() const {
+  return self.function_;
+}
+
 std::int32_t
 generator_t::impl_t::bin_exponent_min() const {
   return self.config_.exponent.minimum;
@@ -409,29 +437,29 @@ generator_t::impl_t::mantissa_size() const {
   return self.config_.mantissa.size;
 }
 
-std::string const&
-generator_t::impl_t::function() const {
-  return self.function_;
+integer_t const&
+generator_t::impl_t::mantissa_min() const {
+  return self.mantissa_min_;
 }
 
-std::string const&
-generator_t::impl_t::fields() const {
-  return self.fields_;
+integer_t const&
+generator_t::impl_t::mantissa_max() const {
+  return self.mantissa_max_;
+}
+
+std::uint32_t
+generator_t::impl_t::storage_limbs() const {
+  return self.config_.storage.limbs;
+}
+
+base_t
+generator_t::impl_t::storage_base() const {
+  return self.config_.storage.base;
 }
 
 std::int32_t
-generator_t::impl_t::dec_exponent_min() const {
-  return self.dec_exponent_min_;
-}
-
-integer_t const&
-generator_t::impl_t::normal_mantissa_min() const {
-  return self.normal_mantissa_min_;
-}
-
-integer_t const&
-generator_t::impl_t::normal_mantissa_max() const {
-  return self.normal_mantissa_max_;
+generator_t::impl_t::index_offset() const {
+  return self.index_offset_;
 }
 
 bool
@@ -551,11 +579,12 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
 
   stream <<
     "enum {\n"
-    "  is_compact       = " << is_compact()       << ",\n"
-    "  size             = " << size()             << ",\n"
-    "  mantissa_size    = " << mantissa_size()    << ",\n"
-    "  bin_exponent_min = " << bin_exponent_min() << ",\n"
-    "  dec_exponent_min = " << dec_exponent_min() << ",\n"
+    "  is_compact       = " << is_compact()                   << ",\n"
+    "  size             = " << size()                         << ",\n"
+    "  mantissa_size    = " << mantissa_size()                << ",\n"
+    "  bin_exponent_min = " << bin_exponent_min()             << ",\n"
+    "  dec_exponent_min = " << log10_pow2(bin_exponent_min()) << ",\n"
+    //"  dec_exponent_min = " << dec_exponent_min() << ",\n"
     // Instead of Amaru dividing multipliy_and_shift(m_a, upper, lower) by 2
     // we increment the shift here so this has the same effect.
     "  shift            = " << shift + 1          << "\n"
@@ -606,7 +635,7 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   // 3. C  = 20 * mantissa_min * 2^e * 5^{-f} <= 200 * mantissa_min;
   // Hence, 200 * mantissa_max is a conservative bound, i.e.,
   // If 5^f > 200 * mantissa_max, then is_multiple_of_pow5(C, f) == false;
-  for (int32_t f = 0; p5 <= 200 * normal_mantissa_max(); ++f) {
+  for (int32_t f = 0; p5 <= 200 * mantissa_max(); ++f) {
     auto const bound = p2_size / p5 - (f == 0);
     stream << "  { "
       "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
@@ -665,16 +694,13 @@ rational_t
 generator_t::impl_t::get_maximum(integer_t alpha, integer_t const& delta,
   bool const start_at_1) const {
 
-  auto const mantissa_min = normal_mantissa_min();
-  auto const mantissa_max = normal_mantissa_max();
-
   alpha %= delta;
 
   // Usual interval.
 
-  auto const a = start_at_1 ? integer_t{1} : integer_t{2 * mantissa_min};
-  auto const b = is_compact() ? integer_t{16 * mantissa_max - 15} :
-    integer_t{2 * mantissa_max};
+  auto const a = start_at_1 ? integer_t{1} : integer_t{2 * mantissa_min()};
+  auto const b = is_compact() ? integer_t{16 * mantissa_max() - 15} :
+    integer_t{2 * mantissa_max()};
 
   auto const max_ab = get_maximum_1(alpha, delta, a, b);
 
@@ -689,11 +715,11 @@ generator_t::impl_t::get_maximum(integer_t alpha, integer_t const& delta,
   };
 
   if (!is_compact())
-    return std::max(max_ab, max_extras(mantissa_min));
+    return std::max(max_ab, max_extras(mantissa_min()));
 
-  return std::max({max_ab, max_extras(mantissa_min),
-    max_extras(2 * mantissa_min), max_extras(4 * mantissa_min),
-    max_extras(8 * mantissa_min)});
+  return std::max({max_ab, max_extras(mantissa_min()),
+    max_extras(2 * mantissa_min()), max_extras(4 * mantissa_min()),
+    max_extras(8 * mantissa_min())});
 }
 
 fast_eaf_t

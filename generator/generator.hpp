@@ -39,13 +39,12 @@ private:
   impl_t const self() const;
 
   config_t     config_;
-  std::string  directory_;
-  std::string  function_;
   std::string  fields_;
-  std::int32_t dec_exponent_min_;
-  integer_t    normal_mantissa_min_;
-  integer_t    normal_mantissa_max_;
-  integer_t    p2_size_;
+  std::string  function_;
+  integer_t    mantissa_min_;
+  integer_t    mantissa_max_;
+  std::int32_t index_offset_;
+  std::string  directory_;
   std::string  dot_h_;
   std::string  dot_c_;
 

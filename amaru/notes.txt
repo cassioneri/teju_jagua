@@ -73,8 +73,7 @@ static struct {
     int32_t shift;
   } calculation;
 
-
-} amaru_<id>_data;
+} amaru<id>_data;
 
 
 FUNCTIONS (MANUAL)

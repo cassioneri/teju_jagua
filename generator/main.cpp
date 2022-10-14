@@ -13,20 +13,16 @@
 namespace amaru {
 
 void
-report_usage(FILE* const stream, const char* const prog) noexcept {
-  std::fprintf(stream, "Usage: %s [OPTION]... CONFIG DIR\n"
+report_usage(const char* const prog) noexcept {
+  std::fprintf(stderr, "Usage: %s [OPTION]... CONFIG DIR\n"
     "Generate Amaru source files for the given JSON configuration file CONFIG. "
-    "The files are saved in directory DIR.\n"
-    "\n"
-    "Options:\n"
-    "  --h        shows this message and exits.\n",
+    "The files are saved in directory DIR.\n",
     prog);
 }
 
 void
 report_error(const char* const prog, const char* const msg) noexcept {
   std::fprintf(stderr, "%s: error: %s.\n", prog, msg);
-  report_usage(stderr, prog);
   std::exit(-1);
 }
 
@@ -53,8 +49,11 @@ main(int const argc, const char* const argv[]) {
 
   using namespace amaru;
 
-  if (argc != 3)
+  if (argc != 3) {
     report_error(argv[0], "expected two arguments");
+    std::fprintf(stderr, "\n");
+    report_usage(argv[0]);
+  }
 
   try {
 

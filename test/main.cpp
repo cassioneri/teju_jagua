@@ -155,7 +155,7 @@ struct fp_traits_t<float> {
   static auto constexpr exponent_size = uint32_t{8};
   static auto constexpr mantissa_size = uint32_t{23};
 
-  static amaru32_fields_t
+  static amaru_fields_t
   fields(float const value) {
     return amaru_from_float_to_fields(value);
   }

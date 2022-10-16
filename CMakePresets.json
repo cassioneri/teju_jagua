@@ -20,8 +20,8 @@
       "hidden" : true,
       "inherits": [ "linux" ],
       "cacheVariables": {
-          "CMAKE_C_COMPILER" : "gcc",
-          "CMAKE_CXX_COMPILER" : "g++"
+        "CMAKE_C_COMPILER" : "gcc",
+        "CMAKE_CXX_COMPILER" : "g++"
       }
     },
     {
@@ -29,29 +29,31 @@
       "hidden" : true,
       "inherits": [ "linux" ],
       "cacheVariables": {
-          "CMAKE_C_COMPILER" : "clang",
-          "CMAKE_CXX_COMPILER" : "clang++"
+        "CMAKE_C_COMPILER" : "clang",
+        "CMAKE_CXX_COMPILER" : "clang++"
       }
     },
     {
       "name": "debug",
       "hidden" : true,
       "cacheVariables": {
-          "CMAKE_BUILD_TYPE" : "Debug"
+        "CMAKE_BUILD_TYPE" : "Debug"
       }
     },
     {
       "name": "profile",
       "hidden" : true,
       "cacheVariables": {
-          "CMAKE_BUILD_TYPE" : "RelWithDebInfo"
+        "CMAKE_C_FLAGS" : "-g",
+        "CMAKE_CXX_FLAGS" : "-g",
+        "CMAKE_BUILD_TYPE" : "Release"
       }
     },
     {
       "name": "release",
       "hidden" : true,
       "cacheVariables": {
-          "CMAKE_BUILD_TYPE" : "Release"
+        "CMAKE_BUILD_TYPE" : "Release"
       }
     },
     {

@@ -21,17 +21,17 @@
       }
     },
     {
-      "name": "release",
-      "hidden" : true,
-      "cacheVariables": {
-          "CMAKE_BUILD_TYPE" : "Release"
-      }
-    },
-    {
       "name": "debug",
       "hidden" : true,
       "cacheVariables": {
           "CMAKE_BUILD_TYPE" : "Debug"
+      }
+    },
+    {
+      "name": "release",
+      "hidden" : true,
+      "cacheVariables": {
+          "CMAKE_BUILD_TYPE" : "Release"
       }
     },
     {
@@ -52,16 +52,10 @@
       }
     },
     {
-      "name": "gcc.release",
-      "description": "GCC release build on Linux using Ninja generator",
-      "inherits" : [ "gcc", "release", "linux", "ninja" ],
-      "binaryDir": "${sourceDir}/build/gcc.release"
-    },
-    {
-      "name": "gcc.debug",
-      "description": "GCC debug build on Linux using Ninja generator",
-      "inherits" : [ "gcc", "debug", "linux", "ninja" ],
-      "binaryDir": "${sourceDir}/build/gcc.debug"
+      "name": "clang.debug",
+      "description": "Clang debug build on Linux using Ninja generator",
+      "inherits" : [ "clang.linux", "debug", "ninja" ],
+      "binaryDir": "${sourceDir}/build/clang.debug"
     },
     {
       "name": "clang.release",
@@ -70,10 +64,16 @@
       "binaryDir": "${sourceDir}/build/clang.release"
     },
     {
-      "name": "clang.debug",
-      "description": "Clang debug build on Linux using Ninja generator",
-      "inherits" : [ "clang.linux", "debug", "ninja" ],
-      "binaryDir": "${sourceDir}/build/clang.debug"
+      "name": "gcc.debug",
+      "description": "GCC debug build on Linux using Ninja generator",
+      "inherits" : [ "gcc", "debug", "linux", "ninja" ],
+      "binaryDir": "${sourceDir}/build/gcc.debug"
+    },
+    {
+      "name": "gcc.release",
+      "description": "GCC release build on Linux using Ninja generator",
+      "inherits" : [ "gcc", "release", "linux", "ninja" ],
+      "binaryDir": "${sourceDir}/build/gcc.release"
     }
   ]
 }

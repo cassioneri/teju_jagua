@@ -7,17 +7,30 @@
   },
   "configurePresets": [
     {
-      "name": "ninja",
-      "hidden" : true,
-      "generator": "Ninja"
-    },
-    {
       "name": "linux",
       "hidden" : true,
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Linux"
+      }
+    },
+    {
+      "name": "gcc",
+      "hidden" : true,
+      "inherits": [ "linux" ],
+      "cacheVariables": {
+          "CMAKE_C_COMPILER" : "gcc",
+          "CMAKE_CXX_COMPILER" : "g++"
+      }
+    },
+    {
+      "name": "clang.linux",
+      "hidden" : true,
+      "inherits": [ "linux" ],
+      "cacheVariables": {
+          "CMAKE_C_COMPILER" : "clang",
+          "CMAKE_CXX_COMPILER" : "clang++"
       }
     },
     {
@@ -42,54 +55,83 @@
       }
     },
     {
-      "name": "gcc",
+      "name": "ninja",
       "hidden" : true,
-      "cacheVariables": {
-          "CMAKE_C_COMPILER" : "gcc",
-          "CMAKE_CXX_COMPILER" : "g++"
-      }
+      "generator": "Ninja"
     },
     {
-      "name": "clang.linux",
+      "name": "make",
       "hidden" : true,
-      "inherits": [ "linux" ],
-      "cacheVariables": {
-          "CMAKE_C_COMPILER" : "clang",
-          "CMAKE_CXX_COMPILER" : "clang++"
-      }
+      "generator": "Unix Makefiles"
     },
     {
-      "name": "clang.debug",
+      "name": "clang.debug.make",
+      "description": "Clang debug build on Linux using Make generator",
+      "inherits" : [ "clang.linux", "debug", "make" ],
+      "binaryDir": "${sourceDir}/build/clang.debug"
+    },
+    {
+      "name": "clang.profile.make",
+      "description": "Clang profile build on Linux using Make generator",
+      "inherits" : [ "clang.linux", "profile", "make" ],
+      "binaryDir": "${sourceDir}/build/clang.profile"
+    },
+    {
+      "name": "clang.release.make",
+      "description": "Clang release build on Linux using Make generator",
+      "inherits" : [ "clang.linux", "release", "make" ],
+      "binaryDir": "${sourceDir}/build/clang.release"
+    },
+    {
+      "name": "clang.debug.ninja",
       "description": "Clang debug build on Linux using Ninja generator",
       "inherits" : [ "clang.linux", "debug", "ninja" ],
       "binaryDir": "${sourceDir}/build/clang.debug"
     },
     {
-      "name": "clang.profile",
+      "name": "clang.profile.ninja",
       "description": "Clang profile build on Linux using Ninja generator",
       "inherits" : [ "clang.linux", "profile", "ninja" ],
       "binaryDir": "${sourceDir}/build/clang.profile"
     },
     {
-      "name": "clang.release",
+      "name": "clang.release.ninja",
       "description": "Clang release build on Linux using Ninja generator",
       "inherits" : [ "clang.linux", "release", "ninja" ],
       "binaryDir": "${sourceDir}/build/clang.release"
     },
     {
-      "name": "gcc.debug",
-      "description": "GCC debug build on Linux using Ninja generator",
-      "inherits" : [ "gcc", "debug", "linux", "ninja" ],
+      "name": "gcc.debug.make",
+      "description": "GCC debug build on Linux using Make generator",
+      "inherits" : [ "gcc", "debug", "make" ],
       "binaryDir": "${sourceDir}/build/gcc.debug"
     },
     {
-      "name": "gcc.profile",
-      "description": "GCC debug profile on Linux using Ninja generator",
-      "inherits" : [ "gcc", "profile", "linux", "ninja" ],
+      "name": "gcc.profile.make",
+      "description": "GCC profile profile on Linux using Make generator",
+      "inherits" : [ "gcc", "profile", "make" ],
       "binaryDir": "${sourceDir}/build/gcc.profile"
     },
     {
-      "name": "gcc.release",
+      "name": "gcc.release.make",
+      "description": "GCC release build on Linux using Make generator",
+      "inherits" : [ "gcc", "release", "make" ],
+      "binaryDir": "${sourceDir}/build/gcc.release"
+    },
+    {
+      "name": "gcc.debug.ninja",
+      "description": "GCC debug build on Linux using Ninja generator",
+      "inherits" : [ "gcc", "linux", "ninja" ],
+      "binaryDir": "${sourceDir}/build/gcc.debug"
+    },
+    {
+      "name": "gcc.profile.ninja",
+      "description": "GCC debug profile on Linux using Ninja generator",
+      "inherits" : [ "gcc", "profile", "ninja" ],
+      "binaryDir": "${sourceDir}/build/gcc.profile"
+    },
+    {
+      "name": "gcc.release.ninja",
       "description": "GCC release build on Linux using Ninja generator",
       "inherits" : [ "gcc", "release", "linux", "ninja" ],
       "binaryDir": "${sourceDir}/build/gcc.release"

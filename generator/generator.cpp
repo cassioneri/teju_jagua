@@ -591,19 +591,6 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
     "\n";
 
   stream <<
-    "enum {\n"
-    "  is_compact    = " << is_compact()    << ",\n"
-    "  size          = " << size()          << ",\n"
-    "  mantissa_size = " << mantissa_size() << ",\n"
-    "  exponent_min  = " << exponent_min()  << ",\n"
-    "  index_offset  = " << index_offset()  << ",\n"
-    // Instead of Amaru dividing multipliy_and_shift(m_a, upper, lower) by 2
-    // we increment the shift here so this has the same effect.
-    "  shift         = " << shift + 1       << "\n"
-    "};\n"
-    "\n";
-
-  stream <<
     "static struct {\n"
     "  amaru" << size() << "_limb1_t const upper;\n"
     "  amaru" << size() << "_limb1_t const lower;\n"

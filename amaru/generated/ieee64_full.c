@@ -26,15 +26,6 @@ static amaru_data_t const amaru_data = {
   }
 };
 
-enum {
-  is_compact    = 0,
-  size          = 64,
-  mantissa_size = 52,
-  exponent_min  = -1074,
-  index_offset  = -1074,
-  shift         = 116
-};
-
 static struct {
   amaru64_limb1_t const upper;
   amaru64_limb1_t const lower;

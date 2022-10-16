@@ -66,8 +66,8 @@ amaru_fields_t remove_trailing_zeros(bool const negative, int32_t exponent,
 
 #if AMARU_MAX_LIMBS >= 2
 static inline
-amaru_limb1_t multipliy_and_shift(amaru_limb1_t const m, amaru_limb1_t const upper,
-  amaru_limb1_t const lower) {
+amaru_limb1_t multipliy_and_shift(amaru_limb1_t const m,
+  amaru_limb1_t const upper, amaru_limb1_t const lower) {
   amaru_limb2_t const upper_m = ((amaru_limb2_t) upper) * m;
   amaru_limb2_t const lower_m = ((amaru_limb2_t) lower) * m;
   return (upper_m + (lower_m >> size)) >> (shift - size);

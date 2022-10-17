@@ -8,10 +8,10 @@
 typedef amaru32_limb1_t amaru_limb1_t;
 #if AMARU_MAX_LIMBS >= 2
 typedef amaru32_limb2_t amaru_limb2_t;
-#elif AMARU_MAX_LIMBS >= 4
+#endif
+#if AMARU_MAX_LIMBS >= 4
 typedef amaru32_limb4_t amaru_limb4_t;
 #endif
-
 typedef amaru32_fields_t amaru_fields_t;
 
 #elif AMARU_SIZE == 64
@@ -21,7 +21,8 @@ typedef amaru32_fields_t amaru_fields_t;
 typedef amaru64_limb1_t amaru_limb1_t;
 #if AMARU_MAX_LIMBS >= 2
 typedef amaru64_limb2_t amaru_limb2_t;
-#elif AMARU_MAX_LIMBS >= 4
+#endif
+#if AMARU_MAX_LIMBS >= 4
 typedef amaru64_limb4_t amaru_limb4_t;
 #endif
 typedef amaru64_fields_t amaru_fields_t;

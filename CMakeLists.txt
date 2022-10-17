@@ -6,11 +6,16 @@ cmake_minimum_required(VERSION 3.1)
 
 project(amaru
   VERSION 1.0
-  DESCRIPTION "The Incan dragon-like creature which comes from the underworld \
-    to help us efficiently finding decimal representations of float point \
-    numbers."
+  DESCRIPTION "The Incan dragon-like creature which comes from the \
+    underworld to help us efficiently finding decimal representations of \
+    float point numbers."
   LANGUAGES C CXX
 )
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
+  CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  add_compile_options(-mpreferred-stack-boundary=6)
+endif()
 
 add_subdirectory(amaru)
 add_subdirectory(benchmark)

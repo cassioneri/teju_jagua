@@ -124,7 +124,6 @@ from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::limb_t mantissa) {
 }
 
 template <typename T>
-__attribute__((noinline))
 double
 benchmark(T value, void (*function)(T), std::uint32_t n_iterations) {
 

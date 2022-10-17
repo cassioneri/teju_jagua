@@ -4,6 +4,7 @@
 #include "other/other.hpp"
 
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <limits>
@@ -13,38 +14,31 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-// Welford's online algorithm
-// https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
 struct stats_t {
 
   void
-  update(double const x) {
-    ++count_;
-    auto const delta    = x - mean_;
-    mean_              += delta / count_;
-    auto const delta2   = x - mean_;
-    m2_                += delta * delta2;
+  update(std::uint64_t const x) {
+    n_              += 1;
+    sum_            += x;
+    sum_of_squares_ += x * x;
   }
 
-  double
+  std::uint64_t
   mean() const {
-    return mean_;
+    return sum_ / n_;
   }
 
-  double
-  variance() const {
-    return m2_ / (count_ - 1);
-  }
-
-  double
+  std::uint64_t
   stddev() const {
-    return sqrt(variance());
+    auto const num = n_ * sum_of_squares_ - sum_ * sum_;
+    auto const den = n_ * (n_ - 1);
+    return std::sqrt(double(num) / double(den));
   }
 
 private:
-  std::uint64_t count_ = 0;
-  double        mean_  = 0;
-  double        m2_    = 0;
+  std::uint64_t n_              = 0;
+  std::uint64_t sum_            = 0;
+  std::uint64_t sum_of_squares_ = 0;
 };
 
 template <typename>
@@ -124,21 +118,27 @@ from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::limb_t mantissa) {
 }
 
 template <typename T>
-double
+std::uint64_t
 benchmark(T value, void (*function)(T), std::uint32_t n_iterations) {
 
   using clock_t = std::chrono::steady_clock;
-  using tickt_t = clock_t::period;
+  auto minimum = std::uint64_t(-1);
 
-  for (auto n = 20; n != 0; --n)
+  for (auto n = n_iterations / 8; n != 0; --n) {
+    auto const start = clock_t::now();
     function(value);
-
-  auto const start = clock_t::now();
-  for (auto n = n_iterations; n != 0; --n)
     function(value);
-  auto const end = clock_t::now();
-
-  return double((end - start).count()) / n_iterations;
+    function(value);
+    function(value);
+    function(value);
+    function(value);
+    function(value);
+    function(value);
+    auto const end = clock_t::now();
+    auto const dt = std::uint64_t((end - start).count());
+    minimum = std::min(minimum, 1000 * dt / 8);
+  }
+  return minimum;
 }
 
 template <typename T>
@@ -146,8 +146,8 @@ void
 benchmark() {
 
   std::cout.precision(std::numeric_limits<T>::digits10 + 2);
-  std::cout << "exponent, mantissa, integer, value, amaru\\\\_compact, "
-    "amaru\\\\_full, dragonbox\\\\_compact, dragonbox\\\\_full\n";
+//   std::cout << "exponent, mantissa, integer, value, amaru\\\\_compact, "
+//     "amaru\\\\_full, dragonbox\\\\_compact, dragonbox\\\\_full\n";
 
   using traits_t          = fp_traits_t<T>;
   using limb_t            = typename traits_t::limb_t;
@@ -157,7 +157,7 @@ benchmark() {
   std::mt19937_64 device;
   auto dist = std::uniform_int_distribution<limb_t> {1, mantissa_max};
 
-  auto           n_mantissas  = std::uint32_t{50};
+  auto           n_mantissas  = std::uint32_t{1000};
   auto constexpr n_iterations = std::uint32_t{1024};
 
   stats_t amaru_compact_stats, amaru_full_stats, dragonbox_compact_stats,
@@ -190,44 +190,47 @@ benchmark() {
         &traits_t::dragonbox_full, n_iterations);
       dragonbox_full_stats.update(dragonbox_full);
 
-      limb_t integer;
-      std::memcpy(&integer, &value, sizeof(value));
-
-      std::cout <<
-        exponent          << ", " <<
-        mantissa          << ", " <<
-        integer           << ", " <<
-        value             << ", " <<
-        amaru_compact     << ", " <<
-        amaru_full        << ", " <<
-        dragonbox_compact << ", " <<
-        dragonbox_full    << "\n";
+//       limb_t integer;
+//       std::memcpy(&integer, &value, sizeof(value));
+//
+//       std::cout <<
+//         exponent                  << ", " <<
+//         mantissa                  << ", " <<
+//         integer                   << ", " <<
+//         value                     << ", " <<
+//         0.001 * amaru_compact     << ", " <<
+//         0.001 * amaru_full        << ", " <<
+//         0.001 * dragonbox_compact << ", " <<
+//         0.001 * dragonbox_full    << "\n";
     }
   }
 
   auto const baseline = std::min(amaru_compact_stats.mean(),
     amaru_full_stats.mean());
 
-  std::cerr <<
-    "amaru_compact     (mean)   = " << amaru_compact_stats    .mean  () << "\n"
-    "amaru_compact     (stddev) = " << amaru_compact_stats    .stddev() << "\n"
-    "amaru_compact     (rel.)   = " <<
-      amaru_compact_stats.mean() / baseline << "\n"
+  auto const print = [](const char* m, uint64_t const n) {
+    std::cerr << m << 0.001 * n << '\n';
+  };
 
-    "amaru_full        (mean)   = " << amaru_full_stats       .mean  () << "\n"
-    "amaru_full        (stddev) = " << amaru_full_stats       .stddev() << "\n"
-    "amaru_full        (rel.)   = " <<
-      amaru_full_stats.mean() / baseline << "\n"
+  print("amaru_compact     (mean)   = ", amaru_compact_stats.mean  ());
+  print("amaru_compact     (stddev) = ", amaru_compact_stats.stddev());
+  print("amaru_compact     (rel.)   = ", 1000 *
+    amaru_compact_stats.mean() / baseline);
 
-    "dragonbox_compact (mean)   = " << dragonbox_compact_stats.mean  () << "\n"
-    "dragonbox_compact (stddev) = " << dragonbox_compact_stats.stddev() << "\n"
-    "dragonbox_compact (rel.)   = " <<
-      dragonbox_compact_stats.mean() / baseline << "\n"
+  print("amaru_full        (mean)   = ", amaru_full_stats.mean  ());
+  print("amaru_full        (stddev) = ", amaru_full_stats.stddev());
+  print("amaru_full        (rel.)   = ", 1000 *
+    amaru_full_stats.mean() / baseline);
 
-    "dragonbox_full    (mean)   = " << dragonbox_full_stats   .mean  () << "\n"
-    "dragonbox_full    (stddev) = " << dragonbox_full_stats   .stddev() << "\n"
-    "dragonbox_full    (rel.)   = " <<
-      dragonbox_full_stats.mean() / baseline << '\n';
+  print("dragonbox_compact (mean)   = ", dragonbox_compact_stats.mean  ());
+  print("dragonbox_compact (stddev) = ", dragonbox_compact_stats.stddev());
+  print("dragonbox_compact (rel.)   = ", 1000 *
+    dragonbox_compact_stats.mean() / baseline);
+
+  print("dragonbox_full    (mean)   = ", dragonbox_full_stats.mean  ());
+  print("dragonbox_full    (stddev) = ", dragonbox_full_stats.stddev());
+  print("dragonbox_full    (rel.)   = ", 1000 *
+    dragonbox_full_stats.mean() / baseline);
 }
 
 int main() {
@@ -249,5 +252,5 @@ int main() {
   // 2) Disable the other CPU:
   //      sudo /bin/bash -c "echo 0 > /sys/devices/system/cpu/cpu6/online"
 
-  benchmark<double>();
+  benchmark<float>();
 }

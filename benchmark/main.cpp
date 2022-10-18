@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <limits>
 #include <iostream>
 #include <random>
@@ -152,10 +153,12 @@ benchmark(T value, void (*function)(T)) {
 
 template <typename T>
 void
-benchmark() {
+benchmark(const char* filename) {
 
-  std::cout.precision(std::numeric_limits<T>::digits10 + 2);
-  std::cout << "exponent, mantissa, integer, value, amaru\\\\_compact, "
+  auto out = std::ofstream{filename};
+
+  out.precision(std::numeric_limits<T>::digits10 + 2);
+  out << "exponent, mantissa, integer, value, amaru\\\\_compact, "
     "amaru\\\\_full, dragonbox\\\\_compact, dragonbox\\\\_full\n";
 
   using traits_t          = fp_traits_t<T>;
@@ -198,15 +201,15 @@ benchmark() {
       limb_t integer;
       std::memcpy(&integer, &value, sizeof(value));
 
-//       std::cout <<
-//         exponent                  << ", " <<
-//         mantissa                  << ", " <<
-//         integer                   << ", " <<
-//         value                     << ", " <<
-//         0.001 * amaru_compact     << ", " <<
-//         0.001 * amaru_full        << ", " <<
-//         0.001 * dragonbox_compact << ", " <<
-//         0.001 * dragonbox_full    << "\n";
+      out <<
+        exponent                  << ", " <<
+        mantissa                  << ", " <<
+        integer                   << ", " <<
+        value                     << ", " <<
+        0.001 * amaru_compact     << ", " <<
+        0.001 * amaru_full        << ", " <<
+        0.001 * dragonbox_compact << ", " <<
+        0.001 * dragonbox_full    << "\n";
     }
   }
 
@@ -214,7 +217,7 @@ benchmark() {
     amaru_full_stats.mean());
 
   auto const print = [](const char* m, uint64_t const n) {
-    std::cerr << m << 0.001 * n << '\n';
+    std::cout << m << 0.001 * n << '\n';
   };
 
   print("amaru_compact     (mean)   = ", amaru_compact_stats.mean  ());
@@ -274,7 +277,7 @@ int main(int argc, char const* const argv[]) {
   //      sudo /bin/bash -c "echo 0 > /sys/devices/system/cpu/cpu6/online"
 
   if (is_double)
-    benchmark<double>();
+    benchmark<double>("double.csv");
   else
-    benchmark<float>();
+    benchmark<float>("float.csv");
 }

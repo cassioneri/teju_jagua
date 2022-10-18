@@ -6,6 +6,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <limits>
 #include <iostream>
@@ -154,8 +155,8 @@ void
 benchmark() {
 
   std::cout.precision(std::numeric_limits<T>::digits10 + 2);
-//   std::cout << "exponent, mantissa, integer, value, amaru\\\\_compact, "
-//     "amaru\\\\_full, dragonbox\\\\_compact, dragonbox\\\\_full\n";
+  std::cout << "exponent, mantissa, integer, value, amaru\\\\_compact, "
+    "amaru\\\\_full, dragonbox\\\\_compact, dragonbox\\\\_full\n";
 
   using traits_t          = fp_traits_t<T>;
   using limb_t            = typename traits_t::limb_t;
@@ -194,9 +195,9 @@ benchmark() {
         &traits_t::dragonbox_full);
       dragonbox_full_stats.update(dragonbox_full);
 
-//       limb_t integer;
-//       std::memcpy(&integer, &value, sizeof(value));
-//
+      limb_t integer;
+      std::memcpy(&integer, &value, sizeof(value));
+
 //       std::cout <<
 //         exponent                  << ", " <<
 //         mantissa                  << ", " <<
@@ -237,7 +238,23 @@ benchmark() {
     dragonbox_full_stats.mean() / baseline);
 }
 
-int main() {
+int main(int argc, char const* const argv[]) {
+
+  auto is_double = true;
+
+  while (--argc) {
+
+    if (std::strncmp(argv[argc], "-h", 2) == 0) {
+      std::cout << "usage...\n";
+      std::exit(0);
+    }
+
+    else if (std::strncmp(argv[argc], "-d", 2) == 0)
+      is_double = true;
+
+    else if (std::strncmp(argv[argc], "-f", 2) == 0)
+      is_double = false;
+  }
 
   // Disable CPU Frequency Scaling:
   //     $ sudo cpupower frequency-set --governor performance
@@ -256,5 +273,8 @@ int main() {
   // 2) Disable the other CPU:
   //      sudo /bin/bash -c "echo 0 > /sys/devices/system/cpu/cpu6/online"
 
-  benchmark<float>();
+  if (is_double)
+    benchmark<double>();
+  else
+    benchmark<float>();
 }

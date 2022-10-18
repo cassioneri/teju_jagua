@@ -121,11 +121,14 @@ template <typename T>
 std::uint64_t
 benchmark(T value, void (*function)(T)) {
 
-  auto minimum = std::uint64_t(-1);
+  using clock_t = std::chrono::steady_clock;
+  static_assert(std::is_same<clock_t::duration, std::chrono::nanoseconds>{},
+    "Unsupported clock resolution.");
+
+  auto minimum = std::uint64_t( -1);
   auto n       = std::uint32_t(256);
 
   do {
-    using clock_t     = std::chrono::steady_clock;
     auto  const start = clock_t::now();
     function(value);
     function(value);

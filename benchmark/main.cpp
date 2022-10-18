@@ -119,13 +119,14 @@ from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::limb_t mantissa) {
 
 template <typename T>
 std::uint64_t
-benchmark(T value, void (*function)(T), std::uint32_t n_iterations) {
+benchmark(T value, void (*function)(T)) {
 
-  using clock_t = std::chrono::steady_clock;
   auto minimum = std::uint64_t(-1);
+  auto n       = std::uint32_t(256);
 
-  for (auto n = n_iterations / 8; n != 0; --n) {
-    auto const start = clock_t::now();
+  do {
+    using clock_t     = std::chrono::steady_clock;
+    auto  const start = clock_t::now();
     function(value);
     function(value);
     function(value);
@@ -135,9 +136,13 @@ benchmark(T value, void (*function)(T), std::uint32_t n_iterations) {
     function(value);
     function(value);
     auto const end = clock_t::now();
-    auto const dt = std::uint64_t((end - start).count());
-    minimum = std::min(minimum, 1000 * dt / 8);
-  }
+    auto const dt  = 1000 * std::uint64_t((end - start).count()) / 8;
+    if (dt < minimum) {
+      minimum = dt;
+      n = 256;
+    }
+  } while (n--);
+
   return minimum;
 }
 
@@ -158,7 +163,6 @@ benchmark() {
   auto dist = std::uniform_int_distribution<limb_t> {1, mantissa_max};
 
   auto           n_mantissas  = std::uint32_t{1000};
-  auto constexpr n_iterations = std::uint32_t{1024};
 
   stats_t amaru_compact_stats, amaru_full_stats, dragonbox_compact_stats,
     dragonbox_full_stats;
@@ -174,20 +178,18 @@ benchmark() {
 
       auto const value = from_ieee<T>(exponent, mantissa);
 
-      auto const amaru_compact = benchmark(value,
-        &traits_t::amaru_compact, n_iterations);
+      auto const amaru_compact = benchmark(value, &traits_t::amaru_compact);
       amaru_compact_stats.update(amaru_compact);
 
-      auto const amaru_full = benchmark(value,
-        &traits_t::amaru_full, n_iterations);
+      auto const amaru_full = benchmark(value, &traits_t::amaru_full);
       amaru_full_stats.update(amaru_full);
 
       auto const dragonbox_compact = benchmark(value,
-        &traits_t::dragonbox_compact, n_iterations);
+        &traits_t::dragonbox_compact);
       dragonbox_compact_stats.update(dragonbox_compact);
 
       auto const dragonbox_full = benchmark(value,
-        &traits_t::dragonbox_full, n_iterations);
+        &traits_t::dragonbox_full);
       dragonbox_full_stats.update(dragonbox_full);
 
 //       limb_t integer;

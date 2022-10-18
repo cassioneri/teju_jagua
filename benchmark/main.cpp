@@ -164,16 +164,15 @@ benchmark() {
 
   std::mt19937_64 device;
   auto dist = std::uniform_int_distribution<limb_t> {1, mantissa_max};
-
-  auto           n_mantissas  = std::uint32_t{1000};
+  auto n    = std::uint32_t{256};
 
   stats_t amaru_compact_stats, amaru_full_stats, dragonbox_compact_stats,
     dragonbox_full_stats;
 
-  while (n_mantissas--) {
+  while (n--) {
 
     // Force mantissa = 0 to be in the set.
-    auto const mantissa = n_mantissas == 0 ? 0 : dist(device);
+    auto const mantissa = n == 0 ? 0 : dist(device);
 
     // If exponent == exponent_max, then value is infinity or NaN. Hence, we
     // exclude exponent_max.

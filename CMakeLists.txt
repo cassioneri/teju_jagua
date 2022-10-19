@@ -12,8 +12,7 @@ project(amaru
   LANGUAGES C CXX
 )
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
-  CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_options(-mpreferred-stack-boundary=6)
 endif()
 

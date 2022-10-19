@@ -120,6 +120,9 @@ from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::limb_t mantissa) {
 }
 
 template <typename T>
+#if defined(__GNUC__) && !defined(__clang__)
+__attribute__((optimize("-falign-loops=32")))
+#endif
 std::uint64_t
 benchmark(T value, void (*function)(T)) {
 

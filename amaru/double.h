@@ -17,12 +17,6 @@ amaru_from_double_to_decimal_compact(double value);
 amaru64_fields_t
 amaru_from_double_to_decimal_full(double value);
 
-uint32_t
-amaru_from_double_to_string_compact(double value, char* str);
-
-uint32_t
-amaru_from_double_to_string_full(double value, char* str);
-
 #ifdef __cplusplus
 }
 #endif

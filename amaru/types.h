@@ -18,7 +18,6 @@ typedef __uint128_t amaru32_limb4_t;
 #endif
 
 typedef struct {
-  bool            is_negative;
   int32_t         exponent;
   amaru32_limb1_t mantissa;
 } amaru32_fields_t;
@@ -32,7 +31,6 @@ typedef __uint128_t amaru64_limb2_t;
 #endif
 
 typedef struct {
-  bool            is_negative;
   int32_t         exponent;
   amaru64_limb1_t mantissa;
 } amaru64_fields_t;

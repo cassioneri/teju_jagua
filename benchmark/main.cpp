@@ -178,14 +178,18 @@ benchmark(const char* filename) {
 
   while (n--) {
 
-    // Force mantissa = 0 to be in the set.
+    // Forces mantissa = 0 to be in the sample.
     auto const mantissa = n == 0 ? 0 : dist(device);
 
-    // If exponent == exponent_max, then value is infinity or NaN. Hence, we
-    // exclude exponent_max.
+    // Avoids exponent == exponent_max, since the corresponding value is
+    // infinity or NaN.
     for (std::uint32_t exponent = 0; exponent < exponent_max; ++exponent) {
 
       auto const value = from_ieee<T>(exponent, mantissa);
+
+      // This case is not covered by the algorithms.
+      if (value == T{0})
+        continue;
 
       auto const amaru_compact = benchmark(value, &traits_t::amaru_compact);
       amaru_compact_stats.update(amaru_compact);

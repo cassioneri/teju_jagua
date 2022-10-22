@@ -17,9 +17,6 @@ amaru_from_float_to_decimal_compact(float value);
 amaru32_fields_t
 amaru_from_float_to_decimal_full(float value);
 
-uint32_t
-amaru_from_float_to_string_compact(float value, char* str);
-
 #ifdef __cplusplus
 }
 #endif

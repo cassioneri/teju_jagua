@@ -241,7 +241,7 @@ struct fp_traits_t<double> {
 template <typename T>
 void compare_to_other(T const value) {
 
-  using          traits_t = fp_traits_t<T>;
+  using          traits_t      = fp_traits_t<T>;
   auto constexpr digits        = std::numeric_limits<T>::digits10 + 2;
   auto const     amaru_compact = traits_t::amaru_compact(value);
   auto const     amaru_full    = traits_t::amaru_full(value);

@@ -360,7 +360,7 @@ generator_t::self() const {
 generator_t::generator_t(config_t config, std::string directory) :
   config_      {std::move(config)                            },
   fields_      {get_fields(self().size())                    },
-  function_    {"amaru_binary_to_decimal_" + self().id()     },
+  function_    {"amaru_" + self().id()                       },
   mantissa_min_{AMARU_POW2(integer_t, self().mantissa_size())},
   mantissa_max_{2 * self().mantissa_min()                    },
   index_offset_{get_index_offset(self().storage_base(),
@@ -502,9 +502,9 @@ generator_t::impl_t::generate_dot_h(std::ostream& stream) const {
     "#ifdef __cplusplus\n"
     "extern \"C\" {\n"
     "#endif\n"
-    "\n" <<
-      fields() << ' ' << function() << "(bool is_negative, "
-      "int32_t exponent, amaru" << size() << "_limb1_t mantissa);\n"
+    "\n" << fields() << '\n' <<
+    function() << "(int32_t exponent, amaru" << size() << "_limb1_t "
+      "mantissa);\n"
     "\n" <<
     "#ifdef __cplusplus\n"
     "}\n"

@@ -41,14 +41,13 @@ extern "C" {
 #endif
 
 static inline
-amaru_fields_t make_decimal(bool const is_negative, int32_t exponent,
-  amaru_limb1_t mantissa) {
-  amaru_fields_t const decimal = { is_negative, exponent, mantissa };
+amaru_fields_t make_decimal(int32_t exponent, amaru_limb1_t mantissa) {
+  amaru_fields_t const decimal = { exponent, mantissa };
   return decimal;
 }
 
 static inline
-amaru_fields_t remove_trailing_zeros(bool const negative, int32_t exponent,
+amaru_fields_t remove_trailing_zeros(int32_t exponent,
   amaru_limb1_t mantissa) {
 
   amaru_limb1_t const minv5 = -(((amaru_limb1_t) -1) / 5);
@@ -62,7 +61,7 @@ amaru_fields_t remove_trailing_zeros(bool const negative, int32_t exponent,
     mantissa = product / 2;
     product  = mantissa * minv5;
   }
-  return make_decimal(negative, exponent, mantissa);
+  return make_decimal(exponent, mantissa);
 }
 
 #if AMARU_MAX_LIMBS >= 2
@@ -82,7 +81,7 @@ bool is_multiple_of_pow5(amaru_limb1_t const m, int32_t const f) {
     m * minverse[f].multiplier <= minverse[f].bound;
 }
 
-amaru_fields_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
+amaru_fields_t AMARU_FUNCTION(int32_t const exponent,
   amaru_limb1_t const mantissa) {
 
   amaru_limb1_t const mantissa_min = AMARU_POW2(amaru_limb1_t,
@@ -112,26 +111,26 @@ amaru_fields_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
 
     else if (s == b) {
       if (mantissa % 2 == 0 || !is_multiple_of_pow5(m_b, f))
-        return remove_trailing_zeros(is_negative, f, s);
+        return remove_trailing_zeros(f, s);
     }
 
     else if (s > a)
-      return remove_trailing_zeros(is_negative, f, s);
+      return remove_trailing_zeros(f, s);
 
     else /* s == a */ if (mantissa % 2 == 0 && is_multiple_of_pow5(m_a, f))
-       return remove_trailing_zeros(is_negative, f, s);
+       return remove_trailing_zeros(f, s);
 
     if ((a ^ b) % 2 == 1)
-      return make_decimal(is_negative, f, (a + b) / 2 + 1);
+      return make_decimal(f, (a + b) / 2 + 1);
 
     amaru_limb1_t const m_c = 2 * 2 * mantissa;
     amaru_limb1_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower);
     amaru_limb1_t const c   = c_2 / 2;
 
     if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f)))
-      return make_decimal(is_negative, f, c);
+      return make_decimal(f, c);
 
-    return make_decimal(is_negative, f, c + 1);
+    return make_decimal(f, c + 1);
   }
 
   amaru_limb1_t const m_b = 2 * mantissa_min + 1;
@@ -146,16 +145,16 @@ amaru_fields_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
     amaru_limb1_t const s = 10 * ((inv10 * b) >> amaru_data.size);
 
     if (s >= a)
-      return remove_trailing_zeros(is_negative, f, s);
+      return remove_trailing_zeros(f, s);
 
     amaru_limb1_t const m_c = 2 * 2 * mantissa_min;
     amaru_limb1_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower);
     amaru_limb1_t const c   = c_2 / 2;
 
     if (c < a || (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2, -f))))
-      return make_decimal(is_negative, f, c + 1);
+      return make_decimal(f, c + 1);
 
-    return make_decimal(is_negative, f, c);
+    return make_decimal(f, c);
   }
 
   amaru_limb1_t const m_c = 2 * 20 * mantissa_min;
@@ -163,9 +162,9 @@ amaru_fields_t AMARU_FUNCTION(bool const is_negative, int32_t const exponent,
   amaru_limb1_t const c   = c_2 / 2;
 
   if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2, -f)))
-    return make_decimal(is_negative, f - 1, c + 1);
+    return make_decimal(f - 1, c + 1);
 
-  return make_decimal(is_negative, f - 1, c);
+  return make_decimal(f - 1, c);
 }
 
 #ifdef __cplusplus

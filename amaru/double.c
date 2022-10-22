@@ -1,7 +1,6 @@
 #include "amaru/common.h"
 #include "amaru/double.h"
 
-#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -16,12 +15,6 @@ enum {
   exponent_min  = -1074
 };
 
-static amaru64_fields_t
-zero(bool const is_negative) {
-  amaru64_fields_t result = { is_negative, 0, 0 };
-  return result;
-}
-
 amaru64_fields_t
 amaru_from_double_to_fields(double const value) {
 
@@ -34,8 +27,6 @@ amaru_from_double_to_fields(double const value) {
   binary.mantissa = AMARU_LSB(bits, mantissa_size);
   bits >>= mantissa_size;
   binary.exponent = AMARU_LSB(bits, exponent_size);
-  bits >>= exponent_size;
-  binary.is_negative = bits;
 
   return binary;
 }
@@ -43,9 +34,6 @@ amaru_from_double_to_fields(double const value) {
 amaru64_fields_t
 amaru_from_double_to_decimal_compact(double const value) {
 
-  if (value == 0)
-    return zero(signbit(value));
-
   // Conversion to Amaru's binary representation.
 
   amaru64_fields_t binary        = amaru_from_double_to_fields(value);
@@ -57,16 +45,12 @@ amaru_from_double_to_decimal_compact(double const value) {
     binary.exponent -= 1;
   }
 
-  return amaru_binary_to_decimal_ieee64_compact(binary.is_negative,
-    binary.exponent, binary.mantissa);
+  return amaru_ieee64_compact(binary.exponent, binary.mantissa);
 }
 
 amaru64_fields_t
 amaru_from_double_to_decimal_full(double const value) {
 
-  if (value == 0)
-    return zero(signbit(value));
-
   // Conversion to Amaru's binary representation.
 
   amaru64_fields_t binary        = amaru_from_double_to_fields(value);
@@ -78,20 +62,7 @@ amaru_from_double_to_decimal_full(double const value) {
     binary.exponent -= 1;
   }
 
-  return amaru_binary_to_decimal_ieee64_full(binary.is_negative,
-    binary.exponent, binary.mantissa);
-}
-
-uint32_t
-amaru_from_double_to_string_compact(double const value, char* str) {
-  (void) value, (void) str;
-  return 0;
-}
-
-uint32_t
-amaru_from_double_to_string_full(double const value, char* str) {
-  (void) value, (void) str;
-  return 0;
+  return amaru_ieee64_full(binary.exponent, binary.mantissa);
 }
 
 #ifdef __cplusplus

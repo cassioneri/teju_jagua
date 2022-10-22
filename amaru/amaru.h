@@ -124,19 +124,19 @@ amaru_fields_t AMARU_FUNCTION(int32_t const exponent,
 
     amaru_limb1_t const s   = 10 * ((inv10 * b) >> amaru_data.size);
 
-    if (s < a)
-      ;
+    if (s >= a) {
 
-    else if (s == b) {
-      if (mantissa % 2 == 0 || !is_multiple_of_pow5(m_b, f))
+      if (s == b) {
+        if (mantissa % 2 == 0 || !is_multiple_of_pow5(m_b, f))
+          return remove_trailing_zeros(f, s);
+      }
+
+      else if (s > a)
+        return remove_trailing_zeros(f, s);
+
+      else if (mantissa % 2 == 0 && is_multiple_of_pow5(m_a, f)) // s == a
         return remove_trailing_zeros(f, s);
     }
-
-    else if (s > a)
-      return remove_trailing_zeros(f, s);
-
-    else if (mantissa % 2 == 0 && is_multiple_of_pow5(m_a, f)) // s == a
-       return remove_trailing_zeros(f, s);
 
     if ((a ^ b) % 2 == 1)
       return make_decimal(f, (a + b) / 2 + 1);

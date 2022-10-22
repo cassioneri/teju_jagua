@@ -47,20 +47,38 @@ amaru_fields_t make_decimal(int32_t exponent, amaru_limb1_t mantissa) {
 }
 
 static inline
+amaru_limb1_t rotr(amaru_limb1_t const n, unsigned s) {
+  return (n >> s) | (n << (amaru_data.size - s));
+}
+
+static inline
 amaru_fields_t remove_trailing_zeros(int32_t exponent,
   amaru_limb1_t mantissa) {
 
-  amaru_limb1_t const minv5 = -(((amaru_limb1_t) -1) / 5);
+  amaru_limb1_t const minv5  = -(((amaru_limb1_t) -1) / 5);
+  amaru_limb1_t const minv25 = minv5 * minv5;
+  amaru_limb1_t const inv10  = ((amaru_limb1_t) -1) / 10;
+  amaru_limb1_t const inv100 = ((amaru_limb1_t) -1) / 100;
 
   mantissa = (mantissa * minv5) / 2;
   ++exponent;
 
-  amaru_limb1_t product = mantissa * minv5;
-  while (product % 2 == 0 && product <= -minv5) {
-    ++exponent;
-    mantissa = product / 2;
-    product  = mantissa * minv5;
+  while (true) {
+
+    amaru_limb1_t const n = rotr(minv25 * mantissa, 2);
+    if (n > inv100)
+      break;
+
+    exponent += 2;
+    mantissa = n;
   }
+
+  amaru_limb1_t const n = rotr(minv5 * mantissa, 1);
+  if (n <= inv10) {
+    ++exponent;
+    mantissa = n;
+  }
+
   return make_decimal(exponent, mantissa);
 }
 

@@ -171,7 +171,7 @@ benchmark(const char* filename) {
 
   std::mt19937_64 device;
   auto dist = std::uniform_int_distribution<limb_t> {1, mantissa_max};
-  auto n    = std::uint32_t{1};
+  auto n    = std::uint32_t{256};
 
   stats_t amaru_compact_stats, amaru_full_stats, dragonbox_compact_stats,
     dragonbox_full_stats;

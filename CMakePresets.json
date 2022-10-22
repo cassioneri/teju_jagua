@@ -110,7 +110,7 @@
     },
     {
       "name": "gcc.profile.make",
-      "description": "GCC profile profile on Linux using Make generator",
+      "description": "GCC profile build on Linux using Make generator",
       "inherits" : [ "gcc", "profile", "make" ],
       "binaryDir": "${sourceDir}/build/gcc.profile"
     },
@@ -128,14 +128,14 @@
     },
     {
       "name": "gcc.profile.ninja",
-      "description": "GCC debug profile on Linux using Ninja generator",
+      "description": "GCC profile build on Linux using Ninja generator",
       "inherits" : [ "gcc", "profile", "ninja" ],
       "binaryDir": "${sourceDir}/build/gcc.profile"
     },
     {
       "name": "gcc.release.ninja",
       "description": "GCC release build on Linux using Ninja generator",
-      "inherits" : [ "gcc", "release", "linux", "ninja" ],
+      "inherits" : [ "gcc", "release", "ninja" ],
       "binaryDir": "${sourceDir}/build/gcc.release"
     }
   ]

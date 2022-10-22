@@ -252,6 +252,11 @@ void compare_to_other(T const value) {
     "value = " << std::setprecision(digits) << value << ", "
     "ieee.exponent = " << ieee.exponent << ", "
     "ieee.mantissa = " << ieee.mantissa;
+
+  EXPECT_EQ(traits_t::mantissa(other), amaru_full.mantissa) << "Note: "
+    "value = " << std::setprecision(digits) << value << ", "
+    "ieee.exponent = " << ieee.exponent << ", "
+    "ieee.mantissa = " << ieee.mantissa;
 }
 
 TEST(float_tests, exhaustive_comparison_to_other) {
@@ -323,8 +328,28 @@ TEST(double_tests, random_comparison_to_other) {
   }
 }
 
-TEST(ad_hoc_test, a_particular_case) {
-  auto const value = 1.f;
+template <typename T>
+T
+from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::limb_t mantissa) {
+
+  using        traits_t = fp_traits_t<T>;
+  using        limb_t   = typename traits_t::limb_t;
+  limb_t const i        = (limb_t(exponent) << traits_t::mantissa_size) |
+    mantissa;
+
+  T value;
+  std::memcpy(&value, &i, sizeof(i));
+
+  return value;
+}
+
+TEST(ad_hoc_test, a_particular_case_value) {
+  auto const value = 1.0f;
+  compare_to_other(value);
+}
+
+TEST(ad_hoc_test, a_particular_case_fields) {
+  auto const value = from_ieee<float>(127, 0); // = 1.0f
   compare_to_other(value);
 }
 

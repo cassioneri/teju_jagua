@@ -175,11 +175,6 @@ struct fp_traits_t<float> {
     return amaru::dragonbox_full::to_decimal(value);
   }
 
-  static bool
-  is_negative(other_fields_t fields) {
-    return bool{fields.is_negative};
-  }
-
   static std::int32_t
   exponent(other_fields_t fields) {
     return std::int32_t{fields.exponent};
@@ -220,11 +215,6 @@ struct fp_traits_t<double> {
   static other_fields_t
   other(double const value) {
     return amaru::dragonbox_full::to_decimal(value);
-  }
-
-  static bool
-  is_negative(other_fields_t fields) {
-    return bool{fields.is_negative};
   }
 
   static std::int32_t

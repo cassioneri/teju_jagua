@@ -162,17 +162,8 @@ amaru_fields_t AMARU_FUNCTION(int32_t const exponent,
 
     amaru_limb1_t const s = 10 * ((inv10 * b) >> amaru_data.size);
 
-    if (s >= a) {
-
-      if (s == b)
-        return remove_trailing_zeros(f, s);
-
-      else if (s > a)
-        return remove_trailing_zeros(f, s);
-
-      else if (is_multiple_of_pow5(m_a, f))
-        return remove_trailing_zeros(f, a);
-    }
+    if (s > a || (s == a && is_multiple_of_pow5(m_a, f)))
+      return remove_trailing_zeros(f, s);
 
     amaru_limb1_t const m_c = 2 * 2 * mantissa_min;
     amaru_limb1_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower);

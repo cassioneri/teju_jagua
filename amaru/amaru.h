@@ -117,7 +117,7 @@ amaru_fields_t AMARU_FUNCTION(int32_t const exponent,
     else if (s > a)
       return remove_trailing_zeros(f, s);
 
-    else /* s == a */ if (mantissa % 2 == 0 && is_multiple_of_pow5(m_a, f))
+    else if (mantissa % 2 == 0 && is_multiple_of_pow5(m_a, f)) // s == a
        return remove_trailing_zeros(f, s);
 
     if ((a ^ b) % 2 == 1)
@@ -137,24 +137,44 @@ amaru_fields_t AMARU_FUNCTION(int32_t const exponent,
   amaru_limb1_t const b   = multipliy_and_shift(m_b << extra, upper, lower);
 
   amaru_limb1_t const m_a = 4 * mantissa_min - 1;
-  amaru_limb1_t const a   = multipliy_and_shift(m_a << extra, upper, lower) / 2
-    + !is_multiple_of_pow5(m_a, f);
+  amaru_limb1_t const a   = multipliy_and_shift(m_a << extra, upper, lower)
+    / 2;
 
-  if (b >= a) {
+  if (b > a) {
 
     amaru_limb1_t const s = 10 * ((inv10 * b) >> amaru_data.size);
 
-    if (s >= a)
+    if (s < a)
+      ;
+
+    else if (s == b) {
+      if (!is_multiple_of_pow5(m_b, f))
+        return remove_trailing_zeros(f, b);
+    }
+
+    else if (s > a)
       return remove_trailing_zeros(f, s);
+
+    else if (is_multiple_of_pow5(m_a, f))
+      return remove_trailing_zeros(f, a);
 
     amaru_limb1_t const m_c = 2 * 2 * mantissa_min;
     amaru_limb1_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower);
     amaru_limb1_t const c   = c_2 / 2;
 
-    if (c < a || (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2, -f))))
+    if (c == a && !is_multiple_of_pow5(m_a, f))
       return make_decimal(f, c + 1);
 
-    return make_decimal(f, c);
+    if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f)))
+      return make_decimal(f, c);
+
+    return make_decimal(f, c + 1);
+  }
+
+  else if (b == a) {
+    if (is_multiple_of_pow5(m_a, f))
+      return inv10 * a < inv10 ? remove_trailing_zeros(f, a) :
+        make_decimal(f, a);
   }
 
   amaru_limb1_t const m_c = 2 * 20 * mantissa_min;

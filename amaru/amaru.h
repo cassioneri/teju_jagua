@@ -60,9 +60,6 @@ amaru_fields_t remove_trailing_zeros(int32_t exponent,
   amaru_limb1_t const inv10  = ((amaru_limb1_t) -1) / 10;
   amaru_limb1_t const inv100 = ((amaru_limb1_t) -1) / 100;
 
-  mantissa = (mantissa * minv5) / 2;
-  ++exponent;
-
   while (true) {
 
     amaru_limb1_t const n = rotr(minv25 * mantissa, 2);
@@ -122,20 +119,21 @@ amaru_fields_t AMARU_FUNCTION(int32_t const exponent,
     amaru_limb1_t const m_a = (2 * mantissa - 1) << extra;
     amaru_limb1_t const a   = multipliy_and_shift(m_a, upper, lower);
 
-    amaru_limb1_t const s   = 10 * ((inv10 * b) >> amaru_data.size);
+    amaru_limb1_t const q   = (inv10 * b) >> amaru_data.size;
+    amaru_limb1_t const s   = 10 * q;
 
     if (s >= a) {
 
       if (s == b) {
         if (mantissa % 2 == 0 || !is_multiple_of_pow5(m_b, f))
-          return remove_trailing_zeros(f, s);
+          return remove_trailing_zeros(f + 1, q);
       }
 
       else if (s > a)
-        return remove_trailing_zeros(f, s);
+        return remove_trailing_zeros(f + 1, q);
 
       else if (mantissa % 2 == 0 && is_multiple_of_pow5(m_a, f)) // s == a
-        return remove_trailing_zeros(f, s);
+        return remove_trailing_zeros(f + 1, q);
     }
 
     if ((a ^ b) % 2 == 1)
@@ -160,10 +158,11 @@ amaru_fields_t AMARU_FUNCTION(int32_t const exponent,
 
   if (b > a) {
 
-    amaru_limb1_t const s = 10 * ((inv10 * b) >> amaru_data.size);
+    amaru_limb1_t const q = (inv10 * b) >> amaru_data.size;
+    amaru_limb1_t const s = 10 * q;
 
     if (s > a || (s == a && is_multiple_of_pow5(m_a, f)))
-      return remove_trailing_zeros(f, s);
+      return remove_trailing_zeros(f + 1, q);
 
     amaru_limb1_t const m_c = 2 * 2 * mantissa_min;
     amaru_limb1_t const c_2 = multipliy_and_shift(m_c << extra, upper, lower);
@@ -179,9 +178,11 @@ amaru_fields_t AMARU_FUNCTION(int32_t const exponent,
   }
 
   else if (b == a) {
-    if (is_multiple_of_pow5(m_a, f))
-      return inv10 * a < inv10 ? remove_trailing_zeros(f, a) :
+    if (is_multiple_of_pow5(m_a, f)) {
+      amaru_limb1_t const q = (inv10 * a) >> amaru_data.size;
+      return 10 * q == a ? remove_trailing_zeros(f + 1, q) :
         make_decimal(f, a);
+    }
   }
 
   amaru_limb1_t const m_c = 2 * 20 * mantissa_min;

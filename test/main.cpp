@@ -343,12 +343,12 @@ from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::limb_t mantissa) {
   return value;
 }
 
-TEST(ad_hoc_test, a_particular_case_value) {
+TEST(ad_hoc_test, value) {
   auto const value = 1.0f;
   compare_to_other(value);
 }
 
-TEST(ad_hoc_test, a_particular_case_fields) {
+TEST(ad_hoc_test, fields) {
   auto const value = from_ieee<float>(127, 0); // = 1.0f
   compare_to_other(value);
 }

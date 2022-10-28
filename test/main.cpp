@@ -286,14 +286,15 @@ TYPED_TEST_SUITE_P(TypedTests);
 
 TYPED_TEST_P(TypedTests, mantissa_min_all_exponents) {
 
-  using traits_t           = fp_traits_t<TypeParam>;
-  using fp_t               = TypeParam;
-  using limb_t             = typename traits_t::limb_t;
+  using traits_t          = fp_traits_t<TypeParam>;
+  using fp_t              = TypeParam;
+  using limb_t            = typename traits_t::limb_t;
 
-  auto const exponent_max  = (uint32_t{1} << traits_t::exponent_size) - 1;
+  auto const exponent_max = (uint32_t{1} << traits_t::exponent_size) - 1;
 
-  for (uint32_t exponent = 1; !this->HasFailure() && exponent < exponent_max;
-    ++exponent) {
+  for (uint32_t exponent = 1; !this->HasFailure() &&
+    exponent < exponent_max; ++exponent) {
+
     auto const bits = limb_t{exponent} << traits_t::mantissa_size;
     fp_t value;
     std::memcpy(&value, &bits, sizeof(bits));

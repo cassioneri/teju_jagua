@@ -13,7 +13,7 @@ using integer_t  = boost::multiprecision::cpp_int;
 using rational_t = boost::multiprecision::cpp_rational;
 
 /**
- * \brief Calculates 2^n.
+ * \brief Returns 2^n.
  */
 integer_t
 pow2(std::uint32_t const n) {
@@ -35,9 +35,14 @@ pow5(std::uint32_t const n) {
  * \brief The objective function of the primary maximisation problem:
  *
  *     phi_1(m) := m / (delta_1 - alpha_1 * m % delta_1).
+ *
+ * \param alpha_1           Parameter alpha_1.
+ * \param delta_1           Parameter delta_1.
+ * \param m                 Variable m.
  */
 rational_t
-phi_1(integer_t const& alpha_1, integer_t const& delta_1, integer_t const& m) {
+phi_1(integer_t const& alpha_1, integer_t const& delta_1,
+  integer_t const& m) {
   return {m, delta_1 - alpha_1 * m % delta_1};
 }
 
@@ -45,9 +50,14 @@ phi_1(integer_t const& alpha_1, integer_t const& delta_1, integer_t const& m) {
  * \brief The objective function of the secondary maximisation problem:
  *
  *     phi_2(m) := m / (1 + (alpha_2 * m - 1) % delta_2).
+ *
+ * \param alpha_2           Parameter alpha_2.
+ * \param delta_2           Parameter delta_2.
+ * \param m                 Variable m.
  */
 rational_t
-phi_2(integer_t const& alpha_2, integer_t const& delta_2, integer_t const& m) {
+phi_2(integer_t const& alpha_2, integer_t const& delta_2,
+  integer_t const& m) {
   return {m, 1 + (alpha_2 * m - 1) % delta_2};
 }
 
@@ -56,6 +66,11 @@ phi_2(integer_t const& alpha_2, integer_t const& delta_2, integer_t const& m) {
  * maximiser of phi_1(m) over [a_1, b_1[.
  *
  * \pre 0 <= alpha_1 && alpha_1 < delta_1 && a_1 < b_1.
+ *
+ * \param alpha_1           Parameter alpha_1.
+ * \param delta_1           Parameter delta_1.
+ * \param a_1               Lower bound a_1.
+ * \param b_1               Upper bound b_1.
  */
 rational_t
 get_maximum_1(integer_t const& alpha_1, integer_t const& delta_1,
@@ -66,6 +81,11 @@ get_maximum_1(integer_t const& alpha_1, integer_t const& delta_1,
  * maximiser of phi_2(m) over [a_2, b_2[.
  *
  * \pre 0 < alpha_2 && 0 < delta_2 && 1 <= a_2 && a_2 < b_2.
+ *
+ * \param alpha_2           Parameter alpha_1.
+ * \param delta_2           Parameter delta_1.
+ * \param a_2               Lower bound a_2.
+ * \param b_2               Upper bound b_2.
  */
 rational_t
 get_maximum_2(integer_t const& alpha_2, integer_t const& delta_2,
@@ -128,9 +148,9 @@ get_maximum_2(integer_t const& alpha_2,
 }
 
 /**
- * \brief Get the fields type corresponding to a given size.
+ * \brief Returns the fields type corresponding to a given size.
  *
- * \param The size
+ * \param size              The size.
  *
  * \returns The fields type corresponding to the given size.
  */
@@ -150,7 +170,7 @@ get_fields(uint32_t const size) {
 /**
  * \brief Converts a given string to upper case letters.
  *
- * \param str The given string
+ * \param str                The given string
  *
  * \returns The upper case string.
  */
@@ -165,8 +185,10 @@ to_upper(std::string const& str) {
 /**
  * \brief Fast EAF coefficients.
  *
- * For given alpha > 0 and delta > 0, we often find U > 0 and k >= 0 such that
- *     alpha * m / delta = U * m >> k for m in a certain interval.
+ * For given alpha > 0 and delta > 0, we often find U > 0 and k >= 0 such
+ * that:
+ *
+ *   alpha * m / delta = U * m >> k for m in a certain interval.
  *
  * This type stores U and k.
  */
@@ -176,9 +198,8 @@ struct fast_eaf_t {
 };
 
 /**
- * \brief Stores alpha, delta (usually pow2(e) and pow2(f)) and the maximum of
- *     m / (delta - alpha * m % delta)
- * for m in the set of mantissas.
+ * \brief Stores alpha, delta (usually pow2(e) and pow2(f)) and the maximum
+ * of m / (delta - alpha * m % delta) for m in the set of mantissas.
  */
 struct alpha_delta_maximum_t {
   integer_t  alpha;
@@ -191,7 +212,7 @@ get_index_offset(base_t const base, std::int32_t const exponent_min) {
   return base == base_t::decimal ? log10_pow2(exponent_min) : exponent_min;
 }
 
-}
+} // namespace <anonymous>
 
 struct generator_t::impl_t {
 
@@ -242,8 +263,8 @@ struct generator_t::impl_t {
   /**
    * \brief Returns the normal (inclusive) minimal mantissa.
    *
-   * Mantissas for normal floating point numbers are elements of the interval
-   * [normal_mantissa_min(), normal_mantissa_max()[.
+   * Mantissas for normal floating point numbers are elements of the
+   * interval [normal_mantissa_min(), normal_mantissa_max()[.
    */
   integer_t const&
   mantissa_min() const;
@@ -251,8 +272,8 @@ struct generator_t::impl_t {
   /**
    * \brief Returns the normal (exclusive) maximal mantissa.
    *
-   * Mantissas for normal floating point numbers are elements of the interval
-   * [normal_mantissa_min(), normal_mantissa_max()[.
+   * Mantissas for normal floating point numbers are elements of the
+   * interval [normal_mantissa_min(), normal_mantissa_max()[.
    */
   integer_t const&
   mantissa_max() const;
@@ -322,18 +343,19 @@ struct generator_t::impl_t {
   /**
    * \brief Streams out the .c file.
    *
-   * \param stream Output stream to receive the content.
+   * \param stream          Output stream to receive the content.
    */
   void
   generate_dot_c(std::ostream& stream) const;
 
   /**
-   * \brief Gets the maxima of all primary problems. (See get_maximum_primary.)
+   * \brief Gets the maxima of all primary problems. (See
+   * get_maximum_primary.)
    *
    * It returns a vector v of size
    *     exponent_max() - exponent_min() + 1
-   * such that v[i] contains the maximum of the primary problem corresponding to
-   * exponent = exponent_min() + i.
+   * such that v[i] contains the maximum of the primary problem
+   * corresponding to exponent = exponent_min() + i.
    *
    * \returns The vector v.
    */
@@ -347,13 +369,13 @@ struct generator_t::impl_t {
    * \pre 0 <= alpha && 0 < delta.
    */
   rational_t
-  get_maximum(integer_t alpha, integer_t const& delta, bool start_at_1 = false)
-    const;
+  get_maximum(integer_t alpha, integer_t const& delta, bool start_at_1 =
+    false) const;
 
   /**
-   * \brief Get the EAF f(m) = alpha * m / delta which works on an interval of
-   * relevant mantissas. This fast EAF is associated to maximisation of phi(m)
-   * over the set of mantissas.
+   * \brief Get the EAF f(m) = alpha * m / delta which works on an interval
+   * of relevant mantissas. This fast EAF is associated to maximisation of
+   * phi(m) over the set of mantissas.
    *
    * \param x               The container of alpha, beta and the solution of
    *                        the primary maximisation problem.
@@ -386,8 +408,10 @@ void
 generator_t::generate() const {
 
   auto const p2_size      = integer_t{1} << self().size();
-  auto       dot_h_stream = std::ofstream{self().directory() + self().dot_h()};
-  auto       dot_c_stream = std::ofstream{self().directory() + self().dot_c()};
+  auto       dot_h_stream = std::ofstream{self().directory() +
+    self().dot_h()};
+  auto       dot_c_stream = std::ofstream{self().directory() +
+    self().dot_c()};
 
   std::cout << "Generation started.\n";
 
@@ -507,8 +531,8 @@ generator_t::impl_t::dot_c() const {
 void
 generator_t::impl_t::generate_dot_h(std::ostream& stream) const {
 
-  std::string const include_guard = "AMARU_AMARU_GENERATED_" + to_upper(id()) +
-    "_H_";
+  std::string const include_guard = "AMARU_AMARU_GENERATED_" +
+    to_upper(id()) + "_H_";
 
   stream <<
     "// This file was auto-generated. DO NOT EDIT IT.\n"
@@ -636,10 +660,10 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
       throw exception_t{"Multiplier is out of range."};
 
     stream << "  { " <<
-      "0x" << std::hex << std::setw(nibbles) << std::setfill('0') << upper <<
-      ", "
-      "0x" << std::hex << std::setw(nibbles) << std::setfill('0') << lower <<
-      std::dec << " }, // " << e2_or_f << "\n";
+      "0x" << std::hex << std::setw(nibbles) << std::setfill('0') << upper
+      << ", "
+      "0x" << std::hex << std::setw(nibbles) << std::setfill('0') << lower
+      << std::dec << " }, // " << e2_or_f << "\n";
     ++e2_or_f;
   }
 
@@ -747,11 +771,11 @@ generator_t::impl_t::get_maximum(integer_t alpha, integer_t const& delta,
 fast_eaf_t
 generator_t::impl_t::get_fast_eaf(alpha_delta_maximum_t const& x) const {
 
-  // Making shift >= size, simplifies multiply_and_shift executed at runtime.
-  // Indeed, it ensures that the least significant limb of the product is
-  // irrelevant. For this reason, later on, the generator actually outputs
-  // shift - size (still labelling it as 'shift') so that Amaru doesn't need
-  // to do it at runtime.
+  // Making shift >= size, simplifies multiply_and_shift executed at
+  // runtime. Indeed, it ensures that the least significant limb of the
+  // product is irrelevant. For this reason, later on, the generator
+  // actually outputs shift - size (still labelling it as 'shift') so that
+  // Amaru doesn't need to do it at runtime.
   auto k    = size();
   auto pow2 = integer_t{1} << k;
 

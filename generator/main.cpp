@@ -15,8 +15,8 @@ namespace amaru {
 void
 report_usage(const char* const prog) noexcept {
   std::fprintf(stderr, "Usage: %s [OPTION]... CONFIG DIR\n"
-    "Generate Amaru source files for the given JSON configuration file CONFIG. "
-    "The files are saved in directory DIR.\n",
+    "Generate Amaru source files for the given JSON configuration file "
+    "CONFIG. The files are saved in directory DIR.\n",
     prog);
 }
 

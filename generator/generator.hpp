@@ -11,15 +11,16 @@
 namespace amaru {
 
 /**
- * \brief Generator of Amaru's implementation for a given floating point number
- * type.
+ * \brief Generator of Amaru's implementation for a given floating point
+ * number type.
  */
 struct generator_t {
 
   /**
    * \brief Constructor.
    *
-   * \param info            The information on the floating point number type.
+   * \param info            The information on the floating point number
+   *                        type.
    * \param config          The implementation configuration.
    */
   generator_t(config_t config, std::string directory);

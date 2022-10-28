@@ -64,7 +64,12 @@ struct config_t {
     std::uint32_t limbs;
   } calculation;
 
-}; // struct config2_t
+  struct optimisation_t {
+    bool integer;
+    bool mid_point;
+  } optimisation;
+
+}; // struct config_t
 
 void
 from_json(nlohmann::json const& src, config_t::exponent_t& tgt);

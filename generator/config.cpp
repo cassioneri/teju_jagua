@@ -27,13 +27,20 @@ from_json(nlohmann::json const& src, config_t::calculation_t& tgt) {
 }
 
 void
+from_json(nlohmann::json const& src, config_t::optimisation_t& tgt) {
+  src["integer"  ].get_to(tgt.integer  );
+  src["mid_point"].get_to(tgt.mid_point);
+}
+
+void
 from_json(nlohmann::json const& src, config_t& tgt) {
-  src["id"         ].get_to(tgt.id         );
-  src["size"       ].get_to(tgt.size       );
-  src["exponent"   ].get_to(tgt.exponent   );
-  src["mantissa"   ].get_to(tgt.mantissa   );
-  src["storage"    ].get_to(tgt.storage    );
-  src["calculation"].get_to(tgt.calculation);
+  src["id"          ].get_to(tgt.id          );
+  src["size"        ].get_to(tgt.size        );
+  src["exponent"    ].get_to(tgt.exponent    );
+  src["mantissa"    ].get_to(tgt.mantissa    );
+  src["storage"     ].get_to(tgt.storage     );
+  src["calculation" ].get_to(tgt.calculation );
+  src["optimisation"].get_to(tgt.optimisation);
 }
 
 void

@@ -23,7 +23,6 @@ report_usage(const char* const prog) noexcept {
 void
 report_error(const char* const prog, const char* const msg) noexcept {
   std::fprintf(stderr, "%s: error: %s.\n", prog, msg);
-  std::exit(-1);
 }
 
 generator_t
@@ -49,16 +48,17 @@ main(int const argc, const char* const argv[]) {
 
   using namespace amaru;
 
-  if (argc != 3) {
+  try {
+
+    if (argc == 3) {
+      auto const generator = parse(argv[1], argv[2]);
+      generator.generate();
+      return 0;
+    }
+
     report_error(argv[0], "expected two arguments");
     std::fprintf(stderr, "\n");
     report_usage(argv[0]);
-  }
-
-  try {
-
-    auto const generator = parse(argv[1], argv[2]);
-    generator.generate();
 
   }
 
@@ -73,4 +73,6 @@ main(int const argc, const char* const argv[]) {
   catch (...) {
     report_error(argv[0], "unknown error");
   }
+
+  return -1;
 }

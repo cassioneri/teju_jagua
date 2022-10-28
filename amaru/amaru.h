@@ -96,6 +96,11 @@ bool is_multiple_of_pow5(amaru_limb1_t const m, int32_t const f) {
     m * minverse[f].multiplier <= minverse[f].bound;
 }
 
+static inline
+bool is_multiple_of_pow2(amaru_limb1_t const m, int32_t const e) {
+  return 0 <= e && e <= amaru_data.mantissa.size && ((m >> e) << e) == m;
+}
+
 amaru_fields_t AMARU_FUNCTION(int32_t const exponent,
   amaru_limb1_t const mantissa) {
 
@@ -112,6 +117,9 @@ amaru_fields_t AMARU_FUNCTION(int32_t const exponent,
   amaru_limb1_t  const lower = multipliers[i].lower;
 
   if (mantissa != mantissa_min || exponent == amaru_data.exponent.minimum) {
+
+    if (is_multiple_of_pow2(mantissa, -exponent))
+      return remove_trailing_zeros(0, mantissa >> -exponent);
 
     amaru_limb1_t const m_b = (2 * mantissa + 1) << extra;
     amaru_limb1_t const b   = multipliy_and_shift(m_b, upper, lower);

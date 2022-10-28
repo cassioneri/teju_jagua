@@ -23,6 +23,10 @@ static amaru_data_t const amaru_data = {
   },
   /* calculation: */ {
     /* shift: */ 55
+  },
+  /* optimisation: */ {
+    /* integer: */ 1,
+    /* mid_point:*/ 1
   }
 };
 

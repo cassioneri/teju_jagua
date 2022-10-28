@@ -11,7 +11,7 @@
   "mantissa": {
     "size": 23
   },
-  
+
   "storage": {
     "limbs": 2,
     "base" : "binary"
@@ -19,5 +19,10 @@
 
   "calculation": {
     "limbs": 2
+  },
+
+  "optimisation": {
+    "integer"   : true,
+    "mid_point" : true
   }
 }

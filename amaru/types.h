@@ -51,6 +51,10 @@ typedef struct {
   struct {
     uint32_t shift;
   } calculation;
+  struct {
+    bool integer;
+    bool mid_point;
+  } optimisation;
 } amaru_data_t;
 
 #endif // AMARU_AMARU_TYPES_H_

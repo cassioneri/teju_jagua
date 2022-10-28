@@ -258,19 +258,19 @@ struct generator_t::impl_t {
   mantissa_max() const;
 
   /**
-   * \brief Returns the number of storage limbs.
+   * \brief Returns the number of stored limbs.
    */
   std::uint32_t
   storage_limbs() const;
 
   /**
-   * \brief Returns the storage exponent.
+   * \brief Returns the base of the stored exponent.
    */
   base_t
   storage_base() const;
 
   /**
-   * \brief Returns the number of storage limbs.
+   * \brief Returns the index offset.
    */
   std::int32_t
   index_offset() const;
@@ -280,6 +280,18 @@ struct generator_t::impl_t {
    */
   bool
   is_compact() const;
+
+  /**
+   * \brief Optimises for integers.
+   */
+  bool
+  optimise_integer() const;
+
+  /**
+   * \brief Optimises for mid points.
+   */
+  bool
+  optimise_midpoint() const;
 
   /**
    * \brief Returns the directory where generated files are saved.
@@ -467,6 +479,16 @@ generator_t::impl_t::is_compact() const {
   return self.config_.storage.base == base_t::decimal;
 }
 
+bool
+generator_t::impl_t::optimise_integer() const {
+  return self.config_.optimisation.integer;
+}
+
+bool
+generator_t::impl_t::optimise_midpoint() const {
+  return self.config_.optimisation.mid_point;
+}
+
 std::string const&
 generator_t::impl_t::directory() const {
   return self.directory_;
@@ -570,22 +592,26 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
 
   stream <<
     "static amaru_data_t const amaru_data = {\n"
-    "  /* size: */ "           << size()          << ",\n"
+    "  /* size: */ "           << size()              << ",\n"
     "  /* exponent: */ {\n"
-    "    /* minimum: */ "      << exponent_min()  << "\n"
+    "    /* minimum: */ "      << exponent_min()      << "\n"
     "  },\n"
     "  /* mantissa: */ {\n"
-    "    /* size: */ "         << mantissa_size() << "\n"
+    "    /* size: */ "         << mantissa_size()     << "\n"
     "  },\n"
     "  /* storage: */ {\n"
-    "    /* limbs: */ "        << storage_limbs() << ",\n"
-    "    /* is_compact: */ "   << is_compact()    << ",\n"
-    "    /* index_offset: */ " << index_offset()  << "\n"
+    "    /* limbs: */ "        << storage_limbs()     << ",\n"
+    "    /* is_compact: */ "   << is_compact()        << ",\n"
+    "    /* index_offset: */ " << index_offset()      << "\n"
     "  },\n"
     "  /* calculation: */ {\n"
     // Instead of Amaru dividing multipliy_and_shift(m_a, upper, lower) by 2
     // we increment the shift here so this has the same effect.
-    "    /* shift: */ "        << shift + 1 << "\n"
+    "    /* shift: */ "        << shift + 1           << "\n"
+    "  },\n"
+    "  /* optimisation: */ {\n"
+    "    /* integer: */ "      << optimise_integer()  << ",\n"
+    "    /* mid_point:*/ "     << optimise_midpoint() << "\n"
     "  }\n"
     "};\n"
     "\n";

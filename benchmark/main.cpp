@@ -1,7 +1,8 @@
 #include "amaru/common.h"
 #include "amaru/double.h"
 #include "amaru/float.h"
-#include "other/other.hpp"
+#include "benchmark/sampler.hpp"
+#include "benchmark/stats.hpp"
 
 #include <chrono>
 #include <cmath>
@@ -11,113 +12,11 @@
 #include <fstream>
 #include <limits>
 #include <iostream>
-#include <random>
 
 #include <sys/types.h>
 #include <unistd.h>
 
-struct stats_t {
-
-  void
-  update(std::uint64_t const x) {
-    n_              += 1;
-    sum_            += x;
-    sum_of_squares_ += x * x;
-  }
-
-  std::uint64_t
-  mean() const {
-    return sum_ / n_;
-  }
-
-  std::uint64_t
-  stddev() const {
-    auto const num = n_ * sum_of_squares_ - sum_ * sum_;
-    auto const den = n_ * (n_ - 1);
-    return std::sqrt(double(num) / double(den));
-  }
-
-private:
-  std::uint64_t n_              = 0;
-  std::uint64_t sum_            = 0;
-  std::uint64_t sum_of_squares_ = 0;
-};
-
-template <typename>
-struct fp_traits_t;
-
-template <>
-struct fp_traits_t<float> {
-
-  using limb_t = amaru32_limb1_t;
-
-  static auto constexpr exponent_size = std::uint32_t{8};
-  static auto constexpr mantissa_size = std::uint32_t{23};
-
-  static void
-  amaru_compact(float const value) {
-    amaru_from_float_to_decimal_compact(value);
-  }
-
-  static void
-  amaru_full(float const value) {
-    amaru_from_float_to_decimal_full(value);
-  }
-
-  static void
-  dragonbox_compact(float const value) {
-    amaru::dragonbox_compact::to_decimal(value);
-  }
-
-  static void
-  dragonbox_full(float const value) {
-    amaru::dragonbox_full::to_decimal(value);
-  }
-};
-
-template <>
-struct fp_traits_t<double> {
-
-  using limb_t = amaru64_limb1_t;
-
-  static auto constexpr exponent_size = uint32_t{11};
-  static auto constexpr mantissa_size = uint32_t{52};
-
-  static void
-  amaru_compact(double const value) {
-    amaru_from_double_to_decimal_compact(value);
-  }
-
-  static void
-  amaru_full(double const value) {
-    amaru_from_double_to_decimal_full(value);
-  }
-
-  static void
-  dragonbox_compact(double const value) {
-    amaru::dragonbox_compact::to_decimal(value);
-  }
-
-  static void
-  dragonbox_full(double const value) {
-    amaru::dragonbox_full::to_decimal(value);
-  }
-};
-
-template <typename T>
-T
-from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::limb_t mantissa) {
-
-  using        traits_t = fp_traits_t<T>;
-  using        limb_t   = typename traits_t::limb_t;
-  limb_t const i        = (limb_t(exponent) << traits_t::mantissa_size) |
-    mantissa;
-
-  T value;
-  std::memcpy(&value, &i, sizeof(i));
-
-  return value;
-}
+namespace amaru {
 
 template <typename T>
 #if defined(__GNUC__) && !defined(__clang__)
@@ -154,7 +53,7 @@ benchmark(T value, void (*function)(T)) {
   return minimum;
 }
 
-template <typename T>
+template <typename T, population_t population>
 void
 benchmark(const char* filename) {
 
@@ -164,60 +63,49 @@ benchmark(const char* filename) {
   out << "exponent, mantissa, integer, value, amaru\\\\_compact, "
     "amaru\\\\_full, dragonbox\\\\_compact, dragonbox\\\\_full\n";
 
-  using traits_t          = fp_traits_t<T>;
-  using limb_t            = typename traits_t::limb_t;
-  auto const exponent_max = AMARU_POW2(limb_t, traits_t::exponent_size) - 1;
-  auto const mantissa_max = AMARU_POW2(limb_t, traits_t::mantissa_size) - 1;
-
-  std::mt19937_64 device;
-  auto dist = std::uniform_int_distribution<limb_t> {1, mantissa_max};
-  auto n    = std::uint32_t{256};
+  using traits_t = amaru::traits_t<T>;
+  using limb_t   = typename traits_t::limb_t;
+  auto  sampler  = sampler_t<T, population>{};
 
   stats_t amaru_compact_stats, amaru_full_stats, dragonbox_compact_stats,
     dragonbox_full_stats;
 
-  while (n--) {
+  while (!sampler.empty()) {
 
-    // Forces mantissa = 0 to be in the sample.
-    auto const mantissa = n == 0 ? 0 : dist(device);
+    auto const value = sampler.pop();
 
-    // Avoids exponent == exponent_max, since the corresponding value is
-    // infinity or NaN.
-    for (std::uint32_t exponent = 0; exponent < exponent_max; ++exponent) {
+    // This case is not covered by the algorithms.
+    if (value == T{0})
+      continue;
 
-      auto const value = from_ieee<T>(exponent, mantissa);
+    auto const amaru_compact = benchmark(value, &traits_t::amaru_compact);
+    amaru_compact_stats.update(amaru_compact);
 
-      // This case is not covered by the algorithms.
-      if (value == T{0})
-        continue;
+    auto const amaru_full = benchmark(value, &traits_t::amaru_full);
+    amaru_full_stats.update(amaru_full);
 
-      auto const amaru_compact = benchmark(value, &traits_t::amaru_compact);
-      amaru_compact_stats.update(amaru_compact);
+    auto const dragonbox_compact = benchmark(value,
+      &traits_t::dragonbox_compact);
+    dragonbox_compact_stats.update(dragonbox_compact);
 
-      auto const amaru_full = benchmark(value, &traits_t::amaru_full);
-      amaru_full_stats.update(amaru_full);
+    auto const dragonbox_full = benchmark(value,
+      &traits_t::dragonbox_full);
+    dragonbox_full_stats.update(dragonbox_full);
 
-      auto const dragonbox_compact = benchmark(value,
-        &traits_t::dragonbox_compact);
-      dragonbox_compact_stats.update(dragonbox_compact);
+    limb_t integer;
+    std::memcpy(&integer, &value, sizeof(value));
 
-      auto const dragonbox_full = benchmark(value,
-        &traits_t::dragonbox_full);
-      dragonbox_full_stats.update(dragonbox_full);
+    auto const fields = traits_t::to_ieee(value);
 
-      limb_t integer;
-      std::memcpy(&integer, &value, sizeof(value));
-
-      out <<
-        exponent                  << ", " <<
-        mantissa                  << ", " <<
-        integer                   << ", " <<
-        value                     << ", " <<
-        0.001 * amaru_compact     << ", " <<
-        0.001 * amaru_full        << ", " <<
-        0.001 * dragonbox_compact << ", " <<
-        0.001 * dragonbox_full    << "\n";
-    }
+    out <<
+      fields.exponent           << ", " <<
+      fields.mantissa           << ", " <<
+      integer                   << ", " <<
+      value                     << ", " <<
+      0.001 * amaru_compact     << ", " <<
+      0.001 * amaru_full        << ", " <<
+      0.001 * dragonbox_compact << ", " <<
+      0.001 * dragonbox_full    << "\n";
   }
 
   auto const baseline = std::min(amaru_compact_stats.mean(),
@@ -248,9 +136,29 @@ benchmark(const char* filename) {
     dragonbox_full_stats.mean() / baseline);
 }
 
+template <typename T>
+void
+benchmark(const char* filename, population_t population) {
+  switch (population) {
+    case population_t::integer:
+      return benchmark<T, population_t::integer>(filename);
+    case population_t::mixed:
+      return benchmark<T, population_t::mixed>(filename);
+//     case population_t::centred;
+//       return benchmark<T, population_t::centred>(filename);
+//     case population_t::uncentred;
+//       return benchmark<T, population_t::uncentred>(filename);
+  }
+}
+
+} // namespace amaru
+
 int main(int argc, char const* const argv[]) {
 
-  auto is_double = true;
+  using namespace amaru;
+
+  auto is_double  = true;
+  auto population = population_t::mixed;
 
   while (--argc) {
 
@@ -264,6 +172,18 @@ int main(int argc, char const* const argv[]) {
 
     else if (std::strncmp(argv[argc], "-f", 2) == 0)
       is_double = false;
+
+    else if (std::strncmp(argv[argc], "-integer", 8) == 0)
+      population = population_t::integer;
+
+    else if (std::strncmp(argv[argc], "-mixed", 6) == 0)
+      population = population_t::mixed;
+
+    else if (std::strncmp(argv[argc], "-centred", 8) == 0)
+      population = population_t::centred;
+
+    else if (std::strncmp(argv[argc], "-uncentred", 10) == 0)
+      population = population_t::uncentred;
   }
 
   // Disable CPU Frequency Scaling:
@@ -284,7 +204,7 @@ int main(int argc, char const* const argv[]) {
   //      sudo /bin/bash -c "echo 0 > /sys/devices/system/cpu/cpu6/online"
 
   if (is_double)
-    benchmark<double>("double.csv");
+    benchmark<double>("double.csv", population);
   else
-    benchmark<float>("float.csv");
+    benchmark<float>("float.csv", population);
 }

@@ -104,6 +104,10 @@ bool is_multiple_of_pow2(amaru_limb1_t const m, int32_t const e) {
 amaru_fields_t AMARU_FUNCTION(int32_t const exponent,
   amaru_limb1_t const mantissa) {
 
+  if (amaru_data.optimisation.integer &&
+    is_multiple_of_pow2(mantissa, -exponent))
+    return remove_trailing_zeros(0, mantissa >> -exponent);
+
   amaru_limb1_t const mantissa_min = AMARU_POW2(amaru_limb1_t,
     amaru_data.mantissa.size);
   amaru_limb2_t const inv10        = ((amaru_limb1_t) -1) / 10 + 1;
@@ -117,9 +121,6 @@ amaru_fields_t AMARU_FUNCTION(int32_t const exponent,
   amaru_limb1_t  const lower = multipliers[i].lower;
 
   if (mantissa != mantissa_min || exponent == amaru_data.exponent.minimum) {
-
-    if (is_multiple_of_pow2(mantissa, -exponent))
-      return remove_trailing_zeros(0, mantissa >> -exponent);
 
     amaru_limb1_t const m_b = (2 * mantissa + 1) << extra;
     amaru_limb1_t const b   = multipliy_and_shift(m_b, upper, lower);
@@ -144,7 +145,7 @@ amaru_fields_t AMARU_FUNCTION(int32_t const exponent,
         return remove_trailing_zeros(f + 1, q);
     }
 
-    if ((a ^ b) % 2 == 1)
+    if (amaru_data.optimisation.mid_point && (a ^ b) % 2 == 1)
       return make_decimal(f, (a + b) / 2 + 1);
 
     amaru_limb1_t const m_c = 2 * 2 * mantissa;

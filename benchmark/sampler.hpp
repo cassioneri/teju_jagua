@@ -26,7 +26,8 @@ enum class population_t {
 /**
  * \brief Draws uniformly distributed pseudo-random mantissas.
  *
- * \tparam T The floating point type corresponding to the mantissas.
+ * \tparam T                The floating point type corresponding to the
+ *                          mantissa.
  */
 template <typename T>
 struct random_provider_t {
@@ -34,13 +35,18 @@ struct random_provider_t {
   using traits_t = amaru::traits_t<T>;
   using limb_t   = typename traits_t::limb_t;
 
+  /**
+   * \brief Constructor.
+   *
+   * \param n_mantissas     The number of mantissas to be generated.
+   */
   random_provider_t(limb_t const n_mantissas) :
     n_mantissas_{n_mantissas} {
   }
 
   bool
   empty() const {
-    return n_mantissas_ > 0;
+    return n_mantissas_ == 0;
   }
 
   /**
@@ -69,9 +75,10 @@ private:
  * \brief A helper class that generates floating point numbers for usage in
  * tests and benchmarks.
  *
- * It gets mantissa values from a provider class and generates all values
- * with this mantissa. When these are exhausted, the provider is called
- * again and the cycle repeats.
+ * It gets a mantissa value from a provider class and loops over the set of
+ * exponents, generating all floating point values with the obtained
+ * mantissa. When the exponents are exhausted, the provider is called again
+ * and the cycle repeats.
  *
  * \tparam T The floating point number type.
  * \tparam P The mantissa provider type.
@@ -85,7 +92,7 @@ struct sampler_helper_t {
   /**
    * \brief Constructor.
    *
-   * \tparam provider The mantissa provider.
+   * \tparam provider       The mantissa provider.
    */
   sampler_helper_t(P provider) :
     exponent_{0                  },
@@ -93,11 +100,19 @@ struct sampler_helper_t {
     provider_{std::move(provider)} {
   }
 
+  /**
+   * \brief Tells whether there is still a value to be generated.
+   */
   bool
   empty() const {
-    return !provider_.empty() || exponent_ < exponent_max_;
+    return exponent_ == exponent_max_;
   }
 
+  /**
+   * \brief Gets the next floating point number.
+   *
+   * \pre !empty()
+   */
   T
   pop() {
 
@@ -119,23 +134,39 @@ private:
   static constexpr limb_t exponent_max_ =
     AMARU_POW2(limb_t, traits_t::exponent_size) - 1;
 
-  std::uint32_t exponent_;
-  limb_t        mantissa_;
-  P             provider_;
+  limb_t exponent_;
+  limb_t mantissa_;
+  P      provider_;
 
 }; // sampler_helper_t
 
+/**
+ * \brief Generates floating point numbers for usage in tests and
+ * benchmarks.
+ *
+ * \tparam T                The floating point number type.
+ * \tparam population       The type of population.
+ */
 template <typename T, population_t population>
 struct sampler_t;
 
+// Specialisation for population_t::integer.
 template <typename T>
 struct sampler_t<T, population_t::integer> {
 
+  /**
+   * \brief Tells whether there is still a value to be generated.
+   */
   bool
   empty() const {
-    return value_ > max_;
+    return value_ >= max_;
   }
 
+  /**
+   * \brief Gets the next floating point number.
+   *
+   * \pre !empty()
+   */
   T
   pop() {
     return value_++;
@@ -144,10 +175,99 @@ struct sampler_t<T, population_t::integer> {
 private:
 
   T value_{1};
-  T max_  {65536};
+  T max_  {100000};
 
 }; // sampler_t<T, population_t::integer>
 
+// Specialisation for population_t::centred.
+template <typename T>
+struct sampler_t<T, population_t::centred> {
+
+  using traits_t = amaru::traits_t<T>;
+  using limb_t   = typename traits_t::limb_t;
+
+  /**
+   * \brief Tells whether there is still a value to be generated.
+   */
+  bool
+  empty() const {
+    return helper_.empty();
+  }
+
+  /**
+   * \brief Gets the next floating point number.
+   *
+   * \pre !empty()
+   */
+  T
+  pop() {
+    return helper_.pop();
+  }
+
+private:
+
+  using provider_t = random_provider_t<T>;
+  sampler_helper_t<T, provider_t> helper_{provider_t{256}};
+
+}; // sampler_t<T, population_t::centred>
+
+// Specialisation for population_t::uncentred.
+template <typename T>
+struct sampler_t<T, population_t::uncentred> {
+
+  using traits_t = amaru::traits_t<T>;
+  using limb_t   = typename traits_t::limb_t;
+
+  /**
+   * \brief Tells whether there is still a value to be generated.
+   */
+  bool
+  empty() const {
+    return helper_.empty();
+  }
+
+  /**
+   * \brief Gets the next floating point number.
+   *
+   * \pre !empty()
+   */
+  T
+  pop() {
+    return helper_.pop();
+  }
+
+private:
+
+  struct provider_t {
+
+    /**
+     * \brief Tells whether there is still a value to be generated.
+     */
+    bool
+    empty() const {
+      return empty_;
+    }
+
+    /**
+     * \brief Gets the next floating point number.
+     *
+     * \pre !empty()
+     */
+    limb_t
+    pop() {
+      empty_ = true;
+      return 0;
+    }
+
+  private:
+    bool empty_{false};
+  };
+
+  sampler_helper_t<T, provider_t> helper_{provider_t{}};
+
+}; // sampler_t<T, population_t::uncentred>
+
+// Specialisation for population_t::mixed.
 template <typename T>
 struct sampler_t<T, population_t::mixed> {
 

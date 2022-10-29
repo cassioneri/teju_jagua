@@ -108,7 +108,7 @@ struct traits_t<double> {
     amaru::dragonbox_full::to_decimal(value);
   }
 
-  static float
+  static double
   from_ieee(std::uint64_t exponent, std::uint64_t mantissa) {
     return detail::from_ieee<double, mantissa_size>(exponent, mantissa);
   }

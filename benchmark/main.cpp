@@ -23,7 +23,7 @@ template <typename T>
 __attribute__((optimize("-falign-loops=32")))
 #endif
 std::uint64_t
-benchmark(T value, void (*function)(T)) {
+benchmark(T const value, void (*function)(T)) {
 
   using clock_t = std::chrono::steady_clock;
   static_assert(std::is_same<clock_t::duration, std::chrono::nanoseconds>{},
@@ -142,12 +142,12 @@ benchmark(const char* filename, population_t population) {
   switch (population) {
     case population_t::integer:
       return benchmark<T, population_t::integer>(filename);
+    case population_t::centred:
+      return benchmark<T, population_t::centred>(filename);
+    case population_t::uncentred:
+      return benchmark<T, population_t::uncentred>(filename);
     case population_t::mixed:
       return benchmark<T, population_t::mixed>(filename);
-//     case population_t::centred;
-//       return benchmark<T, population_t::centred>(filename);
-//     case population_t::uncentred;
-//       return benchmark<T, population_t::uncentred>(filename);
   }
 }
 

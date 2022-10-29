@@ -1,14 +1,12 @@
 // This file was auto-generated. DO NOT EDIT IT.
-
 #include "ieee64_full.h"
+#include "amaru/config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define AMARU_SIZE 64
-
-static amaru_data_t const amaru_data = {
+static config_t const config = {
   /* size: */ 64,
   /* exponent: */ {
     /* minimum: */ -1074
@@ -2115,9 +2113,19 @@ static struct {
   { 0x01c445d3a8cc9189, 0x000000000000000c },
 };
 
+#define max_limbs amaru64_max_limbs
+typedef amaru64_limb1_t limb1_t;
+#if max_limbs >= 2
+  typedef amaru64_limb2_t limb2_t;
+#endif
+#if max_limbs >= 4
+  typedef amaru64_limb4_t limb4_t;
+#endif
+typedef amaru64_fields_t fields_t;
+
+#define amaru amaru_ieee64_full
+#include "amaru/amaru.h"
+
 #ifdef __cplusplus
 }
 #endif
-
-#define AMARU_FUNCTION amaru_ieee64_full
-#include "amaru/amaru.h"

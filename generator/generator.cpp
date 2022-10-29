@@ -564,14 +564,12 @@ void
 generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
 
   stream << "// This file was auto-generated. DO NOT EDIT IT.\n"
-    "\n" <<
     "#include \"" << dot_h() << "\"\n"
+    "#include \"amaru/config.h\"\n"
     "\n"
     "#ifdef __cplusplus\n"
     "extern \"C\" {\n"
     "#endif\n"
-    "\n"
-    "#define AMARU_SIZE " << size() << "\n"
     "\n";
 
   auto const maxima = get_maxima();
@@ -615,7 +613,7 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   auto const p2_size = integer_t{1} << size();
 
   stream <<
-    "static amaru_data_t const amaru_data = {\n"
+    "static config_t const config = {\n"
     "  /* size: */ "           << size()              << ",\n"
     "  /* exponent: */ {\n"
     "    /* minimum: */ "      << exponent_min()      << "\n"
@@ -685,25 +683,37 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   // Hence, 200 * mantissa_max is a conservative bound, i.e.,
   // If 5^f > 200 * mantissa_max, then is_multiple_of_pow5(C, f) == false;
   for (int32_t f = 0; p5 <= 200 * mantissa_max(); ++f) {
+
     auto const bound = p2_size / p5 - (f == 0);
-    stream << "  { "
-      "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
-      multiplier << ", " <<
-      "0x" << std::hex << std::setw(nibbles) << std::setfill('0') <<
-      bound <<
-      " },\n";
+
+    stream <<
+      "  { " << std::hex << std::setfill('0') <<
+      "0x" << std::setw(nibbles) << multiplier << ", " <<
+      "0x" << std::setw(nibbles) << bound      << " },\n";
+
     multiplier = (multiplier * minverse5) % p2_size;
     p5 *= 5;
   }
 
-  stream << "};\n"
+  stream << std::dec <<
+    "};\n"
+    "\n"
+    "#define max_limbs amaru" << size()     << "_max_limbs\n"
+    "typedef amaru"           << size()     << "_limb1_t limb1_t;\n"
+    "#if max_limbs >= 2\n"
+    "  typedef amaru"         << size()     << "_limb2_t limb2_t;\n"
+    "#endif\n"
+    "#if max_limbs >= 4\n"
+    "  typedef amaru"         << size()     << "_limb4_t limb4_t;\n"
+    "#endif\n"
+    "typedef amaru"           << size()     << "_fields_t fields_t;\n"
+    "\n"
+    "#define amaru "          << function() << "\n"
+    "#include \"amaru/amaru.h\"\n"
     "\n"
     "#ifdef __cplusplus\n"
     "}\n"
-    "#endif\n"
-    "\n"
-    "#define AMARU_FUNCTION " << function() << "\n"
-    "#include \"amaru/amaru.h\"\n";
+    "#endif\n";
 }
 
 std::vector<alpha_delta_maximum_t>

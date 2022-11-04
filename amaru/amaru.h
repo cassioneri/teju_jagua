@@ -18,7 +18,7 @@ fields_t make_decimal(int32_t exponent, limb1_t mantissa) {
 
 static inline
 limb1_t rotr(limb1_t const n, unsigned s) {
-  return (n >> s) | (n << (config.size - s));
+  return (n >> s) | (n << (amaru_size - s));
 }
 
 static inline
@@ -48,15 +48,13 @@ fields_t remove_trailing_zeros(int32_t exponent, limb1_t mantissa) {
   return make_decimal(exponent, mantissa);
 }
 
-#if max_limbs >= 2
 static inline
-limb1_t infimum(limb1_t const m, limb1_t const upper, limb1_t const lower) {
-  limb2_t const upper_m = ((limb2_t) upper) * m;
-  limb2_t const lower_m = ((limb2_t) lower) * m;
-  return (upper_m + (lower_m >> config.size)) >>
-    (config.calculation.shift - config.size);
+limb1_t infimum(limb1_t const m, limb1_t const h, limb1_t const l) {
+  limb2_t const pu = ((limb2_t) h) * m;
+  limb2_t const pl = ((limb2_t) l) * m;
+  return (pu + (pl >> amaru_size)) >>
+    (amaru_calculation_shift - amaru_size);
 }
-#endif
 
 static inline
 bool is_multiple_of_pow5(limb1_t const m, int32_t const f) {
@@ -66,28 +64,28 @@ bool is_multiple_of_pow5(limb1_t const m, int32_t const f) {
 
 static inline
 bool is_multiple_of_pow2(limb1_t const m, int32_t const e) {
-  return 0 <= e && e <= config.mantissa.size && ((m >> e) << e) == m;
+  return 0 <= e && e <= amaru_mantissa_size && ((m >> e) << e) == m;
 }
 
 fields_t
 amaru(int32_t const exponent, limb1_t const mantissa) {
 
-  if (config.optimisation.integer &&
+  if (amaru_optimisation_integer &&
     is_multiple_of_pow2(mantissa, -exponent))
     return remove_trailing_zeros(0, mantissa >> -exponent);
 
-  limb1_t const mantissa_min = AMARU_POW2(limb1_t, config.mantissa.size);
+  limb1_t const mantissa_min = AMARU_POW2(limb1_t, amaru_mantissa_size);
   limb2_t const inv10        = ((limb1_t) -1) / 10 + 1;
 
   int32_t  const f     = log10_pow2(exponent);
-  uint32_t const extra = config.storage.is_compact ?
+  uint32_t const extra = amaru_storage_is_compact ?
     log10_pow2_remainder(exponent) : 0;
-  int32_t  const i     = (config.storage.is_compact ? f : exponent) -
-    config.storage.index_offset;
+  int32_t  const i     = (amaru_storage_is_compact ? f : exponent) -
+    amaru_storage_index_offset;
   limb1_t  const upper = multipliers[i].upper;
   limb1_t  const lower = multipliers[i].lower;
 
-  if (mantissa != mantissa_min || exponent == config.exponent.minimum) {
+  if (mantissa != mantissa_min || exponent == amaru_exponent_minimum) {
 
     limb1_t const m_b = (2 * mantissa + 1) << extra;
     limb1_t const b   = infimum(m_b, upper, lower);
@@ -95,7 +93,7 @@ amaru(int32_t const exponent, limb1_t const mantissa) {
     limb1_t const m_a = (2 * mantissa - 1) << extra;
     limb1_t const a   = infimum(m_a, upper, lower);
 
-    limb1_t const q   = (inv10 * b) >> config.size;
+    limb1_t const q   = (inv10 * b) >> amaru_size;
     limb1_t const s   = 10 * q;
 
     if (s >= a) {
@@ -112,7 +110,7 @@ amaru(int32_t const exponent, limb1_t const mantissa) {
         return remove_trailing_zeros(f + 1, q);
     }
 
-    if (config.optimisation.mid_point && (a ^ b) % 2 == 1)
+    if (amaru_optimisation_mid_point && (a ^ b) % 2 == 1)
       return make_decimal(f, (a + b) / 2 + 1);
 
     limb1_t const m_c = 2 * 2 * mantissa;
@@ -133,7 +131,7 @@ amaru(int32_t const exponent, limb1_t const mantissa) {
 
   if (b > a) {
 
-    limb1_t const q = (inv10 * b) >> config.size;
+    limb1_t const q = (inv10 * b) >> amaru_size;
     limb1_t const s = 10 * q;
 
     if (s > a || (s == a && is_multiple_of_pow5(m_a, f)))
@@ -154,7 +152,7 @@ amaru(int32_t const exponent, limb1_t const mantissa) {
 
   else if (b == a) {
     if (is_multiple_of_pow5(m_a, f)) {
-      limb1_t const q = (inv10 * a) >> config.size;
+      limb1_t const q = (inv10 * a) >> amaru_size;
       return 10 * q == a ? remove_trailing_zeros(f + 1, q) :
         make_decimal(f, a);
     }

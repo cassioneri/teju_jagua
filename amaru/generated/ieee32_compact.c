@@ -1,36 +1,28 @@
 // This file was auto-generated. DO NOT EDIT IT.
 #include "ieee32_compact.h"
-#include "amaru/config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-static config_t const config = {
-  /* size: */ 32,
-  /* exponent: */ {
-    /* minimum: */ -149
-  },
-  /* mantissa: */ {
-    /* size: */ 23
-  },
-  /* storage: */ {
-    /* limbs: */ 2,
-    /* is_compact: */ 1,
-    /* index_offset: */ -45
-  },
-  /* calculation: */ {
-    /* shift: */ 64
-  },
-  /* optimisation: */ {
-    /* integer: */ 1,
-    /* mid_point:*/ 1
-  }
-};
+#define amaru_size                   32
+#define amaru_exponent_minimum       -149
+#define amaru_mantissa_size          23
+#define amaru_storage_is_compact     1
+#define amaru_storage_index_offset   -45
+#define amaru_calculation_shift      64
+#define amaru_optimisation_integer   1
+#define amaru_optimisation_mid_point 1
+
+typedef amaru32_limb1_t  limb1_t;
+typedef amaru32_limb2_t  limb2_t;
+typedef amaru32_fields_t fields_t;
+
+#define amaru amaru_ieee32_compact
 
 static struct {
-  amaru32_limb1_t const upper;
-  amaru32_limb1_t const lower;
+  limb1_t const upper;
+  limb1_t const lower;
 } const multipliers[] = {
   { 0xb35dbf82, 0x1ae4f38c }, // -45
   { 0x8f7e32ce, 0x7bea5c70 }, // -44
@@ -112,8 +104,8 @@ static struct {
 };
 
 static struct {
-  amaru32_limb1_t const multiplier;
-  amaru32_limb1_t const bound;
+  limb1_t const multiplier;
+  limb1_t const bound;
 } const minverse[] = {
   { 0x00000001, 0xffffffff },
   { 0xcccccccd, 0x33333333 },
@@ -131,17 +123,6 @@ static struct {
   { 0xf6433fbd, 0x00000003 },
 };
 
-#define max_limbs amaru32_max_limbs
-typedef amaru32_limb1_t limb1_t;
-#if max_limbs >= 2
-  typedef amaru32_limb2_t limb2_t;
-#endif
-#if max_limbs >= 4
-  typedef amaru32_limb4_t limb4_t;
-#endif
-typedef amaru32_fields_t fields_t;
-
-#define amaru amaru_ieee32_compact
 #include "amaru/amaru.h"
 
 #ifdef __cplusplus

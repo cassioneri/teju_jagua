@@ -565,7 +565,6 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
 
   stream << "// This file was auto-generated. DO NOT EDIT IT.\n"
     "#include \"" << dot_h() << "\"\n"
-    "#include \"amaru/config.h\"\n"
     "\n"
     "#ifdef __cplusplus\n"
     "extern \"C\" {\n"
@@ -587,11 +586,11 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
       shift = s;
   }
 
-  // Optimal shift is 2 * size since it prevents multipliy_and_shift to
-  // deal with partial limbs. In addition to subtract 1 to compensate the
-  // increment adjustment made when the shift is output.
+  // Optimal shift is 2 * size since it prevents infimum to deal with
+  // partial limbs. In addition, we subtract 1 to compensate shift's
+  // increment made later on, when shift is output. (See below.)
   if (is_compact())
-    shift = 2 * size() - 1;
+    shift = std::max(shift, 2 * size() - 1);
 
   // Replace minimal fast EAFs to use the same shift.
 
@@ -613,35 +612,28 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   auto const p2_size = integer_t{1} << size();
 
   stream <<
-    "static config_t const config = {\n"
-    "  /* size: */ "           << size()              << ",\n"
-    "  /* exponent: */ {\n"
-    "    /* minimum: */ "      << exponent_min()      << "\n"
-    "  },\n"
-    "  /* mantissa: */ {\n"
-    "    /* size: */ "         << mantissa_size()     << "\n"
-    "  },\n"
-    "  /* storage: */ {\n"
-    "    /* limbs: */ "        << storage_limbs()     << ",\n"
-    "    /* is_compact: */ "   << is_compact()        << ",\n"
-    "    /* index_offset: */ " << index_offset()      << "\n"
-    "  },\n"
-    "  /* calculation: */ {\n"
-    // Instead of Amaru dividing multipliy_and_shift(m_a, upper, lower) by 2
-    // we increment the shift here so this has the same effect.
-    "    /* shift: */ "        << shift + 1           << "\n"
-    "  },\n"
-    "  /* optimisation: */ {\n"
-    "    /* integer: */ "      << optimise_integer()  << ",\n"
-    "    /* mid_point:*/ "     << optimise_midpoint() << "\n"
-    "  }\n"
-    "};\n"
+    "#define amaru_size                   " << size()              << "\n"
+    "#define amaru_exponent_minimum       " << exponent_min()      << "\n"
+    "#define amaru_mantissa_size          " << mantissa_size()     << "\n"
+    "#define amaru_storage_is_compact     " << is_compact()        << "\n"
+    "#define amaru_storage_index_offset   " << index_offset()      << "\n"
+    // Instead of using infimum(m, upper, lower) / 2 in Amaru, shift is
+    // incremented here and the division by 2 is removed.
+    "#define amaru_calculation_shift      " << shift + 1           << "\n"
+    "#define amaru_optimisation_integer   " << optimise_integer()  << "\n"
+    "#define amaru_optimisation_mid_point " << optimise_midpoint() << "\n"
+    "\n"
+    "typedef amaru"  << size()     << "_limb1_t  limb1_t;\n"
+    "typedef amaru"  << size()     << "_limb2_t  limb2_t;\n"
+    "typedef amaru"  << size()     << "_fields_t fields_t;\n"
+    "\n"
+    "#define amaru " << function() << "\n"
     "\n";
 
   stream <<
     "static struct {\n"
-    "  amaru" << size() << "_limb1_t const upper;\n"
-    "  amaru" << size() << "_limb1_t const lower;\n"
+    "  limb1_t const upper;\n"
+    "  limb1_t const lower;\n"
     "} const multipliers[] = {\n";
 
   auto const nibbles = size() / 4;
@@ -649,7 +641,7 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   auto e2      = exponent_min();
   auto e2_or_f = is_compact() ? log10_pow2(e2) : e2;
 
-  for (auto const& fast_eaf : fast_eafs) {
+  for (const auto &fast_eaf : fast_eafs) {
 
     integer_t upper, lower;
     divide_qr(fast_eaf.U, p2_size, upper, lower);
@@ -668,23 +660,31 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   stream << "};\n"
     "\n"
     "static struct {\n"
-    "  amaru" << size() << "_limb1_t const multiplier;\n"
-    "  amaru" << size() << "_limb1_t const bound;\n"
+    "  limb1_t const multiplier;\n"
+    "  limb1_t const bound;\n"
     "} const minverse[] = {\n";
 
-  auto const minverse5  = integer_t{p2_size - (p2_size - 1) / 5};
+  auto const minverse5 = integer_t{ p2_size - (p2_size - 1) / 5 };
   auto multiplier = integer_t{1};
   auto p5 = integer_t{1};
 
-  // Amaru checks whether is_multiple_of_pow5(C, f) for
-  // 1. C  = 2 * mantissa + 1 <= 2 * mantissa_max + 1;
-  // 2. C <= 2 * mantissa * 2^e * 5^{-f} <= 20 * mantissa_max;
-  // 3. C  = 20 * mantissa_min * 2^e * 5^{-f} <= 200 * mantissa_min;
-  // Hence, 200 * mantissa_max is a conservative bound, i.e.,
-  // If 5^f > 200 * mantissa_max, then is_multiple_of_pow5(C, f) == false;
+  // Amaru calls is_multiple_of_pow5(m, f) for
+  //
+  //   m =  2 * mantissa     - 1
+  //   m =  2 * mantissa     + 1
+  //   m =  4 * mantissa_min - 1
+  //   m =  4 * mantissa_min * 2^{exponent - f} * 5^{-f}
+  //     =  2 * mantissa_max * 2^{exponent - f} * 5^{-f}
+  //   m = 40 * mantissa_min * 2^{exponent - f} * 5^{-f}
+  //     = 20 * mantissa_max * 2^{exponent - f} * 5^{-f}
+  //
+  // where 2^{exponent} < 10^{f + 1}. Hence, 2^{exponent - f} < 5^f * 10
+  // which yields 2^{exponent - f} * 5^{-f} < 10. Therefore, 200 * mantissa_max
+  // is a conservative bound, i.e., if 5^f > 200 * mantissa_max >= m, then
+  // is_multiple_of_pow5(m, f) == false;
   for (int32_t f = 0; p5 <= 200 * mantissa_max(); ++f) {
 
-    auto const bound = p2_size / p5 - (f == 0);
+    const auto bound = p2_size / p5 - (f == 0);
 
     stream <<
       "  { " << std::hex << std::setfill('0') <<
@@ -698,17 +698,6 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   stream << std::dec <<
     "};\n"
     "\n"
-    "#define max_limbs amaru" << size()     << "_max_limbs\n"
-    "typedef amaru"           << size()     << "_limb1_t limb1_t;\n"
-    "#if max_limbs >= 2\n"
-    "  typedef amaru"         << size()     << "_limb2_t limb2_t;\n"
-    "#endif\n"
-    "#if max_limbs >= 4\n"
-    "  typedef amaru"         << size()     << "_limb4_t limb4_t;\n"
-    "#endif\n"
-    "typedef amaru"           << size()     << "_fields_t fields_t;\n"
-    "\n"
-    "#define amaru "          << function() << "\n"
     "#include \"amaru/amaru.h\"\n"
     "\n"
     "#ifdef __cplusplus\n"

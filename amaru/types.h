@@ -59,14 +59,14 @@ amaru_multiply(uint64_t const a, uint64_t const b) {
 // 32 bits
 //--------------------------------------------------------------------------
 
-typedef uint32_t amaru32_limb1_t;
-typedef uint64_t amaru32_limb2_t;
+#define amaru32_limb1_t uint32_t
+#define amaru32_limb2_t uint64_t
 
 #if defined(__clang__) || defined(__GNUC__)
-  typedef __uint128_t       amaru32_limb4_t;
-  #define amaru32_multiply  amaru_built_in_4
+  #define amaru32_limb4_t       __uint128_t
+  #define amaru32_multiply_type amaru_built_in_4
 #elif defined(_MSC_VER)
-  #define amaru32_multiply  amaru_syntectic_2
+  #define amaru32_multiply_type amaru_syntectic_2
 #endif
 
 typedef struct {
@@ -78,13 +78,13 @@ typedef struct {
 // 64 bits
 //--------------------------------------------------------------------------
 
-typedef uint64_t amaru64_limb1_t;
+#define amaru64_limb1_t uint64_t
 
 #if defined(__clang__) || defined(__GNUC__)
-  typedef __uint128_t       amaru64_limb2_t;
-  #define amaru64_multiply  amaru_built_in_2
+  #define amaru64_limb2_t       __uint128_t
+  #define amaru64_multiply_type amaru_built_in_2
 #elif defined(_MSC_VER)
-  #define amaru64_multiply  amaru_syntectic_1
+  #define amaru64_multiply_type amaru_syntectic_1
 #endif
 
 typedef struct {

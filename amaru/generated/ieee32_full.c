@@ -14,15 +14,23 @@ extern "C" {
 #define amaru_optimisation_integer   1
 #define amaru_optimisation_mid_point 1
 
-typedef amaru32_limb1_t  limb1_t;
-typedef amaru32_limb2_t  limb2_t;
-typedef amaru32_fields_t fields_t;
+#define amaru_function               amaru_ieee32_full
+#define amaru_multiply_type          amaru32_multiply_type
+#define amaru_fields_t               amaru32_fields_t
+#define amaru_limb1_t                amaru32_limb1_t
 
-#define amaru amaru_ieee32_full
+#if defined(amaru32_limb2_t)
+  #define amaru_limb2_t              amaru32_limb2_t
+#endif
+
+#if defined(amaru32_limb4_t)
+  #define amaru_limb4_t              amaru32_limb4_t
+#endif
+
 
 static struct {
-  limb1_t const upper;
-  limb1_t const lower;
+  amaru_limb1_t const upper;
+  amaru_limb1_t const lower;
 } const multipliers[] = {
   { 0x0059aedf, 0xc10d727a }, // -149
   { 0x00b35dbf, 0x821ae4f4 }, // -148
@@ -281,8 +289,8 @@ static struct {
 };
 
 static struct {
-  limb1_t const multiplier;
-  limb1_t const bound;
+  amaru_limb1_t const multiplier;
+  amaru_limb1_t const bound;
 } const minverse[] = {
   { 0x00000001, 0xffffffff },
   { 0xcccccccd, 0x33333333 },

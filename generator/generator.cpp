@@ -148,19 +148,19 @@ get_maximum_2(integer_t const& alpha_2,
 }
 
 /**
- * \brief Returns the fields type corresponding to a given size.
+ * \brief Returns the type prefix corresponding to a given size.
  *
  * \param size              The size.
  *
- * \returns The fields type corresponding to the given size.
+ * \returns The type prefix corresponding to a given size.
  */
 std::string
-get_fields(uint32_t const size) {
+get_prefix(uint32_t const size) {
   switch (size) {
     case 32:
-      return "amaru32_fields_t";
+      return "amaru32_";
     case 64:
-      return "amaru64_fields_t";
+      return "amaru64_";
   }
 
   // Should never get here since size is previously validated.
@@ -231,10 +231,10 @@ struct generator_t::impl_t {
   size() const;
 
   /**
-   * \brief Returns the C/C++ name of Amaru's fields type.
+   * \brief Returns the type prefix corresponding to a given size.
    */
   std::string const&
-  fields() const;
+  prefix() const;
 
   /**
    * \brief Returns the name of Amaru's conversion function.
@@ -393,7 +393,7 @@ generator_t::self() const {
 
 generator_t::generator_t(config_t config, std::string directory) :
   config_      {std::move(config)                            },
-  fields_      {get_fields(self().size())                    },
+  prefix_      {get_prefix(self().size())                    },
   function_    {"amaru_" + self().id()                       },
   mantissa_min_{AMARU_POW2(integer_t, self().mantissa_size())},
   mantissa_max_{2 * self().mantissa_min()                    },
@@ -449,8 +449,8 @@ generator_t::impl_t::size() const {
 }
 
 std::string const&
-generator_t::impl_t::fields() const {
-  return self.fields_;
+generator_t::impl_t::prefix() const {
+  return self.prefix_;
 }
 
 std::string const&
@@ -548,8 +548,8 @@ generator_t::impl_t::generate_dot_h(std::ostream& stream) const {
     "#ifdef __cplusplus\n"
     "extern \"C\" {\n"
     "#endif\n"
-    "\n" << fields() << '\n' <<
-    function() << "(int32_t exponent, amaru" << size() << "_limb1_t "
+    "\n" << prefix() << "fields_t\n" <<
+    function() << "(int32_t exponent, " << prefix() << "limb1_t "
       "mantissa);\n"
     "\n" <<
     "#ifdef __cplusplus\n"
@@ -622,18 +622,26 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
     "#define amaru_calculation_shift      " << shift + 1           << "\n"
     "#define amaru_optimisation_integer   " << optimise_integer()  << "\n"
     "#define amaru_optimisation_mid_point " << optimise_midpoint() << "\n"
+      "\n"
+    "#define amaru_function               " << function() << "\n"
+    "#define amaru_multiply_type          " << prefix() << "multiply_type\n"
+    "#define amaru_fields_t               " << prefix() << "fields_t\n"
+    "#define amaru_limb1_t                " << prefix() << "limb1_t\n"
     "\n"
-    "typedef amaru"  << size()     << "_limb1_t  limb1_t;\n"
-    "typedef amaru"  << size()     << "_limb2_t  limb2_t;\n"
-    "typedef amaru"  << size()     << "_fields_t fields_t;\n"
+    "#if defined(" << prefix() << "limb2_t)\n"
+    "  #define amaru_limb2_t              " << prefix() << "limb2_t\n"
+    "#endif\n"
     "\n"
-    "#define amaru " << function() << "\n"
+    "#if defined(" << prefix() << "limb4_t)\n"
+    "  #define amaru_limb4_t              " << prefix() << "limb4_t\n"
+    "#endif\n"
+    "\n"
     "\n";
 
   stream <<
     "static struct {\n"
-    "  limb1_t const upper;\n"
-    "  limb1_t const lower;\n"
+    "  amaru_limb1_t const upper;\n"
+    "  amaru_limb1_t const lower;\n"
     "} const multipliers[] = {\n";
 
   auto const nibbles = size() / 4;
@@ -660,8 +668,8 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   stream << "};\n"
     "\n"
     "static struct {\n"
-    "  limb1_t const multiplier;\n"
-    "  limb1_t const bound;\n"
+    "  amaru_limb1_t const multiplier;\n"
+    "  amaru_limb1_t const bound;\n"
     "} const minverse[] = {\n";
 
   auto const minverse5 = integer_t{ p2_size - (p2_size - 1) / 5 };

@@ -40,7 +40,7 @@ private:
   impl_t const self() const;
 
   config_t     config_;
-  std::string  fields_;
+  std::string  prefix_;
   std::string  function_;
   integer_t    mantissa_min_;
   integer_t    mantissa_max_;

@@ -26,36 +26,34 @@ amaru_limb1_t
 infimum(amaru_limb1_t const m, amaru_limb1_t const upper,
   amaru_limb1_t const lower) {
 
-  #if amaru_calculation_infimum == amaru_built_in_4 && \
-    amaru_multiply_type >= amaru_built_in_4
+  #if amaru_calculation_infimum > amaru_multiply_type
+    #error "Value of 'amaru_calculation_infimum' is to large."
+  #endif
 
+  #if amaru_calculation_infimum == amaru_built_in_4
     amaru_limb2_t const n = (((amaru_limb2_t) upper) << amaru_size) | lower;
     return (((amaru_limb4_t) n) * m) >> amaru_calculation_shift;
 
-  #elif amaru_calculation_infimum == amaru_syntectic_2 && \
-    amaru_multiply_type >= amaru_syntectic_2
+  #elif amaru_calculation_infimum == amaru_syntectic_2
 
     amaru_limb2_t const n = (((amaru_limb2_t) upper) << amaru_size) | lower;
     amaru_limb2_t u_prod;
-    amaru_limb2_t const l_prod = amaru_multiply(n, m, &uprod);
+    amaru_limb2_t const l_prod = amaru_multiply(n, m, &u_prod);
 
     if (amaru_calculation_shift >= 2 * amaru_size)
       return u_prod >> (amaru_calculation_shift - 2 * amaru_size);
 
     return u_prod << (2 * amaru_size - amaru_calculation_shift) |
-      (l_prod >> amaru_calculation_shift);
+      l_prod >> (amaru_calculation_shift - amaru_size);
 
-  #elif amaru_calculation_infimum == amaru_built_in_2 && \
-    amaru_multiply_type >= amaru_built_in_2
+  #elif amaru_calculation_infimum == amaru_built_in_2
 
     amaru_limb2_t const u_prod = ((amaru_limb2_t) upper) * m;
     amaru_limb2_t const l_prod = ((amaru_limb2_t) lower) * m;
     return (u_prod + (l_prod >> amaru_size)) >>
       (amaru_calculation_shift - amaru_size);
 
-  #elif amaru_calculation_infimum == amaru_syntectic_1 && \
-    amaru_multiply_type >= amaru_syntectic_1
-
+  #elif amaru_calculation_infimum == amaru_syntectic_1
     amaru_limb1_t ul_prod;
     (void) amaru_multiply(lower, m, &ul_prod);
 
@@ -72,11 +70,8 @@ infimum(amaru_limb1_t const m, amaru_limb1_t const upper,
     return u_prod << (2 * amaru_size - amaru_calculation_shift) |
       (l_prod >> amaru_calculation_shift);
 
-  #elif amaru_calculation_infimum == amaru_built_in_1 && \
-    amaru_multiply_type >= amaru_built_in_1
+  #elif amaru_calculation_infimum == amaru_built_in_1
 
-  #else
-    #error "Too large 'amaru_calculation_type'"
   #endif
 }
 

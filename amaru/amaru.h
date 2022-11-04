@@ -13,8 +13,12 @@ extern "C" {
 static inline
 amaru_limb1_t
 div10(amaru_limb1_t const m) {
-  amaru_limb2_t const inv10 = ((amaru_limb1_t) -1) / 10 + 1;
-  return (inv10 * m) >> amaru_size;
+  #if amaru_multiply_type >= amaru_built_in_2
+    amaru_limb2_t const inv10 = ((amaru_limb1_t) -1) / 10 + 1;
+    return (inv10 * m) >> amaru_size;
+  #else
+    return m / 10;
+  #endif
 }
 
 static inline

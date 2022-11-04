@@ -23,12 +23,18 @@ div10(amaru_limb1_t const m) {
 
 static inline
 amaru_limb1_t
-infimum(amaru_limb1_t const m, amaru_limb1_t const h,
-  amaru_limb1_t const l) {
-  amaru_limb2_t const pu = ((amaru_limb2_t) h) * m;
-  amaru_limb2_t const pl = ((amaru_limb2_t) l) * m;
-  return (pu + (pl >> amaru_size)) >>
-    (amaru_calculation_shift - amaru_size);
+infimum(amaru_limb1_t const m, amaru_limb1_t const upper,
+  amaru_limb1_t const lower) {
+  #if amaru_multiply_type >= amaru_built_in_4
+    amaru_limb2_t n = (((amaru_limb2_t) upper) << amaru_size) | lower;
+    return (((amaru_limb4_t) n) * m) >> amaru_calculation_shift;
+  #elif amaru_multiply_type >= amaru_built_in_2
+    amaru_limb2_t const u_prod = ((amaru_limb2_t) upper) * m;
+    amaru_limb2_t const l_prod = ((amaru_limb2_t) lower) * m;
+    return (u_prod + (l_prod >> amaru_size)) >>
+      (amaru_calculation_shift - amaru_size);
+  #elif amaru_multiply_type >= amaru_syntectic_1
+  #endif
 }
 
 static inline

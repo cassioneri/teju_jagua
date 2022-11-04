@@ -7,7 +7,7 @@
 #endif
 
 //--------------------------------------------------------------------------
-// Flags indicating multiplication capabilities.
+// Flags indicating the platform multiplication capabilities.
 //--------------------------------------------------------------------------
 
 // The following macros define the possible values of amaru_multiply_type
@@ -21,7 +21,9 @@
 
 /**
  * \brief Platform provides amaru_multiply which takes 1-limb operands and
- * yields the upper 1-limb of the 2-limb product.
+ * returns the lower 1-limb of the 2-limb product. It also takes a third
+ * argument pointer whose pointed value is set to the upper 1-limb of the
+ * 2-limb product.
  */
 #define amaru_syntectic_1   1
 
@@ -33,7 +35,9 @@
 
 /**
  * \brief Platform provides amaru_multiply which takes 2-limb operands and
- * yields the upper 2-limb of the 4-limb product.
+ * returns the lower 2-limb of the 4-limb product. It also takes a third
+ * argument pointer whose pointed value is set to the upper 2-limb of the
+ * 4-limb product.
  */
 #define amaru_syntectic_2   3
 
@@ -45,13 +49,13 @@
 
 static inline
 uint64_t
-amaru_multiply(uint64_t const a, uint64_t const b) {
+amaru_multiply(uint64_t const a, uint64_t const b, uint64_t* upper) {
   #if defined(__clang__) || defined(__GNUC__)
-    return (((__uint128_t) a) * b) >> 64;
+    __uint128_t prod = ((__uint128_t) a) * b;
+    *upper = prod >> 64;
+    return prod;
   #elif defined(_MSC_VER)
-    uint64_t upper;
-    (void) _umul128(a, b, &upper);
-    return upper;
+    return _umul128(a, b, upper);
   #endif
 }
 

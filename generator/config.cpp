@@ -17,13 +17,13 @@ from_json(nlohmann::json const& src, config_t::mantissa_t& tgt) {
 
 void
 from_json(nlohmann::json const& src, config_t::storage_t& tgt) {
-  src["limbs"].get_to(tgt.limbs);
   src["base" ].get_to(tgt.base );
 }
 
 void
 from_json(nlohmann::json const& src, config_t::calculation_t& tgt) {
-  src["limbs"].get_to(tgt.limbs);
+  src["div10"  ].get_to(tgt.div10  );
+  src["infimum"].get_to(tgt.infimum);
 }
 
 void
@@ -62,14 +62,6 @@ validate(config_t const& json) {
   if (!(uint64_t(json.exponent.size) + json.mantissa.size <= json.size))
     throw exception_t{"Constraint violation: "
       "exponent.size + mantissa.size <= size"};
-
-  if (!(json.storage.limbs == 1 || json.storage.limbs == 2))
-    throw exception_t{"Constraint violation: "
-      "storage.limbs in { 1, 2 }"};
-
-  if (!(json.calculation.limbs == 1 || json.calculation.limbs == 2))
-    throw exception_t{"Constraint violation: "
-      "calculation.limbs in { 1, 2, 4 }"};
 }
 
 } // namespace amaru

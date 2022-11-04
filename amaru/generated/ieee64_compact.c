@@ -10,6 +10,8 @@ extern "C" {
 #define amaru_mantissa_size          52
 #define amaru_storage_is_compact     1
 #define amaru_storage_index_offset   -324
+#define amaru_calculation_div10      2
+#define amaru_calculation_infimum    2
 #define amaru_calculation_shift      128
 #define amaru_optimisation_integer   1
 #define amaru_optimisation_mid_point 1

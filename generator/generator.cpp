@@ -291,16 +291,28 @@ struct generator_t::impl_t {
   storage_base() const;
 
   /**
+   * \brief Returns whether using a compact table of multipliers.
+   */
+  bool
+  is_compact() const;
+
+  /**
    * \brief Returns the index offset.
    */
   std::int32_t
   index_offset() const;
 
   /**
-   * \brief Returns whether using a compact table of multipliers.
+   * \brief Returns the calculation method for div10.
    */
-  bool
-  is_compact() const;
+  std::uint32_t
+  calculation_div10() const;
+
+  /**
+   * \brief Returns the calculation method for infimum.
+   */
+  std::uint32_t
+  calculation_infimum() const;
 
   /**
    * \brief Optimises for integers.
@@ -483,14 +495,14 @@ generator_t::impl_t::mantissa_max() const {
   return self.mantissa_max_;
 }
 
-std::uint32_t
-generator_t::impl_t::storage_limbs() const {
-  return self.config_.storage.limbs;
-}
-
 base_t
 generator_t::impl_t::storage_base() const {
   return self.config_.storage.base;
+}
+
+bool
+generator_t::impl_t::is_compact() const {
+  return self.config_.storage.base == base_t::decimal;
 }
 
 std::int32_t
@@ -498,9 +510,14 @@ generator_t::impl_t::index_offset() const {
   return self.index_offset_;
 }
 
-bool
-generator_t::impl_t::is_compact() const {
-  return self.config_.storage.base == base_t::decimal;
+std::uint32_t
+generator_t::impl_t::calculation_div10() const {
+  return static_cast<std::uint32_t>(self.config_.calculation.div10);
+}
+
+std::uint32_t
+generator_t::impl_t::calculation_infimum() const {
+  return static_cast<std::uint32_t>(self.config_.calculation.infimum);
 }
 
 bool
@@ -612,16 +629,18 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   auto const p2_size = integer_t{1} << size();
 
   stream <<
-    "#define amaru_size                   " << size()              << "\n"
-    "#define amaru_exponent_minimum       " << exponent_min()      << "\n"
-    "#define amaru_mantissa_size          " << mantissa_size()     << "\n"
-    "#define amaru_storage_is_compact     " << is_compact()        << "\n"
-    "#define amaru_storage_index_offset   " << index_offset()      << "\n"
+    "#define amaru_size                   " << size()                << "\n"
+    "#define amaru_exponent_minimum       " << exponent_min()        << "\n"
+    "#define amaru_mantissa_size          " << mantissa_size()       << "\n"
+    "#define amaru_storage_is_compact     " << is_compact()          << "\n"
+    "#define amaru_storage_index_offset   " << index_offset()        << "\n"
+    "#define amaru_calculation_div10      " << calculation_div10()   << "\n"
+    "#define amaru_calculation_infimum    " << calculation_infimum() << "\n"
     // Instead of using infimum(m, upper, lower) / 2 in Amaru, shift is
     // incremented here and the division by 2 is removed.
-    "#define amaru_calculation_shift      " << shift + 1           << "\n"
-    "#define amaru_optimisation_integer   " << optimise_integer()  << "\n"
-    "#define amaru_optimisation_mid_point " << optimise_midpoint() << "\n"
+    "#define amaru_calculation_shift      " << shift + 1             << "\n"
+    "#define amaru_optimisation_integer   " << optimise_integer()    << "\n"
+    "#define amaru_optimisation_mid_point " << optimise_midpoint()   << "\n"
       "\n"
     "#define amaru_function               " << function() << "\n"
     "#define amaru_multiply_type          " << prefix() << "multiply_type\n"

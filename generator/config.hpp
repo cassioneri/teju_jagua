@@ -1,6 +1,8 @@
 #ifndef AMARU_GENERATOR_CONFIG_HPP_
 #define AMARU_GENERATOR_CONFIG_HPP_
 
+#include "amaru/types.h"
+
 #include <nlohmann/json.hpp>
 
 #include <cstdint>
@@ -14,8 +16,24 @@ enum class base_t {
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM( base_t, {
-    {base_t::binary , "binary" },
-    {base_t::decimal, "decimal"},
+  {base_t::binary , "binary" },
+  {base_t::decimal, "decimal"},
+})
+
+enum class multiply_t {
+  built_in_1  = amaru_built_in_1,
+  syntectic_1 = amaru_syntectic_1,
+  built_in_2  = amaru_built_in_2,
+  syntectic_2 = amaru_syntectic_2,
+  built_in_4  = amaru_built_in_4
+};
+
+NLOHMANN_JSON_SERIALIZE_ENUM( multiply_t, {
+  {multiply_t::built_in_1 , "built_in_1"  },
+  {multiply_t::syntectic_1, "syntectic_1" },
+  {multiply_t::built_in_2 , "built_in_2"  },
+  {multiply_t::syntectic_2, "syntectic_2" },
+  {multiply_t::built_in_4 , "built_in_4"  },
 })
 
 /**
@@ -53,15 +71,12 @@ struct config_t {
   } mantissa;
 
   struct storage_t {
-    std::uint32_t limbs;
-    base_t        base;
-    struct {
-      // ???
-    } external;
+    base_t base;
   } storage;
 
   struct calculation_t {
-    std::uint32_t limbs;
+    multiply_t div10;
+    multiply_t infimum;
   } calculation;
 
   struct optimisation_t {

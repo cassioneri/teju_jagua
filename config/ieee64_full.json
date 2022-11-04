@@ -13,16 +13,16 @@
   },
 
   "storage": {
-    "limbs": 2,
-    "base" : "binary"
+    "base": "binary"
   },
 
   "calculation": {
-    "limbs": 2
+    "div10"  : "built_in_2",
+    "infimum": "built_in_2"
   },
 
   "optimisation": {
-    "integer"   : true,
-    "mid_point" : true
+    "integer"  : true,
+    "mid_point": true
   }
 }

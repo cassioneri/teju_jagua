@@ -11,6 +11,36 @@ extern "C" {
 #endif
 
 static inline
+amaru_limb1_t
+div10(amaru_limb1_t const m) {
+  amaru_limb2_t const inv10 = ((amaru_limb1_t) -1) / 10 + 1;
+  return (inv10 * m) >> amaru_size;
+}
+
+static inline
+amaru_limb1_t
+infimum(amaru_limb1_t const m, amaru_limb1_t const h,
+  amaru_limb1_t const l) {
+  amaru_limb2_t const pu = ((amaru_limb2_t) h) * m;
+  amaru_limb2_t const pl = ((amaru_limb2_t) l) * m;
+  return (pu + (pl >> amaru_size)) >>
+    (amaru_calculation_shift - amaru_size);
+}
+
+static inline
+bool
+is_multiple_of_pow2(amaru_limb1_t const m, int32_t const e) {
+  return 0 <= e && e <= amaru_mantissa_size && ((m >> e) << e) == m;
+}
+
+static inline
+bool
+is_multiple_of_pow5(amaru_limb1_t const m, int32_t const f) {
+  return f >= 0 && f < (int32_t) (sizeof(minverse) / sizeof(minverse[0])) &&
+    m * minverse[f].multiplier <= minverse[f].bound;
+}
+
+static inline
 amaru_fields_t
 make_decimal(int32_t exponent, amaru_limb1_t mantissa) {
   amaru_fields_t const decimal = { exponent, mantissa };
@@ -49,36 +79,6 @@ remove_trailing_zeros(int32_t exponent, amaru_limb1_t mantissa) {
   }
 
   return make_decimal(exponent, mantissa);
-}
-
-static inline
-amaru_limb1_t
-div10(amaru_limb1_t const m) {
-  amaru_limb2_t const inv10 = ((amaru_limb1_t) -1) / 10 + 1;
-  return (inv10 * m) >> amaru_size;
-}
-
-static inline
-amaru_limb1_t
-infimum(amaru_limb1_t const m, amaru_limb1_t const h,
-  amaru_limb1_t const l) {
-  amaru_limb2_t const pu = ((amaru_limb2_t) h) * m;
-  amaru_limb2_t const pl = ((amaru_limb2_t) l) * m;
-  return (pu + (pl >> amaru_size)) >>
-    (amaru_calculation_shift - amaru_size);
-}
-
-static inline
-bool
-is_multiple_of_pow5(amaru_limb1_t const m, int32_t const f) {
-  return f >= 0 && f < (int32_t) (sizeof(minverse) / sizeof(minverse[0])) &&
-    m * minverse[f].multiplier <= minverse[f].bound;
-}
-
-static inline
-bool
-is_multiple_of_pow2(amaru_limb1_t const m, int32_t const e) {
-  return 0 <= e && e <= amaru_mantissa_size && ((m >> e) << e) == m;
 }
 
 amaru_fields_t

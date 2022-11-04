@@ -1,6 +1,8 @@
 #include "generator/config.hpp"
 #include "generator/exception.hpp"
 
+#include <iostream>
+
 namespace amaru {
 
 void
@@ -62,6 +64,20 @@ validate(config_t const& json) {
   if (!(uint64_t(json.exponent.size) + json.mantissa.size <= json.size))
     throw exception_t{"Constraint violation: "
       "exponent.size + mantissa.size <= size"};
+
+  if (json.storage.base == base_t::invalid)
+    throw exception_t{"Constraint violation: "
+      "storage.base in { \"binary\", \"decimal\" } "};
+
+  if (json.calculation.div10 == multiply_t::invalid)
+    throw exception_t{"Constraint violation: "
+      "calculation.div10 in { \"built_in_1\", \"syntectic_1\", "
+      "\"built_in_2\" } "};
+
+  if (json.calculation.infimum == multiply_t::invalid)
+    throw exception_t{"Constraint violation: "
+      "calculation.infimum in { \"built_in_1\", \"syntectic_1\", "
+      "\"built_in_2\", \"syntectic_2\", \"built_in_4\" } "};
 }
 
 } // namespace amaru

@@ -11,16 +11,19 @@
 namespace amaru {
 
 enum class base_t {
+  invalid = - 1,
   binary  = 0,
   decimal = 1
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM( base_t, {
-  {base_t::binary , "binary" },
-  {base_t::decimal, "decimal"},
+  { base_t::invalid, "invalid" },
+  { base_t::binary , "binary"  },
+  { base_t::decimal, "decimal" },
 })
 
 enum class multiply_t {
+  invalid     = amaru_built_in_1 - 1,
   built_in_1  = amaru_built_in_1,
   syntectic_1 = amaru_syntectic_1,
   built_in_2  = amaru_built_in_2,
@@ -29,11 +32,12 @@ enum class multiply_t {
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM( multiply_t, {
-  {multiply_t::built_in_1 , "built_in_1"  },
-  {multiply_t::syntectic_1, "syntectic_1" },
-  {multiply_t::built_in_2 , "built_in_2"  },
-  {multiply_t::syntectic_2, "syntectic_2" },
-  {multiply_t::built_in_4 , "built_in_4"  },
+  { multiply_t::invalid    , "invalid"     },
+  { multiply_t::built_in_1 , "built_in_1"  },
+  { multiply_t::syntectic_1, "syntectic_1" },
+  { multiply_t::built_in_2 , "built_in_2"  },
+  { multiply_t::syntectic_2, "syntectic_2" },
+  { multiply_t::built_in_4 , "built_in_4"  },
 })
 
 /**

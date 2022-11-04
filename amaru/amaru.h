@@ -11,18 +11,21 @@ extern "C" {
 #endif
 
 static inline
-fields_t make_decimal(int32_t exponent, limb1_t mantissa) {
+fields_t
+make_decimal(int32_t exponent, limb1_t mantissa) {
   fields_t const decimal = { exponent, mantissa };
   return decimal;
 }
 
 static inline
-limb1_t rotr(limb1_t const n, unsigned s) {
+limb1_t
+rotr(limb1_t const n, unsigned s) {
   return (n >> s) | (n << (amaru_size - s));
 }
 
 static inline
-fields_t remove_trailing_zeros(int32_t exponent, limb1_t mantissa) {
+fields_t
+remove_trailing_zeros(int32_t exponent, limb1_t mantissa) {
 
   limb1_t const minv5  = -(((limb1_t) -1) / 5);
   limb1_t const minv25 = minv5 * minv5;
@@ -49,7 +52,8 @@ fields_t remove_trailing_zeros(int32_t exponent, limb1_t mantissa) {
 }
 
 static inline
-limb1_t infimum(limb1_t const m, limb1_t const h, limb1_t const l) {
+limb1_t
+infimum(limb1_t const m, limb1_t const h, limb1_t const l) {
   limb2_t const pu = ((limb2_t) h) * m;
   limb2_t const pl = ((limb2_t) l) * m;
   return (pu + (pl >> amaru_size)) >>
@@ -57,13 +61,15 @@ limb1_t infimum(limb1_t const m, limb1_t const h, limb1_t const l) {
 }
 
 static inline
-bool is_multiple_of_pow5(limb1_t const m, int32_t const f) {
+bool
+is_multiple_of_pow5(limb1_t const m, int32_t const f) {
   return f >= 0 && f < (int32_t) (sizeof(minverse) / sizeof(minverse[0])) &&
     m * minverse[f].multiplier <= minverse[f].bound;
 }
 
 static inline
-bool is_multiple_of_pow2(limb1_t const m, int32_t const e) {
+bool
+is_multiple_of_pow2(limb1_t const m, int32_t const e) {
   return 0 <= e && e <= amaru_mantissa_size && ((m >> e) << e) == m;
 }
 

@@ -10,7 +10,7 @@
 // Flags indicating multiplication capabilities.
 //--------------------------------------------------------------------------
 
-// The following macros defined the possible values of amaru<size>_multiply
+// The following macros define the possible values of amaru_multiply_type
 // to be defined later.
 
 /**

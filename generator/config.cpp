@@ -69,7 +69,9 @@ validate(config_t const& json) {
     throw exception_t{"Constraint violation: "
       "storage.base in { \"binary\", \"decimal\" } "};
 
-  if (json.calculation.div10 == multiply_t::invalid)
+  auto const div10 = static_cast<int>(json.calculation.div10);
+  if (!(static_cast<int>(multiply_t::built_in_1) <= div10 && div10 <=
+     static_cast<int>(multiply_t::built_in_2)))
     throw exception_t{"Constraint violation: "
       "calculation.div10 in { \"built_in_1\", \"syntectic_1\", "
       "\"built_in_2\" } "};

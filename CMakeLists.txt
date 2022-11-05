@@ -12,6 +12,8 @@ project(amaru
   LANGUAGES C CXX
 )
 
+set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_options(-mpreferred-stack-boundary=6)
 endif()

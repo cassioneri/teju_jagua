@@ -4,9 +4,6 @@
 #include "amaru/types.h"
 #include "other/other.hpp"
 
-#include <boost/multiprecision/cpp_int.hpp>
-#include <boost/multiprecision/cpp_bin_float.hpp>
-
 #include <gtest/gtest.h>
 
 #include <cmath>
@@ -18,119 +15,6 @@
 #include <type_traits>
 
 namespace {
-
-using mp_float_t = boost::multiprecision::cpp_bin_float_50;
-using mp_int_t   = boost::multiprecision::cpp_int;
-
-TEST(log_tests, log10_pow2) {
-
-  auto const log10_2 =
-    mp_float_t{".30102999566398119521373889472449302676818988146210"};
-
-  auto const p32        = pow(mp_float_t{2.}, 32);
-  auto const multiplier = static_cast<uint32_t>(log10_2 * p32) + 1;
-
-  EXPECT_EQ(multiplier, 1292913987);
-
-  {
-    int32_t constexpr min = -112815;
-
-    // Tests n from 0 (inclusive) to min (inclusive).
-
-    // Loop invariant: 10^correct    <= 2^n    < 10^(correct + 1)
-    //                 10^(-correct) >= 2^(-n) > 10^(-correct - 1)
-
-    // For n == 0:
-    auto correct = int32_t{0};
-    auto pow10   = mp_int_t{1}; // 10^(-correct)
-    auto pow2    = mp_int_t{1}; // 2^n
-
-    // TIP: Not stopping at n = min is useful to discover what should be the
-    // value of min.
-    for (int32_t n = 0; n >= min; --n) {
-
-      // Test the real code.
-      ASSERT_EQ(log10_pow2(n), correct) << "Note n = " << n;
-
-      auto const approximation = int32_t(uint64_t(multiplier) * n >> 32);
-      ASSERT_EQ(approximation, correct) << "Note n = " << n;
-
-      // Restore loop invariant for next iteration.
-      pow2 *= 2;
-      while (pow10 < pow2) {
-        pow10 *= 10;
-        --correct;
-      }
-    }
-
-    // Tests whether min is sharp.
-
-    auto const n = min - 1;
-
-    EXPECT_NE(log10_pow2(n), correct) <<
-      "Minimum " << min << " isn't sharp.";
-
-    auto const approximation = int32_t(uint64_t(multiplier) * n >> 32);
-    EXPECT_NE(correct, approximation) << "Minimum " << min << " isn't sharp.";
-  }
-
-  {
-    int32_t constexpr max = 112816;
-
-    // Tests for n from 0 (inclusive) to max (non inclusive).
-
-    // Loop invariant: 10^correct <= 2^n < 10^(correct + 1)
-
-    // n == 0:
-    auto correct = int32_t{0};
-    auto pow10   = mp_int_t{10}; // 10^(correct + 1)
-    auto pow2    = mp_int_t{1};  // 2^n
-
-    // TIP: Not stopping at n = max is useful to discover what should be the
-    // value of max.
-    for (int32_t n = 0; n < max; ++n) {
-
-      // Test the real code.
-      ASSERT_EQ(log10_pow2(n), correct) << "Note n = " << n;
-
-      auto const approximation = int32_t(uint64_t(multiplier) * n >> 32);
-      ASSERT_EQ(approximation, correct) << "Note n = " << n;
-
-      // Restore loop invariant for next iteration.
-      pow2 *= 2;
-      while (pow10 <= pow2) {
-        pow10 *= 10;
-        ++correct;
-      }
-    }
-
-    // Tests whether max is sharp.
-
-    auto const n = max;
-    EXPECT_NE(log10_pow2(n), correct)
-      << "Maximum " << max << " isn't sharp.";
-
-    auto const approximation = int32_t(uint64_t(multiplier) * n >> 32);
-    EXPECT_NE(correct, approximation) << "Maximum " << max << " isn't sharp.";
-  }
-}
-
-TEST(log_tests, log10_pow2_remainder) {
-
-  for (int32_t e = -112815; e < 112816; ++e) {
-
-    auto const f  = log10_pow2(e);
-    auto const r  = log10_pow2_remainder(e);
-
-    // e0 is the smallest value of e such that log10_pow2(e) = f.
-    auto const e0 = e - static_cast<int32_t>(r);
-    auto const f0 = log10_pow2(e0);
-    auto const f1 = log10_pow2(e0 - 1);
-
-    ASSERT_EQ(f0, f) << "Note: e = " << e << ", e0 = " << e0;
-    ASSERT_LT(f1, f) << "Note: e = " << e << ", e0 = " << e0;
-  }
-}
 
 template <typename>
 struct fp_traits_t;

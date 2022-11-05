@@ -74,7 +74,9 @@ validate(config_t const& json) {
       "calculation.div10 in { \"built_in_1\", \"syntectic_1\", "
       "\"built_in_2\" } "};
 
-  if (json.calculation.infimum == multiply_t::invalid)
+  auto const infimium = static_cast<int>(json.calculation.infimum);
+  if (!(static_cast<int>(multiply_t::built_in_1) <= infimium && infimium <=
+    static_cast<int>(multiply_t::built_in_4)))
     throw exception_t{"Constraint violation: "
       "calculation.infimum in { \"built_in_1\", \"syntectic_1\", "
       "\"built_in_2\", \"syntectic_2\", \"built_in_4\" } "};

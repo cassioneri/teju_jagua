@@ -5,16 +5,22 @@
 extern "C" {
 #endif
 
+#if (amaru_calculation_infimum % 2 == 0 &&                         \
+    amaru_calculation_infimum >  2 * (amaru_multiply_type / 2)     \
+  ) || (                                                           \
+    amaru_calculation_infimum % 2 == 1 &&                          \
+    amaru_calculation_infimum != 2 * (amaru_multiply_type / 2) + 1 \
+  )
+  #error "Value of 'amaru_calculation_infimum' isn't supported."
+#endif
+
 static inline
 amaru_limb1_t
 infimum(amaru_limb1_t const m, amaru_limb1_t const upper,
   amaru_limb1_t const lower) {
 
-  #if amaru_calculation_infimum > amaru_multiply_type
-    #error "Value of 'amaru_calculation_infimum' is not supported."
-  #endif
-
   #if amaru_calculation_infimum == amaru_built_in_4
+
     amaru_limb2_t const n = (((amaru_limb2_t) upper) << amaru_size) | lower;
     return (((amaru_limb4_t) n) * m) >> amaru_calculation_shift;
 
@@ -55,6 +61,8 @@ infimum(amaru_limb1_t const m, amaru_limb1_t const upper,
       (l_prod >> amaru_calculation_shift);
 
   #elif amaru_calculation_infimum == amaru_built_in_1
+
+    return 0; // TODO
 
   #endif
 }

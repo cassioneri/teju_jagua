@@ -13,7 +13,7 @@
   },
 
   "storage": {
-    "base": "decimal"
+    "base": 2
   },
 
   "calculation": {

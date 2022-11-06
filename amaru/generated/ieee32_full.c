@@ -8,7 +8,7 @@ extern "C" {
 #define amaru_size                   32
 #define amaru_exponent_minimum       -149
 #define amaru_mantissa_size          23
-#define amaru_storage_is_compact     0
+#define amaru_storage_base           2
 #define amaru_storage_index_offset   -149
 #define amaru_calculation_div10      amaru_built_in_2
 #define amaru_calculation_infimum    amaru_built_in_4

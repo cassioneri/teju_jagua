@@ -208,8 +208,8 @@ struct alpha_delta_maximum_t {
 };
 
 std::int32_t
-get_index_offset(base_t const base, std::int32_t const exponent_min) {
-  return base == base_t::decimal ? log10_pow2(exponent_min) : exponent_min;
+get_index_offset(std::uint32_t const base, std::int32_t const exponent_min) {
+  return base == 10 ? log10_pow2(exponent_min) : exponent_min;
 }
 
 } // namespace <anonymous>
@@ -279,22 +279,10 @@ struct generator_t::impl_t {
   mantissa_max() const;
 
   /**
-   * \brief Returns the number of stored limbs.
-   */
-  std::uint32_t
-  storage_limbs() const;
-
-  /**
    * \brief Returns the base of the stored exponent.
    */
-  base_t
+  std::uint32_t
   storage_base() const;
-
-  /**
-   * \brief Returns whether using a compact table of multipliers.
-   */
-  bool
-  is_compact() const;
 
   /**
    * \brief Returns the index offset.
@@ -495,14 +483,9 @@ generator_t::impl_t::mantissa_max() const {
   return self.mantissa_max_;
 }
 
-base_t
+std::uint32_t
 generator_t::impl_t::storage_base() const {
   return self.config_.storage.base;
-}
-
-bool
-generator_t::impl_t::is_compact() const {
-  return self.config_.storage.base == base_t::decimal;
 }
 
 std::int32_t
@@ -606,7 +589,7 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   // Optimal shift is 2 * size since it prevents infimum to deal with
   // partial limbs. In addition, we subtract 1 to compensate shift's
   // increment made later on, when shift is output. (See below.)
-  if (is_compact())
+  if (storage_base() == 10)
     shift = std::max(shift, 2 * size() - 1);
 
   // Replace minimal fast EAFs to use the same shift.
@@ -632,7 +615,7 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
     "#define amaru_size                   " << size()                << "\n"
     "#define amaru_exponent_minimum       " << exponent_min()        << "\n"
     "#define amaru_mantissa_size          " << mantissa_size()       << "\n"
-    "#define amaru_storage_is_compact     " << is_compact()          << "\n"
+    "#define amaru_storage_base           " << storage_base()        << "\n"
     "#define amaru_storage_index_offset   " << index_offset()        << "\n"
     "#define amaru_calculation_div10      "
       "amaru_" << calculation_div10()   << "\n"
@@ -667,7 +650,7 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   auto const nibbles = size() / 4;
 
   auto e2      = exponent_min();
-  auto e2_or_f = is_compact() ? log10_pow2(e2) : e2;
+  auto e2_or_f = storage_base() == 10 ? log10_pow2(e2) : e2;
 
   for (const auto &fast_eaf : fast_eafs) {
 
@@ -745,11 +728,11 @@ generator_t::impl_t::get_maxima() const {
 
     auto const f = log10_pow2(e2);
 
-    if (is_compact() && f == f_done)
+    if (storage_base() == 10 && f == f_done)
       continue;
 
-    auto const e = (is_compact() ? e2 - log10_pow2_remainder(e2) : e2) -
-      f;
+    auto const e = (storage_base() == 10 ?
+      e2 - log10_pow2_remainder(e2) : e2) - f;
 
     alpha_delta_maximum_t x;
     x.alpha   = f >= 0 ? pow2(e) : pow5(-f);
@@ -772,7 +755,7 @@ generator_t::impl_t::get_maximum(integer_t alpha, integer_t const& delta,
   // Usual interval.
 
   auto const a = start_at_1 ? integer_t{1} : integer_t{2 * mantissa_min()};
-  auto const b = is_compact() ? integer_t{16 * mantissa_max() - 15} :
+  auto const b = storage_base() == 10 ? integer_t{16 * mantissa_max() - 15} :
     integer_t{2 * mantissa_max()};
 
   auto const max_ab = get_maximum_1(alpha, delta, a, b);
@@ -787,7 +770,7 @@ generator_t::impl_t::get_maximum(integer_t alpha, integer_t const& delta,
     return std::max(max_m_a, max_m_c);
   };
 
-  if (!is_compact())
+  if (storage_base() == 2)
     return std::max(max_ab, max_extras(mantissa_min()));
 
   return std::max({max_ab, max_extras(mantissa_min()),

@@ -77,10 +77,13 @@ amaru_function(int32_t const exponent, amaru_limb1_t const mantissa) {
     AMARU_POW2(amaru_limb1_t, amaru_mantissa_size);
 
   int32_t       const f     = log10_pow2(exponent);
-  uint32_t      const extra = amaru_storage_is_compact ?
-    log10_pow2_remainder(exponent) : 0;
-  int32_t       const i     = (amaru_storage_is_compact ? f : exponent) -
-    amaru_storage_index_offset;
+  #if amaru_storage_base == 10
+    uint32_t    const extra = log10_pow2_remainder(exponent);
+    int32_t     const i     = f - amaru_storage_index_offset;
+  #else
+    uint32_t    const extra = 0;
+    int32_t     const i     = exponent - amaru_storage_index_offset;
+  #endif
   amaru_limb1_t const upper = multipliers[i].upper;
   amaru_limb1_t const lower = multipliers[i].lower;
 

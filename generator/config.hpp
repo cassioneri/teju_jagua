@@ -10,18 +10,6 @@
 
 namespace amaru {
 
-enum class base_t {
-  invalid = - 1,
-  binary  = 0,
-  decimal = 1
-};
-
-NLOHMANN_JSON_SERIALIZE_ENUM( base_t, {
-  { base_t::invalid, "invalid" },
-  { base_t::binary , "binary"  },
-  { base_t::decimal, "decimal" },
-})
-
 /**
  * \brief Configuration of Amaru's implementation.
  */
@@ -57,7 +45,7 @@ struct config_t {
   } mantissa;
 
   struct storage_t {
-    base_t base;
+    std::uint32_t base;
   } storage;
 
   struct calculation_t {

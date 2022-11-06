@@ -21,7 +21,7 @@ from_json(nlohmann::json const& src, config_t::mantissa_t& tgt) {
 
 void
 from_json(nlohmann::json const& src, config_t::storage_t& tgt) {
-  src["base" ].get_to(tgt.base );
+  src["base"].get_to(tgt.base);
 }
 
 void
@@ -67,9 +67,9 @@ validate(config_t const& json) {
     throw exception_t{"Constraint violation: "
       "exponent.size + mantissa.size <= size"};
 
-  if (json.storage.base == base_t::invalid)
+  if (!(json.storage.base != 2 || json.storage.base != 10))
     throw exception_t{"Constraint violation: "
-      "storage.base in { \"binary\", \"decimal\" } "};
+      "storage.base in { 2, 10 }"};
 
   std::string const multiply_types[] = {
     "built_in_1", "syntectic_1", "built_in_2", "syntectic_2", "built_in_4"

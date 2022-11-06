@@ -1,6 +1,8 @@
 #include "generator/config.hpp"
 #include "generator/exception.hpp"
 
+#include <algorithm>
+#include <iterator>
 #include <iostream>
 
 namespace amaru {
@@ -69,19 +71,27 @@ validate(config_t const& json) {
     throw exception_t{"Constraint violation: "
       "storage.base in { \"binary\", \"decimal\" } "};
 
-  auto const div10 = static_cast<int>(json.calculation.div10);
-  if (!(static_cast<int>(multiply_t::built_in_1) <= div10 && div10 <=
-     static_cast<int>(multiply_t::built_in_2)))
+  std::string const multiply_types[] = {
+    "built_in_1", "syntectic_1", "built_in_2", "syntectic_2", "built_in_4"
+  };
+
+  auto const i_div10 = std::distance(std::cbegin(multiply_types),
+    std::find(std::cbegin(multiply_types), std::cend(multiply_types),
+    json.calculation.div10));
+
+  if (!(i_div10 <= 2))
     throw exception_t{"Constraint violation: "
       "calculation.div10 in { \"built_in_1\", \"syntectic_1\", "
-      "\"built_in_2\" } "};
+      "\"built_in_2\" }"};
 
-  auto const infimium = static_cast<int>(json.calculation.infimum);
-  if (!(static_cast<int>(multiply_t::built_in_1) <= infimium && infimium <=
-    static_cast<int>(multiply_t::built_in_4)))
+  auto const i_infimum = std::distance(std::cbegin(multiply_types),
+    std::find(std::cbegin(multiply_types), std::cend(multiply_types),
+    json.calculation.div10));
+
+  if (!(i_infimum <= 4))
     throw exception_t{"Constraint violation: "
       "calculation.infimum in { \"built_in_1\", \"syntectic_1\", "
-      "\"built_in_2\", \"syntectic_2\", \"built_in_4\" } "};
+      "\"built_in_2\", \"syntectic_2\", \"built_in_4\" }"};
 }
 
 } // namespace amaru

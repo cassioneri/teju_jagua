@@ -10,8 +10,8 @@ extern "C" {
 #define amaru_mantissa_size          23
 #define amaru_storage_is_compact     0
 #define amaru_storage_index_offset   -149
-#define amaru_calculation_div10      2
-#define amaru_calculation_infimum    4
+#define amaru_calculation_div10      amaru_built_in_2
+#define amaru_calculation_infimum    amaru_built_in_4
 #define amaru_calculation_shift      55
 #define amaru_optimisation_integer   1
 #define amaru_optimisation_mid_point 1
@@ -28,7 +28,6 @@ extern "C" {
 #if defined(amaru32_limb4_t)
   #define amaru_limb4_t              amaru32_limb4_t
 #endif
-
 
 static struct {
   amaru_limb1_t const upper;

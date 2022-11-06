@@ -305,13 +305,13 @@ struct generator_t::impl_t {
   /**
    * \brief Returns the calculation method for div10.
    */
-  std::uint32_t
+  std::string const&
   calculation_div10() const;
 
   /**
    * \brief Returns the calculation method for infimum.
    */
-  std::uint32_t
+  std::string const&
   calculation_infimum() const;
 
   /**
@@ -510,14 +510,14 @@ generator_t::impl_t::index_offset() const {
   return self.index_offset_;
 }
 
-std::uint32_t
+std::string const&
 generator_t::impl_t::calculation_div10() const {
-  return static_cast<std::uint32_t>(self.config_.calculation.div10);
+  return self.config_.calculation.div10;
 }
 
-std::uint32_t
+std::string const&
 generator_t::impl_t::calculation_infimum() const {
-  return static_cast<std::uint32_t>(self.config_.calculation.infimum);
+  return self.config_.calculation.infimum;
 }
 
 bool
@@ -634,8 +634,10 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
     "#define amaru_mantissa_size          " << mantissa_size()       << "\n"
     "#define amaru_storage_is_compact     " << is_compact()          << "\n"
     "#define amaru_storage_index_offset   " << index_offset()        << "\n"
-    "#define amaru_calculation_div10      " << calculation_div10()   << "\n"
-    "#define amaru_calculation_infimum    " << calculation_infimum() << "\n"
+    "#define amaru_calculation_div10      "
+      "amaru_" << calculation_div10()   << "\n"
+    "#define amaru_calculation_infimum    "
+      "amaru_" << calculation_infimum() << "\n"
     // Instead of using infimum(m, upper, lower) / 2 in Amaru, shift is
     // incremented here and the division by 2 is removed.
     "#define amaru_calculation_shift      " << shift + 1             << "\n"
@@ -654,7 +656,6 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
     "#if defined(" << prefix() << "limb4_t)\n"
     "  #define amaru_limb4_t              " << prefix() << "limb4_t\n"
     "#endif\n"
-    "\n"
     "\n";
 
   stream <<

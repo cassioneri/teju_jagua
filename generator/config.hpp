@@ -22,24 +22,6 @@ NLOHMANN_JSON_SERIALIZE_ENUM( base_t, {
   { base_t::decimal, "decimal" },
 })
 
-enum class multiply_t {
-  invalid     = amaru_built_in_1 - 1,
-  built_in_1  = amaru_built_in_1,
-  syntectic_1 = amaru_syntectic_1,
-  built_in_2  = amaru_built_in_2,
-  syntectic_2 = amaru_syntectic_2,
-  built_in_4  = amaru_built_in_4
-};
-
-NLOHMANN_JSON_SERIALIZE_ENUM( multiply_t, {
-  { multiply_t::invalid    , "invalid"     },
-  { multiply_t::built_in_1 , "built_in_1"  },
-  { multiply_t::syntectic_1, "syntectic_1" },
-  { multiply_t::built_in_2 , "built_in_2"  },
-  { multiply_t::syntectic_2, "syntectic_2" },
-  { multiply_t::built_in_4 , "built_in_4"  },
-})
-
 /**
  * \brief Configuration of Amaru's implementation.
  */
@@ -79,8 +61,8 @@ struct config_t {
   } storage;
 
   struct calculation_t {
-    multiply_t div10;
-    multiply_t infimum;
+    std::string div10;
+    std::string infimum;
   } calculation;
 
   struct optimisation_t {

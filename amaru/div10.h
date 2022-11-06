@@ -32,7 +32,13 @@ div10(amaru_limb1_t const m) {
 
   #elif amaru_calculation_div10 == amaru_built_in_1
 
-    return m / 10;
+    amaru_limb1_t const a = ((amaru_limb1_t) -1) / 5;
+    uint32_t      const p = (a * m) >> (amaru_size - 32);
+    uint32_t      const b = ((uint32_t) 1) << 28;
+    uint32_t      const d = (p + b) >> 28;
+    uint32_t      const r = d * 11 / 32;
+    return (r - m) * a / 2;
+    //return m / 10;
 
   #endif
 }

@@ -1,4 +1,5 @@
 add_executable(test
+  div10.cpp
   log.cpp
   main.cpp
 )

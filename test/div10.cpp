@@ -79,7 +79,9 @@ TEST(div10, syntectic_1) {
 
 TEST(div10, built_in_1) {
 
-  auto constexpr max = std::uint32_t{1} << 28;
+  // Theorem 4 of [1] for d = 10 and k = 32 gives this maximum value:
+  auto constexpr max = std::uint32_t{1073741829};
+
   for (std::uint32_t m = 0; m < max; ++m)
     ASSERT_EQ(div10_built_in_1(m), m / 10) << "Failed for m = " << m;
 }

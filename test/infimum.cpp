@@ -95,12 +95,11 @@
 #include <cstdint>
 
 TEST(infimum, built_in_4) {
-  EXPECT_EQ(infimum_built_in_4(0xffff, 0xffff, 0x0fff),
-    0xfffe);
+  EXPECT_EQ(infimum_built_in_4(0xffff, 0xffff, 0x0fff), 0xfffe);
 }
 
 TEST(infimum, syntectic_2) {
-  EXPECT_EQ( infimum_syntectic_2(0xffffffff, 0xffffffff, 0x0fffffff),
+  EXPECT_EQ(infimum_syntectic_2(0xffffffff, 0xffffffff, 0x0fffffff),
     0xfffffffe);
 }
 
@@ -111,12 +110,11 @@ TEST(infimum, built_in_2) {
 
 TEST(infimum, syntectic_1) {
   EXPECT_EQ(
-    infimum_syntectic_1(0xffffffffffffffff, 0xffffffffffffffff, 0x0fffffffffffffff),
-    0xfffffffffffffffe);
+    infimum_syntectic_1(0xffffffffffffffff, 0xffffffffffffffff,
+    0x0fffffffffffffff), 0xfffffffffffffffe);
 }
 
-TEST(infimum, infimum_built_in_1) {
-  EXPECT_EQ(
-    infimum_syntectic_1(0xffffffffffffffff, 0xffffffffffffffff, 0x0fffffffffffffff),
-    0xfffffffffffffffe);
+TEST(infimum, built_in_1) {
+  EXPECT_EQ(infimum_built_in_1(0xffffffffffffffff, 0xffffffffffffffff,
+    0xffffffffffffffff), 0xfffffffffffffffe);
 }

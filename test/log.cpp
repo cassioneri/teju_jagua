@@ -10,7 +10,7 @@ namespace {
 
 using mp_int_t = boost::multiprecision::cpp_int;
 
-TEST(log_tests, log10_pow2_forward) {
+TEST(log, log10_pow2_forward) {
 
   // e in [0, max[
   auto constexpr max = std::int32_t{112816};
@@ -41,7 +41,7 @@ TEST(log_tests, log10_pow2_forward) {
   EXPECT_NE(log10_pow2(e), f) << "Maximum " << max << " isn't sharp.";
 }
 
-TEST(log_tests, log10_pow2_backward) {
+TEST(log, log10_pow2_backward) {
 
   // e in [min, 0]
   auto constexpr min = std::int32_t{-112815};
@@ -72,7 +72,7 @@ TEST(log_tests, log10_pow2_backward) {
   EXPECT_NE(log10_pow2(e), f) << "Minimum " << min << " isn't sharp.";
 }
 
-TEST(log_tests, log10_pow2_remainder) {
+TEST(log, log10_pow2_remainder) {
 
   for (std::int32_t e = -112815; e < 112816; ++e) {
 

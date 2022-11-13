@@ -143,7 +143,7 @@ void compare_to_other(T const value) {
     "ieee.mantissa = " << ieee.mantissa;
 }
 
-TEST(float_tests, exhaustive_comparison_to_other) {
+TEST(float, exhaustive_comparison_to_other) {
 
   auto value    = std::numeric_limits<float>::denorm_min();
   auto exponent = std::numeric_limits<int32_t>::min();
@@ -190,7 +190,7 @@ REGISTER_TYPED_TEST_SUITE_P(TypedTests, mantissa_min_all_exponents);
 using FpTypes = ::testing::Types<float, double>;
 INSTANTIATE_TYPED_TEST_SUITE_P(TypedTests, TypedTests, FpTypes);
 
-TEST(double_tests, random_comparison_to_other) {
+TEST(double, random_comparison_to_other) {
 
   using traits_t = fp_traits_t<double>;
 
@@ -228,12 +228,12 @@ from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::limb_t mantissa) {
   return value;
 }
 
-TEST(ad_hoc_test, value) {
+TEST(ad_hoc, value) {
   auto const value = 1.0f;
   compare_to_other(value);
 }
 
-TEST(ad_hoc_test, fields) {
+TEST(ad_hoc, fields) {
   auto const value = from_ieee<float>(127, 0); // = 1.0f
   compare_to_other(value);
 }

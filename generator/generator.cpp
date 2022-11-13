@@ -693,7 +693,10 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   // which yields 2^{exponent - f} * 5^{-f} < 10. Therefore, 200 * mantissa_max
   // is a conservative bound, i.e., if 5^f > 200 * mantissa_max >= m, then
   // is_multiple_of_pow5(m, f) == false;
-  for (int32_t f = 0; p5 <= 200 * mantissa_max(); ++f) {
+  //
+  // Also ensure that at least entries up to f = 2 are generated for
+  // remove_trailing_zeros.
+  for (int32_t f = 0; f < 2 || p5 <= 200 * mantissa_max(); ++f) {
 
     const auto bound = p2_size / p5 - (f == 0);
 

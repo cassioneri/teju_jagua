@@ -112,7 +112,7 @@ amaru_function(int32_t const exponent, amaru_limb1_t const mantissa) {
         return remove_trailing_zeros(f + 1, q);
     }
 
-    if (amaru_optimisation_mid_point && (a ^ b) % 2 == 1)
+    if (amaru_optimisation_mid_point && (a + b) % 2 == 1)
       return make_decimal(f, (a + b) / 2 + 1);
 
     amaru_limb1_t const m_c = 2 * 2 * mantissa;

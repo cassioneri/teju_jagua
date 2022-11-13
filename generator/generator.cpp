@@ -784,11 +784,11 @@ generator_t::impl_t::get_maximum(integer_t alpha, integer_t const& delta,
 fast_eaf_t
 generator_t::impl_t::get_fast_eaf(alpha_delta_maximum_t const& x) const {
 
-  // Making shift >= size, simplifies multiply_and_shift executed at
-  // runtime. Indeed, it ensures that the least significant limb of the
-  // product is irrelevant. For this reason, later on, the generator
-  // actually outputs shift - size (still labelling it as 'shift') so that
-  // Amaru doesn't need to do it at runtime.
+  // Making shift >= size, simplifies infimum executed at runtime. Indeed,
+  // it ensures that the least significant limb of the product is
+  // irrelevant. For this reason, later on, the generator actually outputs
+  // shift - size (still labelling it as 'shift') so that Amaru doesn't need
+  // to do it at runtime.
   auto k    = size();
   auto pow2 = integer_t{1} << k;
 

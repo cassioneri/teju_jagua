@@ -43,22 +43,12 @@ amaru_fields_t
 remove_trailing_zeros(int32_t exponent, amaru_limb1_t mantissa) {
 
   amaru_limb1_t const minv5  = minverse[1].multiplier;
-  amaru_limb1_t const minv25 = minverse[2].multiplier;
   amaru_limb1_t const inv10  = minverse[1].bound / 2;
-  amaru_limb1_t const inv100 = minverse[2].bound / 4;
 
   while (true) {
-
-    amaru_limb1_t const n = rotr(minv25 * mantissa, 2);
-    if (n > inv100)
+    amaru_limb1_t const n = rotr(minv5 * mantissa, 1);
+    if (n > inv10)
       break;
-
-    exponent += 2;
-    mantissa = n;
-  }
-
-  amaru_limb1_t const n = rotr(minv5 * mantissa, 1);
-  if (n <= inv10) {
     ++exponent;
     mantissa = n;
   }

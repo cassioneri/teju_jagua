@@ -694,9 +694,9 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   // is a conservative bound, i.e., if 5^f > 200 * mantissa_max >= m, then
   // is_multiple_of_pow5(m, f) == false;
   //
-  // Also ensure that at least entries up to f = 2 are generated for
+  // Also ensure that at least entries up to f = 1 are generated for
   // remove_trailing_zeros.
-  for (int32_t f = 0; f < 2 || p5 <= 200 * mantissa_max(); ++f) {
+  for (int32_t f = 0; f < 1 || p5 <= 200 * mantissa_max(); ++f) {
 
     const auto bound = p2_size / p5 - (f == 0);
 

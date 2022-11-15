@@ -47,17 +47,20 @@ struct traits_t<float> {
   static auto constexpr exponent_size = std::uint32_t{8};
   static auto constexpr mantissa_size = std::uint32_t{23};
 
-  static void
+  static
+  void
   amaru_compact(float const value) {
     amaru_from_float_to_decimal_compact(value);
   }
 
-  static void
+  static
+  void
   amaru_full(float const value) {
     amaru_from_float_to_decimal_full(value);
   }
 
-  static void
+  static
+  void
   dragonbox_compact(float const value) {
     amaru::dragonbox_compact::to_decimal(value);
   }
@@ -67,12 +70,14 @@ struct traits_t<float> {
     amaru::dragonbox_full::to_decimal(value);
   }
 
-  static float
+  static
+  float
   from_ieee(std::uint32_t exponent, std::uint32_t mantissa) {
     return detail::from_ieee<float, mantissa_size>(exponent, mantissa);
   }
 
-  static amaru32_fields_t
+  static
+  amaru32_fields_t
   to_ieee(float const value) {
     return amaru_from_float_to_fields(value);
   }
@@ -88,32 +93,38 @@ struct traits_t<double> {
   static auto constexpr exponent_size = std::uint32_t{11};
   static auto constexpr mantissa_size = std::uint32_t{52};
 
-  static void
+  static
+  void
   amaru_compact(double const value) {
     amaru_from_double_to_decimal_compact(value);
   }
 
-  static void
+  static
+  void
   amaru_full(double const value) {
     amaru_from_double_to_decimal_full(value);
   }
 
-  static void
+  static
+  void
   dragonbox_compact(double const value) {
     amaru::dragonbox_compact::to_decimal(value);
   }
 
-  static void
+  static
+  void
   dragonbox_full(double const value) {
     amaru::dragonbox_full::to_decimal(value);
   }
 
-  static double
+  static
+  double
   from_ieee(std::uint64_t exponent, std::uint64_t mantissa) {
     return detail::from_ieee<double, mantissa_size>(exponent, mantissa);
   }
 
-  static amaru64_fields_t
+  static
+  amaru64_fields_t
   to_ieee(double const value) {
     return amaru_from_double_to_fields(value);
   }

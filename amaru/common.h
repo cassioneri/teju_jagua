@@ -27,7 +27,8 @@ extern "C" {
  * \pre -112815 <= e && e < 112816.
  */
 static inline
-int32_t log10_pow2(int32_t e) {
+int32_t
+log10_pow2(int32_t e) {
   return (((uint64_t) 1292913987) * e) >> 32;
 }
 
@@ -38,7 +39,8 @@ int32_t log10_pow2(int32_t e) {
  * \pre -112815 <= e && e < 112816.
  */
 static inline
-uint32_t log10_pow2_remainder(int32_t e) {
+uint32_t
+log10_pow2_remainder(int32_t e) {
   return ((uint32_t) (((uint64_t) 1292913987) * e)) / 1292913987;
 }
 
@@ -48,7 +50,8 @@ uint32_t log10_pow2_remainder(int32_t e) {
  * \pre -100849 <= e && e < 111481.
  */
 static inline
-int32_t log10_075_pow2(int32_t e) {
+int32_t
+log10_075_pow2(int32_t e) {
   return (((uint64_t) 1292913986) * e - 536607788) >> 32;
 }
 
@@ -59,7 +62,8 @@ int32_t log10_075_pow2(int32_t e) {
  * \pre -112815 <= e && e < 112816.
  */
 static inline
-uint32_t log10_075_pow2_remainder(int32_t e) {
+uint32_t
+log10_075_pow2_remainder(int32_t e) {
   return ((uint32_t) (((uint64_t) 1292913986) * e - 536607788)) / 1292913986;
 }
 

@@ -39,32 +39,38 @@ struct fp_traits_t<float> {
   static auto constexpr exponent_size = uint32_t{8};
   static auto constexpr mantissa_size = uint32_t{23};
 
-  static amaru_fields_t
+  static
+  amaru_fields_t
   fields(float const value) {
     return amaru_from_float_to_fields(value);
   }
 
-  static amaru_fields_t
+  static
+  amaru_fields_t
   amaru_compact(float const value) {
     return amaru_from_float_to_decimal_compact(value);
   }
 
-  static amaru_fields_t
+  static
+  amaru_fields_t
   amaru_full(float const value) {
     return amaru_from_float_to_decimal_full(value);
   }
 
-  static other_fields_t
+  static
+  other_fields_t
   other(float const value) {
     return amaru::dragonbox_full::to_decimal(value);
   }
 
-  static std::int32_t
+  static
+  std::int32_t
   exponent(other_fields_t fields) {
     return std::int32_t{fields.exponent};
   }
 
-  static limb_t
+  static
+  limb_t
   mantissa(other_fields_t fields) {
     return limb_t{fields.significand};
   }
@@ -81,32 +87,38 @@ struct fp_traits_t<double> {
   static auto constexpr exponent_size = uint32_t{11};
   static auto constexpr mantissa_size = uint32_t{52};
 
-  static amaru_fields_t
+  static
+  amaru_fields_t
   fields(double const value) {
     return amaru_from_double_to_fields(value);
   }
 
-  static amaru_fields_t
+  static
+  amaru_fields_t
   amaru_compact(double const value) {
     return amaru_from_double_to_decimal_compact(value);
   }
 
-  static amaru_fields_t
+  static
+  amaru_fields_t
   amaru_full(double const value) {
     return amaru_from_double_to_decimal_full(value);
   }
 
-  static other_fields_t
+  static
+  other_fields_t
   other(double const value) {
     return amaru::dragonbox_full::to_decimal(value);
   }
 
-  static std::int32_t
+  static
+  std::int32_t
   exponent(other_fields_t fields) {
     return std::int32_t{fields.exponent};
   }
 
-  static limb_t
+  static
+  limb_t
   mantissa(other_fields_t fields) {
     return limb_t{fields.significand};
   }

@@ -62,7 +62,7 @@ amaru_function(int32_t const e, amaru_limb1_t const m) {
   if (amaru_optimisation_integer && is_multiple_of_pow2(m, -e))
     return remove_trailing_zeros(0, m >> -e);
 
-  amaru_limb1_t const m_min = AMARU_POW2(amaru_limb1_t, amaru_mantissa_size);
+  amaru_limb1_t const m_min = amaru_pow2(amaru_limb1_t, amaru_mantissa_size);
 
   int32_t  const f  = log10_pow2(e);
   uint32_t const de = amaru_storage_base == 10 ? log10_pow2_remainder(e) : 0;

@@ -395,7 +395,7 @@ generator_t::generator_t(config_t config, std::string directory) :
   config_      {std::move(config)                            },
   prefix_      {get_prefix(self().size())                    },
   function_    {"amaru_" + self().id()                       },
-  mantissa_min_{AMARU_POW2(integer_t, self().mantissa_size())},
+  mantissa_min_{amaru_pow2(integer_t, self().mantissa_size())},
   mantissa_max_{2 * self().mantissa_min()                    },
   index_offset_{get_index_offset(self().storage_base(),
     self().exponent_min())                                   },

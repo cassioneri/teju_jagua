@@ -41,7 +41,7 @@ amaru_from_double_to_decimal_compact(double const value) {
 
   binary.exponent += exponent_min;
   if (ieee_exponent != 0) {
-    binary.mantissa += AMARU_POW2(uint64_t, mantissa_size);
+    binary.mantissa += amaru_pow2(uint64_t, mantissa_size);
     binary.exponent -= 1;
   }
 
@@ -58,7 +58,7 @@ amaru_from_double_to_decimal_full(double const value) {
 
   binary.exponent += exponent_min;
   if (ieee_exponent != 0) {
-    binary.mantissa += AMARU_POW2(uint64_t, mantissa_size);
+    binary.mantissa += amaru_pow2(uint64_t, mantissa_size);
     binary.exponent -= 1;
   }
 

@@ -18,7 +18,7 @@ extern "C" {
 /**
  * \brief Returns 2^n as a given type.
  */
-#define AMARU_POW2(type, n) \
+#define amaru_pow2(type, n) \
   (((type) 1) << (n))
 
 /**

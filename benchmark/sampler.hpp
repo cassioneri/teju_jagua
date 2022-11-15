@@ -63,7 +63,7 @@ private:
   using distribution_t = std::uniform_int_distribution<limb_t>;
 
   static limb_t constexpr mantissa_max_ =
-    AMARU_POW2(limb_t, traits_t::mantissa_size) - 1;
+    amaru_pow2(limb_t, traits_t::mantissa_size) - 1;
 
   limb_t          n_mantissas_;
   std::mt19937_64 device_;
@@ -132,7 +132,7 @@ struct sampler_helper_t {
 private:
 
   static constexpr limb_t exponent_max_ =
-    AMARU_POW2(limb_t, traits_t::exponent_size) - 1;
+    amaru_pow2(limb_t, traits_t::exponent_size) - 1;
 
   limb_t exponent_;
   limb_t mantissa_;

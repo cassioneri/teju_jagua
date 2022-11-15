@@ -12,7 +12,7 @@ extern "C" {
  * \brief Returns the k least significant bits of n.
  */
 // ~(n^n) = constant of the same type of n with all bits set.
-#define AMARU_LSB(n, k) \
+#define amaru_lsb(n, k) \
   ((~(n^n) >> (CHAR_BIT * sizeof(n) - (k))) & (n))
 
 /**

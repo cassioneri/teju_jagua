@@ -24,9 +24,9 @@ amaru_from_double_to_fields(double const value) {
   // Breakdown into ieee64 fields.
 
   amaru64_fields_t binary;
-  binary.mantissa = AMARU_LSB(bits, mantissa_size);
+  binary.mantissa = amaru_lsb(bits, mantissa_size);
   bits >>= mantissa_size;
-  binary.exponent = AMARU_LSB(bits, exponent_size);
+  binary.exponent = amaru_lsb(bits, exponent_size);
 
   return binary;
 }

@@ -27,7 +27,7 @@ is_multiple_of_pow5(amaru_limb1_t const m, int32_t const f) {
 
 static inline
 amaru_fields_t
-make_decimal(int32_t e, amaru_limb1_t m) {
+make_decimal(int32_t const e, amaru_limb1_t const m) {
   amaru_fields_t const decimal = { e, m };
   return decimal;
 }
@@ -42,8 +42,8 @@ static inline
 amaru_fields_t
 remove_trailing_zeros(int32_t e, amaru_limb1_t m) {
 
-  amaru_limb1_t const minv5  = minverse[1].multiplier;
-  amaru_limb1_t const inv10  = minverse[1].bound / 2;
+  amaru_limb1_t const minv5 = minverse[1].multiplier;
+  amaru_limb1_t const inv10 = minverse[1].bound / 2;
 
   while (true) {
     amaru_limb1_t const n = rotr(minv5 * m, 1);
@@ -64,15 +64,10 @@ amaru_function(int32_t const e, amaru_limb1_t const m) {
 
   amaru_limb1_t const m_min = AMARU_POW2(amaru_limb1_t, amaru_mantissa_size);
 
-  int32_t const f = log10_pow2(e);
-
-  #if amaru_storage_base == 10
-    uint32_t const de = log10_pow2_remainder(e);
-    int32_t  const i  = f - amaru_storage_index_offset;
-  #else
-    uint32_t const de = 0;
-    int32_t  const i  = e - amaru_storage_index_offset;
-  #endif
+  int32_t  const f  = log10_pow2(e);
+  uint32_t const de = amaru_storage_base == 10 ? log10_pow2_remainder(e) : 0;
+  uint32_t const i  = (amaru_storage_base == 10 ? f : e) -
+    amaru_storage_index_offset;
 
   amaru_limb1_t const upper = multipliers[i].upper;
   amaru_limb1_t const lower = multipliers[i].lower;
@@ -129,8 +124,6 @@ amaru_function(int32_t const e, amaru_limb1_t const m) {
     if (s > a || (s == a && is_multiple_of_pow5(m_a, f)))
       return remove_trailing_zeros(f + 1, q);
 
-//    amaru_limb1_t const m_c = 2 * 2 * mantissa_min;
-//    amaru_limb1_t const c_2 = infimum(m_c << de, upper, lower);
     int32_t const shift = (amaru_calculation_shift - amaru_size)
       - (amaru_mantissa_size + 2 + de);
     amaru_limb1_t const c_2 = (shift >= 0) ?
@@ -154,7 +147,7 @@ amaru_function(int32_t const e, amaru_limb1_t const m) {
     }
   }
 
-  amaru_limb1_t const m_c = 2 * 20 * m_min;
+  amaru_limb1_t const m_c = 10 * 2 * 2 * m_min;
   amaru_limb1_t const c_2 = infimum(m_c << de, upper, lower);
   amaru_limb1_t const c   = c_2 / 2;
 

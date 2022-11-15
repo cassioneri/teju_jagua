@@ -21,7 +21,7 @@ is_multiple_of_pow2(amaru_limb1_t const m, int32_t const e) {
 static inline
 bool
 is_multiple_of_pow5(amaru_limb1_t const m, int32_t const f) {
-  return f >= 0 && f < (int32_t) (sizeof(minverse) / sizeof(minverse[0])) &&
+  return 0 <= f && f < (int32_t) (sizeof(minverse) / sizeof(minverse[0])) &&
     m * minverse[f].multiplier <= minverse[f].bound;
 }
 

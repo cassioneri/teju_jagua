@@ -129,8 +129,12 @@ amaru_function(int32_t const exponent, amaru_limb1_t const mantissa) {
     if (s > a || (s == a && is_multiple_of_pow5(m_a, f)))
       return remove_trailing_zeros(f + 1, q);
 
-    amaru_limb1_t const m_c = 2 * 2 * mantissa_min;
-    amaru_limb1_t const c_2 = infimum(m_c << extra, upper, lower);
+//    amaru_limb1_t const m_c = 2 * 2 * mantissa_min;
+//    amaru_limb1_t const c_2 = infimum(m_c << extra, upper, lower);
+    const int32_t shift = (amaru_calculation_shift - amaru_size)
+      - (amaru_mantissa_size + 2 + extra);
+    amaru_limb1_t const c_2 = (shift >= 0) ?
+      upper >> shift : (upper << -shift) | (lower >> amaru_size + shift);
     amaru_limb1_t const c   = c_2 / 2;
 
     if (c == a && !is_multiple_of_pow5(m_a, f))

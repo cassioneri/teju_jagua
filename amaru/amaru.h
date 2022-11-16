@@ -127,7 +127,7 @@ amaru_function(int32_t const e, amaru_limb1_t const m) {
     int32_t const shift = (amaru_calculation_shift - amaru_size)
       - (amaru_mantissa_size + 2 + de);
     amaru_limb1_t const c_2 = (shift >= 0) ?
-      upper >> shift : (upper << -shift) | (lower >> amaru_size + shift);
+      upper >> shift : (upper << -shift) | (lower >> (amaru_size + shift));
     amaru_limb1_t const c   = c_2 / 2;
 
     if (c == a && !is_multiple_of_pow5(m_a, f))

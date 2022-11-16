@@ -1,7 +1,6 @@
 #ifndef AMARU_AMARU_COMMON_H_
 #define AMARU_AMARU_COMMON_H_
 
-#include <limits.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -11,15 +10,12 @@ extern "C" {
 /**
  * \brief Returns the k least significant bits of n.
  */
-// ~(n^n) = constant of the same type of n with all bits set.
-#define amaru_lsb(n, k) \
-  ((~(n^n) >> (CHAR_BIT * sizeof(n) - (k))) & (n))
+#define amaru_lsb(n, k) ((n) & (((0 * (n) + 1) << (k)) - 1))
 
 /**
  * \brief Returns 2^n as a given type.
  */
-#define amaru_pow2(type, n) \
-  (((type) 1) << (n))
+#define amaru_pow2(type, n) (((type) 1) << (n))
 
 /**
  * \brief Returns the largest number f such that 10^f <= 2^e.

@@ -6,44 +6,44 @@
 #define amaru_calculation_div10 amaru_built_in_2
 #define amaru_multiply_type     amaru_built_in_2
 #define amaru_size              32
-#define amaru_limb1_t           std::uint32_t
-#define amaru_limb2_t           std::uint64_t
+#define amaru_u1_t              std::uint32_t
+#define amaru_u2_t              std::uint64_t
 #define div10                   div10_built_in_2
 #include "amaru/div10.h"
 #undef AMARU_AMAHU_DIV10_H_
 #undef amaru_calculation_div10
 #undef amaru_multiply_type
 #undef amaru_size
-#undef amaru_limb1_t
-#undef amaru_limb2_t
+#undef amaru_u1_t
+#undef amaru_u2_t
 #undef div10
 
 // For amaru_calculation_div10 == amaru_syntectic_1
 #define amaru_calculation_div10 amaru_syntectic_1
 #define amaru_multiply_type     amaru_syntectic_1
 #define amaru_size              64
-#define amaru_limb1_t           std::uint64_t
+#define amaru_u1_t              std::uint64_t
 #define div10                   div10_syntectic_1
 #include "amaru/div10.h"
 #undef AMARU_AMAHU_DIV10_H_
 #undef amaru_calculation_div10
 #undef amaru_multiply_type
 #undef amaru_size
-#undef amaru_limb1_t
+#undef amaru_u1_t
 #undef div10
 
 // For amaru_calculation_div10 == amaru_built_in_1
 #define amaru_calculation_div10 amaru_built_in_1
 #define amaru_multiply_type     amaru_built_in_1
 #define amaru_size              32
-#define amaru_limb1_t           std::uint32_t
+#define amaru_u1_t              std::uint32_t
 #define div10                   div10_built_in_1
 #include "amaru/div10.h"
 #undef AMARU_AMAHU_DIV10_H_
 #undef amaru_calculation_div10
 #undef amaru_multiply_type
 #undef amaru_size
-#undef amaru_limb1_t
+#undef amaru_u1_t
 #undef div10
 
 #include <gtest/gtest.h>

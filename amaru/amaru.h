@@ -14,39 +14,39 @@ extern "C" {
 
 static inline
 bool
-is_multiple_of_pow2(amaru_limb1_t const m, int32_t const e) {
+is_multiple_of_pow2(amaru_u1_t const m, int32_t const e) {
   return 0 <= e && e <= amaru_mantissa_size && ((m >> e) << e) == m;
 }
 
 static inline
 bool
-is_multiple_of_pow5(amaru_limb1_t const m, int32_t const f) {
+is_multiple_of_pow5(amaru_u1_t const m, int32_t const f) {
   return 0 <= f && f < (int32_t) (sizeof(minverse) / sizeof(minverse[0])) &&
     m * minverse[f].multiplier <= minverse[f].bound;
 }
 
 static inline
 amaru_fields_t
-make_decimal(int32_t const e, amaru_limb1_t const m) {
+make_decimal(int32_t const e, amaru_u1_t const m) {
   amaru_fields_t const decimal = { e, m };
   return decimal;
 }
 
 static inline
-amaru_limb1_t
-rotr(amaru_limb1_t const n, unsigned s) {
+amaru_u1_t
+rotr(amaru_u1_t const n, unsigned s) {
   return (n >> s) | (n << (amaru_size - s));
 }
 
 static inline
 amaru_fields_t
-remove_trailing_zeros(int32_t e, amaru_limb1_t m) {
+remove_trailing_zeros(int32_t e, amaru_u1_t m) {
 
-  amaru_limb1_t const minv5 = minverse[1].multiplier;
-  amaru_limb1_t const inv10 = minverse[1].bound / 2;
+  amaru_u1_t const minv5 = minverse[1].multiplier;
+  amaru_u1_t const inv10 = minverse[1].bound / 2;
 
   while (true) {
-    amaru_limb1_t const n = rotr(minv5 * m, 1);
+    amaru_u1_t const n = rotr(minv5 * m, 1);
     if (n > inv10)
       break;
     ++e;
@@ -57,31 +57,31 @@ remove_trailing_zeros(int32_t e, amaru_limb1_t m) {
 }
 
 amaru_fields_t
-amaru_function(int32_t const e, amaru_limb1_t const m) {
+amaru_function(int32_t const e, amaru_u1_t const m) {
 
   if (amaru_optimisation_integer && is_multiple_of_pow2(m, -e))
     return remove_trailing_zeros(0, m >> -e);
 
-  amaru_limb1_t const m_min = amaru_pow2(amaru_limb1_t, amaru_mantissa_size);
+  amaru_u1_t const m_min = amaru_pow2(amaru_u1_t, amaru_mantissa_size);
 
   int32_t  const f  = log10_pow2(e);
   uint32_t const de = amaru_storage_base == 10 ? log10_pow2_remainder(e) : 0;
   uint32_t const i  = (amaru_storage_base == 10 ? f : e) -
     amaru_storage_index_offset;
 
-  amaru_limb1_t const upper = multipliers[i].upper;
-  amaru_limb1_t const lower = multipliers[i].lower;
+  amaru_u1_t const upper = multipliers[i].upper;
+  amaru_u1_t const lower = multipliers[i].lower;
 
   if (m != m_min || e == amaru_exponent_minimum) {
 
-    amaru_limb1_t const m_b = (2 * m + 1) << de;
-    amaru_limb1_t const b   = infimum(m_b, upper, lower);
+    amaru_u1_t const m_b = (2 * m + 1) << de;
+    amaru_u1_t const b   = infimum(m_b, upper, lower);
 
-    amaru_limb1_t const m_a = (2 * m - 1) << de;
-    amaru_limb1_t const a   = infimum(m_a, upper, lower);
+    amaru_u1_t const m_a = (2 * m - 1) << de;
+    amaru_u1_t const a   = infimum(m_a, upper, lower);
 
-    amaru_limb1_t const q   = div10(b);
-    amaru_limb1_t const s   = 10 * q;
+    amaru_u1_t const q   = div10(b);
+    amaru_u1_t const s   = 10 * q;
 
     if (s >= a) {
 
@@ -100,9 +100,9 @@ amaru_function(int32_t const e, amaru_limb1_t const m) {
     if (amaru_optimisation_mid_point && (a + b) % 2 == 1)
       return make_decimal(f, (a + b) / 2 + 1);
 
-    amaru_limb1_t const m_c = 2 * 2 * m;
-    amaru_limb1_t const c_2 = infimum(m_c << de, upper, lower);
-    amaru_limb1_t const c   = c_2 / 2;
+    amaru_u1_t const m_c = 2 * 2 * m;
+    amaru_u1_t const c_2 = infimum(m_c << de, upper, lower);
+    amaru_u1_t const c   = c_2 / 2;
 
     if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f)))
       return make_decimal(f, c);
@@ -110,25 +110,25 @@ amaru_function(int32_t const e, amaru_limb1_t const m) {
     return make_decimal(f, c + 1);
   }
 
-  amaru_limb1_t const m_b = 2 * m_min + 1;
-  amaru_limb1_t const b   = infimum(m_b << de, upper, lower);
+  amaru_u1_t const m_b = 2 * m_min + 1;
+  amaru_u1_t const b   = infimum(m_b << de, upper, lower);
 
-  amaru_limb1_t const m_a = 4 * m_min - 1;
-  amaru_limb1_t const a   = infimum(m_a << de, upper, lower) / 2;
+  amaru_u1_t const m_a = 4 * m_min - 1;
+  amaru_u1_t const a   = infimum(m_a << de, upper, lower) / 2;
 
   if (b > a) {
 
-    amaru_limb1_t const q = div10(b);
-    amaru_limb1_t const s = 10 * q;
+    amaru_u1_t const q = div10(b);
+    amaru_u1_t const s = 10 * q;
 
     if (s > a || (s == a && is_multiple_of_pow5(m_a, f)))
       return remove_trailing_zeros(f + 1, q);
 
     int32_t const shift = (amaru_calculation_shift - amaru_size)
       - (amaru_mantissa_size + 2 + de);
-    amaru_limb1_t const c_2 = (shift >= 0) ?
+    amaru_u1_t const c_2 = (shift >= 0) ?
       upper >> shift : (upper << -shift) | (lower >> (amaru_size + shift));
-    amaru_limb1_t const c   = c_2 / 2;
+    amaru_u1_t const c   = c_2 / 2;
 
     if (c == a && !is_multiple_of_pow5(m_a, f))
       return make_decimal(f, c + 1);
@@ -141,15 +141,15 @@ amaru_function(int32_t const e, amaru_limb1_t const m) {
 
   else if (b == a) {
     if (is_multiple_of_pow5(m_a, f)) {
-      amaru_limb1_t const q = div10(a);
+      amaru_u1_t const q = div10(a);
       return 10 * q == a ? remove_trailing_zeros(f + 1, q) :
         make_decimal(f, a);
     }
   }
 
-  amaru_limb1_t const m_c = 10 * 2 * 2 * m_min;
-  amaru_limb1_t const c_2 = infimum(m_c << de, upper, lower);
-  amaru_limb1_t const c   = c_2 / 2;
+  amaru_u1_t const m_c = 10 * 2 * 2 * m_min;
+  amaru_u1_t const c_2 = infimum(m_c << de, upper, lower);
+  amaru_u1_t const c   = c_2 / 2;
 
   if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2, -f)))
     return make_decimal(f - 1, c + 1);

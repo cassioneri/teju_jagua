@@ -549,8 +549,7 @@ generator_t::impl_t::generate_dot_h(std::ostream& stream) const {
     "extern \"C\" {\n"
     "#endif\n"
     "\n" << prefix() << "fields_t\n" <<
-    function() << "(int32_t exponent, " << prefix() << "limb1_t "
-      "mantissa);\n"
+    function() << "(int32_t exponent, " << prefix() << "u1_t mantissa);\n"
     "\n" <<
     "#ifdef __cplusplus\n"
     "}\n"
@@ -630,21 +629,21 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
     "#define amaru_function               " << function() << "\n"
     "#define amaru_multiply_type          " << prefix() << "multiply_type\n"
     "#define amaru_fields_t               " << prefix() << "fields_t\n"
-    "#define amaru_limb1_t                " << prefix() << "limb1_t\n"
+    "#define amaru_u1_t                   " << prefix() << "u1_t\n"
     "\n"
-    "#if defined(" << prefix() << "limb2_t)\n"
-    "  #define amaru_limb2_t              " << prefix() << "limb2_t\n"
+    "#if defined(" << prefix() << "u2_t)\n"
+    "  #define amaru_u2_t                 " << prefix() << "u2_t\n"
     "#endif\n"
     "\n"
-    "#if defined(" << prefix() << "limb4_t)\n"
-    "  #define amaru_limb4_t              " << prefix() << "limb4_t\n"
+    "#if defined(" << prefix() << "u4_t)\n"
+    "  #define amaru_u4_t                 " << prefix() << "u4_t\n"
     "#endif\n"
     "\n";
 
   stream <<
     "static struct {\n"
-    "  amaru_limb1_t const upper;\n"
-    "  amaru_limb1_t const lower;\n"
+    "  amaru_u1_t const upper;\n"
+    "  amaru_u1_t const lower;\n"
     "} const multipliers[] = {\n";
 
   auto const nibbles = size() / 4;
@@ -671,8 +670,8 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   stream << "};\n"
     "\n"
     "static struct {\n"
-    "  amaru_limb1_t const multiplier;\n"
-    "  amaru_limb1_t const bound;\n"
+    "  amaru_u1_t const multiplier;\n"
+    "  amaru_u1_t const bound;\n"
     "} const minverse[] = {\n";
 
   auto const minverse5 = integer_t{ p2_size - (p2_size - 1) / 5 };

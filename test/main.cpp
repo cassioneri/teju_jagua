@@ -22,7 +22,7 @@ struct fp_traits_t;
 template <typename T>
 T
 get_next(T value) {
-  typename fp_traits_t<T>::limb_t i;
+  typename fp_traits_t<T>::u1_t i;
   std::memcpy(&i, &value, sizeof(value));
   ++i;
   std::memcpy(&value, &i, sizeof(value));
@@ -32,7 +32,7 @@ get_next(T value) {
 template <>
 struct fp_traits_t<float> {
 
-  using limb_t         = amaru32_limb1_t;
+  using u1_t           = amaru32_u1_t;
   using amaru_fields_t = amaru32_fields_t;
   using other_fields_t = amaru::dragonbox_full::result_float_t;
 
@@ -70,9 +70,9 @@ struct fp_traits_t<float> {
   }
 
   static
-  limb_t
+  u1_t
   mantissa(other_fields_t fields) {
-    return limb_t{fields.significand};
+    return u1_t{fields.significand};
   }
 
 };
@@ -80,7 +80,7 @@ struct fp_traits_t<float> {
 template <>
 struct fp_traits_t<double> {
 
-  using limb_t         = amaru64_limb1_t;
+  using u1_t           = amaru64_u1_t;
   using amaru_fields_t = amaru64_fields_t;
   using other_fields_t = amaru::dragonbox_full::result_double_t;
 
@@ -118,9 +118,9 @@ struct fp_traits_t<double> {
   }
 
   static
-  limb_t
+  u1_t
   mantissa(other_fields_t fields) {
-    return limb_t{fields.significand};
+    return u1_t{fields.significand};
   }
 };
 
@@ -184,14 +184,14 @@ TYPED_TEST_P(TypedTests, mantissa_min_all_exponents) {
 
   using traits_t          = fp_traits_t<TypeParam>;
   using fp_t              = TypeParam;
-  using limb_t            = typename traits_t::limb_t;
+  using u1_t              = typename traits_t::u1_t;
 
   auto const exponent_max = (uint32_t{1} << traits_t::exponent_size) - 1;
 
   for (uint32_t exponent = 1; !this->HasFailure() &&
     exponent < exponent_max; ++exponent) {
 
-    auto const bits = limb_t{exponent} << traits_t::mantissa_size;
+    auto const bits = u1_t{exponent} << traits_t::mantissa_size;
     fp_t value;
     std::memcpy(&value, &bits, sizeof(bits));
     compare_to_other(value);
@@ -206,12 +206,12 @@ TEST(double, random_comparison_to_other) {
 
   using traits_t = fp_traits_t<double>;
 
-  traits_t::limb_t uint_max;
+  traits_t::u1_t uint_max;
   auto const double_max = std::numeric_limits<double>::max();
   std::memcpy(&uint_max, &double_max, sizeof(double_max));
 
   std::random_device rd;
-  auto dist = std::uniform_int_distribution<traits_t::limb_t>{1, uint_max};
+  auto dist = std::uniform_int_distribution<traits_t::u1_t>{1, uint_max};
 
   auto number_of_tests = uint32_t{100000000};
 
@@ -227,12 +227,11 @@ TEST(double, random_comparison_to_other) {
 
 template <typename T>
 T
-from_ieee(std::uint32_t exponent, typename fp_traits_t<T>::limb_t mantissa) {
+from_ieee(std::uint32_t e, typename fp_traits_t<T>::u1_t m) {
 
-  using        traits_t = fp_traits_t<T>;
-  using        limb_t   = typename traits_t::limb_t;
-  limb_t const i        = (limb_t(exponent) << traits_t::mantissa_size) |
-    mantissa;
+  using      traits_t = fp_traits_t<T>;
+  using      u1_t     = typename traits_t::u1_t;
+  u1_t const i        = (u1_t(e) << traits_t::mantissa_size) | m;
 
   T value;
   std::memcpy(&value, &i, sizeof(i));

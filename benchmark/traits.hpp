@@ -42,7 +42,7 @@ namespace detail {
 template <>
 struct traits_t<float> {
 
-  using limb_t = std::uint32_t;
+  using u1_t = std::uint32_t;
 
   static auto constexpr exponent_size = std::uint32_t{8};
   static auto constexpr mantissa_size = std::uint32_t{23};
@@ -88,7 +88,7 @@ struct traits_t<float> {
 template <>
 struct traits_t<double> {
 
-  using limb_t = std::uint64_t;
+  using u1_t = std::uint64_t;
 
   static auto constexpr exponent_size = std::uint32_t{11};
   static auto constexpr mantissa_size = std::uint32_t{52};

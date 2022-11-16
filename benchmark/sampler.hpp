@@ -33,14 +33,14 @@ template <typename T>
 struct random_provider_t {
 
   using traits_t = amaru::traits_t<T>;
-  using limb_t   = typename traits_t::limb_t;
+  using u1_t     = typename traits_t::u1_t;
 
   /**
    * \brief Constructor.
    *
    * \param n_mantissas     The number of mantissas to be generated.
    */
-  random_provider_t(limb_t const n_mantissas) :
+  random_provider_t(u1_t const n_mantissas) :
     n_mantissas_{n_mantissas} {
   }
 
@@ -52,7 +52,7 @@ struct random_provider_t {
   /**
    * \brief Returns the next pseudo-random mantissa.
    */
-  limb_t
+  u1_t
   pop() {
     --n_mantissas_;
     return distribution_(device_);
@@ -60,12 +60,12 @@ struct random_provider_t {
 
 private:
 
-  using distribution_t = std::uniform_int_distribution<limb_t>;
+  using distribution_t = std::uniform_int_distribution<u1_t>;
 
-  static limb_t constexpr mantissa_max_ =
-    amaru_pow2(limb_t, traits_t::mantissa_size) - 1;
+  static u1_t constexpr mantissa_max_ =
+    amaru_pow2(u1_t, traits_t::mantissa_size) - 1;
 
-  limb_t          n_mantissas_;
+  u1_t            n_mantissas_;
   std::mt19937_64 device_;
   distribution_t  distribution_ = distribution_t{1, mantissa_max_};
 
@@ -87,7 +87,7 @@ template <typename T, typename P>
 struct sampler_helper_t {
 
   using traits_t = amaru::traits_t<T>;
-  using limb_t   = typename traits_t::limb_t;
+  using u1_t     = typename traits_t::u1_t;
 
   /**
    * \brief Constructor.
@@ -131,12 +131,12 @@ struct sampler_helper_t {
 
 private:
 
-  static constexpr limb_t exponent_max_ =
-    amaru_pow2(limb_t, traits_t::exponent_size) - 1;
+  static constexpr u1_t exponent_max_ = amaru_pow2(u1_t,
+    traits_t::exponent_size) - 1;
 
-  limb_t exponent_;
-  limb_t mantissa_;
-  P      provider_;
+  u1_t exponent_;
+  u1_t mantissa_;
+  P    provider_;
 
 }; // sampler_helper_t
 
@@ -184,7 +184,7 @@ template <typename T>
 struct sampler_t<T, population_t::centred> {
 
   using traits_t = amaru::traits_t<T>;
-  using limb_t   = typename traits_t::limb_t;
+  using u1_t     = typename traits_t::u1_t;
 
   /**
    * \brief Tells whether there is still a value to be generated.
@@ -216,7 +216,7 @@ template <typename T>
 struct sampler_t<T, population_t::uncentred> {
 
   using traits_t = amaru::traits_t<T>;
-  using limb_t   = typename traits_t::limb_t;
+  using u1_t   = typename traits_t::u1_t;
 
   /**
    * \brief Tells whether there is still a value to be generated.
@@ -253,7 +253,7 @@ private:
      *
      * \pre !empty()
      */
-    limb_t
+    u1_t
     pop() {
       empty_ = true;
       return 0;
@@ -272,7 +272,7 @@ template <typename T>
 struct sampler_t<T, population_t::mixed> {
 
   using traits_t = amaru::traits_t<T>;
-  using limb_t   = typename traits_t::limb_t;
+  using u1_t     = typename traits_t::u1_t;
 
   bool
   empty() const {
@@ -288,7 +288,7 @@ private:
 
   struct Provider {
 
-    explicit Provider(limb_t const n_mantissas) :
+    explicit Provider(u1_t const n_mantissas) :
       empty_          {false},
       random_provider_{n_mantissas} {
     }
@@ -298,7 +298,7 @@ private:
       return empty_;
     }
 
-    limb_t
+    u1_t
     pop() {
       empty_ = random_provider_.empty();
       return !empty_ ? random_provider_.pop() : 0;

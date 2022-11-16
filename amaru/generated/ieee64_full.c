@@ -19,19 +19,19 @@ extern "C" {
 #define amaru_function               amaru_ieee64_full
 #define amaru_multiply_type          amaru64_multiply_type
 #define amaru_fields_t               amaru64_fields_t
-#define amaru_limb1_t                amaru64_limb1_t
+#define amaru_u1_t                   amaru64_u1_t
 
-#if defined(amaru64_limb2_t)
-  #define amaru_limb2_t              amaru64_limb2_t
+#if defined(amaru64_u2_t)
+  #define amaru_u2_t                 amaru64_u2_t
 #endif
 
-#if defined(amaru64_limb4_t)
-  #define amaru_limb4_t              amaru64_limb4_t
+#if defined(amaru64_u4_t)
+  #define amaru_u4_t                 amaru64_u4_t
 #endif
 
 static struct {
-  amaru_limb1_t const upper;
-  amaru_limb1_t const lower;
+  amaru_u1_t const upper;
+  amaru_u1_t const lower;
 } const multipliers[] = {
   { 0x00278676e4ad38c6, 0xea5b01e8b09aa0d2 }, // -1074
   { 0x004f0cedc95a718d, 0xd4b603d1613541a4 }, // -1073
@@ -2082,8 +2082,8 @@ static struct {
 };
 
 static struct {
-  amaru_limb1_t const multiplier;
-  amaru_limb1_t const bound;
+  amaru_u1_t const multiplier;
+  amaru_u1_t const bound;
 } const minverse[] = {
   { 0x0000000000000001, 0xffffffffffffffff },
   { 0xcccccccccccccccd, 0x3333333333333333 },

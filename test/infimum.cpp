@@ -6,9 +6,9 @@
 #define amaru_calculation_infimum amaru_built_in_4
 #define amaru_multiply_type       amaru_built_in_4
 #define amaru_size                16
-#define amaru_limb1_t             std::uint16_t
-#define amaru_limb2_t             std::uint32_t
-#define amaru_limb4_t             std::uint64_t
+#define amaru_u1_t                std::uint16_t
+#define amaru_u2_t                std::uint32_t
+#define amaru_u4_t                std::uint64_t
 #define amaru_calculation_shift   32
 #define infimum                   infimum_built_in_4
 #include "amaru/infimum.h"
@@ -16,9 +16,9 @@
 #undef amaru_calculation_infimum
 #undef amaru_multiply_type
 #undef amaru_size
-#undef amaru_limb1_t
-#undef amaru_limb2_t
-#undef amaru_limb4_t
+#undef amaru_u1_t
+#undef amaru_u2_t
+#undef amaru_u4_t
 #undef amaru_calculation_shift
 #undef infimum
 
@@ -26,8 +26,8 @@
 #define amaru_calculation_infimum amaru_syntectic_2
 #define amaru_multiply_type       amaru_syntectic_2
 #define amaru_size                32
-#define amaru_limb1_t             std::uint32_t
-#define amaru_limb2_t             std::uint64_t
+#define amaru_u1_t                std::uint32_t
+#define amaru_u2_t                std::uint64_t
 #define amaru_calculation_shift   64
 #define infimum                   infimum_syntectic_2
 #include "amaru/infimum.h"
@@ -35,8 +35,8 @@
 #undef amaru_calculation_infimum
 #undef amaru_multiply_type
 #undef amaru_size
-#undef amaru_limb1_t
-#undef amaru_limb2_t
+#undef amaru_u1_t
+#undef amaru_u2_t
 #undef amaru_calculation_shift
 #undef infimum
 
@@ -44,8 +44,8 @@
 #define amaru_calculation_infimum amaru_built_in_2
 #define amaru_multiply_type       amaru_built_in_2
 #define amaru_size                32
-#define amaru_limb1_t             std::uint32_t
-#define amaru_limb2_t             std::uint64_t
+#define amaru_u1_t                std::uint32_t
+#define amaru_u2_t                std::uint64_t
 #define amaru_calculation_shift   64
 #define infimum                   infimum_built_in_2
 #include "amaru/infimum.h"
@@ -53,8 +53,8 @@
 #undef amaru_calculation_infimum
 #undef amaru_multiply_type
 #undef amaru_size
-#undef amaru_limb1_t
-#undef amaru_limb2_t
+#undef amaru_u1_t
+#undef amaru_u2_t
 #undef amaru_calculation_shift
 #undef infimum
 
@@ -62,7 +62,7 @@
 #define amaru_calculation_infimum amaru_syntectic_1
 #define amaru_multiply_type       amaru_syntectic_1
 #define amaru_size                64
-#define amaru_limb1_t             std::uint64_t
+#define amaru_u1_t                std::uint64_t
 #define amaru_calculation_shift   128
 #define infimum                   infimum_syntectic_1
 #include "amaru/infimum.h"
@@ -70,7 +70,7 @@
 #undef amaru_calculation_infimum
 #undef amaru_multiply_type
 #undef amaru_size
-#undef amaru_limb1_t
+#undef amaru_u1_t
 #undef amaru_calculation_shift
 #undef infimum
 
@@ -78,7 +78,7 @@
 #define amaru_calculation_infimum amaru_built_in_1
 #define amaru_multiply_type       amaru_built_in_1
 #define amaru_size                64
-#define amaru_limb1_t             std::uint64_t
+#define amaru_u1_t                std::uint64_t
 #define amaru_calculation_shift   128
 #define infimum                   infimum_built_in_1
 #include "amaru/infimum.h"
@@ -86,7 +86,7 @@
 #undef amaru_calculation_infimum
 #undef amaru_multiply_type
 #undef amaru_size
-#undef amaru_limb1_t
+#undef amaru_u1_t
 #undef amaru_calculation_shift
 #undef infimum
 

@@ -64,7 +64,7 @@ benchmark(const char* filename) {
     "amaru\\\\_full, dragonbox\\\\_compact, dragonbox\\\\_full\n";
 
   using traits_t = amaru::traits_t<T>;
-  using limb_t   = typename traits_t::limb_t;
+  using u1_t     = typename traits_t::u1_t;
   auto  sampler  = sampler_t<T, population>{};
 
   stats_t amaru_compact_stats, amaru_full_stats, dragonbox_compact_stats,
@@ -92,7 +92,7 @@ benchmark(const char* filename) {
       &traits_t::dragonbox_full);
     dragonbox_full_stats.update(dragonbox_full);
 
-    limb_t integer;
+    u1_t integer;
     std::memcpy(&integer, &value, sizeof(value));
 
     auto const fields = traits_t::to_ieee(value);

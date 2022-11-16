@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 amaru64_fields_t
-amaru_ieee64_full(int32_t exponent, amaru64_limb1_t mantissa);
+amaru_ieee64_full(int32_t exponent, amaru64_u1_t mantissa);
 
 #ifdef __cplusplus
 }

@@ -734,7 +734,7 @@ generator_t::impl_t::get_maxima() const {
       continue;
 
     auto const e = (storage_base() == 10 ?
-      e2 - log10_pow2_remainder(e2) : e2) - f;
+      e2 - log10_pow2_residual(e2) : e2) - f;
 
     alpha_delta_maximum_t x;
     x.alpha   = f >= 0 ? pow2(e) : pow5(-f);

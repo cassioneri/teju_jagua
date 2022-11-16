@@ -72,12 +72,12 @@ TEST(log, log10_pow2_backward) {
   EXPECT_NE(log10_pow2(e), f) << "Minimum " << min << " isn't sharp.";
 }
 
-TEST(log, log10_pow2_remainder) {
+TEST(log, log10_pow2_residual) {
 
   for (std::int32_t e = -112815; e < 112816; ++e) {
 
     auto const f  = log10_pow2(e);
-    auto const r  = log10_pow2_remainder(e);
+    auto const r  = log10_pow2_residual(e);
 
     // r = e - e0, where e0 is the smallest value such that
     // log10_pow2(e0) = f.
@@ -154,12 +154,12 @@ TEST(log, log10_075_pow2_backward) {
   EXPECT_NE(log10_075_pow2(e), f) << "Minimum " << min << " isn't sharp.";
 }
 
-TEST(log, log10_075_pow2_remainder) {
+TEST(log, log10_075_pow2_residual) {
 
   for (std::int32_t e = -100849; e < 111481; ++e) {
 
     auto const f  = log10_075_pow2(e);
-    auto const r  = log10_075_pow2_remainder(e);
+    auto const r  = log10_075_pow2_residual(e);
 
     // r = e - e0, where e0 is the smallest value such that
     // log10_075_pow2(e0) = f.

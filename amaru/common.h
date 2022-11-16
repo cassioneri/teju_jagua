@@ -24,19 +24,19 @@ extern "C" {
  */
 static inline
 int32_t
-log10_pow2(int32_t e) {
+log10_pow2(int32_t const e) {
   return (((uint64_t) 1292913987) * e) >> 32;
 }
 
 /**
- * \brief Returns the remainder e - e0, where e0 is the smallest number such
+ * \brief Returns the residual e - e0, where e0 is the smallest number such
  * that log10_pow2(e0) == log10_pow2(e).
  *
  * \pre -112815 <= e && e < 112816.
  */
 static inline
 uint32_t
-log10_pow2_remainder(int32_t e) {
+log10_pow2_residual(int32_t const e) {
   return ((uint32_t) (((uint64_t) 1292913987) * e)) / 1292913987;
 }
 
@@ -47,19 +47,19 @@ log10_pow2_remainder(int32_t e) {
  */
 static inline
 int32_t
-log10_075_pow2(int32_t e) {
+log10_075_pow2(int32_t const e) {
   return (((uint64_t) 1292913986) * e - 536607788) >> 32;
 }
 
 /**
- * \brief Returns the remainder r = e - e0, where e0 is the smallest number
+ * \brief Returns the residual r = e - e0, where e0 is the smallest number
  * such that log10_075_pow2(e0) == log10_pow2(e).
  *
  * \pre -112815 <= e && e < 112816.
  */
 static inline
 uint32_t
-log10_075_pow2_remainder(int32_t e) {
+log10_075_pow2_residual(int32_t const e) {
   return ((uint32_t) (((uint64_t) 1292913986) * e - 536607788)) / 1292913986;
 }
 

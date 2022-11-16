@@ -73,9 +73,9 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
 
   amaru_u1_t const m_0 = amaru_pow2(amaru_u1_t, amaru_mantissa_size);
 
-  int32_t  const f  = log10_pow2(e);
-  uint32_t const de = amaru_storage_base == 10 ? log10_pow2_remainder(e) : 0;
-  uint32_t const i  = (amaru_storage_base == 10 ? f : e) -
+  int32_t  const f = log10_pow2(e);
+  uint32_t const r = amaru_storage_base == 10 ? log10_pow2_residual(e) : 0;
+  uint32_t const i = (amaru_storage_base == 10 ? f : e) -
     amaru_storage_index_offset;
 
   amaru_u1_t const u = multipliers[i].upper;
@@ -83,10 +83,10 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
 
   if (m != m_0 || e == amaru_exponent_minimum) {
 
-    amaru_u1_t const m_b = (2 * m + 1) << de;
+    amaru_u1_t const m_b = (2 * m + 1) << r;
     amaru_u1_t const b   = mshift(m_b, u, l);
 
-    amaru_u1_t const m_a = (2 * m - 1) << de;
+    amaru_u1_t const m_a = (2 * m - 1) << r;
     amaru_u1_t const a   = mshift(m_a, u, l);
 
     amaru_u1_t const q   = div10(b);
@@ -110,7 +110,7 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
       return make_decimal(f, (a + b) / 2 + 1);
 
     amaru_u1_t const m_c = 2 * 2 * m;
-    amaru_u1_t const c_2 = mshift(m_c << de, u, l);
+    amaru_u1_t const c_2 = mshift(m_c << r, u, l);
     amaru_u1_t const c   = c_2 / 2;
 
     if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f)))
@@ -120,10 +120,10 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
   }
 
   amaru_u1_t const m_b = 2 * m_0 + 1;
-  amaru_u1_t const b   = mshift(m_b << de, u, l);
+  amaru_u1_t const b   = mshift(m_b << r, u, l);
 
   amaru_u1_t const m_a = 4 * m_0 - 1;
-  amaru_u1_t const a   = mshift(m_a << de, u, l) / 2;
+  amaru_u1_t const a   = mshift(m_a << r, u, l) / 2;
 
   if (b > a) {
 
@@ -136,7 +136,7 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
     // m_c = 2 * 2 * m_0
     // c_2 = mshift(m_c << de, upper, lower);
     amaru_u1_t const log2_m_c = amaru_mantissa_size + 2;
-    amaru_u1_t const c_2      = mshift_pow2(log2_m_c + de, u, l);
+    amaru_u1_t const c_2      = mshift_pow2(log2_m_c + r, u, l);
     amaru_u1_t const c        = c_2 / 2;
 
     if (c == a && !is_multiple_of_pow5(m_a, f))
@@ -157,7 +157,7 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
   }
 
   amaru_u1_t const m_c = 10 * 2 * 2 * m_0;
-  amaru_u1_t const c_2 = mshift(m_c << de, u, l);
+  amaru_u1_t const c_2 = mshift(m_c << r, u, l);
   amaru_u1_t const c   = c_2 / 2;
 
   if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2, -f)))

@@ -10,7 +10,7 @@
 #define amaru_u2_t              std::uint64_t
 #define div10                   div10_built_in_2
 #include "amaru/div10.h"
-#undef AMARU_AMAHU_DIV10_H_
+#undef AMARU_AMARU_DIV10_H_
 #undef amaru_calculation_div10
 #undef amaru_multiply_type
 #undef amaru_size
@@ -25,7 +25,7 @@
 #define amaru_u1_t              std::uint64_t
 #define div10                   div10_syntectic_1
 #include "amaru/div10.h"
-#undef AMARU_AMAHU_DIV10_H_
+#undef AMARU_AMARU_DIV10_H_
 #undef amaru_calculation_div10
 #undef amaru_multiply_type
 #undef amaru_size
@@ -39,7 +39,7 @@
 #define amaru_u1_t              std::uint32_t
 #define div10                   div10_built_in_1
 #include "amaru/div10.h"
-#undef AMARU_AMAHU_DIV10_H_
+#undef AMARU_AMARU_DIV10_H_
 #undef amaru_calculation_div10
 #undef amaru_multiply_type
 #undef amaru_size

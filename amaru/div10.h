@@ -1,5 +1,5 @@
-#ifndef AMARU_AMAHU_DIV10_H_
-#define AMARU_AMAHU_DIV10_H_
+#ifndef AMARU_AMARU_DIV10_H_
+#define AMARU_AMARU_DIV10_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,4 +47,4 @@ div10(amaru_u1_t const m) {
 }
 #endif
 
-#endif // AMARU_AMAHU_DIV10_H_
+#endif // AMARU_AMARU_DIV10_H_

@@ -36,9 +36,9 @@ mshift_pow2(uint32_t const k, amaru_u1_t const u, amaru_u1_t const l) {
 
 static inline
 amaru_fields_t
-make_decimal(int32_t const e, amaru_u1_t const m) {
-  amaru_fields_t const decimal = { e, m };
-  return decimal;
+make_fields(int32_t const e, amaru_u1_t const m) {
+  amaru_fields_t const fields = { e, m };
+  return fields;
 }
 
 static inline
@@ -62,7 +62,7 @@ remove_trailing_zeros(int32_t e, amaru_u1_t m) {
     m = n;
   }
 
-  return make_decimal(e, m);
+  return make_fields(e, m);
 }
 
 amaru_fields_t
@@ -107,16 +107,16 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
     }
 
     if (amaru_optimisation_mid_point && (a + b) % 2 == 1)
-      return make_decimal(f, (a + b) / 2 + 1);
+      return make_fields(f, (a + b) / 2 + 1);
 
     amaru_u1_t const m_c = 2 * 2 * m;
     amaru_u1_t const c_2 = mshift(m_c << r, u, l);
     amaru_u1_t const c   = c_2 / 2;
 
     if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f)))
-      return make_decimal(f, c);
+      return make_fields(f, c);
 
-    return make_decimal(f, c + 1);
+    return make_fields(f, c + 1);
   }
 
   amaru_u1_t const m_b = 2 * m_0 + 1;
@@ -140,19 +140,19 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
     amaru_u1_t const c        = c_2 / 2;
 
     if (c == a && !is_multiple_of_pow5(m_a, f))
-      return make_decimal(f, c + 1);
+      return make_fields(f, c + 1);
 
     if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f)))
-      return make_decimal(f, c);
+      return make_fields(f, c);
 
-    return make_decimal(f, c + 1);
+    return make_fields(f, c + 1);
   }
 
   else if (b == a) {
     if (is_multiple_of_pow5(m_a, f)) {
       amaru_u1_t const q = div10(a);
       return 10 * q == a ? remove_trailing_zeros(f + 1, q) :
-        make_decimal(f, a);
+        make_fields(f, a);
     }
   }
 
@@ -161,9 +161,9 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
   amaru_u1_t const c   = c_2 / 2;
 
   if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2, -f)))
-    return make_decimal(f - 1, c + 1);
+    return make_fields(f - 1, c + 1);
 
-  return make_decimal(f - 1, c);
+  return make_fields(f - 1, c);
 }
 
 #ifdef __cplusplus

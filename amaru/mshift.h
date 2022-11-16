@@ -16,16 +16,16 @@ extern "C" {
 
 static inline
 amaru_u1_t
-mshift(amaru_u1_t const m, amaru_u1_t const upper, amaru_u1_t const lower) {
+mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
 
   #if amaru_calculation_mshift == amaru_built_in_4
 
-    amaru_u2_t const n = (((amaru_u2_t) upper) << amaru_size) | lower;
+    amaru_u2_t const n = (((amaru_u2_t) u) << amaru_size) | l;
     return (((amaru_u4_t) n) * m) >> amaru_calculation_shift;
 
   #elif amaru_calculation_mshift == amaru_syntectic_2
 
-    amaru_u2_t const n = (((amaru_u2_t) upper) << amaru_size) | lower;
+    amaru_u2_t const n = (((amaru_u2_t) u) << amaru_size) | l;
     amaru_u2_t u_prod;
     amaru_u2_t const l_prod = amaru_multiply(n, m, &u_prod);
 
@@ -38,18 +38,18 @@ mshift(amaru_u1_t const m, amaru_u1_t const upper, amaru_u1_t const lower) {
 
   #elif amaru_calculation_mshift == amaru_built_in_2
 
-    amaru_u2_t const u_prod = ((amaru_u2_t) upper) * m;
-    amaru_u2_t const l_prod = ((amaru_u2_t) lower) * m;
+    amaru_u2_t const u_prod = ((amaru_u2_t) u) * m;
+    amaru_u2_t const l_prod = ((amaru_u2_t) l) * m;
     return (u_prod + (l_prod >> amaru_size)) >>
       (amaru_calculation_shift - amaru_size);
 
   #elif amaru_calculation_mshift == amaru_syntectic_1
 
     amaru_u1_t ul_prod;
-    (void) amaru_multiply(lower, m, &ul_prod);
+    (void) amaru_multiply(l, m, &ul_prod);
 
     amaru_u1_t uu_prod;
-    amaru_u1_t const lu_prod = amaru_multiply(upper, m, &uu_prod);
+    amaru_u1_t const lu_prod = amaru_multiply(u, m, &uu_prod);
     amaru_u1_t const l_prod  = ul_prod + lu_prod;
 
     amaru_u1_t const carry  = l_prod < ul_prod;
@@ -66,10 +66,10 @@ mshift(amaru_u1_t const m, amaru_u1_t const upper, amaru_u1_t const lower) {
 
     amaru_u1_t const p2 = ((amaru_u1_t) 1) << (amaru_size / 2);
 
-    amaru_u1_t const a3 = upper / p2;
-    amaru_u1_t const a2 = upper % p2;
-    amaru_u1_t const a1 = lower / p2;
-    amaru_u1_t const a0 = lower % p2;
+    amaru_u1_t const a3 = u / p2;
+    amaru_u1_t const a2 = u % p2;
+    amaru_u1_t const a1 = l / p2;
+    amaru_u1_t const a0 = l % p2;
 
     amaru_u1_t const b1 = m / p2; // b1 is relatively small.
     amaru_u1_t const b0 = m % p2;

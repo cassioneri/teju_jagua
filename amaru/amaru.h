@@ -27,11 +27,11 @@ is_multiple_of_pow5(amaru_u1_t const m, int32_t const f) {
 
 static inline
 amaru_u1_t
-mshift_pow2(uint32_t k, amaru_u1_t const upper, amaru_u1_t const lower) {
-  int32_t const shift = k - (amaru_calculation_shift - amaru_size);
-  if (shift <= 0)
-    return upper >> -shift;
-  return (upper << shift) | (lower >> (amaru_size - shift));
+mshift_pow2(uint32_t const k, amaru_u1_t const u, amaru_u1_t const l) {
+  int32_t const s = k - (amaru_calculation_shift - amaru_size);
+  if (s <= 0)
+    return u >> -s;
+  return (u << s) | (l >> (amaru_size - s));
 }
 
 static inline
@@ -78,16 +78,16 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
   uint32_t const i  = (amaru_storage_base == 10 ? f : e) -
     amaru_storage_index_offset;
 
-  amaru_u1_t const upper = multipliers[i].upper;
-  amaru_u1_t const lower = multipliers[i].lower;
+  amaru_u1_t const u = multipliers[i].upper;
+  amaru_u1_t const l = multipliers[i].lower;
 
   if (m != m_min || e == amaru_exponent_minimum) {
 
     amaru_u1_t const m_b = (2 * m + 1) << de;
-    amaru_u1_t const b   = mshift(m_b, upper, lower);
+    amaru_u1_t const b   = mshift(m_b, u, l);
 
     amaru_u1_t const m_a = (2 * m - 1) << de;
-    amaru_u1_t const a   = mshift(m_a, upper, lower);
+    amaru_u1_t const a   = mshift(m_a, u, l);
 
     amaru_u1_t const q   = div10(b);
     amaru_u1_t const s   = 10 * q;
@@ -110,7 +110,7 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
       return make_decimal(f, (a + b) / 2 + 1);
 
     amaru_u1_t const m_c = 2 * 2 * m;
-    amaru_u1_t const c_2 = mshift(m_c << de, upper, lower);
+    amaru_u1_t const c_2 = mshift(m_c << de, u, l);
     amaru_u1_t const c   = c_2 / 2;
 
     if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f)))
@@ -120,10 +120,10 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
   }
 
   amaru_u1_t const m_b = 2 * m_min + 1;
-  amaru_u1_t const b   = mshift(m_b << de, upper, lower);
+  amaru_u1_t const b   = mshift(m_b << de, u, l);
 
   amaru_u1_t const m_a = 4 * m_min - 1;
-  amaru_u1_t const a   = mshift(m_a << de, upper, lower) / 2;
+  amaru_u1_t const a   = mshift(m_a << de, u, l) / 2;
 
   if (b > a) {
 
@@ -136,7 +136,7 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
     // m_c = 2 * 2 * m_min
     // c_2 = mshift(m_c << de, upper, lower);
     amaru_u1_t const log2_m_c = amaru_mantissa_size + 2;
-    amaru_u1_t const c_2      = mshift_pow2(log2_m_c + de, upper, lower);
+    amaru_u1_t const c_2      = mshift_pow2(log2_m_c + de, u, l);
     amaru_u1_t const c        = c_2 / 2;
 
     if (c == a && !is_multiple_of_pow5(m_a, f))
@@ -157,7 +157,7 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
   }
 
   amaru_u1_t const m_c = 10 * 2 * 2 * m_min;
-  amaru_u1_t const c_2 = mshift(m_c << de, upper, lower);
+  amaru_u1_t const c_2 = mshift(m_c << de, u, l);
   amaru_u1_t const c   = c_2 / 2;
 
   if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2, -f)))

@@ -726,20 +726,20 @@ generator_t::impl_t::get_maxima() const {
 
   auto f_done = log10_pow2(exponent_min()) - 1;
 
-  for (auto e2 = exponent_min(); e2 <= exponent_max(); ++e2) {
+  for (auto e = exponent_min(); e <= exponent_max(); ++e) {
 
-    auto const f = log10_pow2(e2);
+    auto const f = log10_pow2(e);
 
     if (storage_base() == 10 && f == f_done)
       continue;
 
-    auto const e = (storage_base() == 10 ?
-      e2 - log10_pow2_residual(e2) : e2) - f;
+    auto const e0 = (storage_base() == 10 ?
+      e - log10_pow2_residual(e) : e) - f;
 
     alpha_delta_maximum_t x;
-    x.alpha   = f >= 0 ? pow2(e) : pow5(-f);
-    x.delta   = f >= 0 ? pow5(f) : pow2(-e);
-    x.maximum = get_maximum(x.alpha, x.delta, e2 == exponent_min());
+    x.alpha   = f >= 0 ? pow2(e0) : pow5(-f );
+    x.delta   = f >= 0 ? pow5(f ) : pow2(-e0);
+    x.maximum = get_maximum(x.alpha, x.delta, e == exponent_min());
 
     maxima.emplace_back(std::move(x));
 

@@ -17,8 +17,8 @@
   },
 
   "calculation": {
-    "div10"  : "built_in_2",
-    "infimum": "built_in_4"
+    "div10" : "built_in_2",
+    "mshift": "built_in_4"
   },
 
   "optimisation": {

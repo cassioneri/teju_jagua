@@ -297,10 +297,10 @@ struct generator_t::impl_t {
   calculation_div10() const;
 
   /**
-   * \brief Returns the calculation method for infimum.
+   * \brief Returns the calculation method for mshift.
    */
   std::string const&
-  calculation_infimum() const;
+  calculation_mshift() const;
 
   /**
    * \brief Optimises for integers.
@@ -499,8 +499,8 @@ generator_t::impl_t::calculation_div10() const {
 }
 
 std::string const&
-generator_t::impl_t::calculation_infimum() const {
-  return self.config_.calculation.infimum;
+generator_t::impl_t::calculation_mshift() const {
+  return self.config_.calculation.mshift;
 }
 
 bool
@@ -585,7 +585,7 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
       shift = s;
   }
 
-  // Optimal shift is 2 * size since it prevents infimum to deal with
+  // Optimal shift is 2 * size since it prevents mshift to deal with
   // partial limbs. In addition, we subtract 1 to compensate shift's
   // increment made later on, when shift is output. (See below.)
   if (storage_base() == 10)
@@ -618,9 +618,9 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
     "#define amaru_storage_index_offset   " << index_offset()        << "\n"
     "#define amaru_calculation_div10      "
       "amaru_" << calculation_div10()   << "\n"
-    "#define amaru_calculation_infimum    "
-      "amaru_" << calculation_infimum() << "\n"
-    // Instead of using infimum(m, upper, lower) / 2 in Amaru, shift is
+    "#define amaru_calculation_mshift    "
+      "amaru_" << calculation_mshift() << "\n"
+    // Instead of using mshift(m, upper, lower) / 2 in Amaru, shift is
     // incremented here and the division by 2 is removed.
     "#define amaru_calculation_shift      " << shift + 1             << "\n"
     "#define amaru_optimisation_integer   " << optimise_integer()    << "\n"
@@ -783,7 +783,7 @@ generator_t::impl_t::get_maximum(integer_t alpha, integer_t const& delta,
 fast_eaf_t
 generator_t::impl_t::get_fast_eaf(alpha_delta_maximum_t const& x) const {
 
-  // Making shift >= size, simplifies infimum executed at runtime. Indeed,
+  // Making shift >= size, simplifies mshift executed at runtime. Indeed,
   // it ensures that the least significant limb of the product is
   // irrelevant. For this reason, later on, the generator actually outputs
   // shift - size (still labelling it as 'shift') so that Amaru doesn't need

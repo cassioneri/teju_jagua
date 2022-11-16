@@ -11,7 +11,7 @@ extern "C" {
 #define amaru_storage_base           2
 #define amaru_storage_index_offset   -1074
 #define amaru_calculation_div10      amaru_built_in_2
-#define amaru_calculation_infimum    amaru_built_in_2
+#define amaru_calculation_mshift    amaru_built_in_2
 #define amaru_calculation_shift      116
 #define amaru_optimisation_integer   1
 #define amaru_optimisation_mid_point 1

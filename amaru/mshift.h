@@ -1,29 +1,29 @@
-#ifndef AMARU_AMAHU_INFIMUM_H_
-#define AMARU_AMAHU_INFIMUM_H_
+#ifndef AMARU_AMAHU_MSHIFT_H_
+#define AMARU_AMAHU_MSHIFT_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if (amaru_calculation_infimum % 2 == 0 &&                         \
-    amaru_calculation_infimum >  2 * (amaru_multiply_type / 2)     \
-  ) || (                                                           \
-    amaru_calculation_infimum % 2 == 1 &&                          \
-    amaru_calculation_infimum != 2 * (amaru_multiply_type / 2) + 1 \
+#if (amaru_calculation_mshift % 2 == 0 &&                         \
+    amaru_calculation_mshift >  2 * (amaru_multiply_type / 2)     \
+  ) || (                                                          \
+    amaru_calculation_mshift % 2 == 1 &&                          \
+    amaru_calculation_mshift != 2 * (amaru_multiply_type / 2) + 1 \
   )
-  #error "Value of 'amaru_calculation_infimum' isn't supported."
+  #error "Value of 'amaru_calculation_mshift' isn't supported."
 #endif
 
 static inline
 amaru_u1_t
-infimum(amaru_u1_t const m, amaru_u1_t const upper, amaru_u1_t const lower) {
+mshift(amaru_u1_t const m, amaru_u1_t const upper, amaru_u1_t const lower) {
 
-  #if amaru_calculation_infimum == amaru_built_in_4
+  #if amaru_calculation_mshift == amaru_built_in_4
 
     amaru_u2_t const n = (((amaru_u2_t) upper) << amaru_size) | lower;
     return (((amaru_u4_t) n) * m) >> amaru_calculation_shift;
 
-  #elif amaru_calculation_infimum == amaru_syntectic_2
+  #elif amaru_calculation_mshift == amaru_syntectic_2
 
     amaru_u2_t const n = (((amaru_u2_t) upper) << amaru_size) | lower;
     amaru_u2_t u_prod;
@@ -36,14 +36,14 @@ infimum(amaru_u1_t const m, amaru_u1_t const upper, amaru_u1_t const lower) {
         l_prod >> (amaru_calculation_shift - amaru_size);
     #endif
 
-  #elif amaru_calculation_infimum == amaru_built_in_2
+  #elif amaru_calculation_mshift == amaru_built_in_2
 
     amaru_u2_t const u_prod = ((amaru_u2_t) upper) * m;
     amaru_u2_t const l_prod = ((amaru_u2_t) lower) * m;
     return (u_prod + (l_prod >> amaru_size)) >>
       (amaru_calculation_shift - amaru_size);
 
-  #elif amaru_calculation_infimum == amaru_syntectic_1
+  #elif amaru_calculation_mshift == amaru_syntectic_1
 
     amaru_u1_t ul_prod;
     (void) amaru_multiply(lower, m, &ul_prod);
@@ -62,7 +62,7 @@ infimum(amaru_u1_t const m, amaru_u1_t const upper, amaru_u1_t const lower) {
         (l_prod >> amaru_calculation_shift);
     #endif
 
-  #elif amaru_calculation_infimum == amaru_built_in_1
+  #elif amaru_calculation_mshift == amaru_built_in_1
 
     amaru_u1_t const p2 = ((amaru_u1_t) 1) << (amaru_size / 2);
 
@@ -118,4 +118,4 @@ infimum(amaru_u1_t const m, amaru_u1_t const upper, amaru_u1_t const lower) {
 }
 #endif
 
-#endif // AMARU_AMAHU_INFIMUM_H_
+#endif // AMARU_AMAHU_MSHIFT_H_

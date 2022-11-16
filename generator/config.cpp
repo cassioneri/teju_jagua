@@ -26,8 +26,8 @@ from_json(nlohmann::json const& src, config_t::storage_t& tgt) {
 
 void
 from_json(nlohmann::json const& src, config_t::calculation_t& tgt) {
-  src["div10"  ].get_to(tgt.div10  );
-  src["infimum"].get_to(tgt.infimum);
+  src["div10" ].get_to(tgt.div10 );
+  src["mshift"].get_to(tgt.mshift);
 }
 
 void
@@ -84,13 +84,13 @@ validate(config_t const& json) {
       "calculation.div10 in { \"built_in_1\", \"syntectic_1\", "
       "\"built_in_2\" }"};
 
-  auto const i_infimum = std::distance(std::cbegin(multiply_types),
+  auto const i_mshift = std::distance(std::cbegin(multiply_types),
     std::find(std::cbegin(multiply_types), std::cend(multiply_types),
     json.calculation.div10));
 
-  if (!(i_infimum <= 4))
+  if (!(i_mshift <= 4))
     throw exception_t{"Constraint violation: "
-      "calculation.infimum in { \"built_in_1\", \"syntectic_1\", "
+      "calculation.mshift in { \"built_in_1\", \"syntectic_1\", "
       "\"built_in_2\", \"syntectic_2\", \"built_in_4\" }"};
 }
 

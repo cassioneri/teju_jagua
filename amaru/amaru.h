@@ -3,7 +3,7 @@
 
 #include "amaru/common.h"
 #include "amaru/div10.h"
-#include "amaru/infimum.h"
+#include "amaru/mshift.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -75,10 +75,10 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
   if (m != m_min || e == amaru_exponent_minimum) {
 
     amaru_u1_t const m_b = (2 * m + 1) << de;
-    amaru_u1_t const b   = infimum(m_b, upper, lower);
+    amaru_u1_t const b   = mshift(m_b, upper, lower);
 
     amaru_u1_t const m_a = (2 * m - 1) << de;
-    amaru_u1_t const a   = infimum(m_a, upper, lower);
+    amaru_u1_t const a   = mshift(m_a, upper, lower);
 
     amaru_u1_t const q   = div10(b);
     amaru_u1_t const s   = 10 * q;
@@ -101,7 +101,7 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
       return make_decimal(f, (a + b) / 2 + 1);
 
     amaru_u1_t const m_c = 2 * 2 * m;
-    amaru_u1_t const c_2 = infimum(m_c << de, upper, lower);
+    amaru_u1_t const c_2 = mshift(m_c << de, upper, lower);
     amaru_u1_t const c   = c_2 / 2;
 
     if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f)))
@@ -111,10 +111,10 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
   }
 
   amaru_u1_t const m_b = 2 * m_min + 1;
-  amaru_u1_t const b   = infimum(m_b << de, upper, lower);
+  amaru_u1_t const b   = mshift(m_b << de, upper, lower);
 
   amaru_u1_t const m_a = 4 * m_min - 1;
-  amaru_u1_t const a   = infimum(m_a << de, upper, lower) / 2;
+  amaru_u1_t const a   = mshift(m_a << de, upper, lower) / 2;
 
   if (b > a) {
 
@@ -148,7 +148,7 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
   }
 
   amaru_u1_t const m_c = 10 * 2 * 2 * m_min;
-  amaru_u1_t const c_2 = infimum(m_c << de, upper, lower);
+  amaru_u1_t const c_2 = mshift(m_c << de, upper, lower);
   amaru_u1_t const c   = c_2 / 2;
 
   if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2, -f)))

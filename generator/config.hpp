@@ -50,7 +50,7 @@ struct config_t {
 
   struct calculation_t {
     std::string div10;
-    std::string infimum;
+    std::string mshift;
   } calculation;
 
   struct optimisation_t {

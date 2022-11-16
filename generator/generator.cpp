@@ -618,7 +618,7 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
     "#define amaru_storage_index_offset   " << index_offset()        << "\n"
     "#define amaru_calculation_div10      "
       "amaru_" << calculation_div10()   << "\n"
-    "#define amaru_calculation_mshift    "
+    "#define amaru_calculation_mshift     "
       "amaru_" << calculation_mshift() << "\n"
     // Instead of using mshift(m, upper, lower) / 2 in Amaru, shift is
     // incremented here and the division by 2 is removed.

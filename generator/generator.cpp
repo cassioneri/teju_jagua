@@ -31,21 +31,51 @@ pow5(std::uint32_t const n) {
   return p1 * p1 * (n % 2 == 0 ? 1 : 5);
 }
 
-static
+struct splitter_t {
+
+  splitter_t(std::uint32_t size, std::uint32_t parts) :
+    size {size },
+    parts{parts} {
+    }
+
+  struct data_t;
+
+  data_t
+  operator()(integer_t n) const;
+
+  std::uint32_t size;
+  std::uint32_t parts;
+};
+
+struct splitter_t::data_t {
+
+  data_t(splitter_t splitter, integer_t n) :
+    splitter{splitter    },
+    n       {std::move(n)} {
+    }
+
+  splitter_t splitter;
+  integer_t  n;
+};
+
+splitter_t::data_t
+splitter_t::operator()(integer_t n) const {
+  return { *this, std::move(n) };
+}
+
 std::ostream&
-print_split(std::ostream& os, integer_t n, std::uint32_t const size,
-  std::uint32_t const parts) {
+operator<<(std::ostream& os, splitter_t::data_t&& data) {
 
-  if (parts == 1)
-    return os << "0x" << std::hex << std::setw(size / 4) <<
-      std::setfill('0') << n;
+  if (data.splitter.parts == 1)
+    return os << "0x" << std::hex << std::setw(data.splitter.size / 4) <<
+      std::setfill('0') << data.n;
 
-  auto const sub_size = size / parts;
-  auto       k        = parts - 1;
+  auto const sub_size = data.splitter.size / data.splitter.parts;
+  auto       k        = data.splitter.parts - 1;
   auto       base     = integer_t{1} << (k * sub_size);
   integer_t u;
 
-  os << "amaru_pack" << parts << '(';
+  os << "amaru_pack" << data.splitter.parts << '(';
 
   goto skip_comma;
   while (k) {
@@ -56,7 +86,7 @@ print_split(std::ostream& os, integer_t n, std::uint32_t const size,
     os << ", ";
     skip_comma:
 
-    divide_qr(n, base, u, n);
+    divide_qr(data.n, base, u, data.n);
 
     os << "0x" << std::hex << std::setw(sub_size / 4) <<
       std::setfill('0') << u;
@@ -698,6 +728,8 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   auto e2      = exponent_min();
   auto e2_or_f = storage_base() == 10 ? log10_pow2(e2) : e2;
 
+  splitter_t splitter{size(), storage_split()};
+
   for (const auto &fast_eaf : fast_eafs) {
 
     integer_t upper;
@@ -707,11 +739,8 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
     if (upper >= p2_size)
       throw exception_t{"Multiplier is out of range."};
 
-    stream << "  { ";
-    print_split(stream, upper, size(), storage_split());
-    stream << ", ";
-    print_split(stream, lower, size(), storage_split());
-    stream << " }, // " << std::dec << e2_or_f << "\n";
+    stream << "  { " << splitter(upper) << ", " << splitter(lower) <<
+      " }, // " << std::dec << e2_or_f << "\n";
 
     ++e2_or_f;
   }
@@ -747,11 +776,8 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   for (int32_t f = 0; f < 1 || p5 <= 200 * mantissa_max(); ++f) {
     const auto bound = p2_size / p5 - (f == 0);
 
-    stream << "  { ";
-    print_split(stream, multiplier, size(), storage_split());
-    stream << ", ";
-    print_split(stream, bound, size(), storage_split());
-    stream << " },\n";
+    stream << "  { " << splitter(multiplier) << ", " << splitter(bound) <<
+      " },\n";
 
     multiplier = (multiplier * minverse5) % p2_size;
     p5 *= 5;

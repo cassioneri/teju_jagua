@@ -13,7 +13,8 @@
   },
 
   "storage": {
-    "base": 10
+    "base": 10,
+    "split": 1
   },
 
   "calculation": {

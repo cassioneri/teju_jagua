@@ -1,5 +1,8 @@
 // This file was auto-generated. DO NOT EDIT IT.
+
 #include "ieee64_full.h"
+
+#include "amaru/pack.h"
 
 #ifdef __cplusplus
 extern "C" {

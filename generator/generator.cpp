@@ -31,6 +31,40 @@ pow5(std::uint32_t const n) {
   return p1 * p1 * (n % 2 == 0 ? 1 : 5);
 }
 
+static
+std::ostream&
+print_split(std::ostream& os, integer_t n, std::uint32_t const size,
+  std::uint32_t const parts) {
+
+  if (parts == 1)
+    return os << "0x" << std::hex << std::setw(size / 4) <<
+      std::setfill('0') << n;
+
+  auto const sub_size = size / parts;
+  auto       k        = parts - 1;
+  auto       base     = integer_t{1} << (k * sub_size);
+  integer_t u;
+
+  os << "amaru_pack" << parts << '(';
+
+  goto skip_comma;
+  while (k) {
+
+    --k;
+    base >>= sub_size;
+
+    os << ", ";
+    skip_comma:
+
+    divide_qr(n, base, u, n);
+
+    os << "0x" << std::hex << std::setw(sub_size / 4) <<
+      std::setfill('0') << u;
+  }
+
+  return os << ')';
+}
+
 /**
  * \brief The objective function of the primary maximisation problem:
  *
@@ -285,6 +319,12 @@ struct generator_t::impl_t {
   storage_base() const;
 
   /**
+   * \brief Returns the number of parts that each stored limb is split into.
+   */
+  std::uint32_t
+  storage_split() const;
+
+  /**
    * \brief Returns the index offset.
    */
   std::int32_t
@@ -384,7 +424,8 @@ struct generator_t::impl_t {
   get_fast_eaf(alpha_delta_maximum_t const& x) const;
 
   generator_t const& self;
-};
+
+}; // generator_t::impl_t
 
 generator_t::impl_t const
 generator_t::self() const {
@@ -488,6 +529,11 @@ generator_t::impl_t::storage_base() const {
   return self.config_.storage.base;
 }
 
+std::uint32_t
+generator_t::impl_t::storage_split() const {
+  return self.config_.storage.split;
+}
+
 std::int32_t
 generator_t::impl_t::index_offset() const {
   return self.index_offset_;
@@ -563,7 +609,10 @@ void
 generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
 
   stream << "// This file was auto-generated. DO NOT EDIT IT.\n"
+    "\n"
     "#include \"" << dot_h() << "\"\n"
+    "\n"
+    "#include \"amaru/pack.h\"\n"
     "\n"
     "#ifdef __cplusplus\n"
     "extern \"C\" {\n"
@@ -646,24 +695,24 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
     "  amaru_u1_t const lower;\n"
     "} const multipliers[] = {\n";
 
-  auto const nibbles = size() / 4;
-
   auto e2      = exponent_min();
   auto e2_or_f = storage_base() == 10 ? log10_pow2(e2) : e2;
 
   for (const auto &fast_eaf : fast_eafs) {
 
-    integer_t upper, lower;
+    integer_t upper;
+    integer_t lower;
     divide_qr(fast_eaf.U, p2_size, upper, lower);
 
     if (upper >= p2_size)
       throw exception_t{"Multiplier is out of range."};
 
-    stream << "  { " <<
-      "0x" << std::hex << std::setw(nibbles) << std::setfill('0') << upper
-      << ", "
-      "0x" << std::hex << std::setw(nibbles) << std::setfill('0') << lower
-      << std::dec << " }, // " << e2_or_f << "\n";
+    stream << "  { ";
+    print_split(stream, upper, size(), storage_split());
+    stream << ", ";
+    print_split(stream, lower, size(), storage_split());
+    stream << " }, // " << std::dec << e2_or_f << "\n";
+
     ++e2_or_f;
   }
 
@@ -696,13 +745,13 @@ generator_t::impl_t::generate_dot_c(std::ostream& stream) const {
   // Also ensure that at least entries up to f = 1 are generated for
   // remove_trailing_zeros.
   for (int32_t f = 0; f < 1 || p5 <= 200 * mantissa_max(); ++f) {
-
     const auto bound = p2_size / p5 - (f == 0);
 
-    stream <<
-      "  { " << std::hex << std::setfill('0') <<
-      "0x" << std::setw(nibbles) << multiplier << ", " <<
-      "0x" << std::setw(nibbles) << bound      << " },\n";
+    stream << "  { ";
+    print_split(stream, multiplier, size(), storage_split());
+    stream << ", ";
+    print_split(stream, bound, size(), storage_split());
+    stream << " },\n";
 
     multiplier = (multiplier * minverse5) % p2_size;
     p5 *= 5;

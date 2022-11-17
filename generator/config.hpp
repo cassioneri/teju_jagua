@@ -46,6 +46,7 @@ struct config_t {
 
   struct storage_t {
     std::uint32_t base;
+    std::uint32_t split;
   } storage;
 
   struct calculation_t {

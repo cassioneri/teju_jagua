@@ -21,7 +21,8 @@ from_json(nlohmann::json const& src, config_t::mantissa_t& tgt) {
 
 void
 from_json(nlohmann::json const& src, config_t::storage_t& tgt) {
-  src["base"].get_to(tgt.base);
+  src["base" ].get_to(tgt.base );
+  src["split"].get_to(tgt.split);
 }
 
 void
@@ -70,6 +71,11 @@ validate(config_t const& json) {
   if (!(json.storage.base != 2 || json.storage.base != 10))
     throw exception_t{"Constraint violation: "
       "storage.base in { 2, 10 }"};
+
+  if (!(json.storage.split != 1 || json.storage.split != 2 ||
+    json.storage.split != 4))
+    throw exception_t{"Constraint violation: "
+      "storage.base in { 1, 2, 4 }"};
 
   std::string const multiply_types[] = {
     "built_in_1", "syntectic_1", "built_in_2", "syntectic_2", "built_in_4"

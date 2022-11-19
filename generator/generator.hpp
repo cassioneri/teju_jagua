@@ -21,12 +21,12 @@ struct generator_t {
    *
    * \param info            The information on the floating point number
    *                        type.
-   * \param config          The implementation configuration.
+   * \param directory       The directory where generated files are saved.
    */
   generator_t(config_t config, std::string directory);
 
   /**
-   * \brief Generates the declaration and implementation.
+   * \brief Generates the implementation.
    */
   void
   generate() const;

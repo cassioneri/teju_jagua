@@ -45,13 +45,29 @@ struct config_t {
   } mantissa;
 
   struct storage_t {
+
+    // The table of multipliers is indexed by the exponent of either the
+    // binary (base = 2) or decimal (base = 10) representation.
     std::uint32_t base;
+
+    // The upper and lower limb of the multiplier can be further split into
+    // 1 (no split), 2 or 4 parts. This is useful for large types (e.g.,
+    // __uint128_t) for which the platform does not support literals of.
     std::uint32_t split;
+
   } storage;
 
   struct calculation_t {
+
+    // Defines the platform support for multiplication to be used by
+    // div10(). It can be "built_in_1", "syntectic_1" or "built_in_2".
     std::string div10;
+
+    // Defines the platform support for multiplication to be used by
+    // mshift(). It can be "built_in_1", "syntectic_1", "built_in_2",
+    // "syntectic_2" or "built_in_4".
     std::string mshift;
+
   } calculation;
 
   struct optimisation_t {

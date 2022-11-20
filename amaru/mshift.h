@@ -1,6 +1,8 @@
 #ifndef AMARU_AMAHU_MSHIFT_H_
 #define AMARU_AMAHU_MSHIFT_H_
 
+#include "test/common.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -14,6 +16,28 @@ extern "C" {
   #error "Value of 'amaru_calculation_mshift' isn't supported."
 #endif
 
+#define rshift amaru_cat(rshift, amaru_id)
+#define mshift amaru_cat(mshift, amaru_id)
+
+/**
+ * \brief Returns (r2 * x^2 + r1 * x) >> amaru_calculation_shift, where
+ * x := 2^amaru_size.
+ */
+static inline
+amaru_u1_t
+rshift(amaru_u1_t const r2, amaru_u1_t const r1) {
+  #if amaru_calculation_shift >= 2 * amaru_size
+    return r2 >> (amaru_calculation_shift - 2 * amaru_size);
+  #else
+    return r2 << (2 * amaru_size - amaru_calculation_shift) |
+      r1 >> (amaru_calculation_shift - amaru_size);
+  #endif
+}
+
+/**
+ * \brief Returns (u * x + l) * m >> amaru_calculation_shift, where
+ * x := 2^amaru_size.
+ */
 static inline
 amaru_u1_t
 mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
@@ -25,85 +49,92 @@ mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
 
   #elif amaru_calculation_mshift == amaru_syntectic_2
 
+    // (u * x + l) * m = r2 * x^2 + r1 * x + r0,
+    //                     with r2, r1, r0 in [0, x[.
     amaru_u2_t const n = (((amaru_u2_t) u) << amaru_size) | l;
-    amaru_u2_t u_prod;
-    amaru_u2_t const l_prod = amaru_multiply(n, m, &u_prod);
-
-    #if amaru_calculation_shift >= 2 * amaru_size
-      return u_prod >> (amaru_calculation_shift - 2 * amaru_size);
-    #else
-      return u_prod << (2 * amaru_size - amaru_calculation_shift) |
-        l_prod >> (amaru_calculation_shift - amaru_size);
-    #endif
+    amaru_u2_t r2;
+    amaru_u2_t const r1 = amaru_multiply(n, m, &r2);
+    return rshift(r2, r1);
 
   #elif amaru_calculation_mshift == amaru_built_in_2
 
-    amaru_u2_t const u_prod = ((amaru_u2_t) u) * m;
-    amaru_u2_t const l_prod = ((amaru_u2_t) l) * m;
-    return (u_prod + (l_prod >> amaru_size)) >>
+    // (u * x + l) * m = s1 * x + s0,
+    //                       with s1 := u * m, s0 := l * m in [0, x^2[,
+    //                 = s1 * x + (s01 * x + s00)
+    //                       with s01 := s0 / x, s00 := s0 % x in [0, x[,
+    //                 = (s1 + s01) * x + s00.
+    amaru_u2_t const s0 = ((amaru_u2_t) l) * m;
+    amaru_u2_t const s1 = ((amaru_u2_t) u) * m;
+    return (s1 + (s0 >> amaru_size)) >>
       (amaru_calculation_shift - amaru_size);
 
   #elif amaru_calculation_mshift == amaru_syntectic_1
 
-    amaru_u1_t ul_prod;
-    (void) amaru_multiply(l, m, &ul_prod);
-
-    amaru_u1_t uu_prod;
-    amaru_u1_t const lu_prod = amaru_multiply(u, m, &uu_prod);
-    amaru_u1_t const l_prod  = ul_prod + lu_prod;
-
-    amaru_u1_t const carry  = l_prod < ul_prod;
-    amaru_u1_t const u_prod = uu_prod + carry;
-
-    #if amaru_calculation_shift >= 2 * amaru_size
-      return u_prod >> (amaru_calculation_shift - 2 * amaru_size);
-    #else
-      return u_prod << (2 * amaru_size - amaru_calculation_shift) |
-        (l_prod >> amaru_calculation_shift);
-    #endif
+    // (u * x + l) * m = s1 * x + s0,
+    //                       with s1 := u * m, s0 := l * m in [0, x^2[,
+    //                 = (s11 * x + s10) * x + (s01 * x + s00),
+    //                       with s11 := s1 / x, s10 := s1 % x,
+    //                            s01 := s0 / x, s00 := s0 % x in [0, x[,
+    //                 = s11 * x^2 +(s10 + s01) * x + s00
+    amaru_u1_t s01, s11;
+    (void) amaru_multiply(l, m, &s01); // s00 is discarded
+    amaru_u1_t const s10 = amaru_multiply(u, m, &s11);
+    amaru_u1_t const r0  = s01 + s10; // This might overflow.
+    amaru_u1_t const c   = r0 < s01;  // Carry.
+    amaru_u1_t const r1  = s11 + c;
+    return rshift(r1, r0);
 
   #elif amaru_calculation_mshift == amaru_built_in_1
 
-    amaru_u1_t const p2 = ((amaru_u1_t) 1) << (amaru_size / 2);
-
-    amaru_u1_t const a3 = u / p2;
-    amaru_u1_t const a2 = u % p2;
-    amaru_u1_t const a1 = l / p2;
-    amaru_u1_t const a0 = l % p2;
-
-    amaru_u1_t const b1 = m / p2; // b1 is relatively small.
-    amaru_u1_t const b0 = m % p2;
+    // Let y := 2^(amaru_size / 2), so that, x = y^2. Then:
+    // u := (n3 * y + n2) with n3 := u / y, n2 = u % y in [0, y[,
+    // l := (n1 * y + n0) with n1 := l / y, n0 = l % y in [0, y[,
+    // m := (m1 * y + m0) with m1 := m / y, m0 = m % y in [0, y[.
+    amaru_u1_t const y_mask = (((amaru_u1_t) 1) << (amaru_size / 2)) - 1;
+    amaru_u1_t const n3 = u >> (amaru_size / 2);
+    amaru_u1_t const n2 = u & y_mask;
+    amaru_u1_t const n1 = l >> (amaru_size / 2);
+    amaru_u1_t const n0 = l & y_mask;
+    amaru_u1_t const m1 = m >> (amaru_size / 2);
+    amaru_u1_t const m0 = m & y_mask;
 
     // result, carry, temporary:
     amaru_u1_t r, c, t;
 
+    // (u * x + l) * m
+    //     = ((n3 * y + n2) * y^2 + (n1 * y + n0)) * (m1 * y + m0),
+    //     = (n3 * y^3 + n2 * y^2 + n1 * y + n0) * (m1 * y + m0),
+    //     = (n3 * m1) * y^4 + (n3 * m0 + n2 * m1) * y^3 +
+    //       (n2 * m0 + n1 * m1) * y^2 + (n1 * m0 + n0 * m1) * y +
+    //       (n0 * m0)
+
     // order 0:
-    t  = b0 * a0;
-    r  = t / p2;
+    t   = n0 * m0;
+    r   = t >> (amaru_size / 2);
 
     // order 1:
-    r += b1 * a0;
-    t  = b0 * a1;
-    r += t;
-    c  = r < t;
-    r /= p2;
+    r  += n0 * m1; // This doesn't overflow.
+    t   = n1 * m0;
+    r  += t;       // This might overflow.
+    c   = r < t;   // Carry.
+    r >>= (amaru_size / 2);
 
     // order 2:
-    r += b1 * a1 + (c << (amaru_size / 2));
-    t  = b0 * a2;
-    r += t;
-    c  = r < t;
-    r /= p2;
+    r  += n1 * m1 + (c << (amaru_size / 2)); // This doesn't overflow.
+    t   = n2 * m0;
+    r  += t;                                 // This might overflow.
+    c   = r < t;                             // Carry.
+    r >>= (amaru_size / 2);
 
     // order 3:
-    r += b1 * a2 + (c << (amaru_size / 2));
-    t  = b0 * a3;
-    r += t;
-    c  = r < t;
-    r /= p2;
+    r  += n2 * m1 + (c << (amaru_size / 2)); // This doesn't overflow.
+    t   = n3 * m0;
+    r  += t;                                 // This might overflow.
+    c   = r < t;                             // Carry.
+    r >>= (amaru_size / 2);
 
     // order 4:
-    r += b1 * a3 + (c << (amaru_size / 2));
+    r  += n3 * m1 + (c << (amaru_size / 2));
 
     #if amaru_calculation_shift >= 2 * amaru_size
       return r >> (amaru_calculation_shift - 2 * amaru_size);

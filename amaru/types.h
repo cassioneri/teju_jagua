@@ -10,42 +10,54 @@
 // Flags indicating the platform multiplication capabilities.
 //--------------------------------------------------------------------------
 
+// Macro amaru32_u1_t is set to the type of 1-limb operands, that is, the
+// unsigned integer type whose size matches amaru_size. When defined,
+// amaru32_u2_t and amaru32_u4_t are, respectively, set to type of the 2-
+// and 4-limb operands, that is, the unsigned integer types whose sizes are
+// 2x and 4x times amaru_size.
+
 // The following macros define the possible values of amaru_multiply_type
 // to be defined later.
 
 /**
- * \brief Platform provides operator * which takes 1-limb operands and
- * yields the lower 1-limb of the 2-limb product.
+ * \brief The platform provides operator * which takes two 1-limb operands
+ * and yields the lower 1-limb of the 2-limb product.
  */
-#define amaru_built_in_1    0
+#define amaru_built_in_1 0
 
 /**
- * \brief Platform provides amaru_multiply which takes 1-limb operands and
- * returns the lower 1-limb of the 2-limb product. It also takes a third
- * argument pointer whose pointed value is set to the upper 1-limb of the
- * 2-limb product.
+ * \brief The platform implements amaru_multiply() which takes two 1-limb
+ * operands and returns the lower 1-limb of the 2-limb product. It also
+ * takes a third argument of type amaru32_u1_t* whose pointed value is set
+ * to the upper 1-limb of the product.
  */
-#define amaru_syntectic_1   1
+#define amaru_syntectic_1 1
 
 /**
- * \brief Platform provides operator * which takes 2-limb operands and
- * yields the lower 2-limb of the 4-limb product.
+ * \brief The platform provides operator * which takes two 2-limb operands
+ * and yields the lower 2-limb of the 4-limb product.
  */
-#define amaru_built_in_2    2
+#define amaru_built_in_2  2
 
 /**
- * \brief Platform provides amaru_multiply which takes 2-limb operands and
- * returns the lower 2-limb of the 4-limb product. It also takes a third
- * argument pointer whose pointed value is set to the upper 2-limb of the
- * 4-limb product.
+ * \brief The platform provides amaru_multiply() which takes two 2-limb
+ * operands and returns the lower 2-limb of the 4-limb product. It also
+ * takes a third argument of type amaru32_u2_t* whose pointed value is set
+ * to the upper 2-limb of the product.
  */
-#define amaru_syntectic_2   3
+#define amaru_syntectic_2 3
 
 /**
- * \brief Platform provides operator * which takes 4-limb operands and
- * yields the lower 4-limb of the 8-limb product.
+ * \brief The platform provides operator * which takes two 4-limb operands
+ * and yields the lower 4-limb of the 8-limb product.
  */
-#define amaru_built_in_4    4
+#define amaru_built_in_4  4
+
+//--------------------------------------------------------------------------
+// amaru_multiply
+//--------------------------------------------------------------------------
+
+// We assume the platform provides at least uint64_t.
 
 static inline
 uint64_t

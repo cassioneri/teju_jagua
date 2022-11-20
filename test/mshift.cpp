@@ -10,7 +10,7 @@
 #define amaru_u2_t               std::uint32_t
 #define amaru_u4_t               std::uint64_t
 #define amaru_calculation_shift  32
-#define amaru_id             built_in_4
+#define amaru_id                 built_in_4
 #include "../amaru/mshift.h"
 #undef AMARU_AMAHU_MSHIFT_H_
 #undef amaru_calculation_mshift
@@ -89,6 +89,9 @@
 #undef amaru_u1_t
 #undef amaru_calculation_shift
 #undef amaru_id
+
+#undef rshift
+#undef mshift
 
 #include <gtest/gtest.h>
 

@@ -54,7 +54,7 @@ namespace {
 
 // References:
 // [1] Neri C, and Schneider L (2022), Euclidean Affine Functions and
-// Applications to Calendar Algorithms, Softw: Pract Exper., 2022
+// their application to calendar algorithms, Softw: Pract Exper., 2022
 
 TEST(div10, built_in_2) {
 

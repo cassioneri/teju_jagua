@@ -12,12 +12,24 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Checks whether mantissa m is multiple of 2^e.
+ *
+ * @param m The mantissa \e m.
+ * @param e The exponent \e e.
+ */
 static inline
 bool
 is_multiple_of_pow2(amaru_u1_t const m, int32_t const e) {
   return 0 <= e && e <= amaru_mantissa_size && ((m >> e) << e) == m;
 }
 
+/**
+ * @brief Checks whether mantissa m is multiple of 2^f.
+ *
+ * @param m The mantissa \e m.
+ * @param e The exponent \e f.
+ */
 static inline
 bool
 is_multiple_of_pow5(amaru_u1_t const m, int32_t const f) {
@@ -47,6 +59,16 @@ rotr(amaru_u1_t const n, unsigned s) {
   return (n >> s) | (n << (amaru_size - s));
 }
 
+/**
+ * @brief Shortens the decimal representation m *10 ^e by removing trailing
+ * zeros of m and increasing e.
+ *
+ * @param e The exponent e.
+ * @param m The mantissa m.
+ *
+ * @return The fields of the shortest unambiguously close decimal
+ * representation.
+ */
 static inline
 amaru_fields_t
 remove_trailing_zeros(int32_t e, amaru_u1_t m) {
@@ -65,6 +87,17 @@ remove_trailing_zeros(int32_t e, amaru_u1_t m) {
   return make_fields(e, m);
 }
 
+/**
+ * @brief Amaru itself.
+ *
+ * Finds the shortest unambiguously close decimal representation of m * 2^e.
+ *
+ * @param e The exponent \e e.
+ * @param m The mantissa \e m.
+ *
+ * @return The fields of the shortest unambiguously close decimal
+ * representation.
+ */
 amaru_fields_t
 amaru_function(int32_t const e, amaru_u1_t const m) {
 

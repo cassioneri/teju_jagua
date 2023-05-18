@@ -8,19 +8,19 @@ extern "C" {
 #endif
 
 /**
- * \brief Returns the k least significant bits of n.
+ * @brief Returns the \e k least significant bits of \e n.
  */
 #define amaru_lsb(n, k) ((n) & (((0 * (n) + 1) << (k)) - 1))
 
 /**
- * \brief Returns 2^n as a given type.
+ * @brief Returns 2^n as a given type.
  */
 #define amaru_pow2(type, n) (((type) 1) << (n))
 
 /**
- * \brief Returns the largest number f such that 10^f <= 2^e.
+ * @brief Returns the largest number f such that 10^f <= 2^e.
  *
- * \pre -112815 <= e && e < 112816.
+ * @pre -112815 <= e && e < 112816.
  */
 static inline
 int32_t
@@ -29,10 +29,10 @@ log10_pow2(int32_t const e) {
 }
 
 /**
- * \brief Returns the residual e - e0, where e0 is the smallest number such
+ * @brief Returns the residual e - e0, where e0 is the smallest number such
  * that log10_pow2(e0) == log10_pow2(e).
  *
- * \pre -112815 <= e && e < 112816.
+ * @pre -112815 <= e && e < 112816.
  */
 static inline
 uint32_t
@@ -41,9 +41,9 @@ log10_pow2_residual(int32_t const e) {
 }
 
 /**
- * \brief Returns the largest number f such that 10^f <= 0.75 * 2^e.
+ * @brief Returns the largest number f such that 10^f <= 0.75 * 2^e.
  *
- * \pre -100849 <= e && e < 111481.
+ * @pre -100849 <= e && e < 111481.
  */
 static inline
 int32_t
@@ -52,10 +52,10 @@ log10_075_pow2(int32_t const e) {
 }
 
 /**
- * \brief Returns the residual r = e - e0, where e0 is the smallest number
+ * @brief Returns the residual r = e - e0, where e0 is the smallest number
  * such that log10_075_pow2(e0) == log10_pow2(e).
  *
- * \pre -112815 <= e && e < 112816.
+ * @pre -112815 <= e && e < 112816.
  */
 static inline
 uint32_t

@@ -5,27 +5,32 @@
 extern "C" {
 #endif
 
-#if (amaru_calculation_div10 % 2 == 0 &&                         \
-    amaru_calculation_div10 >  2 * (amaru_multiply_type / 2)     \
-  ) || (                                                         \
-    amaru_calculation_div10 % 2 == 1 &&                          \
-    amaru_calculation_div10 != 2 * (amaru_multiply_type / 2) + 1 \
-  )
-  #error "Value of 'amaru_calculation_div10' isn't supported."
-#endif
-
+/**
+ * @brief Gets the quotient of the division by 10.
+ *
+ * @param m The dividend.
+ * @returns m / 10.
+ */
 static inline
 amaru_u1_t
 div10(amaru_u1_t const m) {
 
   #if amaru_calculation_div10 == amaru_built_in_2
 
-    amaru_u1_t const inv10 = ((amaru_u1_t) -1) / 10 + 1;
+    #if amaru_multiply_type < amaru_built_in_2
+      #error "Value of 'amaru_calculation_div10' isn't supported."
+    #endif
+
+    amaru_u1_t const inv10 = ((amaru_u1_t) - 1) / 10 + 1;
     return (((amaru_u2_t) inv10) * m) >> amaru_size;
 
   #elif amaru_calculation_div10 == amaru_syntectic_1
 
-    amaru_u1_t const inv10 = ((amaru_u1_t) -1) / 10 + 1;
+    #if amaru_multiply_type != amaru_syntectic_1
+      #error "Value of 'amaru_calculation_div10' isn't supported."
+    #endif
+
+    amaru_u1_t const inv10 = ((amaru_u1_t) - 1) / 10 + 1;
     amaru_u1_t upper;
     (void) amaru_multiply(inv10, m, &upper);
     return upper;
@@ -40,6 +45,8 @@ div10(amaru_u1_t const m) {
     return (((l * (inv5 + 1)) / p2 + l * inv5 + u * (inv5 + 1)) / p2 +
       u * inv5) / 2;
 
+  #else
+    #error "Value of 'amaru_calculation_div10' isn't supported."
   #endif
 }
 

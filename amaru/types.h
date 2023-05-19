@@ -10,66 +10,47 @@
 // Flags indicating the platform's multiplication capabilities.
 //--------------------------------------------------------------------------
 
-// The size of the limb is amaru_size. For instance, if amaru_size == 32,
-// then 1-, 2- and 4-limb operands have size 32, 64 and 128 respectively
-// but notice that the platform might not support all of them. Similarly,
-// if amaru_size == 64, then 1-, 2- and 4-limb operands have size 64, 128
-// and 256 respectively.
+// The size in bits of the limb is amaru_size. For instance, if amaru_size
+// == 32, then 1-, 2- and 4-limb integers have size 32, 64 and 128,
+// respectively. Similarly, if amaru_size == 64, then 1-, 2- and 4-limb
+// integers have size 64, 128 and 256 respectively. The platform is required
+// to support 1-limb integers but not necessarily 2- and 4-limb integers.
 
-// The following macros define the possible values of amaru_multiply_type
-// which is set (below) to the highest possible value.
+// The following macros define the possible values of amaru_multiply_type.
 
 /**
- * @brief The platform provides operator * which takes two 1-limb operands
- * and yields the lower 1-limb of the 2-limb product.
+ * @brief The platform provides operator * for 1-limb unsigned integers that
+ * yields the lower 1-limb of the 2-limb product.
  */
 #define amaru_built_in_1 0
 
 /**
  * @brief The platform implements amaru_multiply() which takes two 1-limb
- * operands and returns the lower 1-limb of the 2-limb product. It also
- * takes a third argument of pointer type whose pointed value is set to the
- * upper 1-limb of the product.
+ * unsigned integers and returns the lower 1-limb of the 2-limb product. It
+ * also takes a third argument of pointer type where the upper 1-limb of the
+ * product is stored on exit.
  */
 #define amaru_syntectic_1 1
 
 /**
- * @brief The platform provides operator * which takes two 2-limb operands
- * and yields the lower 2-limb of the 4-limb product.
+ * @brief The platform provides operator * for 2-limb unsigned integers that
+ * yields the lower 2-limb of the 4-limb product.
  */
 #define amaru_built_in_2  2
 
 /**
- * @brief The platform provides amaru_multiply() which takes two 2-limb
- * operands and returns the lower 2-limb of the 4-limb product. It also
- * takes a third argument of pointer type whose pointed value is set to the
- * upper 2-limb of the product.
+ * @brief The platform implements amaru_multiply() which takes two 2-limb
+ * unsigned integers and returns the lower 2-limb of the 4-limb product. It
+ * also takes a third argument of pointer type where the upper 2-limb of the
+ * product is stored on exit.
  */
 #define amaru_syntectic_2 3
 
 /**
- * @brief The platform provides operator * which takes two 4-limb operands
- * and yields the lower 4-limb of the 8-limb product.
+ * @brief The platform provides operator * for 4-limb unsigned integers that
+ * yields the lower 4-limb of the 8-limb product.
  */
 #define amaru_built_in_4  4
-
-//--------------------------------------------------------------------------
-// amaru_multiply
-//--------------------------------------------------------------------------
-
-// We assume the platform supports at least uint64_t.
-
-static inline
-uint64_t
-amaru_multiply(uint64_t const a, uint64_t const b, uint64_t* upper) {
-  #if defined(__clang__) || defined(__GNUC__)
-    __uint128_t prod = ((__uint128_t) a) * b;
-    *upper = prod >> 64;
-    return prod;
-  #elif defined(_MSC_VER)
-    return _umul128(a, b, upper);
-  #endif
-}
 
 //--------------------------------------------------------------------------
 // Limbs

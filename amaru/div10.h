@@ -1,6 +1,8 @@
 #ifndef AMARU_AMARU_DIV10_H_
 #define AMARU_AMARU_DIV10_H_
 
+#include "amaru/multiply.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -13,9 +15,13 @@ extern "C" {
  */
 static inline
 amaru_u1_t
-div10(amaru_u1_t const m) {
+amaru_div10(amaru_u1_t const m) {
 
-  #if amaru_calculation_div10 == amaru_built_in_2
+  #if !defined(amaru_calculation_div10)
+
+    return m / 10;
+
+  #elif amaru_calculation_div10 == amaru_built_in_2
 
     #if amaru_multiply_type < amaru_built_in_2
       #error "Value of 'amaru_calculation_div10' isn't supported."

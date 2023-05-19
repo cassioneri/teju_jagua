@@ -1,7 +1,7 @@
-#ifndef AMARU_AMAHU_MSHIFT_H_
-#define AMARU_AMAHU_MSHIFT_H_
+#ifndef AMARU_AMARU_MSHIFT_H_
+#define AMARU_AMARU_MSHIFT_H_
 
-#include "test/common.h"
+#include "amaru/multiply.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,16 +16,13 @@ extern "C" {
   #error "Value of 'amaru_calculation_mshift' isn't supported."
 #endif
 
-#define rshift amaru_cat(rshift, amaru_id)
-#define mshift amaru_cat(mshift, amaru_id)
-
 /**
  * \brief Returns (r2 * x^2 + r1 * x) >> amaru_calculation_shift, where
  * x := 2^amaru_size.
  */
 static inline
 amaru_u1_t
-rshift(amaru_u1_t const r2, amaru_u1_t const r1) {
+amaru_rshift(amaru_u1_t const r2, amaru_u1_t const r1) {
   #if amaru_calculation_shift >= 2 * amaru_size
     return r2 >> (amaru_calculation_shift - 2 * amaru_size);
   #else
@@ -40,7 +37,7 @@ rshift(amaru_u1_t const r2, amaru_u1_t const r1) {
  */
 static inline
 amaru_u1_t
-mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
+amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
 
   #if amaru_calculation_mshift == amaru_built_in_4
 
@@ -54,7 +51,7 @@ mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     amaru_u2_t const n = (((amaru_u2_t) u) << amaru_size) | l;
     amaru_u2_t r2;
     amaru_u2_t const r1 = amaru_multiply(n, m, &r2);
-    return rshift(r2, r1);
+    return amaru_rshift(r2, r1);
 
   #elif amaru_calculation_mshift == amaru_built_in_2
 
@@ -82,7 +79,7 @@ mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     amaru_u1_t const r0  = s01 + s10; // This might overflow.
     amaru_u1_t const c   = r0 < s01;  // Carry.
     amaru_u1_t const r1  = s11 + c;
-    return rshift(r1, r0);
+    return amaru_rshift(r1, r0);
 
   #elif amaru_calculation_mshift == amaru_built_in_1
 
@@ -149,4 +146,4 @@ mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
 }
 #endif
 
-#endif // AMARU_AMAHU_MSHIFT_H_
+#endif // AMARU_AMARU_MSHIFT_H_

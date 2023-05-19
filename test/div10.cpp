@@ -1,5 +1,5 @@
+#include "amaru/config.h"
 #include "test/multiply.h"
-#include "amaru/types.h"
 
 #include <cstdint>
 

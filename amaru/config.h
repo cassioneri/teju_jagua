@@ -57,11 +57,11 @@
 // Limbs
 //--------------------------------------------------------------------------
 
-// Macro amaru<X>_u1_t, where <X> = amaru_size (e.g., amaru32_u1_t for
-// amaru_size = 32), is set to the type of 1-limb operands, that is, the
-// unsigned integer type whose size is amaru_size. When defined,
-// amaru<X>_u2_t and amaru<X>_u4_t are, respectively, set to the types of
-// the 2- and 4-limb operands.
+// Macros amaru<X>_u1_t, where <X> = amaru_size (e.g., amaru32_u1_t for
+// amaru_size = 32), is set to the type of 1-limb unsigned integers, i.e.,
+// the one whose size is amaru_size. When defined, amaru<X>_u2_t and
+// amaru<X>_u4_t are, respectively, set to the types of the 2- and 4-limb
+// unsigned integers.
 
 // 32 bits
 

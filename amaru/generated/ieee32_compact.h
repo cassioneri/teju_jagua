@@ -3,7 +3,7 @@
 #ifndef AMARU_AMARU_GENERATED_IEEE32_COMPACT_H_
 #define AMARU_AMARU_GENERATED_IEEE32_COMPACT_H_
 
-#include "amaru/types.h"
+#include "amaru/config.h"
 
 #include <stdbool.h>
 #include <stdint.h>

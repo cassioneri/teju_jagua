@@ -1,7 +1,7 @@
 #include "amaru/common.h"
+#include "amaru/config.h"
 #include "amaru/double.h"
 #include "amaru/float.h"
-#include "amaru/types.h"
 #include "other/other.hpp"
 
 #include <gtest/gtest.h>

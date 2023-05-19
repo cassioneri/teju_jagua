@@ -17,6 +17,8 @@ static inline
 amaru_u1_t
 amaru_div10(amaru_u1_t const m) {
 
+  // TODO (CN): Assert that m is in the range of validity.
+
   #if !defined(amaru_calculation_div10)
 
     return m / 10;

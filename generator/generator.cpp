@@ -467,7 +467,7 @@ struct generator_t::impl_t {
       "#ifndef " << include_guard << "\n"
       "#define " << include_guard << "\n"
       "\n"
-      "#include \"amaru/types.h\"\n"
+      "#include \"amaru/config.h\"\n"
       "\n"
       "#include <stdbool.h>\n"
       "#include <stdint.h>\n"

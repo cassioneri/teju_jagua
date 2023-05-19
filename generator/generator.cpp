@@ -550,9 +550,13 @@ struct generator_t::impl_t {
       "#define amaru_exponent_minimum       " << exponent_min()        << "\n"
       "#define amaru_mantissa_size          " << mantissa_size()       << "\n"
       "#define amaru_storage_base           " << storage_base()        << "\n"
-      "#define amaru_storage_index_offset   " << index_offset()        << "\n"
-      "#define amaru_calculation_div10      "
-        "amaru_" << calculation_div10()   << "\n"
+      "#define amaru_storage_index_offset   " << index_offset()        << "\n";
+
+    if (!calculation_div10().empty())
+      stream << "#define amaru_calculation_div10      "
+        "amaru_" << calculation_div10()   << "\n";
+
+    stream <<
       "#define amaru_calculation_mshift     "
         "amaru_" << calculation_mshift() << "\n"
       // Instead of using mshift(m, upper, lower) / 2 in Amaru, shift is
@@ -573,9 +577,7 @@ struct generator_t::impl_t {
       "#if defined(" << prefix() << "u4_t)\n"
       "  #define amaru_u4_t                 " << prefix() << "u4_t\n"
       "#endif\n"
-      "\n";
-
-    stream <<
+      "\n"
       "static struct {\n"
       "  amaru_u1_t const upper;\n"
       "  amaru_u1_t const lower;\n"

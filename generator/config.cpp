@@ -9,43 +9,44 @@ namespace amaru {
 
 void
 from_json(nlohmann::json const& src, config_t::exponent_t& tgt) {
-  src["size"   ].get_to(tgt.size   );
-  src["minimum"].get_to(tgt.minimum);
-  src["maximum"].get_to(tgt.maximum);
+  src.at("size"   ).get_to(tgt.size   );
+  src.at("minimum").get_to(tgt.minimum);
+  src.at("maximum").get_to(tgt.maximum);
 }
 
 void
 from_json(nlohmann::json const& src, config_t::mantissa_t& tgt) {
-  src["size"].get_to(tgt.size);
+  src.at("size").get_to(tgt.size);
 }
 
 void
 from_json(nlohmann::json const& src, config_t::storage_t& tgt) {
-  src["base" ].get_to(tgt.base );
-  src["split"].get_to(tgt.split);
+  src.at("base" ).get_to(tgt.base );
+  src.at("split").get_to(tgt.split);
 }
 
 void
 from_json(nlohmann::json const& src, config_t::calculation_t& tgt) {
-  src["div10" ].get_to(tgt.div10 );
-  src["mshift"].get_to(tgt.mshift);
+  if (src.contains("div10"))
+    src["div10"].get_to(tgt.div10 );
+  src.at("mshift").get_to(tgt.mshift);
 }
 
 void
 from_json(nlohmann::json const& src, config_t::optimisation_t& tgt) {
-  src["integer"  ].get_to(tgt.integer  );
-  src["mid_point"].get_to(tgt.mid_point);
+  src.at("integer"  ).get_to(tgt.integer  );
+  src.at("mid_point").get_to(tgt.mid_point);
 }
 
 void
 from_json(nlohmann::json const& src, config_t& tgt) {
-  src["id"          ].get_to(tgt.id          );
-  src["size"        ].get_to(tgt.size        );
-  src["exponent"    ].get_to(tgt.exponent    );
-  src["mantissa"    ].get_to(tgt.mantissa    );
-  src["storage"     ].get_to(tgt.storage     );
-  src["calculation" ].get_to(tgt.calculation );
-  src["optimisation"].get_to(tgt.optimisation);
+  src.at("id"          ).get_to(tgt.id          );
+  src.at("size"        ).get_to(tgt.size        );
+  src.at("exponent"    ).get_to(tgt.exponent    );
+  src.at("mantissa"    ).get_to(tgt.mantissa    );
+  src.at("storage"     ).get_to(tgt.storage     );
+  src.at("calculation" ).get_to(tgt.calculation );
+  src.at("optimisation").get_to(tgt.optimisation);
 }
 
 void
@@ -78,16 +79,17 @@ validate(config_t const& json) {
       "storage.base in { 1, 2, 4 }"};
 
   std::string const multiply_types[] = {
-    "built_in_1", "syntectic_1", "built_in_2", "syntectic_2", "built_in_4"
+    "", "built_in_1", "syntectic_1", "built_in_2", "syntectic_2",
+    "built_in_4"
   };
 
   auto const i_div10 = std::distance(std::cbegin(multiply_types),
     std::find(std::cbegin(multiply_types), std::cend(multiply_types),
     json.calculation.div10));
 
-  if (!(i_div10 <= 2))
+  if (!(i_div10 <= 3))
     throw exception_t{"Constraint violation: "
-      "calculation.div10 in { \"built_in_1\", \"syntectic_1\", "
+      "calculation.div10 in { \"\", \"built_in_1\", \"syntectic_1\", "
       "\"built_in_2\" }"};
 
   auto const i_mshift = std::distance(std::cbegin(multiply_types),

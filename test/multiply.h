@@ -16,4 +16,4 @@
   }
 #endif
 
-#endif // AMARU_TEST_MULTIPLY_HACK_H_
+#endif // AMARU_TEST_MULTIPLY_H_

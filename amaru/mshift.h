@@ -1,8 +1,6 @@
 #ifndef AMARU_AMARU_MSHIFT_H_
 #define AMARU_AMARU_MSHIFT_H_
 
-#include "amaru/multiply.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

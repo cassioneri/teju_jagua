@@ -29,8 +29,8 @@ log10_pow2(int32_t const e) {
 }
 
 /**
- * @brief Returns the residual e - e0, where e0 is the smallest number such
- * that log10_pow2(e0) == log10_pow2(e).
+ * @brief Returns the residual e - e0, where e0 is the smallest number such that
+ * log10_pow2(e0) == log10_pow2(e).
  *
  * @pre -112815 <= e && e < 112816.
  */
@@ -52,8 +52,8 @@ log10_075_pow2(int32_t const e) {
 }
 
 /**
- * @brief Returns the residual r = e - e0, where e0 is the smallest number
- * such that log10_075_pow2(e0) == log10_pow2(e).
+ * @brief Returns the residual r = e - e0, where e0 is the smallest number sush
+ * that log10_075_pow2(e0) == log10_pow2(e).
  *
  * @pre -112815 <= e && e < 112816.
  */

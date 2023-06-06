@@ -7,8 +7,12 @@
   },
   "configurePresets": [
     {
-      "name": "linux",
-      "hidden" : true,
+      "name": "clang",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      },
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -16,126 +20,187 @@
       }
     },
     {
-      "name": "gcc",
-      "hidden" : true,
-      "inherits": [ "linux" ],
+      "name": "clang-cl",
+      "hidden": true,
       "cacheVariables": {
-        "CMAKE_C_COMPILER" : "gcc",
-        "CMAKE_CXX_COMPILER" : "g++"
+        "CMAKE_C_COMPILER": "clang-cl.exe",
+        "CMAKE_CXX_COMPILER": "clang-cl.exe"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
       }
     },
     {
-      "name": "clang.linux",
-      "hidden" : true,
-      "inherits": [ "linux" ],
+      "name": "gcc",
+      "hidden": true,
       "cacheVariables": {
-        "CMAKE_C_COMPILER" : "clang",
-        "CMAKE_CXX_COMPILER" : "clang++"
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "msvc",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
       }
     },
     {
       "name": "debug",
-      "hidden" : true,
+      "hidden": true,
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE" : "Debug"
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
-      "name": "profile",
-      "hidden" : true,
+      "name": "release-symbols",
+      "hidden": true,
       "cacheVariables": {
-        "CMAKE_C_FLAGS" : "-g",
-        "CMAKE_CXX_FLAGS" : "-g",
-        "CMAKE_BUILD_TYPE" : "Release"
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
       }
     },
     {
       "name": "release",
-      "hidden" : true,
+      "hidden": true,
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE" : "Release"
+        "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
       "name": "ninja",
-      "hidden" : true,
+      "hidden": true,
       "generator": "Ninja"
     },
     {
       "name": "make",
-      "hidden" : true,
-      "generator": "Unix Makefiles"
+      "hidden": true,
+      "generator": "Unix Makefiles",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
     },
     {
       "name": "clang.debug.make",
-      "description": "Clang debug build on Linux using Make generator",
-      "inherits" : [ "clang.linux", "debug", "make" ],
-      "binaryDir": "${sourceDir}/build/${presetName}"
-    },
-    {
-      "name": "clang.profile.make",
-      "description": "Clang profile build on Linux using Make generator",
-      "inherits" : [ "clang.linux", "profile", "make" ],
-      "binaryDir": "${sourceDir}/build/${presetName}"
-    },
-    {
-      "name": "clang.release.make",
-      "description": "Clang release build on Linux using Make generator",
-      "inherits" : [ "clang.linux", "release", "make" ],
+      "description": "Clang debug build using Make",
+      "inherits": [ "clang", "debug", "make" ],
       "binaryDir": "${sourceDir}/build/${presetName}"
     },
     {
       "name": "clang.debug.ninja",
-      "description": "Clang debug build on Linux using Ninja generator",
-      "inherits" : [ "clang.linux", "debug", "ninja" ],
+      "description": "Clang debug build using Ninja",
+      "inherits": [ "clang", "debug", "ninja" ],
       "binaryDir": "${sourceDir}/build/${presetName}"
     },
     {
-      "name": "clang.profile.ninja",
-      "description": "Clang profile build on Linux using Ninja generator",
-      "inherits" : [ "clang.linux", "profile", "ninja" ],
+      "name": "clang.release.make",
+      "description": "Clang release build using Make",
+      "inherits": [ "clang", "release", "make" ],
       "binaryDir": "${sourceDir}/build/${presetName}"
     },
     {
       "name": "clang.release.ninja",
-      "description": "Clang release build on Linux using Ninja generator",
-      "inherits" : [ "clang.linux", "release", "ninja" ],
+      "description": "Clang release build using Ninja",
+      "inherits": [ "clang", "release", "ninja" ],
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "clang.release-symbols.make",
+      "description": "Clang release with symbols build using Make",
+      "inherits": [ "clang", "release-symbols", "make" ],
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "clang.release-symbols.ninja",
+      "description": "Clang release with symbols build using Ninja",
+      "inherits": [ "clang", "release-symbols", "ninja" ],
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "clang-cl.debug.ninja",
+      "description": "Clang debug build using Ninja",
+      "inherits": [ "clang-cl", "debug", "ninja" ],
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "clang-cl.release.ninja",
+      "description": "Clang release build using Ninja",
+      "inherits": [ "clang-cl", "release", "ninja" ],
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "clang-cl.release-symbols.ninja",
+      "description": "Clang release with symbols build using Ninja",
+      "inherits": [ "clang-cl", "release-symbols", "ninja" ],
       "binaryDir": "${sourceDir}/build/${presetName}"
     },
     {
       "name": "gcc.debug.make",
-      "description": "GCC debug build on Linux using Make generator",
-      "inherits" : [ "gcc", "debug", "make" ],
-      "binaryDir": "${sourceDir}/build/${presetName}"
-    },
-    {
-      "name": "gcc.profile.make",
-      "description": "GCC profile build on Linux using Make generator",
-      "inherits" : [ "gcc", "profile", "make" ],
-      "binaryDir": "${sourceDir}/build/${presetName}"
-    },
-    {
-      "name": "gcc.release.make",
-      "description": "GCC release build on Linux using Make generator",
-      "inherits" : [ "gcc", "release", "make" ],
+      "description": "GCC debug build using Make",
+      "inherits": [ "gcc", "debug", "make" ],
       "binaryDir": "${sourceDir}/build/${presetName}"
     },
     {
       "name": "gcc.debug.ninja",
-      "description": "GCC debug build on Linux using Ninja generator",
-      "inherits" : [ "gcc", "linux", "ninja" ],
+      "description": "GCC debug build using Ninja",
+      "inherits": [ "gcc", "debug", "ninja" ],
       "binaryDir": "${sourceDir}/build/${presetName}"
     },
     {
-      "name": "gcc.profile.ninja",
-      "description": "GCC profile build on Linux using Ninja generator",
-      "inherits" : [ "gcc", "profile", "ninja" ],
+      "name": "gcc.release.make",
+      "description": "GCC release build using Make",
+      "inherits": [ "gcc", "release", "make" ],
       "binaryDir": "${sourceDir}/build/${presetName}"
     },
     {
       "name": "gcc.release.ninja",
-      "description": "GCC release build on Linux using Ninja generator",
-      "inherits" : [ "gcc", "release", "ninja" ],
+      "description": "GCC release build using Ninja",
+      "inherits": [ "gcc", "release", "ninja" ],
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "gcc.release-symbols.make",
+      "description": "GCC release with symbols build using Make",
+      "inherits": [ "gcc", "release-symbols", "make" ],
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "gcc.release-symbols.ninja",
+      "description": "GCC release with symbols build using Ninja",
+      "inherits": [ "gcc", "release-symbols", "ninja" ],
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "msvc.debug.ninja",
+      "description": "MSVC debug build using Ninja",
+      "inherits": [ "msvc", "debug", "ninja" ],
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "msvc.release.ninja",
+      "description": "MSVC release build using Ninja",
+      "inherits": [ "msvc", "release", "ninja" ],
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "msvc.release-symbols.ninja",
+      "description": "MSVC release with symbols build using Ninja",
+      "inherits": [ "msvc", "release-symbols", "ninja" ],
       "binaryDir": "${sourceDir}/build/${presetName}"
     }
   ]

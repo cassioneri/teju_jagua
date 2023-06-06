@@ -2,6 +2,7 @@
 #define AMARU_AMARU_AMARU_H_
 
 #include "amaru/common.h"
+#include "amaru/multiply.h"
 #include "amaru/div10.h"
 #include "amaru/mshift.h"
 
@@ -183,8 +184,7 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
   else if (b == a) {
     if (is_multiple_of_pow5(m_a, f)) {
       amaru_u1_t const q = amaru_div10(a);
-      return 10 * q == a ? remove_trailing_zeros(f + 1, q) :
-        make_fields(f, a);
+      return 10 * q == a ? remove_trailing_zeros(f + 1, q) : make_fields(f, a);
     }
   }
 

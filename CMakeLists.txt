@@ -18,6 +18,8 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_options(-mpreferred-stack-boundary=6)
 endif()
 
+cmake_policy(SET CMP0076 NEW)
+
 add_subdirectory(amaru)
 add_subdirectory(benchmark)
 add_subdirectory(generator)

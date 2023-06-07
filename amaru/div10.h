@@ -23,18 +23,10 @@ amaru_div10(amaru_u1_t const m) {
 
   #elif amaru_calculation_div10 == amaru_built_in_2
 
-    #if amaru_multiply_type < amaru_built_in_2
-      #error "Value of 'amaru_calculation_div10' isn't supported."
-    #endif
-
     amaru_u1_t const inv10 = ((amaru_u1_t) - 1) / 10 + 1;
     return (((amaru_u2_t) inv10) * m) >> amaru_size;
 
   #elif amaru_calculation_div10 == amaru_syntectic_1
-
-    #if amaru_multiply_type != amaru_syntectic_1
-      #error "Value of 'amaru_calculation_div10' isn't supported."
-    #endif
 
     amaru_u1_t
     amaru_multiply_1(amaru_u1_t const a, amaru_u1_t const b, amaru_u1_t* upper);
@@ -57,6 +49,7 @@ amaru_div10(amaru_u1_t const m) {
   #else
     #error "Value of 'amaru_calculation_div10' isn't supported."
   #endif
+
 }
 
 #ifdef __cplusplus

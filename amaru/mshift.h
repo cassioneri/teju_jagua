@@ -5,15 +5,6 @@
 extern "C" {
 #endif
 
-#if (amaru_calculation_mshift % 2 == 0 &&                         \
-    amaru_calculation_mshift >  2 * (amaru_multiply_type / 2)     \
-  ) || (                                                          \
-    amaru_calculation_mshift % 2 == 1 &&                          \
-    amaru_calculation_mshift != 2 * (amaru_multiply_type / 2) + 1 \
-  )
-  #error "Value of 'amaru_calculation_mshift' isn't supported."
-#endif
-
 /**
  * \brief Returns (r2 * x^2 + r1 * x) >> amaru_calculation_shift, where
  * x := 2^amaru_size.
@@ -21,11 +12,16 @@ extern "C" {
 static inline
 amaru_u1_t
 amaru_rshift(amaru_u1_t const r2, amaru_u1_t const r1) {
+
   #if amaru_calculation_shift >= 2 * amaru_size
+
     return r2 >> (amaru_calculation_shift - 2 * amaru_size);
+
   #else
+
     return r2 << (2 * amaru_size - amaru_calculation_shift) |
       r1 >> (amaru_calculation_shift - amaru_size);
+
   #endif
 }
 
@@ -46,9 +42,13 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
 
     // (u * x + l) * m = r2 * x^2 + r1 * x + r0,
     //                     with r2, r1, r0 in [0, x[.
+
+    amaru_u2_t
+    amaru_multiply_2(amaru_u2_t const a, amaru_u2_t const b, amaru_u2_t* upper);
+
     amaru_u2_t const n = (((amaru_u2_t) u) << amaru_size) | l;
     amaru_u2_t r2;
-    amaru_u2_t const r1 = amaru_multiply(n, m, &r2);
+    amaru_u2_t const r1 = amaru_multiply_2(n, m, &r2);
     return amaru_rshift(r2, r1);
 
   #elif amaru_calculation_mshift == amaru_built_in_2
@@ -71,9 +71,13 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     //                       with s11 := s1 / x, s10 := s1 % x,
     //                            s01 := s0 / x, s00 := s0 % x in [0, x[,
     //                 = s11 * x^2 +(s10 + s01) * x + s00
+
+    amaru_u1_t
+    amaru_multiply_1(amaru_u1_t const a, amaru_u1_t const b, amaru_u1_t* upper);
+
     amaru_u1_t s01, s11;
-    (void) amaru_multiply(l, m, &s01); // s00 is discarded
-    amaru_u1_t const s10 = amaru_multiply(u, m, &s11);
+    (void) amaru_multiply_1(l, m, &s01); // s00 is discarded
+    amaru_u1_t const s10 = amaru_multiply_1(u, m, &s11);
     amaru_u1_t const r0  = s01 + s10; // This might overflow.
     amaru_u1_t const c   = r0 < s01;  // Carry.
     amaru_u1_t const r1  = s11 + c;

@@ -3,27 +3,68 @@
 
 #include "amaru/config.h"
 
+#include <cstdint>
+
+#define amaru_size 16
+#define amaru_u1_t std::uint16_t
+#define amaru_u2_t std::uint32_t
+#define amaru_u4_t std::uint64_t
+
 namespace amaru {
 namespace test {
 
-struct built_in_1 {
-    static int constexpr value = amaru_built_in_1;
+struct built_in_1_t {
+
+  static int const shift;
+
+  static amaru_u1_t
+  div10(amaru_u1_t const m);
+
+  static amaru_u1_t
+  mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l);
+
 };
 
-struct syntectic_1 {
-    static int constexpr value = amaru_syntectic_1;
+struct syntectic_1_t {
+
+  static int const shift;
+
+  static amaru_u1_t
+  div10(amaru_u1_t const m);
+
+  static amaru_u1_t
+  mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l);
+
 };
 
-struct built_in_2 {
-    static int constexpr value = amaru_built_in_2;
+struct built_in_2_t {
+
+  static int const shift;
+
+  static amaru_u1_t
+  div10(amaru_u1_t const m);
+
+  static amaru_u1_t
+  mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l);
+
 };
 
-struct syntectic_2 {
-    static int constexpr value = amaru_syntectic_2;
+struct syntectic_2_t {
+
+  static int const shift;
+
+  static amaru_u1_t
+  mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l);
+
 };
 
-struct built_in_4 {
-    static int constexpr value = amaru_built_in_4;
+struct built_in_4_t {
+
+  static int const shift;
+
+  static amaru_u1_t
+  mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l);
+
 };
 
 } // namespace test

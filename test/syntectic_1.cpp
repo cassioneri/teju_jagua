@@ -1,7 +1,6 @@
 #include "amaru/config.h"
 #include "test/impl.hpp"
 
-#define amaru_calculation_div10  amaru_syntectic_1
 #define amaru_calculation_mshift amaru_syntectic_1
 #define amaru_calculation_shift  32
 

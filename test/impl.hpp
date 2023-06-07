@@ -37,6 +37,15 @@ struct syntectic_1_t {
 
 };
 
+struct syntectic_1_small_shift_t {
+
+  static int const shift;
+
+  static amaru_u1_t
+  mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l);
+
+};
+
 struct built_in_2_t {
 
   static int const shift;
@@ -50,6 +59,15 @@ struct built_in_2_t {
 };
 
 struct syntectic_2_t {
+
+  static int const shift;
+
+  static amaru_u1_t
+  mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l);
+
+};
+
+struct syntectic_2_small_shift_t {
 
   static int const shift;
 

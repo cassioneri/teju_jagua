@@ -48,7 +48,7 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
 
     amaru_u2_t const n = (((amaru_u2_t) u) << amaru_size) | l;
     amaru_u2_t r2;
-    amaru_u2_t const r1 = amaru_multiply_2(n, m, &r2);
+    amaru_u2_t const r1 = amaru_multiply_2(n, m, &r2) >> amaru_size;
     return amaru_rshift(r2, r1);
 
   #elif amaru_calculation_mshift == amaru_built_in_2

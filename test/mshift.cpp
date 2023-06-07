@@ -7,7 +7,11 @@ namespace {
 using namespace amaru::test;
 
 using impl_list_t = ::testing::Types<
-  built_in_1_t, syntectic_1_t, built_in_2_t, syntectic_2_t, built_in_4_t
+  built_in_1_t,
+  syntectic_1_t, syntectic_1_small_shift_t,
+  built_in_2_t,
+  syntectic_2_t, syntectic_2_small_shift_t,
+  built_in_4_t
 >;
 
 template <typename T>

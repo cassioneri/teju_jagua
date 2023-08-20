@@ -126,4 +126,9 @@ typedef struct {
 // 128 bits //
 //----------//
 
+#if defined(__GNUC__) && !defined(__clang__)
+  #define amaru64_u1_t __uint128_t
+  #define amaru128_multiply_type amaru_built_in_1
+#endif
+
 #endif // AMARU_AMARU_CONFIG_H_

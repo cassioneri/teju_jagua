@@ -35,15 +35,42 @@ pow5(std::uint32_t const n) {
   return p1 * p1 * (n % 2 == 0 ? 1 : 5);
 }
 
+/**
+ * \brief Splits a number into smaller pieces.
+ *
+ * Generated sources might need to hardcode large numbers but the platform might
+ * lack support for literals of the required size. This class helps splitting
+ * such number into smaller pieces which can be given to macros amaru_pack2 or
+ * amaru_pack2 for the large number to be reconstructed.
+ *
+ * A typical usage looks like this:
+ *
+ *     splitter_t splitter{128, 2};
+ *     integer_t n = (integer_t{0x0123456789abcdef} << 64) + 0xfedcba9876543210;
+ *     std::cout << splitter(n) << '\n';
+ *
+ * Which streams:
+ *
+ *     amaru_pack2(0x0123456789abcdef, 0xfedcba9876543210)
+ */
 struct splitter_t {
 
+  /**
+   * \brief Constructor.
+   *
+   * \param size              The limb size to be splitted.
+   * \param parts             Number of parts that the limbs must be split into.
+   */
   splitter_t(std::uint32_t size, std::uint32_t parts) :
-    size {size },
-    parts{parts} {
+    size {std::move(size) },
+    parts{std::move(parts)} {
     }
 
   struct data_t;
 
+  /**
+   * \brief Returns an object which, when streamed out,  splits n.
+   */
   data_t
   operator()(integer_t n) const;
 
@@ -51,8 +78,18 @@ struct splitter_t {
   std::uint32_t parts;
 };
 
+/**
+ * \brief Created by splitter_t::operator(), it holds information for splitting
+ * a given number.
+ */
 struct splitter_t::data_t {
 
+  /**
+   * \brief Constructor.
+   *
+   * \param splitter          The splitter that created *this.
+   * \param n                 The number to be split.
+   */
   data_t(splitter_t splitter, integer_t n) :
     splitter{splitter    },
     n       {std::move(n)} {
@@ -64,9 +101,18 @@ struct splitter_t::data_t {
 
 splitter_t::data_t
 splitter_t::operator()(integer_t n) const {
-  return { *this, std::move(n) };
+  return {*this, std::move(n)};
 }
 
+/**
+ * \brief The operator for data.
+ *
+ * At the time of construction, data received a splitter and a number n. This
+ * stream operator uses splitter's fields to configure the splitting of n.
+ *
+ * \param os                  The object to be streamed to.
+ * \param data                The data taken by r-value reference.
+ */
 std::ostream&
 operator<<(std::ostream& os, splitter_t::data_t&& data) {
 
@@ -223,7 +269,7 @@ get_maximum_2(integer_t const& alpha_2,
  * \returns The type prefix corresponding to a given size.
  */
 std::string
-get_prefix(uint32_t const size) {
+get_prefix(std::uint32_t const size) {
   switch (size) {
     case 32:
       return "amaru32_";

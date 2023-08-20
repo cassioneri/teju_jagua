@@ -142,8 +142,8 @@ amaru_function(int32_t const e, amaru_u1_t const m) {
     if (amaru_optimisation_mid_point && (a + b) % 2 == 1)
       return make_fields(f, (a + b) / 2 + 1);
 
-    amaru_u1_t const m_c = 2 * 2 * m;
-    amaru_u1_t const c_2 = amaru_mshift(m_c << r, u, l);
+    amaru_u1_t const m_c = (2 * 2 * m) << r;
+    amaru_u1_t const c_2 = amaru_mshift(m_c, u, l);
     amaru_u1_t const c   = c_2 / 2;
 
     if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f)))

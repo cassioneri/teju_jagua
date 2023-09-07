@@ -4,8 +4,8 @@
 #define amaru_calculation_mshift amaru_synthetic_1
 #define amaru_calculation_shift  24
 
-#define amaru_rshift  amaru_test_synthetic_in_1_rshift
-#define amaru_mshift  amaru_test_synthetic_in_1_mshift
+// Avoids ODR violation.
+#define amaru_multiply amaru_multiply_test_synthetic_1
 
 #include "amaru/mshift.h"
 

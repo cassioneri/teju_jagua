@@ -65,11 +65,11 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     //                   with r2, r1, r0 in [0, x[.
 
     amaru_u2_t
-    amaru_multiply_2(amaru_u2_t const a, amaru_u2_t const b, amaru_u2_t* upper);
+    amaru_multiply(amaru_u2_t const a, amaru_u2_t const b, amaru_u2_t* upper);
 
     amaru_u2_t const n = (((amaru_u2_t) u) << amaru_size) | l;
     amaru_u2_t r2;
-    amaru_u2_t const r1 = amaru_multiply_2(n, m, &r2) >> amaru_size;
+    amaru_u2_t const r1 = amaru_multiply(n, m, &r2) >> amaru_size;
     return amaru_rshift(r2, r1);
 
   #elif amaru_calculation_mshift == amaru_built_in_2
@@ -94,11 +94,11 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     //                 = s11 * x^2 +(s10 + s01) * x + s00
 
     amaru_u1_t
-    amaru_multiply_1(amaru_u1_t const a, amaru_u1_t const b, amaru_u1_t* upper);
+    amaru_multiply(amaru_u1_t const a, amaru_u1_t const b, amaru_u1_t* upper);
 
     amaru_u1_t s01, s11;
-    (void) amaru_multiply_1(l, m, &s01); // s00 is discarded
-    amaru_u1_t const s10 = amaru_multiply_1(u, m, &s11);
+    (void) amaru_multiply(l, m, &s01); // s00 is discarded
+    amaru_u1_t const s10 = amaru_multiply(u, m, &s11);
     amaru_u1_t const r0  = s01 + s10; // This might overflow.
     amaru_u1_t const c   = r0 < s01;  // Carry.
     amaru_u1_t const r1  = s11 + c;

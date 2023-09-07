@@ -36,11 +36,11 @@ amaru_div10(amaru_u1_t const m) {
   #elif amaru_calculation_div10 == amaru_synthetic_1
 
     amaru_u1_t
-    amaru_multiply_1(amaru_u1_t const a, amaru_u1_t const b, amaru_u1_t* upper);
+    amaru_multiply(amaru_u1_t const a, amaru_u1_t const b, amaru_u1_t* upper);
 
     amaru_u1_t const inv10 = ((amaru_u1_t) - 1) / 10 + 1;
     amaru_u1_t upper;
-    (void) amaru_multiply_1(inv10, m, &upper);
+    (void) amaru_multiply(inv10, m, &upper);
     return upper;
 
   #elif amaru_calculation_div10 == amaru_built_in_1

@@ -4,6 +4,9 @@
 #define amaru_calculation_mshift amaru_synthetic_2
 #define amaru_calculation_shift  24
 
+// Avoids ODR violation.
+#define amaru_multiply amaru_multiply_test_synthetic_2
+
 #include "amaru/mshift.h"
 
 using impl_t = amaru::test::synthetic_2_small_shift_t;

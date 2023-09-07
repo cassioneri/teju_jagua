@@ -46,7 +46,7 @@
  *     uint32_t lower = amaru_multiply_1(a, b, &upper);
  * \endcode
  */
-#define amaru_syntectic_1 1
+#define amaru_synthetic_1 1
 
 /**
  * @brief The platform provides operator \c * for 2-limb unsigned integers that
@@ -69,7 +69,7 @@
  *     uint64_t lower = amaru_multiply_2(a, b, &upper);
  * \endcode
  */
-#define amaru_syntectic_2 3
+#define amaru_synthetic_2 3
 
 /**
  * @brief The platform provides operator \c * for 4-limb unsigned integers that
@@ -102,7 +102,7 @@
   #define amaru32_u4_t          __uint128_t
   #define amaru32_multiply_type amaru_built_in_4
 #elif defined(_MSC_VER)
-  #define amaru32_multiply_type amaru_syntectic_2
+  #define amaru32_multiply_type amaru_synthetic_2
 #endif
 
 typedef struct {
@@ -120,7 +120,7 @@ typedef struct {
   #define amaru64_u2_t          __uint128_t
   #define amaru64_multiply_type amaru_built_in_2
 #elif defined(_MSC_VER)
-  #define amaru64_multiply_type amaru_syntectic_1
+  #define amaru64_multiply_type amaru_synthetic_1
 #endif
 
 typedef struct {
@@ -134,11 +134,6 @@ typedef struct {
 
 #if defined(__GNUC__) && !defined(__clang__)
   #define amaru128_u1_t __uint128_t
-  #define amaru128_multiply_type amaru_built_in_1
-#endif
-
-#if defined(__GNUC__) && !defined(__clang__)
-  #define amaru64_u1_t __uint128_t
   #define amaru128_multiply_type amaru_built_in_1
 #endif
 

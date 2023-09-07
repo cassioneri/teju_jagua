@@ -13,10 +13,10 @@ extern "C" {
 
 #if (                                            \
       defined(amaru32_multiply_type) &&          \
-      amaru32_multiply_type == amaru_syntectic_2 \
+      amaru32_multiply_type == amaru_synthetic_2 \
     ) || (                                       \
       defined(amaru64_multiply_type) &&          \
-      amaru64_multiply_type == amaru_syntectic_1 \
+      amaru64_multiply_type == amaru_synthetic_1 \
     )
 
 /**

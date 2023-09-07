@@ -25,7 +25,7 @@ struct built_in_1_t {
 
 };
 
-struct syntectic_1_t {
+struct synthetic_1_t {
 
   static int const shift;
 
@@ -37,7 +37,7 @@ struct syntectic_1_t {
 
 };
 
-struct syntectic_1_small_shift_t {
+struct synthetic_1_small_shift_t {
 
   static int const shift;
 
@@ -58,7 +58,7 @@ struct built_in_2_t {
 
 };
 
-struct syntectic_2_t {
+struct synthetic_2_t {
 
   static int const shift;
 
@@ -67,7 +67,7 @@ struct syntectic_2_t {
 
 };
 
-struct syntectic_2_small_shift_t {
+struct synthetic_2_small_shift_t {
 
   static int const shift;
 

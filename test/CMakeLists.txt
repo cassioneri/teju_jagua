@@ -10,10 +10,10 @@ add_executable(test
   built_in_1.cpp
   built_in_2.cpp
   built_in_4.cpp
-  syntectic_1.cpp
-  syntectic_1_small_shift.cpp
-  syntectic_2.cpp
-  syntectic_2_small_shift.cpp
+  synthetic_1.cpp
+  synthetic_1_small_shift.cpp
+  synthetic_2.cpp
+  synthetic_2_small_shift.cpp
 )
 
 target_link_libraries(test

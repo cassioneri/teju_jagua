@@ -60,12 +60,12 @@ struct config_t {
   struct calculation_t {
 
     // Defines the platform support for multiplication to be used by
-    // div10(). It can be "", "built_in_1", "syntectic_1" or "built_in_2".
+    // div10(). It can be "", "built_in_1", "synthetic_1" or "built_in_2".
     std::string div10;
 
     // Defines the platform support for multiplication to be used by
-    // mshift(). It can be "built_in_1", "syntectic_1", "built_in_2",
-    // "syntectic_2" or "built_in_4".
+    // mshift(). It can be "built_in_1", "synthetic_1", "built_in_2",
+    // "synthetic_2" or "built_in_4".
     std::string mshift;
 
   } calculation;

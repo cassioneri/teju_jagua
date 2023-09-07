@@ -4,7 +4,7 @@
 #include <cstdint>
 
 // clang and gcc support __uint128_t and hence, amaru_multiply is undefined
-// for 64-bits. To force amaru_syntectic_1 tests on these platforms, we
+// for 64-bits. To force amaru_synthetic_1 tests on these platforms, we
 // define amaru_multiply here.
 #if defined(__clang__) || defined(__GNUC__)
   static inline

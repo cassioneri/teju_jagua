@@ -1,7 +1,7 @@
 #include "amaru/config.h"
 #include "test/impl.hpp"
 
-#define amaru_calculation_mshift amaru_syntectic_1
+#define amaru_calculation_mshift amaru_synthetic_1
 #define amaru_calculation_shift  32
 
 #include "amaru/div10.h"
@@ -14,7 +14,7 @@ amaru_multiply_1(amaru_u1_t const a, amaru_u1_t const b, amaru_u1_t* upper) {
   return amaru_u1_t(p);
 }
 
-using impl_t = amaru::test::syntectic_1_t;
+using impl_t = amaru::test::synthetic_1_t;
 
 int const impl_t::shift = amaru_calculation_shift;
 

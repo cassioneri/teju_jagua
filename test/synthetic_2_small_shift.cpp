@@ -1,12 +1,12 @@
 #include "amaru/config.h"
 #include "test/impl.hpp"
 
-#define amaru_calculation_mshift amaru_syntectic_1
+#define amaru_calculation_mshift amaru_synthetic_2
 #define amaru_calculation_shift  24
 
 #include "amaru/mshift.h"
 
-using impl_t = amaru::test::syntectic_1_small_shift_t;
+using impl_t = amaru::test::synthetic_2_small_shift_t;
 
 int const impl_t::shift = amaru_calculation_shift;
 

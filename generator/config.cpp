@@ -79,7 +79,7 @@ validate(config_t const& json) {
       "storage.base in { 1, 2, 4 }"};
 
   std::string const multiply_types[] = {
-    "", "built_in_1", "syntectic_1", "built_in_2", "syntectic_2",
+    "", "built_in_1", "synthetic_1", "built_in_2", "synthetic_2",
     "built_in_4"
   };
 
@@ -89,7 +89,7 @@ validate(config_t const& json) {
 
   if (!(i_div10 <= 3))
     throw exception_t{"Constraint violation: "
-      "calculation.div10 in { \"\", \"built_in_1\", \"syntectic_1\", "
+      "calculation.div10 in { \"\", \"built_in_1\", \"synthetic_1\", "
       "\"built_in_2\" }"};
 
   auto const i_mshift = std::distance(std::cbegin(multiply_types),
@@ -98,8 +98,8 @@ validate(config_t const& json) {
 
   if (!(i_mshift <= 4))
     throw exception_t{"Constraint violation: "
-      "calculation.mshift in { \"built_in_1\", \"syntectic_1\", "
-      "\"built_in_2\", \"syntectic_2\", \"built_in_4\" }"};
+      "calculation.mshift in { \"built_in_1\", \"synthetic_1\", "
+      "\"built_in_2\", \"synthetic_2\", \"built_in_4\" }"};
 }
 
 } // namespace amaru

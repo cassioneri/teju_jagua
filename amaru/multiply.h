@@ -15,13 +15,13 @@
 extern "C" {
 #endif
 
-#if (                                            \
-      defined(amaru32_multiply_type) &&          \
-      amaru32_multiply_type == amaru_synthetic_2 \
-    ) || (                                       \
-      defined(amaru64_multiply_type) &&          \
-      amaru64_multiply_type == amaru_synthetic_1 \
-    )
+#if (                                          \
+    defined(amaru32_multiply_type) &&          \
+    amaru32_multiply_type == amaru_synthetic_2 \
+  ) || (                                       \
+    defined(amaru64_multiply_type) &&          \
+    amaru64_multiply_type == amaru_synthetic_1 \
+  )
 
 /**
  * @brief Calculates the 128-bits product of two 64-bits unsigned numbers.

@@ -6,6 +6,7 @@
  *
  * The implementation of Amaru and some of its helpers.
  */
+
 #include "amaru/common.h"
 #include "amaru/multiply.h"
 #include "amaru/div10.h"

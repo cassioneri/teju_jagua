@@ -7,6 +7,10 @@
  * Custom multiplication functionalities.
  */
 
+#if defined(_MSC_VER)
+  #include <intrin.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

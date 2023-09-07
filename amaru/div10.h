@@ -1,6 +1,12 @@
 #ifndef AMARU_AMARU_DIV10_H_
 #define AMARU_AMARU_DIV10_H_
 
+/**
+ * @file amaru/div.h
+ *
+ * Different algorithms for division by 10.
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -9,6 +15,7 @@ extern "C" {
  * @brief Gets the quotient of the division by 10.
  *
  * @param m The dividend.
+ *
  * @returns m / 10.
  */
 static inline

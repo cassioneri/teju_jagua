@@ -1,3 +1,12 @@
+#ifndef AMARU_BENCHMARK_SAMPLER_H_
+#define AMARU_BENCHMARK_SAMPLER_H_
+
+/**
+ * @file benchmark/sampler.hpp
+ *
+ * Functionalities to draw sample values used in benchmarks.
+ */
+
 #include "benchmark/traits.hpp"
 
 #include <cstdint>
@@ -6,17 +15,17 @@
 namespace amaru {
 
 /**
- * \brief Types of population used in benchmarks.
+ * @brief Types of population used in benchmarks.
  */
 enum class population_t {
 
-  // All integers in the interval [1, N[ for some N.
+  // All integers in the interval [1, N] for some N.
   integer,
 
-  // Random numbers that are equidistant from its neighbours.
+  // Random floating point numbers that are equidistant from its neighbours.
   centred,
 
-  // All numbers that are not equidistant from its neighbours.
+  // All floating point numbers that are not equidistant from its neighbours.
   uncentred,
 
   // Mix of centred and uncentred.
@@ -24,33 +33,43 @@ enum class population_t {
 };
 
 /**
- * \brief Draws uniformly distributed pseudo-random mantissas.
+ * @brief Draws uniformly distributed pseudo-random mantissas on the set of
+ * all mantissa values but the minimum.
  *
- * \tparam T                The floating point type corresponding to the
+ * @tparam T                The floating point type corresponding to the
  *                          mantissa.
  */
 template <typename T>
-struct random_provider_t {
+struct mantissa_provider_t {
 
   using traits_t = amaru::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
 
   /**
-   * \brief Constructor.
+   * @brief Constructor.
    *
-   * \param n_mantissas     The number of mantissas to be generated.
+   * @param n_mantissas     The number of mantissas to be generated.
    */
-  random_provider_t(u1_t const n_mantissas) :
+  mantissa_provider_t(u1_t const n_mantissas) :
     n_mantissas_{n_mantissas} {
   }
 
+  /**
+   * @brief Checks whether there are still mantissas to generate.
+   *
+   * @returns \c true when there are no more mantissas to generate.
+   */
   bool
   empty() const {
     return n_mantissas_ == 0;
   }
 
   /**
-   * \brief Returns the next pseudo-random mantissa.
+   * @brief Gets the next pseudo-random mantissa.
+   *
+   * @pre <tt>!empty()</tt>.
+   *
+   * @returns The next pseudo-random mantissa.
    */
   u1_t
   pop() {
@@ -69,39 +88,41 @@ private:
   std::mt19937_64 device_;
   distribution_t  distribution_ = distribution_t{1, mantissa_max_};
 
-}; // random_provider_t
+}; // mantissa_provider_t
 
 /**
- * \brief A helper class that generates floating point numbers for usage in
- * tests and benchmarks.
+ * @brief Generic pseudo-random generation of floating point numbers.
  *
- * It gets a mantissa value from a provider class and loops over the set of
- * exponents, generating all floating point values with the obtained
- * mantissa. When the exponents are exhausted, the provider is called again
- * and the cycle repeats.
+ * The generator gets a mantissa value from a provider and loops over the set of
+ * all exponents, generating all floating point values with the obtained
+ * mantissa. When the exponents are exhausted, the provider is called again and
+ * the cycle repeats.
  *
- * \tparam T The floating point number type.
- * \tparam P The mantissa provider type.
+ * @tparam T                The floating point number type.
+ * @tparam P                The mantissa provider type.
  */
 template <typename T, typename P>
-struct sampler_helper_t {
+struct generic_sampler_t {
 
   using traits_t = amaru::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
 
   /**
-   * \brief Constructor.
+   * @brief Constructor.
    *
-   * \tparam provider       The mantissa provider.
+   * @param provider        The mantissa provider.
    */
-  sampler_helper_t(P provider) :
+  generic_sampler_t(P provider) :
     exponent_{0                  },
     mantissa_{provider.pop()     },
     provider_{std::move(provider)} {
   }
 
   /**
-   * \brief Tells whether there is still a value to be generated.
+   * @brief Checks whether there are still floating point numbers to be
+   * generated.
+   *
+   * @returns \c true when there are no more floating point numbers to generate.
    */
   bool
   empty() const {
@@ -109,9 +130,11 @@ struct sampler_helper_t {
   }
 
   /**
-   * \brief Gets the next floating point number.
+   * @brief Gets the next floating point number.
    *
-   * \pre !empty()
+   * @pre <tt>!empty()</tt>.
+   *
+   * @returns The next generated floating point number.
    */
   T
   pop() {
@@ -138,34 +161,55 @@ private:
   u1_t mantissa_;
   P    provider_;
 
-}; // sampler_helper_t
+}; // generic_sampler_t
 
 /**
- * \brief Generates floating point numbers for usage in tests and
- * benchmarks.
+ * @brief Generates floating point numbers.
  *
- * \tparam T                The floating point number type.
- * \tparam population       The type of population.
+ * @tparam T                The floating point number type.
+ * @tparam population       The type of population.
  */
 template <typename T, population_t population>
 struct sampler_t;
 
-// Specialisation for population_t::integer.
+/**
+ * @brief Specialisation of \c sampler_t for \c population_t::integer.
+ *
+ * The generator generates all strictly positive integers less than or equal to
+ * a given upper bound.
+ *
+ * @tparam T                The floating point number type.
+ */
 template <typename T>
 struct sampler_t<T, population_t::integer> {
 
   /**
-   * \brief Tells whether there is still a value to be generated.
+   * @brief Constructor.
+   *
+   * @pre <tt>bound >= 0</tt>.
+   *
+   * @param bound           The given upper bound.
    */
-  bool
-  empty() const {
-    return value_ >= max_;
+  sampler_t(T const bound) : bound_{bound} {
   }
 
   /**
-   * \brief Gets the next floating point number.
+   * @brief Checks whether there are still floating point numbers to be
+   * generated.
    *
-   * \pre !empty()
+   * @returns \c true when there are no more floating point numbers to generate.
+   */
+  bool
+  empty() const {
+    return value_ >= bound_;
+  }
+
+  /**
+   * @brief Gets the next floating point number.
+   *
+   * @pre <tt>!empty()</tt>.
+   *
+   * @returns The next generated floating point number.
    */
   T
   pop() {
@@ -175,11 +219,20 @@ struct sampler_t<T, population_t::integer> {
 private:
 
   T value_{1};
-  T max_  {100000};
+  T bound_{1};
 
 }; // sampler_t<T, population_t::integer>
 
-// Specialisation for population_t::centred.
+/**
+ * @brief Specialisation of \c sampler_t for \c population_t::centred.
+ *
+ * The generator gets a mantissa value from a \c mantissa_provider_t and loops
+ * over the set of all exponents, generating all floating point values with the
+ * obtained mantissa. When the exponents are exhausted, the provider is called
+ * again and the cycle repeats.
+ *
+ * @tparam T                The floating point number type.
+ */
 template <typename T>
 struct sampler_t<T, population_t::centred> {
 
@@ -187,31 +240,50 @@ struct sampler_t<T, population_t::centred> {
   using u1_t     = typename traits_t::u1_t;
 
   /**
-   * \brief Tells whether there is still a value to be generated.
+   * @brief Constructor.
+   *
+   * @param n_mantissas     The number of mantissas to be generated.
    */
-  bool
-  empty() const {
-    return helper_.empty();
+  explicit sampler_t(u1_t const n_mantissas) :
+    generic_{mantissa_provider_t<T>{n_mantissas}} {
   }
 
   /**
-   * \brief Gets the next floating point number.
+   * @brief Checks whether there are still floating point numbers to be
+   * generated.
    *
-   * \pre !empty()
+   * @returns \c true when there are no more floating point numbers to generate.
+   */
+  bool
+  empty() const {
+    return generic_.empty();
+  }
+
+  /**
+   * @brief Gets the next floating point number.
+   *
+   * @pre <tt>!empty()</tt>.
+   *
+   * @returns The next generated floating point number.
    */
   T
   pop() {
-    return helper_.pop();
+    return generic_.pop();
   }
 
 private:
 
-  using provider_t = random_provider_t<T>;
-  sampler_helper_t<T, provider_t> helper_{provider_t{256}};
+  generic_sampler_t<T, mantissa_provider_t<T>> generic_;
 
 }; // sampler_t<T, population_t::centred>
 
-// Specialisation for population_t::uncentred.
+/**
+ * @brief Specialisation of \c sampler_t for \c population_t::uncentred.
+ *
+ * Generates all floating point values which are uncentred.
+ *
+ * @tparam T                The floating point number type.
+ */
 template <typename T>
 struct sampler_t<T, population_t::uncentred> {
 
@@ -219,29 +291,39 @@ struct sampler_t<T, population_t::uncentred> {
   using u1_t   = typename traits_t::u1_t;
 
   /**
-   * \brief Tells whether there is still a value to be generated.
+   * @brief Checks whether there are still floating point numbers to be
+   * generated.
+   *
+   * @returns \c true when there are no more floating point numbers to generate.
    */
   bool
   empty() const {
-    return helper_.empty();
+    return generic_.empty();
   }
 
   /**
-   * \brief Gets the next floating point number.
+   * @brief Gets the next floating point number.
    *
-   * \pre !empty()
+   * @pre <tt>!empty()</tt>.
+   *
+   * @returns The next generated floating point number.
    */
   T
   pop() {
-    return helper_.pop();
+    return generic_.pop();
   }
 
 private:
 
+  /**
+   * @brief Provides the minimum mantissa only.
+   */
   struct provider_t {
 
     /**
-     * \brief Tells whether there is still a value to be generated.
+     * @brief Checks whether there are still mantissas to generate.
+     *
+     * @returns \c true when there are no more mantissas to generate.
      */
     bool
     empty() const {
@@ -249,9 +331,11 @@ private:
     }
 
     /**
-     * \brief Gets the next floating point number.
+     * @brief Gets the minimum mantissa.
      *
-     * \pre !empty()
+     * @pre <tt>!empty()</tt>.
+     *
+     * @returns The minimum mantissa.
      */
     u1_t
     pop() {
@@ -263,54 +347,67 @@ private:
     bool empty_{false};
   };
 
-  sampler_helper_t<T, provider_t> helper_{provider_t{}};
+  generic_sampler_t<T, provider_t> generic_{provider_t{}};
 
 }; // sampler_t<T, population_t::uncentred>
 
-// Specialisation for population_t::mixed.
+/**
+ * @brief Specialisation of \c sampler_t for \c population_t::mixed.
+ *
+ * The generator gets a mantissa value from a \c mantissa_provider_t and loops
+ * over the set of all exponents, generating all floating point values with the
+ * obtained mantissa. When the exponents are exhausted, the provider is called
+ * again and the cycle repeats. When there are no more mantissas to be provided.
+ * from the \c mantissa_provider_t instance, then all uncentred floating point
+ * values are generated.
+ *
+ * @tparam T                The floating point number type.
+ */
 template <typename T>
 struct sampler_t<T, population_t::mixed> {
 
   using traits_t = amaru::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
 
-  bool
-  empty() const {
-    return helper_.empty();
+  /**
+   * @brief Constructor.
+   *
+   * @param n_mantissas     The number of mantissas to be generated.
+   */
+  explicit sampler_t(u1_t const n_mantissas) :
+    centred_{n_mantissas} {
   }
 
+  /**
+   * @brief Checks whether there are still floating point numbers to be
+   * generated.
+   *
+   * @returns \c true when there are no more floating point numbers to generate.
+   */
+  bool
+  empty() const {
+    return centred_.empty() && uncentred_.empty();
+  }
+
+  /**
+   * @brief Gets the next floating point number.
+   *
+   * @pre <tt>!empty()</tt>.
+   *
+   * @returns The next generated floating point number.
+   */
   T
   pop() {
-    return helper_.pop();
+    return !centred_.empty() ? centred_.pop() : uncentred_.pop();
   }
 
 private:
 
-  struct Provider {
-
-    explicit Provider(u1_t const n_mantissas) :
-      empty_          {false},
-      random_provider_{n_mantissas} {
-    }
-
-    bool
-    empty() const {
-      return empty_;
-    }
-
-    u1_t
-    pop() {
-      empty_ = random_provider_.empty();
-      return !empty_ ? random_provider_.pop() : 0;
-    }
-
-  private:
-    bool                 empty_;
-    random_provider_t<T> random_provider_;
-  };
-
-  sampler_helper_t<T, Provider> helper_{Provider{255}};
+  sampler_t<T, population_t::centred>   centred_;
+  sampler_t<T, population_t::uncentred> uncentred_;
 
 }; // sampler_t<T, population_t::mixed>
 
 } // namespace amaru
+
+#endif // AMARU_BENCHMARK_SAMPLER_H_

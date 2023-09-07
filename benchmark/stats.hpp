@@ -1,19 +1,27 @@
+#ifndef AMARU_BENCHMARK_STATS_H_
+#define AMARU_BENCHMARK_STATS_H_
+
+/**
+ * @file benchmark/stats.hpp
+ *
+ * Statistic calculators.
+ */
+
 #include <cstdint>
 
 namespace amaru {
 
 /**
- * \brief Online mean and standard deviation calculator.
+ * @brief Online mean and standard deviation calculator.
  *
- * WARN: Sample values must be small numbers of type std::uint64_t.
+ * @warning Sample values must be small numbers of type \e std::uint64_t.
  */
 struct stats_t {
 
   /**
-   * \brief Updates mean and standard deviation after for a new sample
-   * value.
+   * @brief Updates mean and standard deviation given a new sample value.
    *
-   * \param x The new sample value.
+   * @param x The new sample value.
    */
   void
   update(std::uint64_t const x) {
@@ -23,7 +31,9 @@ struct stats_t {
   }
 
   /**
-   * \brief Returns the current mean.
+   * @brief Gets the current mean.
+   *
+   * @returns The current mean.
    */
   std::uint64_t
   mean() const {
@@ -31,7 +41,9 @@ struct stats_t {
   }
 
   /**
-   * \brief Returns the current standard deviation.
+   * \brief Gets the current standard deviation.
+   *
+   * @returns The current standard deviation.
    */
   std::uint64_t
   stddev() const {
@@ -47,3 +59,5 @@ private:
 };
 
 } // namespace amaru
+
+#endif // AMARU_BENCHMARK_STATS_H_

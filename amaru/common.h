@@ -1,6 +1,12 @@
 #ifndef AMARU_AMARU_COMMON_H_
 #define AMARU_AMARU_COMMON_H_
 
+/**
+ * @file amaru/common.h
+ *
+ * Common functionalities used by Amaru and elsewhere (e.g., tests).
+ */
+
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -8,19 +14,37 @@ extern "C" {
 #endif
 
 /**
- * @brief Returns the \e k least significant bits of \e n.
+ * @brief Gets the \e k least significant bits of \e n (i.e., \f$e\%2^k\f$.)
+ *
+ * @pre <tt>k < sizeof(n) * CHAR_BIT</tt>.
+ *
+ * @param n                 The value of \e n.
+ * @param k                 The value of \e k.
+ *
+ * @returns The number \e k least significant bits of \e n.
  */
 #define amaru_lsb(n, k) ((n) & (((0 * (n) + 1) << (k)) - 1))
 
 /**
- * @brief Returns 2^n as a given type.
+ * @brief Returns \f$2^n\f$ as a given type.
+ *
+ * @pre <tt>n < sizeof(type) * CHAR_BIT</tt>.
+ *
+ * @param type              The type.
+ * @param n                 The value of \f$n\f$.
+ *
+ * @returns \f$2^n\f$.
  */
 #define amaru_pow2(type, n) (((type) 1) << (n))
 
 /**
- * @brief Returns the largest number f such that 10^f <= 2^e.
+ * @brief Returns the largest number \f$f\f$ such that \f$10^f <= 2^e\f$.
  *
- * @pre -112815 <= e && e < 112816.
+ * @pre <tt>-112815 <= e && e < 112816</tt>.
+ *
+ * @param e                 The value of \f$e\f$.
+ *
+ * @returns The value of \f$f\f$ defined above.
  */
 static inline
 int32_t
@@ -29,10 +53,15 @@ log10_pow2(int32_t const e) {
 }
 
 /**
- * @brief Returns the residual e - e0, where e0 is the smallest number such that
- * log10_pow2(e0) == log10_pow2(e).
+ * @brief Returns the residual \f$r = e - e_0\f$, where \f$e_0\f$ is the
+ * smallest number such that \f$\lfloor\log_{10}(2^{e_0})\rfloor =
+ * \lfloor\log_{10}(2^e)\rfloor\f$.
  *
- * @pre -112815 <= e && e < 112816.
+ * @pre <tt>-112815 <= e && e < 112816</tt>.
+ *
+ * @param e                 The value of \f$e\f$.
+ *
+ * @returns The residual \f$r\f$.
  */
 static inline
 uint32_t
@@ -41,9 +70,14 @@ log10_pow2_residual(int32_t const e) {
 }
 
 /**
- * @brief Returns the largest number f such that 10^f <= 0.75 * 2^e.
+ * @brief Returns the largest number \f$f\f$ such that \f$10^f <= \frac{3}{4}
+ * \cdot 2^e\f$.
  *
- * @pre -100849 <= e && e < 111481.
+ * @pre <tt>-100849 <= e && e < 111481</tt>.
+ *
+ * @param e                 The value of \f$e\f$.
+ *
+ * @returns The value of \f$f\f$ defined above.
  */
 static inline
 int32_t
@@ -52,10 +86,15 @@ log10_075_pow2(int32_t const e) {
 }
 
 /**
- * @brief Returns the residual r = e - e0, where e0 is the smallest number sush
- * that log10_075_pow2(e0) == log10_pow2(e).
+ * @brief Returns the residual \f$r = e - e_0\f$, where \f$e_0\f$ is the
+ * smallest number such that \f$\lfloor\log_(\frac{3}{4}\cdot 2^{e_0})\rfloor =
+ * \lfloor\log_{10}(2^e)\rfloor\f$.
  *
- * @pre -112815 <= e && e < 112816.
+ * @pre <tt>-112815 <= e && e < 112816</tt>.
+ *
+ * @param e                 The value of \f$e\f$.
+ *
+ * @returns The residual \f$r\f$.
  */
 static inline
 uint32_t

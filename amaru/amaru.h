@@ -1,6 +1,11 @@
 #ifndef AMARU_AMARU_AMARU_H_
 #define AMARU_AMARU_AMARU_H_
 
+/**
+ * @file amaru/amaru.h
+ *
+ * The implementation of Amaru and some of its helpers.
+ */
 #include "amaru/common.h"
 #include "amaru/multiply.h"
 #include "amaru/div10.h"
@@ -14,7 +19,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Checks whether mantissa m is multiple of 2^e.
+ * @brief Checks whether mantissa m is multiple of \f$2^e\f$.
  *
  * @param m The mantissa \e m.
  * @param e The exponent \e e.
@@ -26,10 +31,10 @@ is_multiple_of_pow2(amaru_u1_t const m, int32_t const e) {
 }
 
 /**
- * @brief Checks whether mantissa m is multiple of 2^f.
+ * @brief Checks whether mantissa m is multiple of \f$2^f\f$.
  *
- * @param m The mantissa \e m.
- * @param e The exponent \e f.
+ * @param m                 The mantissa \e m.
+ * @param e                 The exponent \e f.
  */
 static inline
 bool
@@ -38,6 +43,9 @@ is_multiple_of_pow5(amaru_u1_t const m, int32_t const f) {
     m * minverse[f].multiplier <= minverse[f].bound;
 }
 
+/**
+ * @brief
+ */
 static inline
 amaru_u1_t
 mshift_pow2(uint32_t const k, amaru_u1_t const u, amaru_u1_t const l) {
@@ -47,6 +55,12 @@ mshift_pow2(uint32_t const k, amaru_u1_t const u, amaru_u1_t const l) {
   return (u << s) | (l >> (amaru_size - s));
 }
 
+/**
+ * @brief Creates amaru_fields_t from exponent and mantissa.
+ *
+ * @param e                 The exponent.
+ * @param m                 The mantissa.
+ */
 static inline
 amaru_fields_t
 make_fields(int32_t const e, amaru_u1_t const m) {
@@ -54,6 +68,11 @@ make_fields(int32_t const e, amaru_u1_t const m) {
   return fields;
 }
 
+/**
+ * @brief Rotates a number to the right by a given number of bits.
+ *
+ *
+ */
 static inline
 amaru_u1_t
 rotr(amaru_u1_t const n, unsigned s) {

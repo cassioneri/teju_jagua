@@ -1,3 +1,12 @@
+#ifndef AMARU_BENCHMARK_TRAITS_H_
+#define AMARU_BENCHMARK_TRAITS_H_
+
+/**
+ * @file benchmark/traits.hpp
+ *
+ * Common interface for treatment of different floating points types.
+ */
+
 #include "amaru/double.h"
 #include "amaru/float.h"
 #include "other/other.hpp"
@@ -9,7 +18,7 @@ namespace amaru {
 /**
  * \brief Traits for floating point numbers.
  *
- * \tparam T The floating point number type.
+ * \tparam T                The floating point number type.
  */
 template <typename T>
 struct traits_t;
@@ -17,12 +26,12 @@ struct traits_t;
 namespace detail {
 
   /**
-   * \brief Returns the IEEE754 floating point value corresponding to the
+   * \brief Returns the IEEE-754 floating point value corresponding to the
    * given mantissa and exponent.
    *
-   * \tparam T The floating point number type.
-   * \tparam mantissa_size The number of bits in the mantissa.
-   * \tparam U An unsigned integer type of the same size as T.
+   * \tparam T              The floating point number type.
+   * \tparam mantissa_size  The number of bits in the mantissa.
+   * \tparam U              An unsigned integer type of the same size as \c T.
    */
   template <typename T, uint32_t mantissa_size, typename U>
   T
@@ -38,7 +47,7 @@ namespace detail {
 
 } // namespace detail
 
-// Specialisation for T == float.
+// Specialisation of traits_t for double.
 template <>
 struct traits_t<float> {
 
@@ -84,7 +93,7 @@ struct traits_t<float> {
 
 }; // traits_t<float>
 
-// Specialisation for T == double.
+// Specialisation of traits_t for double.
 template <>
 struct traits_t<double> {
 
@@ -132,3 +141,5 @@ struct traits_t<double> {
 }; // traits_t<double>
 
 } // namespace amaru
+
+#endif // AMARU_BENCHMARK_TRAITS_H_

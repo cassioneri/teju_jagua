@@ -1,13 +1,25 @@
 #ifndef AMARU_AMARU_MSHIFT_H_
 #define AMARU_AMARU_MSHIFT_H_
 
+/**
+ * @file amaru/mshift.h
+ *
+ * Multiply-and-shift operations.
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * \brief Returns (r2 * x^2 + r1 * x) >> amaru_calculation_shift, where
- * x := 2^amaru_size.
+ * @brief Returns the quotient \f$q = (r_2\cdot 2^{2N} + r_1\cdot 2^N) / 2^s\f$,
+ * where \f$N\f$ is the value of \c aramu_size and \f$s$ is the value of
+ * \c amaru_calculation_shift.
+ *
+ * @param r2                The value of \f$r_2\f$.
+ * @param r1                The value of \f$r_1\f$.
+ *
+ * @returns The value of \f$q\f$.
  */
 static inline
 amaru_u1_t
@@ -26,12 +38,21 @@ amaru_rshift(amaru_u1_t const r2, amaru_u1_t const r1) {
 }
 
 /**
- * \brief Returns (u * x + l) * m >> amaru_calculation_shift, where
- * x := 2^amaru_size.
+ * @brief Returns the quotient \f$q = ((u\cdot 2^N + l) * m)/ 2^s\f$, where
+ * \f$N\f$ is the value of \c aramu_size and \f$s\f$ is the value of
+ * \c amaru_calculation_shift.
+ *
+ * @param m                 The value of \f$m\f$.
+ * @param u                 The value of \f$u\f$.
+ * @param l                 The value of \f$l\f$.
+ *
+ * @returns The value of \f$q\f$.
  */
 static inline
 amaru_u1_t
 amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
+
+  // Let x := 2^N.
 
   #if amaru_calculation_mshift == amaru_built_in_4
 
@@ -41,7 +62,7 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
   #elif amaru_calculation_mshift == amaru_syntectic_2
 
     // (u * x + l) * m = r2 * x^2 + r1 * x + r0,
-    //                     with r2, r1, r0 in [0, x[.
+    //                   with r2, r1, r0 in [0, x[.
 
     amaru_u2_t
     amaru_multiply_2(amaru_u2_t const a, amaru_u2_t const b, amaru_u2_t* upper);

@@ -53,9 +53,9 @@ benchmark(T const value, void (*function)(T)) {
   return minimum;
 }
 
-template <typename T, population_t population>
+template <typename T, population_t population, typename... Args>
 void
-benchmark(const char* filename) {
+benchmark(const char* filename, Args... args) {
 
   auto out = std::ofstream{filename};
 
@@ -65,7 +65,7 @@ benchmark(const char* filename) {
 
   using traits_t = amaru::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
-  auto  sampler  = sampler_t<T, population>{};
+  auto  sampler  = sampler_t<T, population>{args...};
 
   stats_t amaru_compact_stats, amaru_full_stats, dragonbox_compact_stats,
     dragonbox_full_stats;
@@ -136,18 +136,20 @@ benchmark(const char* filename) {
     dragonbox_full_stats.mean() / baseline);
 }
 
-template <typename T>
+template <typename T, typename U>
 void
-benchmark(const char* filename, population_t population) {
+benchmark(const char* filename, population_t population, T bound,
+  U n_mantissas) {
+
   switch (population) {
     case population_t::integer:
-      return benchmark<T, population_t::integer>(filename);
+      return benchmark<T, population_t::integer>(filename, bound);
     case population_t::centred:
-      return benchmark<T, population_t::centred>(filename);
+      return benchmark<T, population_t::centred>(filename, n_mantissas);
     case population_t::uncentred:
       return benchmark<T, population_t::uncentred>(filename);
     case population_t::mixed:
-      return benchmark<T, population_t::mixed>(filename);
+      return benchmark<T, population_t::mixed>(filename, n_mantissas);
   }
 }
 
@@ -203,8 +205,14 @@ int main(int argc, char const* const argv[]) {
   // 2) Disable the other CPU:
   //      sudo /bin/bash -c "echo 0 > /sys/devices/system/cpu/cpu6/online"
 
-  if (is_double)
-    benchmark<double>("double.csv", population);
-  else
-    benchmark<float>("float.csv", population);
+  if (is_double) {
+    auto constexpr n_bound = 100000.0;
+    auto constexpr n_mantissas = std::uint64_t(256);
+    benchmark<double>("double.csv", population, n_bound, n_mantissas);
+  }
+  else {
+    auto constexpr n_bound = 100000.f;
+    auto constexpr n_mantissas = std::uint32_t(256);
+    benchmark<float>("float.csv", population, n_bound, n_mantissas);
+  }
 }

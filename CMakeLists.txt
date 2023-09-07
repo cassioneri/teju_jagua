@@ -13,6 +13,7 @@ project(amaru
 )
 
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_options(-mpreferred-stack-boundary=6)

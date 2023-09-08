@@ -7,6 +7,11 @@
  * Multiply-and-shift operations.
  */
 
+#if !defined(amaru_calculation_mshift) || !defined(amaru_calculation_shift) || \
+  !defined(amaru_u1_t) || !defined(amaru_size)
+  #error "Macros amaru_calculation_mshift, amaru_calculation_shift, amaru_size and amaru_u1_t must be defined prior to inclusion of mshift.h."
+#endif
+
 #include "amaru/multiply.h"
 
 #ifdef __cplusplus
@@ -157,6 +162,10 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     #else
       #error "Unsupported combination of size, shift and calculation."
     #endif
+
+  #else
+
+    #error "Invalid definition of macro amaru_calculation_mshift."
 
   #endif
 }

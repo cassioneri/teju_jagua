@@ -146,6 +146,10 @@ typedef struct {
 // amaru_multiply
 //------------------------------------------------------------------------------
 
+// One might want to disabled the provided implementations of amaru_multiply to
+// be able to implement their own (e.g., for testing). For this, it suffices to
+// define macro amaru_do_not_define_amaru_multiply prior to including this file.
+
 #ifdef __cplusplus
 extern "C" {
 #endif

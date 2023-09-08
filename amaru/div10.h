@@ -7,6 +7,11 @@
  * Different algorithms for division by 10.
  */
 
+#if !defined(amaru_u1_t) || !defined(amaru_calculation_shift) || \
+  !defined(amaru_size)
+  #error "Macros amaru_size and amaru_u1_t must be defined prior to inclusion of div10.h."
+#endif
+
 #include "amaru/multiply.h"
 
 #ifdef __cplusplus
@@ -51,6 +56,10 @@ amaru_div10(amaru_u1_t const m) {
 
     return (((l * (inv5 + 1)) / p2 + l * inv5 + u * (inv5 + 1)) / p2 +
       u * inv5) / 2;
+
+  #else
+
+    #error "Invalid definition of macro amaru_calculation_div10."
 
   #endif
 

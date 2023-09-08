@@ -1,9 +1,11 @@
+#include "test/impl.hpp"
+
+// Other macros required by amaru/div10.h and amaru/mshift.h.
 #define amaru_do_not_define_amaru_multiply
 #define amaru_multiply_type      amaru_synthetic_1
 #define amaru_calculation_mshift amaru_synthetic_1
 #define amaru_calculation_shift  32
 
-#include "test/impl.hpp"
 #include "test/synthetic_1.hpp"
 
 #include "amaru/div10.h"

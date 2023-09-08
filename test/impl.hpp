@@ -3,6 +3,7 @@
 
 #include <cstdint>
 
+// Common macros required by amaru/div10.h and amaru/mshift.h.
 #define amaru_size 16
 #define amaru_u1_t std::uint16_t
 #define amaru_u2_t std::uint32_t

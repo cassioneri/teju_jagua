@@ -1,13 +1,12 @@
 #include "amaru/config.h"
 #include "test/impl.hpp"
 
+#define amaru_multiply_type      amaru_synthetic_1
 #define amaru_calculation_mshift amaru_synthetic_1
 #define amaru_calculation_shift  24
 
-// Avoids ODR violation.
-#define amaru_multiply amaru_multiply_test_synthetic_1
-
 #include "amaru/mshift.h"
+#include "test/synthetic_1.hpp"
 
 using impl_t = amaru::test::synthetic_1_small_shift_t;
 

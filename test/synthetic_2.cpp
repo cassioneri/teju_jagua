@@ -1,20 +1,12 @@
 #include "amaru/config.h"
 #include "test/impl.hpp"
 
+#define amaru_multiply_type      amaru_synthetic_2
 #define amaru_calculation_mshift amaru_synthetic_2
 #define amaru_calculation_shift  32
 
-// Avoids ODR violation.
-#define amaru_multiply amaru_multiply_test_synthetic_2
-
 #include "amaru/mshift.h"
-
-amaru_u2_t
-amaru_multiply(amaru_u2_t const a, amaru_u2_t const b, amaru_u2_t* upper) {
-  amaru_u4_t const p = amaru_u4_t(a) * amaru_u4_t(b);
-  *upper = amaru_u2_t(p >> (2 * amaru_size));
-  return amaru_u2_t(p);
-}
+#include "test/synthetic_2.hpp"
 
 using impl_t = amaru::test::synthetic_2_t;
 

@@ -7,6 +7,8 @@
  * Different algorithms for division by 10.
  */
 
+#include "amaru/multiply_fwd.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -35,9 +37,6 @@ amaru_div10(amaru_u1_t const m) {
 
   #elif amaru_calculation_div10 == amaru_synthetic_1
 
-    amaru_u1_t
-    amaru_multiply(amaru_u1_t const a, amaru_u1_t const b, amaru_u1_t* upper);
-
     amaru_u1_t const inv10 = ((amaru_u1_t) - 1) / 10 + 1;
     amaru_u1_t upper;
     (void) amaru_multiply(inv10, m, &upper);
@@ -53,8 +52,6 @@ amaru_div10(amaru_u1_t const m) {
     return (((l * (inv5 + 1)) / p2 + l * inv5 + u * (inv5 + 1)) / p2 +
       u * inv5) / 2;
 
-  #else
-    #error "Value of 'amaru_calculation_div10' isn't supported."
   #endif
 
 }

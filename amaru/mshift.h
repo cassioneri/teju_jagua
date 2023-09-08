@@ -7,6 +7,8 @@
  * Multiply-and-shift operations.
  */
 
+#include "amaru/multiply_fwd.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -64,9 +66,6 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     // (u * x + l) * m = r2 * x^2 + r1 * x + r0,
     //                   with r2, r1, r0 in [0, x[.
 
-    amaru_u2_t
-    amaru_multiply(amaru_u2_t const a, amaru_u2_t const b, amaru_u2_t* upper);
-
     amaru_u2_t const n = (((amaru_u2_t) u) << amaru_size) | l;
     amaru_u2_t r2;
     amaru_u2_t const r1 = amaru_multiply(n, m, &r2) >> amaru_size;
@@ -92,9 +91,6 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     //                       with s11 := s1 / x, s10 := s1 % x,
     //                            s01 := s0 / x, s00 := s0 % x in [0, x[,
     //                 = s11 * x^2 +(s10 + s01) * x + s00
-
-    amaru_u1_t
-    amaru_multiply(amaru_u1_t const a, amaru_u1_t const b, amaru_u1_t* upper);
 
     amaru_u1_t s01, s11;
     (void) amaru_multiply(l, m, &s01); // s00 is discarded

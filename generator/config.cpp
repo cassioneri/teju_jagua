@@ -52,7 +52,7 @@ from_json(nlohmann::json const& src, config_t& tgt) {
 void
 validate(config_t const& json) {
 
-  if (!(json.size == 32 || json.size == 64))
+  if (!(json.size == 32 || json.size == 64 || json.size == 128))
     throw exception_t{"Constraint violation: "
       "size in { 32, 64 }"};
 

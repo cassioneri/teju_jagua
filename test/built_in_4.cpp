@@ -1,8 +1,7 @@
-#include "amaru/config.h"
-#include "test/impl.hpp"
-
 #define amaru_calculation_mshift amaru_built_in_4
 #define amaru_calculation_shift  32
+
+#include "test/impl.hpp"
 
 #include "amaru/mshift.h"
 

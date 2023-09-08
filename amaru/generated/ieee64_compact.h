@@ -3,10 +3,10 @@
 #ifndef AMARU_AMARU_GENERATED_IEEE64_COMPACT_H_
 #define AMARU_AMARU_GENERATED_IEEE64_COMPACT_H_
 
-#include "amaru/config.h"
-
 #include <stdbool.h>
 #include <stdint.h>
+
+#include "amaru/multiply.h"
 
 #ifdef __cplusplus
 extern "C" {

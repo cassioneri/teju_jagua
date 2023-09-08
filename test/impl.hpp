@@ -1,8 +1,6 @@
 #ifndef AMARU_TEST_IMPL_HPP
 #define AMARU_TEST_IMPL_HPP
 
-#include "amaru/config.h"
-
 #include <cstdint>
 
 #define amaru_size 16

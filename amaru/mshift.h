@@ -7,7 +7,7 @@
  * Multiply-and-shift operations.
  */
 
-#include "amaru/multiply_fwd.h"
+#include "amaru/multiply.h"
 
 #ifdef __cplusplus
 extern "C" {

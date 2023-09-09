@@ -74,7 +74,7 @@ TEST(float, exhaustive_comparison_to_other) {
 
   while (std::isfinite(value) && !HasFailure()) {
 
-    auto const ieee = fp_traits_t<float>::fields(value);
+    auto const ieee = fp_traits_t<float>::to_ieee(value);
     if (ieee.exponent != exponent) {
       exponent = ieee.exponent;
       std::cerr << "Exponent: " << exponent << std::endl;
@@ -203,7 +203,7 @@ TEST(float128, test_hard_coded_values) {
     // -------------------------------------------------------------------------
 
     // value                exponent                                mantissa
-    {          0.3000000, {      -34, f(2999999999999999, 888977697537484345)}},
+    {          0.3000000, {      -34, f(2999999999999999, 888977697537484346)}},
   };
 
   for (unsigned i = 0; i < std::size(test_cases); ++i) {
@@ -213,7 +213,6 @@ TEST(float128, test_hard_coded_values) {
 
     auto const amaru_compact = traits_t::amaru_compact(value);
     auto const amaru_full    = traits_t::amaru_full(value);
-    auto const ieee          = traits_t::fields(value);
 
     EXPECT_EQ(expected.exponent, amaru_compact.exponent) <<
       "Note: test case number = " << i;

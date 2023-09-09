@@ -61,7 +61,7 @@ std::ostream& operator <<(std::ostream& os, test_case_t<T> const& test_case) {
   using traits_t   = fp_traits_t<T>;
   using uint_t     = typename traits_t::streamable_uint_t;
   auto const value = test_case.value_;
-  auto const ieee  = traits_t::fields(value);
+  auto const ieee  = traits_t::to_ieee(value);
 
   return os <<
     "  exponent:\n"

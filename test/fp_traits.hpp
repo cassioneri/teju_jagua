@@ -42,8 +42,8 @@ namespace test {
  *
  * Static functions:
  *
- * \li fields_t fields(T value)
- *   Returns Amaru binary fields of \e value.
+ * \li fields_t to_ieee(T value)
+ *   Returns IEEE-754's representation of \e value.
  * \li fields_t amaru_compact(T value)
  *   Returns Amaru decimal fields of \e value found by the compact table method.
  * \li fields_t amaru_full(T value)
@@ -74,7 +74,7 @@ struct fp_traits_t<float> {
 
   static
   fields_t
-  fields(float const value) {
+  to_ieee(float const value) {
     return amaru_to_ieee32(value);
   }
 
@@ -112,7 +112,7 @@ struct fp_traits_t<double> {
 
   static
   fields_t
-  fields(double const value) {
+  to_ieee(double const value) {
     return amaru_to_ieee64(value);
   }
 
@@ -152,7 +152,7 @@ struct fp_traits_t<float128_t> {
 
   static
   fields_t
-  fields(float128_t const value) {
+  to_ieee(float128_t const value) {
     return amaru_to_ieee128(value);
   }
 

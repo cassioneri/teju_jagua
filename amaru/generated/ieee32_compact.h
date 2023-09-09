@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "amaru/multiply.h"
+#include "amaru/config.h"
 
 #ifdef __cplusplus
 extern "C" {

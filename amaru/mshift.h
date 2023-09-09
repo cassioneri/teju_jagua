@@ -13,7 +13,7 @@
 #endif
 
 #include "amaru/common.h"
-#include "amaru/multiply.h"
+#include "amaru/config.h"
 
 #ifdef __cplusplus
 extern "C" {

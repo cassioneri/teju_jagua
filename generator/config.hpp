@@ -1,7 +1,7 @@
 #ifndef AMARU_GENERATOR_CONFIG_HPP_
 #define AMARU_GENERATOR_CONFIG_HPP_
 
-#include "amaru/multiply.h"
+#include "amaru/config.h"
 
 #include <nlohmann/json.hpp>
 

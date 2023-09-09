@@ -12,7 +12,7 @@
   #error "Macros amaru_size and amaru_u1_t must be defined prior to inclusion of div10.h."
 #endif
 
-#include "amaru/multiply.h"
+#include "amaru/config.h"
 
 #ifdef __cplusplus
 extern "C" {

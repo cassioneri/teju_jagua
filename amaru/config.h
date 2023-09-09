@@ -2,9 +2,9 @@
 #define AMARU_AMARU_MULTIPLY_H_
 
 /**
- * @file amaru/multiply.h
+ * @file amaru/config.h
  *
- * Set platform multiplication capabilities.
+ * Platform configurations, notably, multiplication capabilities.
  */
 
 #include <stdint.h>
@@ -13,8 +13,14 @@
   #include <intrin.h>
 #endif
 
-#if !defined(__clang__) && !defined(__GNUC__) && defined(_MSC_VER)
-  #error "Unsupported compiler."
+#if defined(__SIZEOF_INT128__)
+  #define AMARU_HAS_UINT128
+  typedef __uint128_t uint128_t;
+#endif
+
+#if defined(AMARU_HAS_UINT128) && defined(__SIZEOF_FLOAT128__)
+  #define AMARU_HAS_FLOAT128
+  typedef __float128 float128_t;
 #endif
 
 //------------------------------------------------------------------------------
@@ -81,8 +87,8 @@
  * yields the lower 4-limb of the 8-limb product. For instance, assuming 1-limb
  * is 32-bits, gcc and clang support the following:
  * \code{.cpp}
- *     __uint128_t a, b;
- *     __uint128_t lower = a * b;
+ *     uint128_t a, b;
+ *     uint128_t lower = a * b;
  * \endcode
  */
 #define amaru_built_in_4  4
@@ -103,11 +109,15 @@
 #define amaru32_u1_t uint32_t
 #define amaru32_u2_t uint64_t
 
-#if defined(__clang__) || defined(__GNUC__)
-  #define amaru32_u4_t          __uint128_t
+#if defined(AMARU_HAS_UINT128)
+
+  #define amaru32_u4_t          uint128_t
   #define amaru32_multiply_type amaru_built_in_4
+
 #elif defined(_MSC_VER)
+
   #define amaru32_multiply_type amaru_synthetic_2
+
 #endif
 
 typedef struct {
@@ -121,11 +131,15 @@ typedef struct {
 
 #define amaru64_u1_t uint64_t
 
-#if defined(__clang__) || defined(__GNUC__)
-  #define amaru64_u2_t          __uint128_t
+#if defined(AMARU_HAS_UINT128)
+
+  #define amaru64_u2_t          uint128_t
   #define amaru64_multiply_type amaru_built_in_2
+
 #elif defined(_MSC_VER)
+
   #define amaru64_multiply_type amaru_synthetic_1
+
 #endif
 
 typedef struct {
@@ -137,8 +151,9 @@ typedef struct {
 // 128 bits //
 //----------//
 
-#if defined(__GNUC__) && !defined(__clang__)
-  #define amaru128_u1_t __uint128_t
+#if defined(AMARU_HAS_FLOAT128)
+
+  #define amaru128_u1_t          uint128_t
   #define amaru128_multiply_type amaru_built_in_1
 
 typedef struct {

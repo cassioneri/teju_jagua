@@ -8,7 +8,7 @@
  */
 
 #include "amaru/common.h"
-#include "amaru/multiply.h"
+#include "amaru/config.h"
 #include "amaru/div10.h"
 #include "amaru/mshift.h"
 

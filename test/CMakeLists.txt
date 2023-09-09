@@ -6,7 +6,10 @@ add_executable(test
   main.cpp
   mshift.cpp
 
-  # Implementations of div10 and mshift
+  # Helpers
+  test_case.cpp
+
+  # Several realisations of div10 and mshift for testing.
   built_in_1.cpp
   built_in_1_small_shift.cpp
   built_in_2.cpp

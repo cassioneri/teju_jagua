@@ -518,7 +518,7 @@ struct generator_t::impl_t {
       "#include <stdbool.h>\n"
       "#include <stdint.h>\n"
       "\n"
-      "#include \"amaru/multiply.h\"\n"
+      "#include \"amaru/config.h\"\n"
       "\n"
       "#ifdef __cplusplus\n"
       "extern \"C\" {\n"

@@ -1,6 +1,13 @@
+
+#include "test/fp_traits.hpp"
+#include "test/test_case.hpp"
+
 #include "amaru/common.h"
+#include "amaru/config.h"
 #include "amaru/double.h"
 #include "amaru/float.h"
+#include "amaru/float128.h"
+#include "amaru/pack.h"
 #include "other/other.hpp"
 
 #include <gtest/gtest.h>
@@ -15,153 +22,15 @@
 
 namespace {
 
-/**
- * @brief Traits for floating point number types.
- *
- * Amaru (and possibly other third-party libraries with the same purpose) are
- * supposed to be called in C which doesn't support overloads or generic
- * programming (templates). This class serves to wrap C functions (and data)
- * referring to specific types into a generic interface. For instance,
- * \c amaru_from_double_to_decimal_compact and
- * \c amaru_from_float_to_decimal_compact are two such functions that are
- * wrapped, respectively, by \c fp_traits_t<double>::amaru_compact and
- * \c fp_traits_t<float>::amaru_compact, make easier to call then in generic
- * tests. Specializations of \c fp_traits_t are provided for \c float and
- * \c double. They contain the following members.
- *
- * Types:
- *
- * \li u1_t           The 1-limb \c unsigned integer type.
- * \li amaru_fields_t Amaru fields type.
- * \li other_fields_t The third-party library fields type.
- *
- * Static data:
- *
- * \li exponent_size  Exponent size in bits.
- * \li mantissa_size  Mantissa size in bits.
- *
- * Static functions:
- *
- * \li amaru_fields_t fields(T value)
- *   Returns Amaru binary fields of \e value.
- * \li amaru_fields_t amaru_compact(T value)
- *   Returns Amaru decimal fields of \e value found by the compact table method.
- * \li amaru_fields_t amaru_full(T value)
- *   Returns Amaru decimal fields of \e value found by the full table method.
- * \li other_fields_t other(T value)
- *   Returns the third-party library binary fields of \e value.
- * \li std::int32_t exponent(other_fields_t fields)
- *   Extracts the exponent field from \e fields.
- * \li u1_t mantissa(other_fields_t fields)
- *   Extracts the mantissa field from \e fields.
- */
-template <typename T>
-struct fp_traits_t;
-
-// Specialization of fp_traits_t for float.
-template <>
-struct fp_traits_t<float> {
-
-  using u1_t           = amaru32_u1_t;
-  using amaru_fields_t = amaru32_fields_t;
-  using other_fields_t = amaru::dragonbox_full::result_float_t;
-
-  static auto constexpr exponent_size = uint32_t{8};
-  static auto constexpr mantissa_size = uint32_t{23};
-
-  static
-  amaru_fields_t
-  fields(float const value) {
-    return amaru_from_float_to_fields(value);
-  }
-
-  static
-  amaru_fields_t
-  amaru_compact(float const value) {
-    return amaru_from_float_to_decimal_compact(value);
-  }
-
-  static
-  amaru_fields_t
-  amaru_full(float const value) {
-    return amaru_from_float_to_decimal_full(value);
-  }
-
-  static
-  other_fields_t
-  other(float const value) {
-    return amaru::dragonbox_full::to_decimal(value);
-  }
-
-  static
-  std::int32_t
-  exponent(other_fields_t fields) {
-    return std::int32_t{fields.exponent};
-  }
-
-  static
-  u1_t
-  mantissa(other_fields_t fields) {
-    return u1_t{fields.significand};
-  }
-
-};
-
-// Specialization of fp_traits_t for float.
-template <>
-struct fp_traits_t<double> {
-
-  using u1_t           = amaru64_u1_t;
-  using amaru_fields_t = amaru64_fields_t;
-  using other_fields_t = amaru::dragonbox_full::result_double_t;
-
-  static auto constexpr exponent_size = uint32_t{11};
-  static auto constexpr mantissa_size = uint32_t{52};
-
-  static
-  amaru_fields_t
-  fields(double const value) {
-    return amaru_from_double_to_fields(value);
-  }
-
-  static
-  amaru_fields_t
-  amaru_compact(double const value) {
-    return amaru_from_double_to_decimal_compact(value);
-  }
-
-  static
-  amaru_fields_t
-  amaru_full(double const value) {
-    return amaru_from_double_to_decimal_full(value);
-  }
-
-  static
-  other_fields_t
-  other(double const value) {
-    return amaru::dragonbox_full::to_decimal(value);
-  }
-
-  static
-  std::int32_t
-  exponent(other_fields_t fields) {
-    return std::int32_t{fields.exponent};
-  }
-
-  static
-  u1_t
-  mantissa(other_fields_t fields) {
-    return u1_t{fields.significand};
-  }
-};
+using namespace amaru::test;
 
 /**
  * @brief Gets the next value of type \e T following a given one.
  *
- * @pre value >= 0.
+ * @pre <tt>value >= 0</tt>.
  *
- * @tparam T     The floating point value type.
- * @param  value The given value.
+ * @tparam T                The floating point value type.
+ * @param  value            The given value.
  */
 template <typename T>
 T
@@ -177,47 +46,31 @@ get_next(T value) {
  * @brief Converts a given value from binary to decimal using Amaru (different
  * methods) and a third part-library and check whether they match.
  *
- *  This function uses \c EXPECT_EQ for the comparisons.
- *
- * @tparam T     The floating point value type.
- * @param  value The given value.
+ * @tparam T                The floating point value type.
+ * @param  value            The given value.
  */
 template <typename T>
 void compare_to_other(T const value) {
 
-  using          traits_t      = fp_traits_t<T>;
-  auto constexpr digits        = std::numeric_limits<T>::digits10 + 2;
-  auto const     amaru_compact = traits_t::amaru_compact(value);
-  auto const     amaru_full    = traits_t::amaru_full(value);
-  auto const     other         = traits_t::other(value);
-  auto const     ieee          = traits_t::fields(value);
+  using          traits_t     = fp_traits_t<T>;
 
-  EXPECT_EQ(traits_t::exponent(other), amaru_compact.exponent) << "Note: "
-    "value = " << std::setprecision(digits) << value << ", "
-    "ieee.exponent = " << ieee.exponent << ", "
-    "ieee.mantissa = " << ieee.mantissa;
+  auto constexpr digits       = std::numeric_limits<T>::digits10 + 2;
+  auto const     compact      = traits_t::amaru_compact(value);
+  auto const     full         = traits_t::amaru_full(value);
+  auto const     other        = traits_t::other(value);
 
-  EXPECT_EQ(traits_t::exponent(other), amaru_full.exponent) << "Note: "
-    "value = " << std::setprecision(digits) << value << ", "
-    "ieee.exponent = " << ieee.exponent << ", "
-    "ieee.mantissa = " << ieee.mantissa;
+  auto const     test_compact = test_case_t<T>{value, compact, other};
+  auto const     test_full    = test_case_t<T>{value, full   , other};
 
-  EXPECT_EQ(traits_t::mantissa(other), amaru_compact.mantissa) << "Note: "
-    "value = " << std::setprecision(digits) << value << ", "
-    "ieee.exponent = " << ieee.exponent << ", "
-    "ieee.mantissa = " << ieee.mantissa;
-
-  EXPECT_EQ(traits_t::mantissa(other), amaru_full.mantissa) << "Note: "
-    "value = " << std::setprecision(digits) << value << ", "
-    "ieee.exponent = " << ieee.exponent << ", "
-    "ieee.mantissa = " << ieee.mantissa;
+  EXPECT_TRUE(test_compact) << test_compact;
+  EXPECT_TRUE(test_full   ) << test_full;
 }
 
 // Test results for all possible strictly positive finite float values.
 TEST(float, exhaustive_comparison_to_other) {
 
   auto value    = std::numeric_limits<float>::denorm_min();
-  auto exponent = std::numeric_limits<int32_t>::min();
+  auto exponent = std::numeric_limits<std::int32_t>::min();
 
   while (std::isfinite(value) && !HasFailure()) {
 
@@ -248,9 +101,9 @@ TYPED_TEST_P(TypedTests, mantissa_min_all_exponents) {
   using fp_t              = TypeParam;
   using u1_t              = typename traits_t::u1_t;
 
-  auto const exponent_max = (uint32_t{1} << traits_t::exponent_size) - 1;
+  auto const exponent_max = (std::uint32_t{1} << traits_t::exponent_size) - 1;
 
-  for (uint32_t exponent = 1; !this->HasFailure() &&
+  for (std::uint32_t exponent = 1; !this->HasFailure() &&
     exponent < exponent_max; ++exponent) {
 
     auto const bits = u1_t{exponent} << traits_t::mantissa_size;
@@ -276,7 +129,7 @@ TEST(double, random_comparison_to_other) {
   std::random_device rd;
   auto dist = std::uniform_int_distribution<traits_t::u1_t>{1, uint_max};
 
-  auto number_of_tests = uint32_t{100000000};
+  auto number_of_tests = std::uint32_t{100000000};
 
   // Using the "downto" operator :-D
   // https://stackoverflow.com/questions/1642028/what-is-the-operator-in-c-c
@@ -288,13 +141,97 @@ TEST(double, random_comparison_to_other) {
   }
 }
 
+#if defined(AMARU_HAS_FLOAT128)
+
+TEST(float128, test_hard_coded_values) {
+
+  using traits_t   = fp_traits_t<float128_t>;
+  using fields_t   = traits_t::fields_t;
+
+  static auto constexpr amaru_size = std::uint32_t{128};
+
+  struct test_case_t {
+    float128_t value;
+    fields_t   expected;
+  };
+
+  auto f = [](uint64_t u, uint64_t l) {
+    auto const p10_to_18 = uint128_t{1000000000000000000};
+    return u * p10_to_18 + l;
+  };
+
+  test_case_t test_cases[] = {
+
+    // -------------------------------------------------------------------------
+    // Integer values
+    // -------------------------------------------------------------------------
+
+    // value                exponent                                mantissa
+    {          1.0000000, {        0,                                      1 }},
+    {          2.0000000, {        0,                                      2 }},
+    {          3.0000000, {        0,                                      3 }},
+    {          4.0000000, {        0,                                      4 }},
+    {          5.0000000, {        0,                                      5 }},
+    {          6.0000000, {        0,                                      6 }},
+    {          7.0000000, {        0,                                      7 }},
+    {          8.0000000, {        0,                                      8 }},
+    {          9.0000000, {        0,                                      9 }},
+    {         10.0000000, {        1,                                      1 }},
+    {         11.0000000, {        0,                                     11 }},
+    {         20.0000000, {        1,                                      2 }},
+    {        100.0000000, {        2,                                      1 }},
+    {       1000.0000000, {        3,                                      1 }},
+    {      10000.0000000, {        4,                                      1 }},
+    {     100000.0000000, {        5,                                      1 }},
+    {    1000000.0000000, {        6,                                      1 }},
+    {   10000000.0000000, {        7,                                      1 }},
+    {  100000000.0000000, {        8,                                      1 }},
+    { 1000000000.0000000, {        9,                                      1 }},
+
+    // -------------------------------------------------------------------------
+    // Perfectly represented fractional values
+    // -------------------------------------------------------------------------
+
+    // value                exponent                                mantissa
+    {          0.5000000, {       -1,                                      5 }},
+    {          0.2500000, {       -2,                                     25 }},
+    {          0.1250000, {       -3,                                    125 }},
+    {          0.7500000, {       -2,                                     75 }},
+
+    // -------------------------------------------------------------------------
+    // Others
+    // -------------------------------------------------------------------------
+
+    // value                exponent                                mantissa
+    {          0.3000000, {      -34, f(2999999999999999, 888977697537484345)}},
+  };
+
+  for (unsigned i = 0; i < std::size(test_cases); ++i) {
+
+    auto const value         = test_cases[i].value;
+    auto const expected      = test_cases[i].expected;
+
+    auto const amaru_compact = traits_t::amaru_compact(value);
+    auto const amaru_full    = traits_t::amaru_full(value);
+    auto const ieee          = traits_t::fields(value);
+
+    EXPECT_EQ(expected.exponent, amaru_compact.exponent) <<
+      "Note: test case number = " << i;
+
+    EXPECT_EQ(expected.mantissa, amaru_compact.mantissa) <<
+      "Note: test case number = " << i;
+  }
+}
+
+#endif // defined(AMARU_HAS_FLOAT128)
+
 /**
  * @brief Returns the floating point number value corresponding to given IEEE
  * fields.
  *
- * @tparam T     The floating point value type.
- * @param  e     The given exponent field.
- * @param  m     The given mantissa field.
+ * @tparam T                The floating point value type.
+ * @param  e                The given exponent field.
+ * @param  m                The given mantissa field.
  */
 template <typename T>
 T

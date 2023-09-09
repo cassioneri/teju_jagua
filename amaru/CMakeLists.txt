@@ -7,6 +7,7 @@ add_library(amaru STATIC
   generated/ieee128_full.c
   double.c
   float.c
+  float128.c
 )
 
 target_include_directories(amaru PUBLIC

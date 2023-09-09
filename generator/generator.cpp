@@ -524,7 +524,7 @@ struct generator_t::impl_t {
       "extern \"C\" {\n"
       "#endif\n"
       "\n" << prefix() << "fields_t\n" <<
-      function() << "(int32_t exponent, " << prefix() << "u1_t mantissa);\n"
+      function() << '(' << prefix() << "fields_t binary);\n"
       "\n" <<
       "#ifdef __cplusplus\n"
       "}\n"

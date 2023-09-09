@@ -16,12 +16,10 @@ enum {
 };
 
 amaru64_fields_t
-amaru_to_ieee64_fields(double const value) {
+amaru_to_ieee64(double const value) {
 
   uint64_t bits;
   memcpy(&bits, &value, sizeof(value));
-
-  // Breakdown into ieee64 fields.
 
   amaru64_fields_t binary;
   binary.mantissa = amaru_lsb(bits, mantissa_size);
@@ -32,37 +30,31 @@ amaru_to_ieee64_fields(double const value) {
 }
 
 amaru64_fields_t
-amaru_from_double_to_decimal_compact(double const value) {
+amaru_ieee64_to_amaru(amaru64_fields_t ieee64) {
 
-  // Conversion to Amaru's binary representation.
+  amaru64_fields_t amaru_binary = ieee64;
 
-  amaru64_fields_t binary        = amaru_to_ieee64_fields(value);
-  uint32_t         ieee_exponent = binary.exponent;
-
-  binary.exponent += exponent_min;
-  if (ieee_exponent != 0) {
-    binary.mantissa += amaru_pow2(uint64_t, mantissa_size);
-    binary.exponent -= 1;
+  amaru_binary.exponent += exponent_min;
+  if (ieee64.exponent != 0) {
+    amaru_binary.mantissa += amaru_pow2(uint64_t, mantissa_size);
+    amaru_binary.exponent -= 1;
   }
 
-  return amaru_ieee64_compact(binary.exponent, binary.mantissa);
+  return amaru_binary;
 }
 
 amaru64_fields_t
-amaru_from_double_to_decimal_full(double const value) {
+amaru_double_compact(double const value) {
+  amaru64_fields_t ieee64       = amaru_to_ieee64(value);
+  amaru64_fields_t amaru_binary = amaru_ieee64_to_amaru(ieee64);
+  return amaru_ieee64_compact(amaru_binary);
+}
 
-  // Conversion to Amaru's binary representation.
-
-  amaru64_fields_t binary        = amaru_to_ieee64_fields(value);
-  uint32_t         ieee_exponent = binary.exponent;
-
-  binary.exponent += exponent_min;
-  if (ieee_exponent != 0) {
-    binary.mantissa += amaru_pow2(uint64_t, mantissa_size);
-    binary.exponent -= 1;
-  }
-
-  return amaru_ieee64_full(binary.exponent, binary.mantissa);
+amaru64_fields_t
+amaru_double_full(double const value) {
+  amaru64_fields_t ieee64       = amaru_to_ieee64(value);
+  amaru64_fields_t amaru_binary = amaru_ieee64_to_amaru(ieee64);
+  return amaru_ieee64_full(amaru_binary);
 }
 
 #ifdef __cplusplus

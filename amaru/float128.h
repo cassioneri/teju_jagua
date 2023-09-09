@@ -4,7 +4,7 @@
 /**
  * @file amaru/float128.h
  *
- * Amaru and helpers for \c __float128 values.
+ * Amaru and helpers for \c float128_t values.
  */
 
 #if defined(__clang__) || defined(__GNUC__)
@@ -17,46 +17,58 @@ extern "C" {
 #endif
 
 /**
- * @brief Gets the IEEE-754 fields of a given \c __float128.
+ * @brief Gets IEEE-754's binary128 representation of a \c float128_t.
  *
  * See https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format
  *
  * @pre <tt>value > 0</tt>.
  *
- * @param value             The given \c __float128.
+ * @param value             The given \c float128_t.
  *
- * @returns The IEEE-754 fields of \e value.
+  * @returns IEEE-754's binary128 representation of \e value.
  */
 amaru128_fields_t
-amaru_to_ieee128_fields(__float128 value);
+amaru_to_ieee128(float128_t value);
 
 /**
- * @brief Gets the Amaru fields of a given \c __float128.
+ * @brief Gets Amaru's binary representation of a given IEEE-754 binary128 one.
+ *
+ * @pre <tt>value > 0</tt>.
+ *
+ * @param ieee128           The given IEEE-754 binary128 representation.
+ *
+ * @returns Amaru's binary representation \e value.
+ */
+amaru128_fields_t
+amaru_ieee128_to_amaru(amaru128_fields_t ieee128);
+
+/**
+ * @brief Gets Amaru's decimal representation of a \c float128_t.
  *
  * This function uses algorithm based on the compact table storage.
  *
  * @pre <tt>value > 0</tt>.
  *
- * @param value             The given \c __float128.
+ * @param value             The given \c float128_t.
  *
- * @returns The Amaru fields of \e value.
+ * @returns Amaru's decimal representation of \e value.
  */
 amaru128_fields_t
-amaru_from_float128_to_decimal_compact(__float128 value);
+amaru_float128_compact(float128_t value);
 
 /**
- * @brief Gets the Amaru fields of a given \c __float128.
+ * @brief Gets Amaru's decimal representation of a \c float128_t.
  *
  * This function uses algorithm based on the full table storage.
  *
  * @pre <tt>value > 0</tt>.
  *
- * @param value             The given \c __float128.
+ * @param value             The given \c float128_t.
  *
- * @returns The Amaru fields of \e value.
+ * @returns Amaru's decimal representation of \e value.
  */
 amaru128_fields_t
-amaru_from_float128_to_decimal_full(__float128 value);
+amaru_float128_full(float128_t value);
 
 #ifdef __cplusplus
 }

@@ -16,12 +16,10 @@ enum {
 };
 
 amaru32_fields_t
-amaru_to_ieee32_fields(float const value) {
+amaru_to_ieee32(float const value) {
 
   uint32_t bits;
   memcpy(&bits, &value, sizeof(value));
-
-  // Breakdown into ieee32 fields.
 
   amaru32_fields_t binary;
   binary.mantissa = amaru_lsb(bits, mantissa_size);
@@ -32,37 +30,31 @@ amaru_to_ieee32_fields(float const value) {
 }
 
 amaru32_fields_t
-amaru_from_float_to_decimal_compact(float const value) {
+amaru_ieee32_to_amaru(amaru32_fields_t ieee32) {
 
-  // Conversion to Amaru's binary representation.
+  amaru32_fields_t amaru_binary = ieee32;
 
-  amaru32_fields_t binary        = amaru_to_ieee32_fields(value);
-  uint32_t         ieee_exponent = binary.exponent;
-
-  binary.exponent += exponent_min;
-  if (ieee_exponent != 0) {
-    binary.mantissa += amaru_pow2(uint32_t, mantissa_size);
-    binary.exponent -= 1;
+  amaru_binary.exponent += exponent_min;
+  if (ieee32.exponent != 0) {
+    amaru_binary.mantissa += amaru_pow2(uint32_t, mantissa_size);
+    amaru_binary.exponent -= 1;
   }
 
-  return amaru_ieee32_compact(binary.exponent, binary.mantissa);
+  return amaru_binary;
 }
 
 amaru32_fields_t
-amaru_from_float_to_decimal_full(float const value) {
+amaru_float_compact(float const value) {
+  amaru32_fields_t ieee32       = amaru_to_ieee32(value);
+  amaru32_fields_t amaru_binary = amaru_ieee32_to_amaru(ieee32);
+  return amaru_ieee32_compact(amaru_binary);
+}
 
-  // Conversion to Amaru's binary representation.
-
-  amaru32_fields_t binary        = amaru_to_ieee32_fields(value);
-  uint32_t         ieee_exponent = binary.exponent;
-
-  binary.exponent += exponent_min;
-  if (ieee_exponent != 0) {
-    binary.mantissa += amaru_pow2(uint32_t, mantissa_size);
-    binary.exponent -= 1;
-  }
-
-  return amaru_ieee32_full(binary.exponent, binary.mantissa);
+amaru32_fields_t
+amaru_float_full(float const value) {
+  amaru32_fields_t ieee32       = amaru_to_ieee32(value);
+  amaru32_fields_t amaru_binary = amaru_ieee32_to_amaru(ieee32);
+  return amaru_ieee32_full(amaru_binary);
 }
 
 #ifdef __cplusplus

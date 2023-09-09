@@ -15,7 +15,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Gets the IEEE-754 fields of a given \c double.
+ * @brief Gets IEEE-754's binary64 representation of a \c double.
  *
  * See https://en.wikipedia.org/wiki/Double-precision_floating-point_format
  *
@@ -23,13 +23,25 @@ extern "C" {
  *
  * @param value             The given \c double.
  *
- * @returns The IEEE-754 fields of \e value.
+  * @returns IEEE-754's binary64 representation of \e value.
  */
 amaru64_fields_t
-amaru_to_ieee64_fields(double value);
+amaru_to_ieee64(double value);
 
 /**
- * @brief Gets the Amaru fields of a given \c double.
+ * @brief Gets Amaru's binary representation of a given IEEE-754 binary64 one.
+ *
+ * @pre <tt>value > 0</tt>.
+ *
+ * @param ieee64            The given IEEE-754 binary64 representation.
+ *
+ * @returns Amaru's binary representation \e value.
+ */
+amaru64_fields_t
+amaru_ieee64_to_amaru(amaru64_fields_t ieee64);
+
+/**
+ * @brief Gets Amaru's decimal representation of a \c double.
  *
  * This function uses algorithm based on the compact table storage.
  *
@@ -37,13 +49,13 @@ amaru_to_ieee64_fields(double value);
  *
  * @param value             The given \c double.
  *
- * @returns The Amaru fields of \e value.
+ * @returns Amaru's decimal representation of \e value.
  */
 amaru64_fields_t
-amaru_from_double_to_decimal_compact(double value);
+amaru_double_compact(double value);
 
 /**
- * @brief Gets the Amaru fields of a given \c double.
+ * @brief Gets Amaru's decimal representation of a \c double.
  *
  * This function uses algorithm based on the full table storage.
  *
@@ -51,10 +63,10 @@ amaru_from_double_to_decimal_compact(double value);
  *
  * @param value             The given \c double.
  *
- * @returns The Amaru fields of \e value.
+ * @returns Amaru's decimal representation of \e value.
  */
 amaru64_fields_t
-amaru_from_double_to_decimal_full(double value);
+amaru_double_full(double value);
 
 #ifdef __cplusplus
 }

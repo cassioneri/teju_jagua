@@ -59,13 +59,13 @@ struct traits_t<float> {
   static
   void
   amaru_compact(float const value) {
-    amaru_from_float_to_decimal_compact(value);
+    amaru_float_compact(value);
   }
 
   static
   void
   amaru_full(float const value) {
-    amaru_from_float_to_decimal_full(value);
+    amaru_float_full(value);
   }
 
   static
@@ -88,7 +88,7 @@ struct traits_t<float> {
   static
   amaru32_fields_t
   to_ieee(float const value) {
-    return amaru_to_ieee32_fields(value);
+    return amaru_to_ieee32(value);
   }
 
 }; // traits_t<float>
@@ -105,13 +105,13 @@ struct traits_t<double> {
   static
   void
   amaru_compact(double const value) {
-    amaru_from_double_to_decimal_compact(value);
+    amaru_double_compact(value);
   }
 
   static
   void
   amaru_full(double const value) {
-    amaru_from_double_to_decimal_full(value);
+    amaru_double_full(value);
   }
 
   static
@@ -135,7 +135,7 @@ struct traits_t<double> {
   static
   amaru64_fields_t
   to_ieee(double const value) {
-    return amaru_to_ieee64_fields(value);
+    return amaru_to_ieee64(value);
   }
 
 }; // traits_t<double>

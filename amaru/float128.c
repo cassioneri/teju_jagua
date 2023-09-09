@@ -18,12 +18,10 @@ enum {
 };
 
 amaru128_fields_t
-amaru_to_ieee128_fields(__float128 const value) {
+amaru_to_ieee128(float128_t const value) {
 
-  __uint128_t bits;
+  uint128_t bits;
   memcpy(&bits, &value, sizeof(value));
-
-  // Breakdown into ieee128 fields.
 
   amaru128_fields_t binary;
   binary.mantissa = amaru_lsb(bits, mantissa_size);
@@ -34,37 +32,31 @@ amaru_to_ieee128_fields(__float128 const value) {
 }
 
 amaru128_fields_t
-amaru_from_float128_to_decimal_compact(__float128 const value) {
+amaru_ieee128_to_amaru(amaru128_fields_t ieee128) {
 
-  // Conversion to Amaru's binary representation.
+  amaru128_fields_t amaru_binary = ieee128;
 
-  amaru128_fields_t binary       = amaru_to_ieee128_fields(value);
-  uint32_t         ieee_exponent = binary.exponent;
-
-  binary.exponent += exponent_min;
-  if (ieee_exponent != 0) {
-    binary.mantissa += amaru_pow2(__uint128_t, mantissa_size);
-    binary.exponent -= 1;
+  amaru_binary.exponent += exponent_min;
+  if (ieee128.exponent != 0) {
+    amaru_binary.mantissa += amaru_pow2(uint128_t, mantissa_size);
+    amaru_binary.exponent -= 1;
   }
 
-  return amaru_ieee128_compact(binary.exponent, binary.mantissa);
+  return amaru_binary;
 }
 
 amaru128_fields_t
-amaru_from_float128_to_decimal_full(__float128 const value) {
+amaru_float128_compact(float128_t const value) {
+  amaru128_fields_t ieee128      = amaru_to_ieee128(value);
+  amaru128_fields_t amaru_binary = amaru_ieee128_to_amaru(ieee128);
+  return amaru_ieee128_compact(amaru_binary);
+}
 
-  // Conversion to Amaru's binary representation.
-
-  amaru128_fields_t binary        = amaru_to_ieee128_fields(value);
-  uint32_t         ieee_exponent = binary.exponent;
-
-  binary.exponent += exponent_min;
-  if (ieee_exponent != 0) {
-    binary.mantissa += amaru_pow2(__uint128_t, mantissa_size);
-    binary.exponent -= 1;
-  }
-
-  return amaru_ieee128_full(binary.exponent, binary.mantissa);
+amaru128_fields_t
+amaru_float128_full(float128_t const value) {
+  amaru128_fields_t ieee128      = amaru_to_ieee128(value);
+  amaru128_fields_t amaru_binary = amaru_ieee128_to_amaru(ieee128);
+  return amaru_ieee128_full(amaru_binary);
 }
 
 #ifdef __cplusplus

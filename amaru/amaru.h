@@ -119,7 +119,10 @@ remove_trailing_zeros(int32_t e, amaru_u1_t m) {
  * representation.
  */
 amaru_fields_t
-amaru_function(int32_t const e, amaru_u1_t const m) {
+amaru_function(amaru_fields_t binary) {
+
+  int32_t    const e = binary.exponent;
+  amaru_u1_t const m = binary.mantissa;
 
   if (amaru_optimisation_integer && is_multiple_of_pow2(m, -e))
     return remove_trailing_zeros(0, m >> -e);

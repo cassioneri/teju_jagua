@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 amaru128_fields_t
-amaru_ieee128_compact(int32_t exponent, amaru128_u1_t mantissa);
+amaru_ieee128_compact(amaru128_fields_t binary);
 
 #ifdef __cplusplus
 }

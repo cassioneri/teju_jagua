@@ -75,19 +75,19 @@ struct fp_traits_t<float> {
   static
   fields_t
   fields(float const value) {
-    return amaru_to_ieee32_fields(value);
+    return amaru_to_ieee32(value);
   }
 
   static
   fields_t
   amaru_compact(float const value) {
-    return amaru_from_float_to_decimal_compact(value);
+    return amaru_float_compact(value);
   }
 
   static
   fields_t
   amaru_full(float const value) {
-    return amaru_from_float_to_decimal_full(value);
+    return amaru_float_full(value);
   }
 
   static
@@ -113,19 +113,19 @@ struct fp_traits_t<double> {
   static
   fields_t
   fields(double const value) {
-    return amaru_to_ieee64_fields(value);
+    return amaru_to_ieee64(value);
   }
 
   static
   fields_t
   amaru_compact(double const value) {
-    return amaru_from_double_to_decimal_compact(value);
+    return amaru_double_compact(value);
   }
 
   static
   fields_t
   amaru_full(double const value) {
-    return amaru_from_double_to_decimal_full(value);
+    return amaru_double_full(value);
   }
 
   static
@@ -153,19 +153,19 @@ struct fp_traits_t<float128_t> {
   static
   fields_t
   fields(float128_t const value) {
-    return amaru_to_ieee128_fields(value);
+    return amaru_to_ieee128(value);
   }
 
   static
   fields_t
   amaru_compact(float128_t const value) {
-    return amaru_from_float128_to_decimal_compact(value);
+    return amaru_float128_compact(value);
   }
 
   static
   fields_t
   amaru_full(float128_t const value) {
-    return amaru_from_float128_to_decimal_full(value);
+    return amaru_float128_full(value);
   }
 
   // TODO (CN): Perhaps we could use Ryu for float128_t but at the moment

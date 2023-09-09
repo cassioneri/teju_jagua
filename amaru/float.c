@@ -16,7 +16,7 @@ enum {
 };
 
 amaru32_fields_t
-amaru_to_ieee32(float const value) {
+amaru_float_to_ieee32(float const value) {
 
   uint32_t bits;
   memcpy(&bits, &value, sizeof(value));
@@ -30,7 +30,7 @@ amaru_to_ieee32(float const value) {
 }
 
 amaru32_fields_t
-amaru_ieee32_to_amaru(amaru32_fields_t ieee32) {
+amaru_ieee32_to_amaru_binary(amaru32_fields_t ieee32) {
 
   amaru32_fields_t amaru_binary = ieee32;
 
@@ -44,16 +44,16 @@ amaru_ieee32_to_amaru(amaru32_fields_t ieee32) {
 }
 
 amaru32_fields_t
-amaru_float_compact(float const value) {
-  amaru32_fields_t ieee32       = amaru_to_ieee32(value);
-  amaru32_fields_t amaru_binary = amaru_ieee32_to_amaru(ieee32);
+amaru_float_to_amaru_decimal_compact(float const value) {
+  amaru32_fields_t ieee32       = amaru_float_to_ieee32(value);
+  amaru32_fields_t amaru_binary = amaru_ieee32_to_amaru_binary(ieee32);
   return amaru_ieee32_compact(amaru_binary);
 }
 
 amaru32_fields_t
-amaru_float_full(float const value) {
-  amaru32_fields_t ieee32       = amaru_to_ieee32(value);
-  amaru32_fields_t amaru_binary = amaru_ieee32_to_amaru(ieee32);
+amaru_float_to_amaru_decimal_full(float const value) {
+  amaru32_fields_t ieee32       = amaru_float_to_ieee32(value);
+  amaru32_fields_t amaru_binary = amaru_ieee32_to_amaru_binary(ieee32);
   return amaru_ieee32_full(amaru_binary);
 }
 

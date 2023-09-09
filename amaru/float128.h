@@ -28,7 +28,7 @@ extern "C" {
   * @returns IEEE-754's binary128 representation of \e value.
  */
 amaru128_fields_t
-amaru_to_ieee128(float128_t value);
+amaru_float128_to_ieee128(float128_t value);
 
 /**
  * @brief Gets Amaru's binary representation of a given IEEE-754 binary128 one.
@@ -40,7 +40,7 @@ amaru_to_ieee128(float128_t value);
  * @returns Amaru's binary representation \e value.
  */
 amaru128_fields_t
-amaru_ieee128_to_amaru(amaru128_fields_t ieee128);
+amaru_ieee128_to_amaru_binary(amaru128_fields_t ieee128);
 
 /**
  * @brief Gets Amaru's decimal representation of a \c float128_t.
@@ -54,7 +54,7 @@ amaru_ieee128_to_amaru(amaru128_fields_t ieee128);
  * @returns Amaru's decimal representation of \e value.
  */
 amaru128_fields_t
-amaru_float128_compact(float128_t value);
+amaru_float128_to_amaru_decimal_compact(float128_t value);
 
 /**
  * @brief Gets Amaru's decimal representation of a \c float128_t.
@@ -68,7 +68,7 @@ amaru_float128_compact(float128_t value);
  * @returns Amaru's decimal representation of \e value.
  */
 amaru128_fields_t
-amaru_float128_full(float128_t value);
+amaru_float128_to_amaru_decimal_full(float128_t value);
 
 #ifdef __cplusplus
 }

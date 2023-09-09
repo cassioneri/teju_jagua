@@ -26,7 +26,7 @@ extern "C" {
  * @returns IEEE-754's binary32 representation of \e value.
  */
 amaru32_fields_t
-amaru_to_ieee32(float value);
+amaru_float_to_ieee32(float value);
 
 /**
  * @brief Gets Amaru's binary representation of a given IEEE-754 binary32 one.
@@ -38,7 +38,7 @@ amaru_to_ieee32(float value);
  * @returns Amaru's binary representation \e value.
  */
 amaru32_fields_t
-amaru_ieee32_to_amaru(amaru32_fields_t ieee32);
+amaru_ieee32_to_amaru_binary(amaru32_fields_t ieee32);
 
 /**
  * @brief Gets Amaru's decimal representation of a \c float.
@@ -52,7 +52,7 @@ amaru_ieee32_to_amaru(amaru32_fields_t ieee32);
  * @returns Amaru's decimal representation of \e value.
  */
 amaru32_fields_t
-amaru_float_compact(float value);
+amaru_float_to_amaru_decimal_compact(float value);
 
 /**
  * @brief Gets Amaru's decimal representation of a \c float.
@@ -66,7 +66,7 @@ amaru_float_compact(float value);
  * @returns Amaru's decimal representation of \e value.
  */
 amaru32_fields_t
-amaru_float_full(float value);
+amaru_float_to_amaru_decimal_full(float value);
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,5 @@
 
-#include "cpp/common/fp_traits.hpp"
+#include "cpp/common/traits.hpp"
 #include "cpp/test/test_case.hpp"
 
 #include "amaru/common.h"
@@ -22,6 +22,7 @@
 
 namespace {
 
+using namespace amaru;
 using namespace amaru::test;
 
 /**
@@ -57,7 +58,7 @@ void compare_to_other(T const value) {
   auto constexpr digits       = std::numeric_limits<T>::digits10 + 2;
   auto const     compact      = traits_t::amaru_compact(value);
   auto const     full         = traits_t::amaru_full(value);
-  auto const     other        = traits_t::other(value);
+  auto const     other        = traits_t::dragonbox_full(value);
 
   auto const     test_compact = test_case_t<T>{value, compact, other};
   auto const     test_full    = test_case_t<T>{value, full   , other};
@@ -74,7 +75,7 @@ TEST(float, exhaustive_comparison_to_other) {
 
   while (std::isfinite(value) && !HasFailure()) {
 
-    auto const ieee = fp_traits_t<float>::to_ieee(value);
+    auto const ieee = fp_traits_t<float>::value_to_ieee(value);
     if (ieee.exponent != exponent) {
       exponent = ieee.exponent;
       std::cerr << "Exponent: " << exponent << std::endl;

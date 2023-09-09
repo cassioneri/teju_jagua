@@ -1,5 +1,5 @@
-#ifndef AMARU_GENERATOR_CONFIG_HPP_
-#define AMARU_GENERATOR_CONFIG_HPP_
+#ifndef AMARU_CPP_GENERATOR_CONFIG_HPP_
+#define AMARU_CPP_GENERATOR_CONFIG_HPP_
 
 #include "amaru/config.h"
 
@@ -97,4 +97,4 @@ validate(config_t const& config);
 
 } // namespace amaru
 
-#endif // AMARU_GENERATOR_CONFIG_HPP_
+#endif // AMARU_CPP_GENERATOR_CONFIG_HPP_

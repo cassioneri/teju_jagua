@@ -1,5 +1,5 @@
-#ifndef AMARU_GENERATOR_GENERATOR_HPP_
-#define AMARU_GENERATOR_GENERATOR_HPP_
+#ifndef AMARU_CPP_GENERATOR_GENERATOR_HPP_
+#define AMARU_CPP_GENERATOR_GENERATOR_HPP_
 
 #include "cpp/generator/config.hpp"
 
@@ -53,4 +53,4 @@ private:
 
 } // namespace amaru
 
-#endif // AMARU_GENERATOR_GENERATOR_HPP_
+#endif // AMARU_CPP_GENERATOR_GENERATOR_HPP_

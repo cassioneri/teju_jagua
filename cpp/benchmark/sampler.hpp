@@ -1,13 +1,13 @@
-#ifndef AMARU_BENCHMARK_SAMPLER_H_
-#define AMARU_BENCHMARK_SAMPLER_H_
+#ifndef AMARU_CPP_BENCHMARK_SAMPLER_H_
+#define AMARU_CPP_BENCHMARK_SAMPLER_H_
 
 /**
- * @file benchmark/sampler.hpp
+ * @file cpp/benchmark/sampler.hpp
  *
  * Functionalities to draw sample values used in benchmarks.
  */
 
-#include "cpp/benchmark/traits.hpp"
+#include "cpp/common/traits.hpp"
 
 #include <cstdint>
 #include <random>
@@ -42,7 +42,7 @@ enum class population_t {
 template <typename T>
 struct mantissa_provider_t {
 
-  using traits_t = amaru::traits_t<T>;
+  using traits_t = amaru::fp_traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
 
   /**
@@ -104,8 +104,8 @@ private:
 template <typename T, typename P>
 struct generic_sampler_t {
 
-  using traits_t = amaru::traits_t<T>;
-  using u1_t     = typename traits_t::u1_t;
+  using traits_t = amaru::fp_traits_t<T>;
+  using fields_t = typename traits_t::fields_t;
 
   /**
    * @brief Constructor.
@@ -113,8 +113,7 @@ struct generic_sampler_t {
    * @param provider        The mantissa provider.
    */
   generic_sampler_t(P provider) :
-    exponent_{0                  },
-    mantissa_{provider.pop()     },
+    ieee_    {0, provider.pop()  },
     provider_{std::move(provider)} {
   }
 
@@ -126,7 +125,7 @@ struct generic_sampler_t {
    */
   bool
   empty() const {
-    return exponent_ == exponent_max_;
+    return ieee_.exponent == exponent_max_;
   }
 
   /**
@@ -139,14 +138,14 @@ struct generic_sampler_t {
   T
   pop() {
 
-    auto const value = traits_t::from_ieee(exponent_, mantissa_);
-    ++exponent_;
+    auto const value = traits_t::ieee_to_value(ieee_);
+    ++ieee_.exponent;
 
     // Avoids exponent == exponent_max_, since the corresponding value is
     // infinity or NaN.
-    if (!provider_.empty() && exponent_ == exponent_max_) {
-      exponent_ = 0;
-      mantissa_ = provider_.pop();
+    if (!provider_.empty() && ieee_.exponent == exponent_max_) {
+      ieee_.exponent = 0;
+      ieee_.mantissa = provider_.pop();
     }
 
     return value;
@@ -154,12 +153,11 @@ struct generic_sampler_t {
 
 private:
 
-  static constexpr u1_t exponent_max_ = amaru_pow2(u1_t,
+  static constexpr std::int32_t exponent_max_ = amaru_pow2(std::int32_t,
     traits_t::exponent_size) - 1;
 
-  u1_t exponent_;
-  u1_t mantissa_;
-  P    provider_;
+  fields_t ieee_;
+  P        provider_;
 
 }; // generic_sampler_t
 
@@ -236,7 +234,7 @@ private:
 template <typename T>
 struct sampler_t<T, population_t::centred> {
 
-  using traits_t = amaru::traits_t<T>;
+  using traits_t = amaru::fp_traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
 
   /**
@@ -287,7 +285,7 @@ private:
 template <typename T>
 struct sampler_t<T, population_t::uncentred> {
 
-  using traits_t = amaru::traits_t<T>;
+  using traits_t = amaru::fp_traits_t<T>;
   using u1_t   = typename traits_t::u1_t;
 
   /**
@@ -366,7 +364,7 @@ private:
 template <typename T>
 struct sampler_t<T, population_t::mixed> {
 
-  using traits_t = amaru::traits_t<T>;
+  using traits_t = amaru::fp_traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
 
   /**
@@ -410,4 +408,4 @@ private:
 
 } // namespace amaru
 
-#endif // AMARU_BENCHMARK_SAMPLER_H_
+#endif // AMARU_CPP_BENCHMARK_SAMPLER_H_

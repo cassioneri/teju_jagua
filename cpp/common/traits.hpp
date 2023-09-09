@@ -1,5 +1,5 @@
-#ifndef AMARU_TEST_FP_TRAITS_H_
-#define AMARU_TEST_FP_TRAITS_H_
+#ifndef AMARU_CPP_COMMON_TRAITS_H_
+#define AMARU_CPP_COMMON_TRAITS_H_
 
 #include "amaru/config.h"
 #include "amaru/double.h"
@@ -11,7 +11,6 @@
 #include <boost/multiprecision/cpp_int.hpp>
 
 namespace amaru {
-namespace test {
 
 /**
  * @brief Traits for floating point number types.
@@ -61,6 +60,32 @@ namespace test {
 template <typename T>
 struct fp_traits_t;
 
+namespace detail {
+
+  /**
+   * \brief Returns the IEEE-754 floating point value corresponding to the
+   * given mantissa and exponent.
+   *
+   * \tparam T              The floating point number type.
+   * \tparam mantissa_size  The number of bits in the mantissa.
+   * \tparam U              An unsigned integer type of the same size as \c T.
+   */
+  template <typename T, std::uint32_t mantissa_size, typename Fields>
+  T
+  ieee_to_value(Fields ieee) {
+
+    static_assert(sizeof(T) == sizeof(ieee.mantissa), "Incompatible types");
+
+    auto const exponent = static_cast<decltype(ieee.mantissa)>(ieee.exponent);
+    auto const bits     = (exponent << mantissa_size) | ieee.mantissa;
+
+    T value;
+    std::memcpy(&value, &bits, sizeof(value));
+    return value;
+  }
+
+} // namespace detail
+
 // Specialisation of fp_traits_t for float.
 template <>
 struct fp_traits_t<float> {
@@ -74,8 +99,14 @@ struct fp_traits_t<float> {
 
   static
   fields_t
-  to_ieee(float const value) {
+  value_to_ieee(float const value) {
     return amaru_float_to_ieee32(value);
+  }
+
+  static
+  float
+  ieee_to_value(fields_t ieee) {
+    return detail::ieee_to_value<float, mantissa_size>(ieee);
   }
 
   static
@@ -92,7 +123,14 @@ struct fp_traits_t<float> {
 
   static
   fields_t
-  other(float const value) {
+  dragonbox_compact(float const value) {
+    auto const fields = amaru::dragonbox_compact::to_decimal(value);
+    return { std::int32_t{fields.exponent}, u1_t{fields.significand} };
+  }
+
+  static
+  fields_t
+  dragonbox_full(float const value) {
     auto const fields = amaru::dragonbox_full::to_decimal(value);
     return { std::int32_t{fields.exponent}, u1_t{fields.significand} };
   }
@@ -112,8 +150,14 @@ struct fp_traits_t<double> {
 
   static
   fields_t
-  to_ieee(double const value) {
+  value_to_ieee(double const value) {
     return amaru_double_to_ieee64(value);
+  }
+
+  static
+  double
+  ieee_to_value(fields_t ieee) {
+    return detail::ieee_to_value<double, mantissa_size>(ieee);
   }
 
   static
@@ -130,7 +174,14 @@ struct fp_traits_t<double> {
 
   static
   fields_t
-  other(double const value) {
+  dragonbox_compact(double const value) {
+    auto const fields = amaru::dragonbox_compact::to_decimal(value);
+    return { std::int32_t{fields.exponent}, u1_t{fields.significand} };
+  }
+
+  static
+  fields_t
+  dragonbox_full(double const value) {
     auto const fields = amaru::dragonbox_full::to_decimal(value);
     return { std::int32_t{fields.exponent}, u1_t{fields.significand} };
   }
@@ -152,8 +203,14 @@ struct fp_traits_t<float128_t> {
 
   static
   fields_t
-  to_ieee(float128_t const value) {
+  value_to_ieee(float128_t const value) {
     return amaru_float128_to_ieee128(value);
+  }
+
+  static
+  float128_t
+  ieee_to_value(fields_t ieee) {
+    return detail::ieee_to_value<float128_t, mantissa_size>(ieee);
   }
 
   static
@@ -173,8 +230,7 @@ struct fp_traits_t<float128_t> {
   // fields_t other(float128_t const value);
 };
 
-} // namespace test
 } // namespace amaru
 
 #endif // defined(AMARU_HAS_FLOAT128)
-#endif // AMARU_TEST_FP_TRAITS_H_
+#endif // AMARU_CPP_COMMON_TRAITS_H_

@@ -1,8 +1,8 @@
-#ifndef AMARU_TEST_TEST_CASE_H_
-#define AMARU_TEST_TEST_CASE_H_
+#ifndef AMARU_CPP_TEST_TEST_CASE_H_
+#define AMARU_CPP_TEST_TEST_CASE_H_
 
 #include "amaru/config.h"
-#include "cpp/common/fp_traits.hpp"
+#include "cpp/common/traits.hpp"
 
 #include <iosfwd>
 
@@ -44,4 +44,4 @@ private:
 } // namespace test
 } // namespace amaru
 
-#endif // AMARU_TEST_TEST_CASE_H_
+#endif // AMARU_CPP_TEST_TEST_CASE_H_

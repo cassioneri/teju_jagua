@@ -1,5 +1,5 @@
-#ifndef AMARU_TEST_IMPL_HPP
-#define AMARU_TEST_IMPL_HPP
+#ifndef AMARU_CPP_TEST_IMPL_HPP
+#define AMARU_CPP_TEST_IMPL_HPP
 
 #include <cstdint>
 
@@ -99,4 +99,4 @@ struct built_in_4_t {
 } // namespace test
 } // namespace amaru
 
-#endif // AMARU_TEST_IMPL_HPP
+#endif // AMARU_CPP_TEST_IMPL_HPP

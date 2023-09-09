@@ -30,18 +30,19 @@ test_case_t<T>::operator bool() const {
 template <typename T>
 std::ostream& operator <<(std::ostream& os, test_case_t<T> const& test_case) {
 
-  using traits_t   = amaru::traits_t<T>;
-  using uint_t     = typename traits_t::streamable_uint_t;
-  auto const value = test_case.value_;
-  auto const ieee  = traits_t::value_to_ieee(value);
+  using traits_t          = amaru::traits_t<T>;
+  using uint_t            = typename traits_t::streamable_uint_t;
+  auto const value        = test_case.value_;
+  auto const ieee         = traits_t::value_to_ieee(value);
+  auto const amaru_binary = traits_t::ieee_to_amaru_binary(ieee);
 
   return os <<
+    "  value             = " << uint_t{amaru_binary.mantissa}        <<
+      " * 2^(" << amaru_binary.exponent << ")\n"
     "  exponent:\n"
-    "    ieee            = " << ieee.exponent                        << "\n"
     "    actual          = " << test_case.expected_.exponent         << "\n"
     "    expected        = " << test_case.actual_  .exponent         << "\n"
     "  mantissa:\n"
-    "    ieee            = " << uint_t{ieee.mantissa}                << "\n"
     "    actual          = " << uint_t{test_case.actual_  .mantissa} << "\n"
     "    expected        = " << uint_t{test_case.expected_.mantissa} << "\n";
 }

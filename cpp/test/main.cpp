@@ -144,82 +144,101 @@ TEST(double, random_comparison_to_other) {
 
 #if defined(AMARU_HAS_FLOAT128)
 
+template <char... Cs>
+struct make_uint128;
+
+template <>
+struct make_uint128<> {
+  static uint128_t value(uint128_t n) {
+    return n;
+  }
+};
+
+template <char C, char... Cs>
+struct make_uint128<C, Cs...> {
+  static uint128_t value(uint128_t n) {
+    return make_uint128<Cs...>::value(10 * n + (C - '0'));
+  }
+};
+
+template <char... Cs>
+uint128_t operator ""_u128() {
+  return make_uint128<Cs...>::value(0);
+}
+
 TEST(float128, test_hard_coded_values) {
 
-  using traits_t = amaru::traits_t<float128_t>;
-  using fields_t = traits_t::fields_t;
+  using traits_t    = amaru::traits_t<float128_t>;
+  using fields_t    = traits_t::fields_t;
+  using test_case_t = amaru::test::test_case_t<float128_t>;
 
   static auto constexpr amaru_size = std::uint32_t{128};
 
-  struct test_case_t {
+  struct test_data_t {
     float128_t value;
     fields_t   expected;
   };
 
-  auto f = [](uint64_t u, uint64_t l) {
-    auto const p10_to_18 = uint128_t{1000000000000000000};
-    return u * p10_to_18 + l;
-  };
-
-  test_case_t test_cases[] = {
+  test_data_t test_data[] = {
 
     // -------------------------------------------------------------------------
     // Integer values
     // -------------------------------------------------------------------------
 
-    // value                exponent                                mantissa
-    {          1.0000000, {        0,                                      1 }},
-    {          2.0000000, {        0,                                      2 }},
-    {          3.0000000, {        0,                                      3 }},
-    {          4.0000000, {        0,                                      4 }},
-    {          5.0000000, {        0,                                      5 }},
-    {          6.0000000, {        0,                                      6 }},
-    {          7.0000000, {        0,                                      7 }},
-    {          8.0000000, {        0,                                      8 }},
-    {          9.0000000, {        0,                                      9 }},
-    {         10.0000000, {        1,                                      1 }},
-    {         11.0000000, {        0,                                     11 }},
-    {         20.0000000, {        1,                                      2 }},
-    {        100.0000000, {        2,                                      1 }},
-    {       1000.0000000, {        3,                                      1 }},
-    {      10000.0000000, {        4,                                      1 }},
-    {     100000.0000000, {        5,                                      1 }},
-    {    1000000.0000000, {        6,                                      1 }},
-    {   10000000.0000000, {        7,                                      1 }},
-    {  100000000.0000000, {        8,                                      1 }},
-    { 1000000000.0000000, {        9,                                      1 }},
+    //             value    exponent                                mantissa
+    {          1.0000000,          0,                                      1 },
+    {          2.0000000,          0,                                      2 },
+    {          3.0000000,          0,                                      3 },
+    {          4.0000000,          0,                                      4 },
+    {          5.0000000,          0,                                      5 },
+    {          6.0000000,          0,                                      6 },
+    {          7.0000000,          0,                                      7 },
+    {          8.0000000,          0,                                      8 },
+    {          9.0000000,          0,                                      9 },
+    {         10.0000000,          1,                                      1 },
+    {         11.0000000,          0,                                     11 },
+    {         20.0000000,          1,                                      2 },
+    {        100.0000000,          2,                                      1 },
+    {       1000.0000000,          3,                                      1 },
+    {      10000.0000000,          4,                                      1 },
+    {     100000.0000000,          5,                                      1 },
+    {    1000000.0000000,          6,                                      1 },
+    {   10000000.0000000,          7,                                      1 },
+    {  100000000.0000000,          8,                                      1 },
+    { 1000000000.0000000,          9,                                      1 },
 
     // -------------------------------------------------------------------------
     // Perfectly represented fractional values
     // -------------------------------------------------------------------------
 
-    // value                exponent                                mantissa
-    {          0.5000000, {       -1,                                      5 }},
-    {          0.2500000, {       -2,                                     25 }},
-    {          0.1250000, {       -3,                                    125 }},
-    {          0.7500000, {       -2,                                     75 }},
+    //             value    exponent                                mantissa
+    {          0.5000000,         -1,                                      5 },
+    {          0.2500000,         -2,                                     25 },
+    {          0.1250000,         -3,                                    125 },
+    {          0.7500000,         -2,                                     75 },
 
     // -------------------------------------------------------------------------
     // Others
     // -------------------------------------------------------------------------
 
-    // value                exponent                                mantissa
-    {          0.3000000, {      -34, f(2999999999999999, 888977697537484346)}},
+    //             value    exponent                                 mantissa
+    {          0.3000000,        -34, 2999999999999999888977697537484346_u128 },
   };
 
-  for (unsigned i = 0; i < std::size(test_cases); ++i) {
+  for (unsigned i = 0; i < std::size(test_data); ++i) {
 
-    auto const value         = test_cases[i].value;
-    auto const expected      = test_cases[i].expected;
+    auto const value    = test_data[i].value;
+    auto const expected = test_data[i].expected;
 
-    auto const amaru_compact = traits_t::amaru_compact(value);
-    auto const amaru_full    = traits_t::amaru_full(value);
+    auto const amaru_compact  = traits_t::amaru_compact(value);
+    auto const test_compact   = test_case_t{value, expected, amaru_compact};
+    ASSERT_TRUE(test_compact) <<
+      "  test case number  = " << i << '\n' << test_compact;
 
-    EXPECT_EQ(expected.exponent, amaru_compact.exponent) <<
-      "Note: test case number = " << i;
-
-    EXPECT_EQ(expected.mantissa, amaru_compact.mantissa) <<
-      "Note: test case number = " << i;
+    auto const amaru_full  = traits_t::amaru_full(value);
+    auto const test_full   = test_case_t{value, expected, amaru_full};
+    ASSERT_TRUE(test_full) <<
+     "  test case number  = " << i << '\n' << test_full;
   }
 }
 

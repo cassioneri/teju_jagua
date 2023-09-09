@@ -114,6 +114,12 @@ struct traits_t<float> {
 
   static
   fields_t
+  ieee_to_amaru_binary(fields_t ieee32) {
+    return amaru_ieee32_to_amaru_binary(ieee32);
+  }
+
+  static
+  fields_t
   amaru_compact(float const value) {
     return amaru_float_to_amaru_decimal_compact(value);
   }
@@ -161,6 +167,12 @@ struct traits_t<double> {
   double
   ieee_to_value(fields_t ieee) {
     return detail::ieee_to_value<double, mantissa_size>(ieee);
+  }
+
+  static
+  fields_t
+  ieee_to_amaru_binary(fields_t ieee64) {
+    return amaru_ieee64_to_amaru_binary(ieee64);
   }
 
   static
@@ -214,6 +226,12 @@ struct traits_t<float128_t> {
   float128_t
   ieee_to_value(fields_t ieee) {
     return detail::ieee_to_value<float128_t, mantissa_size>(ieee);
+  }
+
+  static
+  fields_t
+  ieee_to_amaru_binary(fields_t ieee128) {
+    return amaru_ieee128_to_amaru_binary(ieee128);
   }
 
   static

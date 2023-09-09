@@ -140,6 +140,12 @@ typedef struct {
 #if defined(__GNUC__) && !defined(__clang__)
   #define amaru128_u1_t __uint128_t
   #define amaru128_multiply_type amaru_built_in_1
+
+typedef struct {
+  int32_t       exponent;
+  amaru128_u1_t mantissa;
+} amaru128_fields_t;
+
 #endif
 
 //------------------------------------------------------------------------------

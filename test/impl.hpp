@@ -24,6 +24,18 @@ struct built_in_1_t {
 
 };
 
+struct built_in_1_small_shift_t {
+
+  static int const shift;
+
+  static amaru_u1_t
+  div10(amaru_u1_t const m);
+
+  static amaru_u1_t
+  mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l);
+
+};
+
 struct synthetic_1_t {
 
   static int const shift;

@@ -8,6 +8,7 @@ add_executable(test
 
   # Implementations of div10 and mshift
   built_in_1.cpp
+  built_in_1_small_shift.cpp
   built_in_2.cpp
   built_in_4.cpp
   synthetic_1.cpp

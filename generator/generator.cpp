@@ -2,6 +2,8 @@
 #include "generator/generator.hpp"
 #include "generator/exception.hpp"
 
+#include <boost/multiprecision/cpp_int.hpp>
+
 #include <algorithm>
 #include <fstream>
 
@@ -275,10 +277,10 @@ get_prefix(std::uint32_t const size) {
       return "amaru32_";
     case 64:
       return "amaru64_";
+    case 128:
+      return "amaru128_";
   }
-
-  // Should never get here since size is previously validated.
-  return {};
+  throw exception_t{"BUG: Invalid size."};
 }
 
 /**

@@ -12,8 +12,8 @@
 extern "C" {
 #endif
 
-fields_t
-amaru_ieee128_full(int32_t exponent, u1_t mantissa);
+amaru128_fields_t
+amaru_ieee128_full(int32_t exponent, amaru128_u1_t mantissa);
 
 #ifdef __cplusplus
 }

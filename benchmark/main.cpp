@@ -111,7 +111,7 @@ benchmark(const char* filename, Args... args) {
   auto const baseline = std::min(amaru_compact_stats.mean(),
     amaru_full_stats.mean());
 
-  auto const print = [](const char* m, uint64_t const n) {
+  auto const print = [](const char* m, std::uint64_t const n) {
     std::cout << m << 0.001 * n << '\n';
   };
 

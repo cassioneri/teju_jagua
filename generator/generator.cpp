@@ -557,7 +557,7 @@ struct generator_t::impl_t {
     std::vector<fast_eaf_t> fast_eafs;
     fast_eafs.reserve(maxima.size());
 
-    auto shift = uint32_t{0};
+    auto shift = std::uint32_t{0};
 
     // Calculates minimal fast EAFs (i.e., those with minimal shift).
 
@@ -679,7 +679,7 @@ struct generator_t::impl_t {
     //
     // Also ensure that at least entries up to f = 1 are generated for
     // remove_trailing_zeros.
-    for (int32_t f = 0; f < 1 || p5 <= 200 * mantissa_max(); ++f) {
+    for (std::int32_t f = 0; f < 1 || p5 <= 200 * mantissa_max(); ++f) {
       const auto bound = p2_size / p5 - (f == 0);
 
       stream << "  { " << splitter(multiplier) << ", " << splitter(bound) <<

@@ -33,7 +33,7 @@ namespace detail {
    * \tparam mantissa_size  The number of bits in the mantissa.
    * \tparam U              An unsigned integer type of the same size as \c T.
    */
-  template <typename T, uint32_t mantissa_size, typename U>
+  template <typename T, std::uint32_t mantissa_size, typename U>
   T
   from_ieee(U exponent, U mantissa) {
 

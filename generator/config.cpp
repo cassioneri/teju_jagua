@@ -60,12 +60,12 @@ validate(config_t const& json) {
     throw exception_t{"Constraint violation: "
       "exponent.minimum <= exponent.maximum"};
 
-  auto const p2size = std::uint64_t(1) << json.exponent.size;
+  auto const p2size = std::uint64_t{1} << json.exponent.size;
   if (!(json.exponent.maximum - json.exponent.minimum < p2size))
     throw exception_t{"Constraint violation: "
       "exponent.maximum - exponent.minimum <= 2^{exponent.size}"};
 
-  if (!(uint64_t(json.exponent.size) + json.mantissa.size <= json.size))
+  if (!(std::uint64_t{json.exponent.size} + json.mantissa.size <= json.size))
     throw exception_t{"Constraint violation: "
       "exponent.size + mantissa.size <= size"};
 

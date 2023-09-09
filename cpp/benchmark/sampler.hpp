@@ -42,7 +42,7 @@ enum class population_t {
 template <typename T>
 struct mantissa_provider_t {
 
-  using traits_t = amaru::fp_traits_t<T>;
+  using traits_t = amaru::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
 
   /**
@@ -104,7 +104,7 @@ private:
 template <typename T, typename P>
 struct generic_sampler_t {
 
-  using traits_t = amaru::fp_traits_t<T>;
+  using traits_t = amaru::traits_t<T>;
   using fields_t = typename traits_t::fields_t;
 
   /**
@@ -234,7 +234,7 @@ private:
 template <typename T>
 struct sampler_t<T, population_t::centred> {
 
-  using traits_t = amaru::fp_traits_t<T>;
+  using traits_t = amaru::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
 
   /**
@@ -285,7 +285,7 @@ private:
 template <typename T>
 struct sampler_t<T, population_t::uncentred> {
 
-  using traits_t = amaru::fp_traits_t<T>;
+  using traits_t = amaru::traits_t<T>;
   using u1_t   = typename traits_t::u1_t;
 
   /**
@@ -364,7 +364,7 @@ private:
 template <typename T>
 struct sampler_t<T, population_t::mixed> {
 
-  using traits_t = amaru::fp_traits_t<T>;
+  using traits_t = amaru::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
 
   /**

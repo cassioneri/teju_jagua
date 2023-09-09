@@ -36,7 +36,7 @@ using namespace amaru::test;
 template <typename T>
 T
 get_next(T value) {
-  typename fp_traits_t<T>::u1_t i;
+  typename traits_t<T>::u1_t i;
   std::memcpy(&i, &value, sizeof(value));
   ++i;
   std::memcpy(&value, &i, sizeof(value));
@@ -53,7 +53,7 @@ get_next(T value) {
 template <typename T>
 void compare_to_other(T const value) {
 
-  using          traits_t     = fp_traits_t<T>;
+  using          traits_t     = amaru::traits_t<T>;
 
   auto constexpr digits       = std::numeric_limits<T>::digits10 + 2;
   auto const     compact      = traits_t::amaru_compact(value);
@@ -75,7 +75,7 @@ TEST(float, exhaustive_comparison_to_other) {
 
   while (std::isfinite(value) && !HasFailure()) {
 
-    auto const ieee = fp_traits_t<float>::value_to_ieee(value);
+    auto const ieee = traits_t<float>::value_to_ieee(value);
     if (ieee.exponent != exponent) {
       exponent = ieee.exponent;
       std::cerr << "Exponent: " << exponent << std::endl;
@@ -98,9 +98,9 @@ TYPED_TEST_SUITE_P(TypedTests);
 // and double.
 TYPED_TEST_P(TypedTests, mantissa_min_all_exponents) {
 
-  using traits_t          = fp_traits_t<TypeParam>;
-  using fp_t              = TypeParam;
-  using u1_t              = typename traits_t::u1_t;
+  using traits_t = amaru::traits_t<TypeParam>;
+  using fp_t     = TypeParam;
+  using u1_t     = typename traits_t::u1_t;
 
   auto const exponent_max = (std::uint32_t{1} << traits_t::exponent_size) - 1;
 
@@ -121,7 +121,7 @@ INSTANTIATE_TYPED_TEST_SUITE_P(TypedTests, TypedTests, FpTypes);
 // Test results for a large number of random double values.
 TEST(double, random_comparison_to_other) {
 
-  using traits_t = fp_traits_t<double>;
+  using traits_t = traits_t<double>;
 
   traits_t::u1_t uint_max;
   auto const double_max = std::numeric_limits<double>::max();
@@ -146,8 +146,8 @@ TEST(double, random_comparison_to_other) {
 
 TEST(float128, test_hard_coded_values) {
 
-  using traits_t   = fp_traits_t<float128_t>;
-  using fields_t   = traits_t::fields_t;
+  using traits_t = amaru::traits_t<float128_t>;
+  using fields_t = traits_t::fields_t;
 
   static auto constexpr amaru_size = std::uint32_t{128};
 
@@ -235,9 +235,9 @@ TEST(float128, test_hard_coded_values) {
  */
 template <typename T>
 T
-from_ieee(std::uint32_t e, typename fp_traits_t<T>::u1_t m) {
+from_ieee(std::uint32_t e, typename traits_t<T>::u1_t m) {
 
-  using      traits_t = fp_traits_t<T>;
+  using      traits_t = amaru::traits_t<T>;
   using      u1_t     = typename traits_t::u1_t;
   u1_t const i        = (u1_t(e) << traits_t::mantissa_size) | m;
 

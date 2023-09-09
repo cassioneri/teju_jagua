@@ -19,7 +19,7 @@ operator <<(std::ostream& os, test_case_t<T> const& test_case);
 template <typename T>
 struct test_case_t {
 
-  using traits_t = fp_traits_t<T>;
+  using traits_t = amaru::traits_t<T>;
   using fields_t = typename traits_t::fields_t;
 
   explicit test_case_t(T value, fields_t const& expected,

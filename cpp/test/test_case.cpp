@@ -19,10 +19,10 @@ namespace {
  */
 template <typename T>
 T
-from_ieee(typename fp_traits_t<T>::fields_t const& ieee) {
+from_ieee(typename traits_t<T>::fields_t const& ieee) {
 
-  using      traits_t = fp_traits_t<T>;
-  using      u1_t     = typename traits_t::u1_t;
+  using traits_t = amaru::traits_t<T>;
+  using u1_t     = typename traits_t::u1_t;
 
   u1_t const i = (static_cast<u1_t>(ieee.exponent) << traits_t::mantissa_size) |
     ieee.mantissa;
@@ -58,7 +58,7 @@ test_case_t<T>::operator bool() const {
 template <typename T>
 std::ostream& operator <<(std::ostream& os, test_case_t<T> const& test_case) {
 
-  using traits_t   = fp_traits_t<T>;
+  using traits_t   = amaru::traits_t<T>;
   using uint_t     = typename traits_t::streamable_uint_t;
   auto const value = test_case.value_;
   auto const ieee  = traits_t::value_to_ieee(value);

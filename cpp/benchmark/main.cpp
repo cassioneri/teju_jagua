@@ -23,7 +23,7 @@ template <typename T>
 __attribute__((optimize("-falign-loops=32")))
 #endif
 std::uint64_t
-benchmark(T const value, typename fp_traits_t<T>::fields_t (*function)(T)) {
+benchmark(T const value, typename traits_t<T>::fields_t (*function)(T)) {
 
   using clock_t = std::chrono::steady_clock;
   static_assert(std::is_same<clock_t::duration, std::chrono::nanoseconds>{},
@@ -63,7 +63,7 @@ benchmark(const char* filename, Args... args) {
   out << "exponent, mantissa, integer, value, amaru\\\\_compact, "
     "amaru\\\\_full, dragonbox\\\\_compact, dragonbox\\\\_full\n";
 
-  using traits_t = amaru::fp_traits_t<T>;
+  using traits_t = amaru::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
   auto  sampler  = sampler_t<T, population>{args...};
 

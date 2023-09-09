@@ -21,9 +21,9 @@ namespace amaru {
  * into a generic interface. For instance,
  * \c amaru_from_double_to_decimal_compact and
  * \c amaru_from_float_to_decimal_compact are two such functions that are
- * wrapped, respectively, by \c fp_traits_t<double>::amaru_compact and
- * \c fp_traits_t<float>::amaru_compact, make easier to call then in generic
- * tests. Specialisations of \c fp_traits_t are provided for \c float and
+ * wrapped, respectively, by \c traits_t<double>::amaru_compact and
+ * \c traits_t<float>::amaru_compact, make easier to call then in generic
+ * tests. Specialisations of \c traits_t are provided for \c float and
  * \c double. They contain the following members.
  *
  * Types:
@@ -52,13 +52,13 @@ namespace amaru {
  *
  * @warning Since platforms and third-party libraries lack support for larger
  * types (e.g., float128_t and uint128_t). Hence, some of the functions above or
- * even the whole corresponding \c fp_traits_t specialisation might be
+ * even the whole corresponding \c traits_t specialisation might be
  * undefined.
  *
  * \tparam T                The type of interest.
  */
 template <typename T>
-struct fp_traits_t;
+struct traits_t;
 
 namespace detail {
 
@@ -86,9 +86,9 @@ namespace detail {
 
 } // namespace detail
 
-// Specialisation of fp_traits_t for float.
+// Specialisation of traits_t for float.
 template <>
-struct fp_traits_t<float> {
+struct traits_t<float> {
 
   using u1_t              = amaru32_u1_t;
   using fields_t          = amaru32_fields_t;
@@ -137,9 +137,9 @@ struct fp_traits_t<float> {
 
 };
 
-// Specialisation of fp_traits_t for float.
+// Specialisation of traits_t for float.
 template <>
-struct fp_traits_t<double> {
+struct traits_t<double> {
 
   using u1_t              = amaru64_u1_t;
   using fields_t          = amaru64_fields_t;
@@ -190,9 +190,9 @@ struct fp_traits_t<double> {
 
 #if defined(AMARU_HAS_FLOAT128)
 
-// Specialisation of fp_traits_t for float128.
+// Specialisation of traits_t for float128.
 template <>
-struct fp_traits_t<float128_t> {
+struct traits_t<float128_t> {
 
   using u1_t              = amaru128_u1_t;
   using fields_t          = amaru128_fields_t;

@@ -25,6 +25,23 @@ namespace {
 using namespace amaru;
 using namespace amaru::test;
 
+template <typename T, char... Cs>
+struct make_number;
+
+template <typename T>
+struct make_number<T> {
+  static T value(T n) {
+    return n;
+  }
+};
+
+template <typename T, char C, char... Cs>
+struct make_number<T, C, Cs...> {
+  static T value(T n) {
+    return make_number<T, Cs...>::value(10 * n + (C - '0'));
+  }
+};
+
 /**
  * @brief Gets the next value of type \e T following a given one.
  *
@@ -145,25 +162,8 @@ TEST(double, random_comparison_to_other) {
 #if defined(AMARU_HAS_FLOAT128)
 
 template <char... Cs>
-struct make_uint128;
-
-template <>
-struct make_uint128<> {
-  static uint128_t value(uint128_t n) {
-    return n;
-  }
-};
-
-template <char C, char... Cs>
-struct make_uint128<C, Cs...> {
-  static uint128_t value(uint128_t n) {
-    return make_uint128<Cs...>::value(10 * n + (C - '0'));
-  }
-};
-
-template <char... Cs>
 uint128_t operator ""_u128() {
-  return make_uint128<Cs...>::value(0);
+  return make_number<uint128_t, Cs...>::value(0);
 }
 
 TEST(float128, test_hard_coded_values) {

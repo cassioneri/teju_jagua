@@ -75,7 +75,7 @@ struct fp_traits_t<float> {
   static
   fields_t
   fields(float const value) {
-    return amaru_from_float_to_fields(value);
+    return amaru_to_ieee32_fields(value);
   }
 
   static
@@ -113,7 +113,7 @@ struct fp_traits_t<double> {
   static
   fields_t
   fields(double const value) {
-    return amaru_from_double_to_fields(value);
+    return amaru_to_ieee64_fields(value);
   }
 
   static
@@ -153,7 +153,7 @@ struct fp_traits_t<float128_t> {
   static
   fields_t
   fields(float128_t const value) {
-    return amaru_from_float128_to_fields(value);
+    return amaru_to_ieee128_fields(value);
   }
 
   static

@@ -26,7 +26,7 @@ extern "C" {
  * @returns The IEEE-754 fields of \e value.
  */
 amaru64_fields_t
-amaru_from_double_to_fields(double value);
+amaru_to_ieee64_fields(double value);
 
 /**
  * @brief Gets the Amaru fields of a given \c double.

@@ -88,7 +88,7 @@ struct traits_t<float> {
   static
   amaru32_fields_t
   to_ieee(float const value) {
-    return amaru_from_float_to_fields(value);
+    return amaru_to_ieee32_fields(value);
   }
 
 }; // traits_t<float>
@@ -135,7 +135,7 @@ struct traits_t<double> {
   static
   amaru64_fields_t
   to_ieee(double const value) {
-    return amaru_from_double_to_fields(value);
+    return amaru_to_ieee64_fields(value);
   }
 
 }; // traits_t<double>

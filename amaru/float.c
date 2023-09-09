@@ -16,7 +16,7 @@ enum {
 };
 
 amaru32_fields_t
-amaru_from_float_to_fields(float const value) {
+amaru_to_ieee32_fields(float const value) {
 
   uint32_t bits;
   memcpy(&bits, &value, sizeof(value));
@@ -36,7 +36,7 @@ amaru_from_float_to_decimal_compact(float const value) {
 
   // Conversion to Amaru's binary representation.
 
-  amaru32_fields_t binary        = amaru_from_float_to_fields(value);
+  amaru32_fields_t binary        = amaru_to_ieee32_fields(value);
   uint32_t         ieee_exponent = binary.exponent;
 
   binary.exponent += exponent_min;
@@ -53,7 +53,7 @@ amaru_from_float_to_decimal_full(float const value) {
 
   // Conversion to Amaru's binary representation.
 
-  amaru32_fields_t binary        = amaru_from_float_to_fields(value);
+  amaru32_fields_t binary        = amaru_to_ieee32_fields(value);
   uint32_t         ieee_exponent = binary.exponent;
 
   binary.exponent += exponent_min;

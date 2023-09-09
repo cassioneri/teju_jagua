@@ -28,7 +28,7 @@ extern "C" {
  * @returns The IEEE-754 fields of \e value.
  */
 amaru128_fields_t
-amaru_from_float128_to_fields(__float128 value);
+amaru_to_ieee128_fields(__float128 value);
 
 /**
  * @brief Gets the Amaru fields of a given \c __float128.

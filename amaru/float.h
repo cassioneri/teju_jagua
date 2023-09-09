@@ -26,7 +26,7 @@ extern "C" {
  * @returns The IEEE-754 fields of \e value.
  */
 amaru32_fields_t
-amaru_from_float_to_fields(float value);
+amaru_to_ieee32_fields(float value);
 
 /**
  * @brief Gets the Amaru fields of a given \c float.

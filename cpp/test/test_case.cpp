@@ -1,5 +1,5 @@
-#include "test/fp_traits.hpp"
-#include "test/test_case.hpp"
+#include "cpp/common/fp_traits.hpp"
+#include "cpp/test/test_case.hpp"
 
 #include <iostream>
 #include <type_traits>

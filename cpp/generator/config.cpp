@@ -1,5 +1,5 @@
-#include "generator/config.hpp"
-#include "generator/exception.hpp"
+#include "cpp/generator/config.hpp"
+#include "cpp/generator/exception.hpp"
 
 #include <algorithm>
 #include <iterator>

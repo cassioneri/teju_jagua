@@ -2,7 +2,7 @@
 #define AMARU_TEST_TEST_CASE_H_
 
 #include "amaru/config.h"
-#include "test/fp_traits.hpp"
+#include "cpp/common/fp_traits.hpp"
 
 #include <iosfwd>
 

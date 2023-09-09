@@ -1,6 +1,6 @@
-#include "generator/config.hpp"
-#include "generator/exception.hpp"
-#include "generator/generator.hpp"
+#include "cpp/generator/config.hpp"
+#include "cpp/generator/exception.hpp"
+#include "cpp/generator/generator.hpp"
 
 #include <nlohmann/json.hpp>
 

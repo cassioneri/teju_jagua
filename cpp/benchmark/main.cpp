@@ -1,8 +1,8 @@
 #include "amaru/common.h"
 #include "amaru/double.h"
 #include "amaru/float.h"
-#include "benchmark/sampler.hpp"
-#include "benchmark/stats.hpp"
+#include "cpp/benchmark/sampler.hpp"
+#include "cpp/benchmark/stats.hpp"
 
 #include <chrono>
 #include <cmath>

@@ -1,7 +1,7 @@
 #ifndef AMARU_GENERATOR_GENERATOR_HPP_
 #define AMARU_GENERATOR_GENERATOR_HPP_
 
-#include "generator/config.hpp"
+#include "cpp/generator/config.hpp"
 
 #include <boost/multiprecision/cpp_int.hpp>
 

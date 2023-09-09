@@ -1,16 +1,16 @@
-#include "test/impl.hpp"
+#include "cpp/test/impl.hpp"
 
 // Other macros required by amaru/mshift.h.
 #define amaru_do_not_define_amaru_multiply
 #define amaru_multiply_type      amaru_synthetic_2
 #define amaru_calculation_mshift amaru_synthetic_2
-#define amaru_calculation_shift  24
+#define amaru_calculation_shift  32
 
-#include "test/synthetic_2.hpp"
+#include "cpp/test/synthetic_2.hpp"
 
 #include "amaru/mshift.h"
 
-using impl_t = amaru::test::synthetic_2_small_shift_t;
+using impl_t = amaru::test::synthetic_2_t;
 
 int const impl_t::shift = amaru_calculation_shift;
 

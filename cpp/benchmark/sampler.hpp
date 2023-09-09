@@ -7,7 +7,7 @@
  * Functionalities to draw sample values used in benchmarks.
  */
 
-#include "benchmark/traits.hpp"
+#include "cpp/benchmark/traits.hpp"
 
 #include <cstdint>
 #include <random>

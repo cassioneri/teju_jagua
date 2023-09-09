@@ -22,10 +22,8 @@ endif()
 cmake_policy(SET CMP0076 NEW)
 
 add_subdirectory(amaru)
-add_subdirectory(benchmark)
-add_subdirectory(generator)
+add_subdirectory(cpp)
 add_subdirectory(other)
-add_subdirectory(test)
 
 include(FetchContent)
 

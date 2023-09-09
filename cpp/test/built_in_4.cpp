@@ -1,4 +1,4 @@
-#include "test/impl.hpp"
+#include "cpp/test/impl.hpp"
 
 // Other macros required by amaru/mshift.h.
 #define amaru_calculation_mshift amaru_built_in_4

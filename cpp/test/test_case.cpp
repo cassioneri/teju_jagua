@@ -7,34 +7,6 @@
 namespace amaru {
 namespace test {
 
-namespace {
-
-/**
- * @brief Returns the floating point number value corresponding to given IEEE
- * fields.
- *
- * @tparam T                The floating point value type.
- * @param  ieee             The IEEE-754 representation of the floating point
- *                          number.
- */
-template <typename T>
-T
-from_ieee(typename traits_t<T>::fields_t const& ieee) {
-
-  using traits_t = amaru::traits_t<T>;
-  using u1_t     = typename traits_t::u1_t;
-
-  u1_t const i = (static_cast<u1_t>(ieee.exponent) << traits_t::mantissa_size) |
-    ieee.mantissa;
-
-  T value;
-  std::memcpy(&value, &i, sizeof(i));
-
-  return value;
-}
-
-} // namespace <anonymous>
-
 template <typename T>
 test_case_t<T>::test_case_t(T value, fields_t const& expected,
   fields_t const& actual) :
@@ -46,7 +18,7 @@ test_case_t<T>::test_case_t(T value, fields_t const& expected,
 template <typename T>
 test_case_t<T>::test_case_t(fields_t const& ieee,
   fields_t const& expected, fields_t const& actual) :
-  test_case_t{from_ieee<T>(ieee), expected, actual} {
+  test_case_t{traits_t::ieee_to_value(ieee), expected, actual} {
 }
 
 template <typename T>

@@ -70,13 +70,16 @@ namespace detail {
    * \tparam mantissa_size  The number of bits in the mantissa.
    * \tparam U              An unsigned integer type of the same size as \c T.
    */
-  template <typename T, std::uint32_t mantissa_size, typename Fields>
+  template <typename T, std::uint32_t mantissa_size>
   T
-  ieee_to_value(Fields ieee) {
+  ieee_to_value(typename amaru::traits_t<T>::fields_t ieee) {
+
+    using traits_t = amaru::traits_t<T>;
+    using u1_t     = typename traits_t::u1_t;
 
     static_assert(sizeof(T) == sizeof(ieee.mantissa), "Incompatible types");
 
-    auto const exponent = static_cast<decltype(ieee.mantissa)>(ieee.exponent);
+    auto const exponent = static_cast<u1_t>(ieee.exponent);
     auto const bits     = (exponent << mantissa_size) | ieee.mantissa;
 
     T value;

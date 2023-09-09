@@ -12,6 +12,7 @@
   #error "Macros amaru_calculation_mshift, amaru_calculation_shift, amaru_size and amaru_u1_t must be defined prior to inclusion of mshift.h."
 #endif
 
+#include "amaru/common.h"
 #include "amaru/multiply.h"
 
 #ifdef __cplusplus
@@ -45,7 +46,7 @@ amaru_rshift(amaru_u1_t const r2, amaru_u1_t const r1) {
 }
 
 /**
- * @brief Returns the quotient \f$q = ((u\cdot 2^N + l) * m)/ 2^s\f$, where
+ * @brief Returns the quotient \f$q = ((u\cdot 2^N + l) * m) / 2^s\f$, where
  * \f$N\f$ is the value of \c aramu_size and \f$s\f$ is the value of
  * \c amaru_calculation_shift.
  *
@@ -100,7 +101,7 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     amaru_u1_t s01, s11;
     (void) amaru_multiply(l, m, &s01); // s00 is discarded
     amaru_u1_t const s10 = amaru_multiply(u, m, &s11);
-    amaru_u1_t const r0  = s01 + s10; // This might overflow.
+    amaru_u1_t const r0  = s01 + s10; // This might wraparound.
     amaru_u1_t const c   = r0 < s01;  // Carry.
     amaru_u1_t const r1  = s11 + c;
     return amaru_rshift(r1, r0);
@@ -111,16 +112,16 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     // u := (n3 * y + n2) with n3 := u / y, n2 = u % y in [0, y[,
     // l := (n1 * y + n0) with n1 := l / y, n0 = l % y in [0, y[,
     // m := (m1 * y + m0) with m1 := m / y, m0 = m % y in [0, y[.
-    amaru_u1_t const y_mask = (((amaru_u1_t) 1) << (amaru_size / 2)) - 1;
-    amaru_u1_t const n3 = u >> (amaru_size / 2);
-    amaru_u1_t const n2 = u & y_mask;
-    amaru_u1_t const n1 = l >> (amaru_size / 2);
-    amaru_u1_t const n0 = l & y_mask;
-    amaru_u1_t const m1 = m >> (amaru_size / 2);
-    amaru_u1_t const m0 = m & y_mask;
+    amaru_u1_t const y  = amaru_pow2(amaru_u1_t, amaru_size / 2);
+    amaru_u1_t const n3 = u / y;
+    amaru_u1_t const n2 = u % y;
+    amaru_u1_t const n1 = l / y;
+    amaru_u1_t const n0 = l % y;
+    amaru_u1_t const m1 = m / y;
+    amaru_u1_t const m0 = m % y;
 
     // result, carry, temporary:
-    amaru_u1_t r, c, t;
+    amaru_u1_t r1, r0, c, t;
 
     // (u * x + l) * m
     //     = ((n3 * y + n2) * y^2 + (n1 * y + n0)) * (m1 * y + m0),
@@ -130,37 +131,41 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     //       (n0 * m0)
 
     // order 0:
-    t   = n0 * m0;
-    r   = t >> (amaru_size / 2);
+    t  = n0 * m0;
+    r1  = t / y;
 
     // order 1:
-    r  += n0 * m1; // This doesn't overflow.
+    r1 += n0 * m1;         // This doesn't wraparound.
     t   = n1 * m0;
-    r  += t;       // This might overflow.
-    c   = r < t;   // Carry.
-    r >>= (amaru_size / 2);
+    r1 += t;               // This might wraparound.
+    c   = r1 < t;          // Carry.
+    r1 /= y;
 
     // order 2:
-    r  += n1 * m1 + (c << (amaru_size / 2)); // This doesn't overflow.
+    r1 += n1 * m1 + c * y; // This doesn't wraparound.
     t   = n2 * m0;
-    r  += t;                                 // This might overflow.
-    c   = r < t;                             // Carry.
-    r >>= (amaru_size / 2);
+    r1 += t;               // This might wraparound.
+    c   = r1 < t;          // Carry.
+    r1 /= y;
 
     // order 3:
-    r  += n2 * m1 + (c << (amaru_size / 2)); // This doesn't overflow.
+    r1+= n2 * m1 + c * y; // This doesn't wraparound.
     t   = n3 * m0;
-    r  += t;                                 // This might overflow.
-    c   = r < t;                             // Carry.
-    r >>= (amaru_size / 2);
+    r1 += t;              // This might wraparound.
+    c   = r1 < t;         // Carry.
+    r0  = r1 % y;
+    r1 /= y;
 
     // order 4:
-    r  += n3 * m1 + (c << (amaru_size / 2));
+    r1 += n3 * m1 + c * y;
 
     #if amaru_calculation_shift >= 2 * amaru_size
-      return r >> (amaru_calculation_shift - 2 * amaru_size);
+      return r1 >> (amaru_calculation_shift - 2 * amaru_size);
+    #elif amaru_calculation_shift >= 3 * amaru_size / 2
+      return (r1 << (2 * amaru_size - amaru_calculation_shift)) |
+        (r0 >> (amaru_calculation_shift - 3 * amaru_size / 2));
     #else
-      #error "Unsupported combination of size, shift and calculation."
+      #error "Unsupported combination of size, shift and mshift calculation."
     #endif
 
   #else

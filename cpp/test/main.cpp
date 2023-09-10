@@ -236,36 +236,36 @@ TEST(float128, test_hard_coded_values) {
   }
 }
 
-// TEST(float128, test_hard_coded_binary_representations) {
+TEST(float128, test_hard_coded_binary_representations) {
 
-//   using traits_t    = amaru::traits_t<float128_t>;
-//   using fields_t    = traits_t::fields_t;
-//   using test_case_t = amaru::test::test_case_t<float128_t>;
+  using traits_t    = amaru::traits_t<float128_t>;
+  using fields_t    = traits_t::fields_t;
+  using test_case_t = amaru::test::test_case_t<float128_t>;
 
-//   static auto constexpr amaru_size = std::uint32_t{128};
+  static auto constexpr amaru_size = std::uint32_t{128};
 
-//   struct test_data_t {
-//     fields_t binary;
-//     fields_t decimal;
-//   };
+  struct test_data_t {
+    fields_t binary;
+    fields_t decimal;
+  };
 
-//   test_data_t data[] = {
-//     // Binary
-//     // exponent                                 mantissa     exponent                                 mantissa
-//     {{     -114, 6230756230241792923652294673694720_u128 }, {     -34, 2999999999999999888977697537484345_u128 }},
-//   };
+  test_data_t data[] = {
+    // Binary
+    // exponent                                 mantissa     exponent                                 mantissa
+    {{     -114, 6230756230241792923652294673694720_u128 }, {     -34, 2999999999999999888977697537484346_u128 }},
+  };
 
-//   for (unsigned i = 0; i < std::size(data); ++i) {
-//     auto const expected = test_case_t{data[i].binary, data[i].decimal};
-//     {
-//       auto const actual   = traits_t::amaru_compact(expected.value());
-//       ASSERT_EQ(expected, actual) << "    Note: test case number = " << i;
-//     }{
-//       auto const actual   = traits_t::amaru_full(expected.value());
-//       ASSERT_EQ(expected, actual) << "    Note: test case number = " << i;
-//     }
-//   }
-// }
+  for (unsigned i = 0; i < std::size(data); ++i) {
+    auto const expected = test_case_t{data[i].binary, data[i].decimal};
+    {
+      auto const actual   = traits_t::amaru_compact(expected.value());
+      ASSERT_EQ(expected, actual) << "    Note: test case number = " << i;
+    }{
+      auto const actual   = traits_t::amaru_full(expected.value());
+      ASSERT_EQ(expected, actual) << "    Note: test case number = " << i;
+    }
+  }
+}
 
 #endif // defined(AMARU_HAS_FLOAT128)
 

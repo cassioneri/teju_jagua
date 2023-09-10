@@ -21,7 +21,6 @@ namespace {
     auto const exponent_size  = traits_t::exponent_size;
     auto const mantissa_size  = traits_t::mantissa_size;
 
-
     auto const exponent_min   =
       amaru_min_binary_exponent_from_ieee754(exponent_size, mantissa_size);
 
@@ -34,7 +33,7 @@ namespace {
     AMARU_ASSERT(amaru_binary_c.exponent <= exponent_max,
       "Exponent provided to Amaru binary representation is too high.");
 
-    auto const exponent_ieee =
+    auto exponent_ieee =
       static_cast<u1_t>(amaru_binary_c.exponent - exponent_min);
 
     auto const mantissa_bound = amaru_pow2(u1_t, mantissa_size);
@@ -52,6 +51,7 @@ namespace {
         "Mantissa provided to Amaru binary representation is too low.");
       AMARU_ASSERT(amaru_binary_c.mantissa < 2 * mantissa_bound,
         "Mantissa provided to Amaru binary representation is too high.");
+      ++exponent_ieee;
       mantissa_ieee = amaru_binary_c.mantissa - mantissa_bound;
     }
 

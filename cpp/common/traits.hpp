@@ -5,6 +5,8 @@
 #include "amaru/double.h"
 #include "amaru/float.h"
 #include "amaru/float128.h"
+#include "amaru/ieee754.h"
+
 #include "cpp/common/other.hpp"
 
 #include <boost/multiprecision/cpp_bin_float.hpp>
@@ -97,8 +99,10 @@ struct traits_t<float> {
   using fields_t          = amaru32_fields_t;
   using streamable_uint_t = u1_t;
 
-  static auto constexpr exponent_size = std::uint32_t{8};
-  static auto constexpr mantissa_size = std::uint32_t{23};
+  static auto constexpr exponent_size =
+    std::uint32_t{amaru_ieee754_binary32_exponent_size};
+  static auto constexpr mantissa_size =
+    std::uint32_t{amaru_ieee754_binary32_mantissa_size};
 
   static
   fields_t
@@ -154,8 +158,10 @@ struct traits_t<double> {
   using fields_t          = amaru64_fields_t;
   using streamable_uint_t = u1_t;
 
-  static auto constexpr exponent_size = std::uint32_t{11};
-  static auto constexpr mantissa_size = std::uint32_t{52};
+  static auto constexpr exponent_size =
+    std::uint32_t{amaru_ieee754_binary64_exponent_size};
+  static auto constexpr mantissa_size =
+    std::uint32_t{amaru_ieee754_binary64_mantissa_size};
 
   static
   fields_t
@@ -213,8 +219,10 @@ struct traits_t<float128_t> {
   using fields_t          = amaru128_fields_t;
   using streamable_uint_t = boost::multiprecision::uint128_t;
 
-  static auto constexpr exponent_size = std::uint32_t{15};
-  static auto constexpr mantissa_size = std::uint32_t{112};
+  static auto constexpr exponent_size =
+    std::uint32_t{amaru_ieee754_binary128_exponent_size};
+  static auto constexpr mantissa_size =
+    std::uint32_t{amaru_ieee754_binary128_mantissa_size};
 
   static
   fields_t

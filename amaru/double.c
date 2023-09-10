@@ -1,5 +1,6 @@
 #include "amaru/common.h"
 #include "amaru/double.h"
+#include "amaru/ieee754.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -10,9 +11,10 @@ extern "C" {
 #endif
 
 enum {
-  mantissa_size =    52,
-  exponent_size =    11,
-  exponent_min  = -1074
+  exponent_size = amaru_ieee754_binary64_exponent_size,
+  mantissa_size = amaru_ieee754_binary64_mantissa_size,
+  exponent_min  = amaru_min_binary_exponent_from_ieee754(exponent_size,
+    mantissa_size)
 };
 
 amaru64_fields_t

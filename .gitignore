@@ -1,5 +1,5 @@
 build/
-tp/
+third-party/
 
 # Folders created by IDEs:
 .vscode/

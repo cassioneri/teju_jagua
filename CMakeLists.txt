@@ -24,6 +24,8 @@ cmake_policy(SET CMP0076 NEW)
 add_subdirectory(amaru)
 add_subdirectory(cpp)
 
+set(third_party_dir ${CMAKE_SOURCE_DIR}/third-party)
+
 include(FetchContent)
 
 #---------------------------------------------------------------------------
@@ -34,7 +36,7 @@ FetchContent_Declare(
   dragonbox
   GIT_REPOSITORY https://github.com/jk-jeon/dragonbox.git
   GIT_TAG        1.1.3
-  SOURCE_DIR     ${CMAKE_SOURCE_DIR}/tp/dragonbox
+  SOURCE_DIR     ${third_party_dir}/dragonbox
 )
 
 set(DRAGONBOX_INSTALL_TO_CHARS off)
@@ -48,7 +50,7 @@ FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
   GIT_TAG        release-1.12.1
-  SOURCE_DIR     ${CMAKE_SOURCE_DIR}/tp/googletest
+  SOURCE_DIR     ${third_party_dir}/googletest
 )
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -62,7 +64,7 @@ FetchContent_Declare(
   json
   GIT_REPOSITORY https://github.com/nlohmann/json.git
   GIT_TAG        v3.11.2
-  SOURCE_DIR     ${CMAKE_SOURCE_DIR}/tp/json
+  SOURCE_DIR     ${third_party_dir}/json
 )
 
 set(BOOST_MP_STANDALONE on)
@@ -77,7 +79,7 @@ FetchContent_Declare(
   multiprecision
   GIT_REPOSITORY https://github.com/boostorg/multiprecision.git
   GIT_TAG        Boost_1_80_0
-  SOURCE_DIR     ${CMAKE_SOURCE_DIR}/tp/multiprecision
+  SOURCE_DIR     ${third_party_dir}/multiprecision
 )
 
 set(BOOST_MP_STANDALONE on)

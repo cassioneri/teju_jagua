@@ -1,5 +1,5 @@
-#ifndef AMARU_OTHER_OTHER_H_
-#define AMARU_OTHER_OTHER_H_
+#ifndef AMARU_CPP_COMMON_OTHER_HPP_
+#define AMARU_CPP_COMMON_OTHER_HPP_
 
 #include <dragonbox/dragonbox.h>
 
@@ -43,4 +43,4 @@ to_decimal(double value);
 
 } // namespace amaru
 
-#endif // AMARU_OTHER_OTHER_H_
+#endif // AMARU_CPP_COMMON_OTHER_HPP_

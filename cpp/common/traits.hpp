@@ -1,5 +1,5 @@
-#ifndef AMARU_CPP_COMMON_TRAITS_H_
-#define AMARU_CPP_COMMON_TRAITS_H_
+#ifndef AMARU_CPP_COMMON_TRAITS_HPP_
+#define AMARU_CPP_COMMON_TRAITS_HPP_
 
 #include "amaru/config.h"
 #include "amaru/double.h"
@@ -258,7 +258,8 @@ struct traits_t<float128_t> {
   // testing and benchmarking against other libraries is not supported.
 };
 
+
 } // namespace amaru
 
 #endif // defined(AMARU_HAS_FLOAT128)
-#endif // AMARU_CPP_COMMON_TRAITS_H_
+#endif // AMARU_CPP_COMMON_TRAITS_HPP_

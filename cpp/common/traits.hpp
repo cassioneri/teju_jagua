@@ -256,7 +256,6 @@ struct traits_t<float128_t> {
 
   // TODO (CN): Perhaps we could use Ryu for float128_t but at the moment
   // testing and benchmarking against other libraries is not supported.
-  // fields_t other(float128_t const value);
 };
 
 } // namespace amaru

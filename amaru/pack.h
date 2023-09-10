@@ -6,7 +6,7 @@
  *
  * Workaround for lack of support for large literals.
  *
- * Some platforms might support \c __uint128_t and, still, lack support for
+ * Some platforms might support \c uint128_t and, still, lack support for
  * literals of this type. This file provides two macros to workaround this
  * issue.
  */

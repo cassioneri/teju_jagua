@@ -32,9 +32,9 @@ enum {
 };
 
 #define amaru_min_binary_exponent_from_ieee754(exponent_size, mantissa_size)  \
-  - amaru_pow2(int32_t, exponent_size - 1) - mantissa_size + 2
+  (-amaru_pow2(int32_t, exponent_size - 1) - ((int32_t) mantissa_size) + 2)
 
 #define amaru_max_binary_exponent_from_ieee754(exponent_size, mantissa_size)  \
-  amaru_pow2(int32_t, exponent_size - 1) - mantissa_size - 1
+  (amaru_pow2(int32_t, exponent_size - 1) - ((int32_t) mantissa_size) - 1)
 
 #endif // AMARU_AMARU_IEEE754_H_

@@ -1,1 +1,5 @@
 build/
+tp/
+
+# Folders created by IDEs:
+.vscode/

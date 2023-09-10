@@ -1,6 +1,6 @@
 #include "amaru/common.h"
+#include "cpp/common/exception.hpp"
 #include "cpp/generator/generator.hpp"
-#include "cpp/generator/exception.hpp"
 
 #include <boost/multiprecision/cpp_int.hpp>
 

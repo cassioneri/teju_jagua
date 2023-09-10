@@ -1,5 +1,5 @@
+#include "cpp/common/exception.hpp"
 #include "cpp/generator/config.hpp"
-#include "cpp/generator/exception.hpp"
 #include "cpp/generator/generator.hpp"
 
 #include <nlohmann/json.hpp>

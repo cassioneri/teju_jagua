@@ -10,9 +10,6 @@
 #include "cpp/common/fields.hpp"
 #include "cpp/common/other.hpp"
 
-#include <boost/multiprecision/cpp_bin_float.hpp>
-#include <boost/multiprecision/cpp_int.hpp>
-
 namespace amaru {
 
 /**

@@ -12,7 +12,7 @@ struct exception_t : std::runtime_error {
   using std::runtime_error::runtime_error;
 };
 
-#define AMARU_ASSERT(cond, msg) if (!cond) throw exception_t{msg}
+#define AMARU_ASSERT(cond, msg) if (!(cond)) throw exception_t{msg}
 
 } // namespace amaru
 

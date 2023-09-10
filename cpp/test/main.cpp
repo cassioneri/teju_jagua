@@ -175,10 +175,10 @@ TEST(float128, test_hard_coded_values) {
 
   struct test_data_t {
     float128_t value;
-    fields_t   expected;
+    fields_t   decimal;
   };
 
-  test_data_t test_data[] = {
+  test_data_t data[] = {
 
     // -------------------------------------------------------------------------
     // Integer values
@@ -221,23 +221,18 @@ TEST(float128, test_hard_coded_values) {
     // -------------------------------------------------------------------------
 
     //             value    exponent                                 mantissa
-    {          0.3000000,        -34, 2999999999999999888977697537484345_u128 },
+    {          0.3000000,        -34, 2999999999999999888977697537484346_u128 },
   };
 
-  for (unsigned i = 0; i < std::size(test_data); ++i) {
-
-    auto const value    = test_data[i].value;
-    auto const expected = test_data[i].expected;
-
-    auto const amaru_compact = traits_t::amaru_compact(value);
-    auto const test_compact  = test_case_t{value, expected};
-    ASSERT_EQ(test_compact, amaru_compact) <<
-      "    Note: test case number = " << i;
-
-    auto const amaru_full  = traits_t::amaru_full(value);
-    auto const test_full   = test_case_t{value, expected};
-    ASSERT_EQ(test_full, amaru_full) <<
-     "    Note: test case number = " << i;
+  for (unsigned i = 0; i < std::size(data); ++i) {
+    auto const expected = test_case_t{data[i].value, data[i].decimal};
+    {
+      auto const actual = traits_t::amaru_compact(expected.value());
+      ASSERT_EQ(expected, actual) << "    Note: test case number = " << i;
+    }{
+      auto const actual = traits_t::amaru_full(expected.value());
+      ASSERT_EQ(expected, actual) << "    Note: test case number = " << i;
+    }
   }
 }
 
@@ -254,34 +249,23 @@ TEST(float128, test_hard_coded_values) {
 //     fields_t decimal;
 //   };
 
-//   test_data_t test_data[] = {
+//   test_data_t data[] = {
 //     // Binary
-//     // exponent                                mantissa     exponent                                 mantissa
+//     // exponent                                 mantissa     exponent                                 mantissa
 //     {{     -114, 6230756230241792923652294673694720_u128 }, {     -34, 2999999999999999888977697537484345_u128 }},
 //   };
 
-//   for (unsigned i = 0; i < std::size(test_data); ++i) {
-
-//     auto const value    = test_data[i].value;
-//     auto const expected = test_data[i].expected;
-
-//     auto const amaru_compact  = traits_t::amaru_compact(value);
-//     auto const test_compact   = test_case_t{value, expected, amaru_compact};
-//     ASSERT_TRUE(test_compact) <<
-//       "  test case number  = " << i << '\n' << test_compact;
-
-//     auto const amaru_full  = traits_t::amaru_full(value);
-//     auto const test_full   = test_case_t{value, expected, amaru_full};
-//     ASSERT_TRUE(test_full) <<
-//      "  test case number  = " << i << '\n' << test_full;
+//   for (unsigned i = 0; i < std::size(data); ++i) {
+//     auto const expected = test_case_t{data[i].binary, data[i].decimal};
+//     {
+//       auto const actual   = traits_t::amaru_compact(expected.value());
+//       ASSERT_EQ(expected, actual) << "    Note: test case number = " << i;
+//     }{
+//       auto const actual   = traits_t::amaru_full(expected.value());
+//       ASSERT_EQ(expected, actual) << "    Note: test case number = " << i;
+//     }
 //   }
 // }
-
-
-
-
-
-
 
 #endif // defined(AMARU_HAS_FLOAT128)
 

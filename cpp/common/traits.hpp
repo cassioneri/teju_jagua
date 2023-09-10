@@ -5,7 +5,7 @@
 #include "amaru/double.h"
 #include "amaru/float.h"
 #include "amaru/float128.h"
-#include "other/other.hpp"
+#include "cpp/common/other.hpp"
 
 #include <boost/multiprecision/cpp_bin_float.hpp>
 #include <boost/multiprecision/cpp_int.hpp>

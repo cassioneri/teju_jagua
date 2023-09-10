@@ -1,14 +1,12 @@
-
-#include "cpp/common/traits.hpp"
-#include "cpp/test/test_case.hpp"
-
 #include "amaru/common.h"
 #include "amaru/config.h"
 #include "amaru/double.h"
 #include "amaru/float.h"
 #include "amaru/float128.h"
 #include "amaru/pack.h"
-#include "other/other.hpp"
+#include "cpp/common/traits.hpp"
+#include "cpp/test/test_case.hpp"
+#include "cpp/common/other.hpp"
 
 #include <gtest/gtest.h>
 

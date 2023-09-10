@@ -23,7 +23,6 @@ cmake_policy(SET CMP0076 NEW)
 
 add_subdirectory(amaru)
 add_subdirectory(cpp)
-add_subdirectory(other)
 
 include(FetchContent)
 

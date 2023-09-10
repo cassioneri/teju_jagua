@@ -95,7 +95,7 @@ benchmark(const char* filename, Args... args) {
     u1_t integer;
     std::memcpy(&integer, &value, sizeof(value));
 
-    auto const fields = traits_t::value_to_ieee(value);
+    auto const fields = traits_t::value_to_ieee(value).c;
 
     out <<
       fields.exponent           << ", " <<

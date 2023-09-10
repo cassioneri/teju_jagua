@@ -125,7 +125,7 @@ struct generic_sampler_t {
    */
   bool
   empty() const {
-    return ieee_.exponent == exponent_max_;
+    return ieee_.c.exponent == exponent_max_;
   }
 
   /**
@@ -139,13 +139,13 @@ struct generic_sampler_t {
   pop() {
 
     auto const value = traits_t::ieee_to_value(ieee_);
-    ++ieee_.exponent;
+    ++ieee_.c.exponent;
 
     // Avoids exponent == exponent_max_, since the corresponding value is
     // infinity or NaN.
-    if (!provider_.empty() && ieee_.exponent == exponent_max_) {
-      ieee_.exponent = 0;
-      ieee_.mantissa = provider_.pop();
+    if (!provider_.empty() && ieee_.c.exponent == exponent_max_) {
+      ieee_.c.exponent = 0;
+      ieee_.c.mantissa = provider_.pop();
     }
 
     return value;

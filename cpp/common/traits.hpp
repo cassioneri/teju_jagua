@@ -7,6 +7,7 @@
 #include "amaru/float128.h"
 #include "amaru/ieee754.h"
 
+#include "cpp/common/fields.hpp"
 #include "cpp/common/other.hpp"
 
 #include <boost/multiprecision/cpp_bin_float.hpp>
@@ -79,10 +80,10 @@ namespace detail {
     using traits_t = amaru::traits_t<T>;
     using u1_t     = typename traits_t::u1_t;
 
-    static_assert(sizeof(T) == sizeof(ieee.mantissa), "Incompatible types");
+    static_assert(sizeof(T) == sizeof(ieee.c.mantissa), "Incompatible types");
 
-    auto const exponent = static_cast<u1_t>(ieee.exponent);
-    auto const bits     = (exponent << mantissa_size) | ieee.mantissa;
+    auto const exponent = static_cast<u1_t>(ieee.c.exponent);
+    auto const bits     = (exponent << mantissa_size) | ieee.c.mantissa;
 
     T value;
     std::memcpy(&value, &bits, sizeof(value));
@@ -95,9 +96,8 @@ namespace detail {
 template <>
 struct traits_t<float> {
 
-  using u1_t              = amaru32_u1_t;
-  using fields_t          = amaru32_fields_t;
-  using streamable_uint_t = u1_t;
+  using u1_t     = amaru32_u1_t;
+  using fields_t = cpp_fields_t<float>;
 
   static auto constexpr exponent_size =
     std::uint32_t{amaru_ieee754_binary32_exponent_size};
@@ -107,7 +107,7 @@ struct traits_t<float> {
   static
   fields_t
   value_to_ieee(float const value) {
-    return amaru_float_to_ieee32(value);
+    return fields_t{amaru_float_to_ieee32(value)};
   }
 
   static
@@ -119,44 +119,43 @@ struct traits_t<float> {
   static
   fields_t
   ieee_to_amaru_binary(fields_t ieee32) {
-    return amaru_ieee32_to_amaru_binary(ieee32);
+    return fields_t{amaru_ieee32_to_amaru_binary(ieee32.c)};
   }
 
   static
   fields_t
   amaru_compact(float const value) {
-    return amaru_float_to_amaru_decimal_compact(value);
+    return fields_t{amaru_float_to_amaru_decimal_compact(value)};
   }
 
   static
   fields_t
   amaru_full(float const value) {
-    return amaru_float_to_amaru_decimal_full(value);
+    return fields_t{amaru_float_to_amaru_decimal_full(value)};
   }
 
   static
   fields_t
   dragonbox_compact(float const value) {
     auto const fields = amaru::dragonbox_compact::to_decimal(value);
-    return { std::int32_t{fields.exponent}, u1_t{fields.significand} };
+    return fields_t{std::int32_t{fields.exponent}, u1_t{fields.significand}};
   }
 
   static
   fields_t
   dragonbox_full(float const value) {
     auto const fields = amaru::dragonbox_full::to_decimal(value);
-    return { std::int32_t{fields.exponent}, u1_t{fields.significand} };
+    return fields_t{std::int32_t{fields.exponent}, u1_t{fields.significand}};
   }
 
-};
+}; // traits_t<float>
 
 // Specialisation of traits_t for float.
 template <>
 struct traits_t<double> {
 
-  using u1_t              = amaru64_u1_t;
-  using fields_t          = amaru64_fields_t;
-  using streamable_uint_t = u1_t;
+  using u1_t     = amaru64_u1_t;
+  using fields_t = cpp_fields_t<double>;
 
   static auto constexpr exponent_size =
     std::uint32_t{amaru_ieee754_binary64_exponent_size};
@@ -166,7 +165,7 @@ struct traits_t<double> {
   static
   fields_t
   value_to_ieee(double const value) {
-    return amaru_double_to_ieee64(value);
+    return fields_t{amaru_double_to_ieee64(value)};
   }
 
   static
@@ -178,36 +177,36 @@ struct traits_t<double> {
   static
   fields_t
   ieee_to_amaru_binary(fields_t ieee64) {
-    return amaru_ieee64_to_amaru_binary(ieee64);
+    return fields_t{amaru_ieee64_to_amaru_binary(ieee64.c)};
   }
 
   static
   fields_t
   amaru_compact(double const value) {
-    return amaru_double_to_amaru_decimal_compact(value);
+    return fields_t{amaru_double_to_amaru_decimal_compact(value)};
   }
 
   static
   fields_t
   amaru_full(double const value) {
-    return amaru_double_to_amaru_decimal_full(value);
+    return fields_t{amaru_double_to_amaru_decimal_full(value)};
   }
 
   static
   fields_t
   dragonbox_compact(double const value) {
     auto const fields = amaru::dragonbox_compact::to_decimal(value);
-    return { std::int32_t{fields.exponent}, u1_t{fields.significand} };
+    return fields_t{std::int32_t{fields.exponent}, u1_t{fields.significand}};
   }
 
   static
   fields_t
   dragonbox_full(double const value) {
     auto const fields = amaru::dragonbox_full::to_decimal(value);
-    return { std::int32_t{fields.exponent}, u1_t{fields.significand} };
+    return fields_t{std::int32_t{fields.exponent}, u1_t{fields.significand}};
   }
 
-};
+}; // traits_t<double>
 
 #if defined(AMARU_HAS_FLOAT128)
 
@@ -215,9 +214,8 @@ struct traits_t<double> {
 template <>
 struct traits_t<float128_t> {
 
-  using u1_t              = amaru128_u1_t;
-  using fields_t          = amaru128_fields_t;
-  using streamable_uint_t = boost::multiprecision::uint128_t;
+  using u1_t     = amaru128_u1_t;
+  using fields_t = cpp_fields_t<float128_t>;
 
   static auto constexpr exponent_size =
     std::uint32_t{amaru_ieee754_binary128_exponent_size};
@@ -227,7 +225,7 @@ struct traits_t<float128_t> {
   static
   fields_t
   value_to_ieee(float128_t const value) {
-    return amaru_float128_to_ieee128(value);
+    return fields_t{amaru_float128_to_ieee128(value)};
   }
 
   static
@@ -239,27 +237,28 @@ struct traits_t<float128_t> {
   static
   fields_t
   ieee_to_amaru_binary(fields_t ieee128) {
-    return amaru_ieee128_to_amaru_binary(ieee128);
+    return fields_t{amaru_ieee128_to_amaru_binary(ieee128.c)};
   }
 
   static
   fields_t
   amaru_compact(float128_t const value) {
-    return amaru_float128_to_amaru_decimal_compact(value);
+    return {amaru_float128_to_amaru_decimal_compact(value)};
   }
 
   static
   fields_t
   amaru_full(float128_t const value) {
-    return amaru_float128_to_amaru_decimal_full(value);
+    return {amaru_float128_to_amaru_decimal_full(value)};
   }
 
   // TODO (CN): Perhaps we could use Ryu for float128_t but at the moment
   // testing and benchmarking against other libraries is not supported.
-};
 
+}; // traits_t<float128_t>
+
+#endif // defined(AMARU_HAS_FLOAT128)
 
 } // namespace amaru
 
-#endif // defined(AMARU_HAS_FLOAT128)
 #endif // AMARU_CPP_COMMON_TRAITS_HPP_

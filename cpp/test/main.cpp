@@ -69,17 +69,18 @@ template <typename T>
 void compare_to_other(T const value) {
 
   using          traits_t     = amaru::traits_t<T>;
+  using          fields_t     = cpp_fields_t<T>;
 
   auto constexpr digits       = std::numeric_limits<T>::digits10 + 2;
   auto const     compact      = traits_t::amaru_compact(value);
   auto const     full         = traits_t::amaru_full(value);
   auto const     other        = traits_t::dragonbox_full(value);
 
-  auto const     test_compact = test_case_t<T>{value, compact, other};
-  auto const     test_full    = test_case_t<T>{value, full   , other};
+  auto const     test_compact = test_case_t<T>{value, other};
+  auto const     test_full    = test_case_t<T>{value, other};
 
-  EXPECT_TRUE(test_compact) << test_compact;
-  EXPECT_TRUE(test_full   ) << test_full;
+  EXPECT_EQ(test_compact, compact);
+  EXPECT_EQ(test_full   , full   );
 }
 
 // Test results for all possible strictly positive finite float values.
@@ -91,8 +92,8 @@ TEST(float, exhaustive_comparison_to_other) {
   while (std::isfinite(value) && !HasFailure()) {
 
     auto const ieee = traits_t<float>::value_to_ieee(value);
-    if (ieee.exponent != exponent) {
-      exponent = ieee.exponent;
+    if (ieee.c.exponent != exponent) {
+      exponent = ieee.c.exponent;
       std::cerr << "Exponent: " << exponent << std::endl;
     }
 
@@ -167,7 +168,7 @@ uint128_t operator ""_u128() {
 TEST(float128, test_hard_coded_values) {
 
   using traits_t    = amaru::traits_t<float128_t>;
-  using fields_t    = traits_t::fields_t;
+  using fields_t    = cpp_fields_t<float128_t>;
   using test_case_t = amaru::test::test_case_t<float128_t>;
 
   static auto constexpr amaru_size = std::uint32_t{128};
@@ -220,7 +221,7 @@ TEST(float128, test_hard_coded_values) {
     // -------------------------------------------------------------------------
 
     //             value    exponent                                 mantissa
-    {          0.3000000,        -34, 2999999999999999888977697537484346_u128 },
+    {          0.3000000,        -34, 2999999999999999888977697537484345_u128 },
   };
 
   for (unsigned i = 0; i < std::size(test_data); ++i) {
@@ -228,17 +229,59 @@ TEST(float128, test_hard_coded_values) {
     auto const value    = test_data[i].value;
     auto const expected = test_data[i].expected;
 
-    auto const amaru_compact  = traits_t::amaru_compact(value);
-    auto const test_compact   = test_case_t{value, expected, amaru_compact};
-    ASSERT_TRUE(test_compact) <<
-      "  test case number  = " << i << '\n' << test_compact;
+    auto const amaru_compact = traits_t::amaru_compact(value);
+    auto const test_compact  = test_case_t{value, expected};
+    ASSERT_EQ(test_compact, amaru_compact) <<
+      "    Note: test case number = " << i;
 
     auto const amaru_full  = traits_t::amaru_full(value);
-    auto const test_full   = test_case_t{value, expected, amaru_full};
-    ASSERT_TRUE(test_full) <<
-     "  test case number  = " << i << '\n' << test_full;
+    auto const test_full   = test_case_t{value, expected};
+    ASSERT_EQ(test_full, amaru_full) <<
+     "    Note: test case number = " << i;
   }
 }
+
+// TEST(float128, test_hard_coded_binary_representations) {
+
+//   using traits_t    = amaru::traits_t<float128_t>;
+//   using fields_t    = traits_t::fields_t;
+//   using test_case_t = amaru::test::test_case_t<float128_t>;
+
+//   static auto constexpr amaru_size = std::uint32_t{128};
+
+//   struct test_data_t {
+//     fields_t binary;
+//     fields_t decimal;
+//   };
+
+//   test_data_t test_data[] = {
+//     // Binary
+//     // exponent                                mantissa     exponent                                 mantissa
+//     {{     -114, 6230756230241792923652294673694720_u128 }, {     -34, 2999999999999999888977697537484345_u128 }},
+//   };
+
+//   for (unsigned i = 0; i < std::size(test_data); ++i) {
+
+//     auto const value    = test_data[i].value;
+//     auto const expected = test_data[i].expected;
+
+//     auto const amaru_compact  = traits_t::amaru_compact(value);
+//     auto const test_compact   = test_case_t{value, expected, amaru_compact};
+//     ASSERT_TRUE(test_compact) <<
+//       "  test case number  = " << i << '\n' << test_compact;
+
+//     auto const amaru_full  = traits_t::amaru_full(value);
+//     auto const test_full   = test_case_t{value, expected, amaru_full};
+//     ASSERT_TRUE(test_full) <<
+//      "  test case number  = " << i << '\n' << test_full;
+//   }
+// }
+
+
+
+
+
+
 
 #endif // defined(AMARU_HAS_FLOAT128)
 

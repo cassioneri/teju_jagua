@@ -8,7 +8,7 @@
 namespace amaru {
 
 /**
- * @brief C++ wrapper around the C fields.
+ * @brief C++ wrapper around the C fields of floating point representation.
  * 
  * Instantiations are provided for \c float, \c double and \c float128_t (if
  * supported).
@@ -50,6 +50,16 @@ bool operator==(cpp_fields_t<T> const& left, cpp_fields_t<T> const& right) {
     left.c.mantissa == right.c.mantissa;
 }
 
+/**
+ * @brief Stream operator for <tt>cpp_fields_t<T></tt>.
+ * 
+ * @tparam C                The char type.
+ * @tparam CT               The char-traits type.
+ * @tparam T                The type \e T.
+ * 
+ * @param os                The object that fields are streamed to.
+ * @param fields            The fields.
+ */
 template <typename C, typename CT, typename T>
 std::basic_ostream<C, CT>&
 operator <<(std::basic_ostream<C, CT>& os, cpp_fields_t<T> const& fields) {

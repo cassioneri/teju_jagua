@@ -87,7 +87,7 @@ rotr(amaru_u1_t const n, unsigned s) {
  * @param e The exponent e.
  * @param m The mantissa m.
  *
- * @return The fields of the shortest close decimal representation.
+ * @returns The fields of the shortest close decimal representation.
  */
 static inline
 amaru_fields_t
@@ -115,7 +115,7 @@ remove_trailing_zeros(int32_t e, amaru_u1_t m) {
  * @param e The exponent \e e.
  * @param m The mantissa \e m.
  *
- * @return The fields of the shortest unambiguously close decimal
+ * @returns The fields of the shortest unambiguously close decimal
  * representation.
  */
 amaru_fields_t

@@ -7,6 +7,12 @@
 
 namespace amaru {
 
+/**
+ * @brief C++ wrapper around the C fields.
+ * 
+ * Instantiations are provided for \c float, \c double and \c float128_t (if
+ * supported).
+ */
 template <typename T>
 struct cpp_fields_t;
 

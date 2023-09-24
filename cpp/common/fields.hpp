@@ -36,6 +36,20 @@ struct cpp_fields_t<float128_t> {
 };
 #endif // defined(AMARU_HAS_FLOAT128)
 
+/**
+ * @brief Equality operator for <tt>cpp_fields_t<T></tt>.
+ * 
+ * @tparam T                The type \e T.
+ * 
+ * @param left              The left operand.
+ * @param right             The right operand.
+ */
+template <typename T>
+bool operator==(cpp_fields_t<T> const& left, cpp_fields_t<T> const& right) {
+  return left.c.exponent == right.c.exponent &&
+    left.c.mantissa == right.c.mantissa;
+}
+
 template <typename C, typename CT, typename T>
 std::basic_ostream<C, CT>&
 operator <<(std::basic_ostream<C, CT>& os, cpp_fields_t<T> const& fields) {

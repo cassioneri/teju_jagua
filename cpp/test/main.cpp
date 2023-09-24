@@ -68,19 +68,16 @@ get_next(T value) {
 template <typename T>
 void compare_to_other(T const value) {
 
-  using          traits_t     = amaru::traits_t<T>;
-  using          fields_t     = cpp_fields_t<T>;
+  using          traits_t = amaru::traits_t<T>;
+  using          fields_t = cpp_fields_t<T>;
 
-  auto constexpr digits       = std::numeric_limits<T>::digits10 + 2;
-  auto const     compact      = traits_t::amaru_compact(value);
-  auto const     full         = traits_t::amaru_full(value);
-  auto const     other        = traits_t::dragonbox_full(value);
+  auto constexpr digits   = std::numeric_limits<T>::digits10 + 2;
+  auto const     compact  = traits_t::amaru_compact(value);
+  auto const     full     = traits_t::amaru_full(value);
+  auto const     other    = traits_t::dragonbox_full(value);
 
-  auto const     test_compact = test_case_t<T>{value, other};
-  auto const     test_full    = test_case_t<T>{value, other};
-
-  EXPECT_EQ(test_compact, compact);
-  EXPECT_EQ(test_full   , full   );
+  EXPECT_EQ(other, compact);
+  EXPECT_EQ(other, full   );
 }
 
 // Test results for all possible strictly positive finite float values.

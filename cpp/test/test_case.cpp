@@ -78,8 +78,7 @@ test_case_t<T>::test_case_t(fields_t const& amaru_binary,
 
 template <typename T>
 bool test_case_t<T>::operator ==(fields_t const& actual) const {
-  return actual.c.exponent == expected_.c.exponent &&
-    actual.c.mantissa == expected_.c.mantissa;
+  return actual == expected_;
 };
 
 template <typename T>

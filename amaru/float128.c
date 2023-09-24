@@ -1,4 +1,6 @@
-#if defined(__clang__) || defined(__GNUC__)
+#include "amaru/config.h"
+
+#if defined(AMARU_HAS_FLOAT128)
 
 #include "amaru/common.h"
 #include "amaru/float128.h"
@@ -65,4 +67,4 @@ amaru_float128_to_amaru_decimal_full(float128_t const value) {
 }
 #endif
 
-# endif // defined(__clang__) || defined(__GNUC__)
+# endif // defined(AMARU_HAS_FLOAT128)

@@ -2,7 +2,6 @@
 
 // Other macros required by amaru/mshift.h.
 #define amaru_do_not_define_amaru_multiply
-#define amaru_multiply_type      amaru_synthetic_2
 #define amaru_calculation_mshift amaru_synthetic_2
 #define amaru_calculation_shift  32
 

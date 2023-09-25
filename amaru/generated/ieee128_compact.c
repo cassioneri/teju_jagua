@@ -20,7 +20,6 @@ extern "C" {
 #define amaru_optimisation_mid_point 1
 
 #define amaru_function               amaru_ieee128_compact
-#define amaru_multiply_type          amaru128_multiply_type
 #define amaru_fields_t               amaru128_fields_t
 #define amaru_u1_t                   amaru128_u1_t
 

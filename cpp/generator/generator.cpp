@@ -614,7 +614,6 @@ struct generator_t::impl_t {
       "#define amaru_optimisation_mid_point " << optimise_midpoint()   << "\n"
         "\n"
       "#define amaru_function               " << function() << "\n"
-      "#define amaru_multiply_type          " << prefix() << "multiply_type\n"
       "#define amaru_fields_t               " << prefix() << "fields_t\n"
       "#define amaru_u1_t                   " << prefix() << "u1_t\n"
       "\n"

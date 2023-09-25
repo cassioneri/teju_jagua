@@ -33,8 +33,10 @@
 // 128 and 256 respectively. The platform is required to support 1-limb integers
 // but not necessarily 2- and 4-limb integers.
 
-// Macro amaru_multiply_type defines the platform's multiplication capability
-// and is set to one of the values below depending on the documented capability.
+// Macros amaru_calculation_div10 and amaru_calculation_mshift define the
+// algorithm used in amaru_div10 and amaru_mshift, respectively. They are set to
+// one of the values below depending on the platform's capability as explained
+// in their documentation.
 
 /**
  * @brief The platform provides operator \c * for 1-limb unsigned integers that

@@ -45,16 +45,6 @@ struct test_case_t {
   explicit test_case_t(fields_t const& amaru_binary, fields_t const& expected);
 
   /**
-   * @brief Compares a Amaru's decimal representation with the expected value.
-   * 
-   * @param actual          The given Amaru's decimal representation.
-   * 
-   * @returns \c true if the given representation matches the expected one.
-   */
-  bool
-  operator ==(fields_t const& actual) const;
-
-  /**
    * @brief Gets the value.
    * 
    * @returns The value.

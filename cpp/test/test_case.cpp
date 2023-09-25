@@ -77,11 +77,6 @@ test_case_t<T>::test_case_t(fields_t const& amaru_binary,
 }
 
 template <typename T>
-bool test_case_t<T>::operator ==(fields_t const& actual) const {
-  return actual == expected_;
-};
-
-template <typename T>
 T const& test_case_t<T>::value() const {
   return value_;
 }

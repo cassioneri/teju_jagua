@@ -221,14 +221,17 @@ TEST(float128, test_hard_coded_values) {
     {          0.3000000,        -34, 2999999999999999888977697537484346_u128 },
   };
 
-  for (unsigned i = 0; i < std::size(data); ++i) {
-    auto const expected = test_case_t{data[i].value, data[i].decimal};
+  for (std::size_t i = 0; i < std::size(data); ++i) {
+    auto const value     = data[i].value;
+    auto const test_case = test_case_t{value, data[i].decimal};
     {
-      auto const actual = traits_t::amaru_compact(expected.value());
-      ASSERT_EQ(expected, actual) << "    Note: test case number = " << i;
+      auto const actual = traits_t::amaru_compact(test_case.value());
+      ASSERT_EQ(test_case.expected(), actual) <<
+        "    Note: test case number = " << i;
     }{
-      auto const actual = traits_t::amaru_full(expected.value());
-      ASSERT_EQ(expected, actual) << "    Note: test case number = " << i;
+      auto const actual = traits_t::amaru_full(test_case.value());
+      ASSERT_EQ(test_case.expected(), actual) <<
+        "    Note: test case number = " << i;
     }
   }
 }
@@ -252,14 +255,16 @@ TEST(float128, test_hard_coded_binary_representations) {
     {{     -114, 6230756230241792923652294673694720_u128 }, {     -34, 2999999999999999888977697537484346_u128 }},
   };
 
-  for (unsigned i = 0; i < std::size(data); ++i) {
-    auto const expected = test_case_t{data[i].binary, data[i].decimal};
+  for (std::size_t i = 0; i < std::size(data); ++i) {
+    auto const test_case = test_case_t{data[i].binary, data[i].decimal};
     {
-      auto const actual   = traits_t::amaru_compact(expected.value());
-      ASSERT_EQ(expected, actual) << "    Note: test case number = " << i;
+      auto const actual = traits_t::amaru_compact(test_case.value());
+      ASSERT_EQ(test_case.expected(), actual) <<
+        "    Note: test case number = " << i;
     }{
-      auto const actual   = traits_t::amaru_full(expected.value());
-      ASSERT_EQ(expected, actual) << "    Note: test case number = " << i;
+      auto const actual = traits_t::amaru_full(test_case.value());
+      ASSERT_EQ(test_case.expected(), actual) <<
+        "    Note: test case number = " << i;
     }
   }
 }

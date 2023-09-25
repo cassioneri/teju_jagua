@@ -101,15 +101,15 @@ TEST(float, exhaustive_comparison_to_other) {
 }
 
 template <typename T>
-class TypedTests : public testing::Test {
+class typed_tests_t : public testing::Test {
 };
 
-TYPED_TEST_SUITE_P(TypedTests);
+TYPED_TEST_SUITE_P(typed_tests_t);
 
 // Test results for the minimum mantissa and all exponents. This test is
 // parameterized on the floating point number type and is instantiated for float
 // and double.
-TYPED_TEST_P(TypedTests, mantissa_min_all_exponents) {
+TYPED_TEST_P(typed_tests_t, mantissa_min_all_exponents) {
 
   using traits_t = amaru::traits_t<TypeParam>;
   using fp_t     = TypeParam;
@@ -127,9 +127,9 @@ TYPED_TEST_P(TypedTests, mantissa_min_all_exponents) {
   }
 }
 
-REGISTER_TYPED_TEST_SUITE_P(TypedTests, mantissa_min_all_exponents);
-using FpTypes = ::testing::Types<float, double>;
-INSTANTIATE_TYPED_TEST_SUITE_P(TypedTests, TypedTests, FpTypes);
+REGISTER_TYPED_TEST_SUITE_P(typed_tests_t, mantissa_min_all_exponents);
+using fp_types_t = ::testing::Types<float, double>;
+INSTANTIATE_TYPED_TEST_SUITE_P(typed_tests_t, typed_tests_t, fp_types_t);
 
 // Test results for a large number of random double values.
 TEST(double, random_comparison_to_other) {

@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 
 #include <cstdint>
+#include <limits>
 
 namespace {
 
@@ -21,6 +22,9 @@ TEST(log, amaru_log10_pow2_forward) {
   auto f     = std::int32_t{0};
   auto pow10 = mp_int_t{10}; // 10^(f + 1)
   auto pow2  = mp_int_t{1};  // 2^e
+
+  // Sanity check for the test itself.
+  ASSERT_LT(max, std::numeric_limits<std::int32_t>::max());
 
   // TIP: Not stopping at e = max is useful to discover what should be the value
   // of max.
@@ -53,6 +57,9 @@ TEST(log, amaru_log10_pow2_backward) {
   auto f     = std::int32_t{0};
   auto pow10 = mp_int_t{1}; // 10^(-f)
   auto pow2  = mp_int_t{1}; // 2^(-e)
+
+  // Sanity check for the test itself.
+  ASSERT_GT(min, std::numeric_limits<std::int32_t>::min());
 
   // TIP: Not stopping at e = min is useful to discover what should be the value
   // of min.
@@ -106,6 +113,9 @@ TEST(log, amaru_log10_075_pow2_forward) {
   auto pow10 = 4 * mp_int_t{10}; // 4 * 10^(f + 1)
   auto pow2  = 3 * mp_int_t{2};  // 3 *  2^e
 
+  // Sanity check for the test itself.
+  ASSERT_LT(max, std::numeric_limits<std::int32_t>::max());
+
   // TIP: Not stopping at e = max is useful to discover what should be the value
   // of max.
   for (std::int32_t e = 1; e <= max; ++e) {
@@ -138,6 +148,9 @@ TEST(log, amaru_log10_075_pow2_backward) {
   auto f     = std::int32_t{-1};
   auto pow10 = 3 * mp_int_t{10}; // 3 * 10^(-f)
   auto pow2  = 4 * mp_int_t{1};  // 4 *  2^(-e)
+
+  // Sanity check for the test itself.
+  ASSERT_GT(min, std::numeric_limits<std::int32_t>::min());
 
   // TIP: Not stopping at e = min is useful to discover what should be the
   // value of min.

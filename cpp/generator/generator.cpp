@@ -325,7 +325,7 @@ struct alpha_delta_maximum_t {
 
 std::int32_t
 get_index_offset(std::uint32_t const base, std::int32_t const exponent_min) {
-  return base == 10 ? log10_pow2(exponent_min) : exponent_min;
+  return base == 10 ? amaru_log10_pow2(exponent_min) : exponent_min;
 }
 
 } // namespace <anonymous>
@@ -631,7 +631,7 @@ struct generator_t::impl_t {
       "} const multipliers[] = {\n";
 
     auto e2      = exponent_min();
-    auto e2_or_f = storage_base() == 10 ? log10_pow2(e2) : e2;
+    auto e2_or_f = storage_base() == 10 ? amaru_log10_pow2(e2) : e2;
 
     splitter_t splitter{size(), storage_split()};
 
@@ -715,17 +715,17 @@ struct generator_t::impl_t {
     std::vector<alpha_delta_maximum_t> maxima;
     maxima.reserve(exponent_max() - exponent_min() + 1);
 
-    auto f_done = log10_pow2(exponent_min()) - 1;
+    auto f_done = amaru_log10_pow2(exponent_min()) - 1;
 
     for (auto e = exponent_min(); e <= exponent_max(); ++e) {
 
-      auto const f = log10_pow2(e);
+      auto const f = amaru_log10_pow2(e);
 
       if (storage_base() == 10 && f == f_done)
         continue;
 
       auto const e0 = (storage_base() == 10 ?
-        e - log10_pow2_residual(e) : e) - f;
+        e - amaru_log10_pow2_residual(e) : e) - f;
 
       alpha_delta_maximum_t x;
       x.alpha   = f >= 0 ? pow2(e0) : pow5(-f );

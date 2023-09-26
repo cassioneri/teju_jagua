@@ -129,8 +129,9 @@ amaru_function(amaru_fields_t binary) {
 
   amaru_u1_t const m_0 = amaru_pow2(amaru_u1_t, amaru_mantissa_size);
 
-  int32_t  const f = log10_pow2(e);
-  uint32_t const r = amaru_storage_base == 10 ? log10_pow2_residual(e) : 0;
+  int32_t  const f = amaru_log10_pow2(e);
+  uint32_t const r = amaru_storage_base == 10 ?
+    amaru_log10_pow2_residual(e) : 0;
   uint32_t const i = (amaru_storage_base == 10 ? f : e) -
     amaru_storage_index_offset;
 

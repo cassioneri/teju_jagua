@@ -54,23 +54,15 @@ extern "C" {
 static inline
 int32_t
 amaru_log10_pow2(int32_t const e) {
-  assert(amaru_log10_pow2_min <= e &&
-    e <= amaru_log10_pow2_max &&
-    "amaru_log10_pow2: invalid argument.");
   return (((uint64_t) 1292913987) * e) >> 32;
 }
-
-// Argument bounds of amaru_log10_pow2_residual.
-#define amaru_log10_pow2_residual_min -112815
-#define amaru_log10_pow2_residual_max  112815
 
 /**
  * @brief Returns the residual \f$r = e - e_0\f$, where \f$e_0\f$ is the
  * smallest number such that \f$\lfloor\log_{10}(2^{e_0})\rfloor =
  * \lfloor\log_{10}(2^e)\rfloor\f$.
  *
- * @pre <tt>amaru_log10_pow2_residual_min <= e &&
- *      e <= amaru_log10_pow2_residual_max</tt>.
+ * @pre <tt>amaru_log10_pow2_min <= e && e <= amaru_log10_pow2_max</tt>.
  *
  * @param e                 The value of \f$e\f$.
  *
@@ -79,9 +71,6 @@ amaru_log10_pow2(int32_t const e) {
 static inline
 uint32_t
 amaru_log10_pow2_residual(int32_t const e) {
-  assert(amaru_log10_pow2_residual_min <= e &&
-    e <= amaru_log10_pow2_residual_max &&
-    "amaru_log10_pow2_residual: invalid argument.");
   return ((uint32_t) (((uint64_t) 1292913987) * e)) / 1292913987;
 }
 
@@ -102,23 +91,15 @@ amaru_log10_pow2_residual(int32_t const e) {
 static inline
 int32_t
 amaru_log10_075_pow2(int32_t const e) {
-  assert(amaru_log10_075_pow2_min <= e &&
-    e <= amaru_log10_075_pow2_max &&
-    "amaru_log10_075_pow2: invalid argument.");
   return (((uint64_t) 1292913986) * e - 536607788) >> 32;
 }
-
-// Argument bounds of amaru_log10_075_pow2_residual.
-#define amaru_log10_075_pow2_residual_min -112815
-#define amaru_log10_075_pow2_residual_max  112815
 
 /**
  * @brief Returns the residual \f$r = e - e_0\f$, where \f$e_0\f$ is the
  * smallest number such that \f$\lfloor\log_(\frac{3}{4}\cdot 2^{e_0})\rfloor =
  * \lfloor\log_{10}(2^e)\rfloor\f$.
  *
- * @pre <tt>amaru_log10_075_pow2_residual_min <= e &&
- *      e <= amaru_log10_075_pow2_residual_max</tt>.
+ * @pre <tt>amaru_log10_075_pow2_min <= e && e <= amaru_log10_075_pow2_max</tt>.
  *
  * @param e                 The value of \f$e\f$.
  *
@@ -127,9 +108,6 @@ amaru_log10_075_pow2(int32_t const e) {
 static inline
 uint32_t
 amaru_log10_075_pow2_residual(int32_t const e) {
-  assert(amaru_log10_075_pow2_residual_min <= e &&
-    e <= amaru_log10_075_pow2_residual_max &&
-    "amaru_log10_075_pow2_residual: invalid argument.");
   return ((uint32_t) (((uint64_t) 1292913986) * e - 536607788)) / 1292913986;
 }
 

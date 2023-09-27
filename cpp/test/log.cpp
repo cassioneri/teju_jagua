@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <limits>
 
@@ -81,9 +82,12 @@ TEST(log, amaru_log10_pow2_backward) {
 
 TEST(log, amaru_log10_pow2_residual) {
 
-  auto constexpr min = std::int32_t{amaru_log10_pow2_residual_min};
-  auto constexpr max = std::int32_t{amaru_log10_pow2_residual_max};
+  auto constexpr min = std::int32_t{amaru_log10_pow2_min};
+  auto constexpr max = std::int32_t{amaru_log10_pow2_max};
   
+  // Sanity check for the test itself.
+  ASSERT_LT(max, std::numeric_limits<std::int32_t>::max());
+
   for (std::int32_t e = min; e <= max; ++e) {
 
     auto const f  = amaru_log10_pow2(e);
@@ -172,8 +176,11 @@ TEST(log, amaru_log10_075_pow2_backward) {
 
 TEST(log, amaru_log10_075_pow2_residual) {
 
-  auto constexpr min = std::int32_t{amaru_log10_075_pow2_residual_min};
-  auto constexpr max = std::int32_t{amaru_log10_075_pow2_residual_max};
+  auto constexpr min = std::int32_t{amaru_log10_075_pow2_min};
+  auto constexpr max = std::int32_t{amaru_log10_075_pow2_max};
+
+  // Sanity check for the test itself.
+  ASSERT_LT(max, std::numeric_limits<std::int32_t>::max());
   
   for (std::int32_t e = min; e <= max; ++e) {
 

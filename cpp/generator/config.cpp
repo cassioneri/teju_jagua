@@ -61,17 +61,13 @@ validate(config_t const& json) {
     throw exception_t{"Constraint violation: "
       "exponent.minimum <= exponent.maximum"};
 
-  std::int32_t min = std::min({
-    amaru_log10_pow2_min    , amaru_log10_pow2_residual_min,
-    amaru_log10_075_pow2_min, amaru_log10_075_pow2_residual_min});
+  std::int32_t min = std::min(amaru_log10_pow2_min, amaru_log10_075_pow2_min);
 
   if (!(json.exponent.minimum >= min))
     throw exception_t{"Constraint violation: "
       "json.exponent.minimum >= min"};
 
-  std::int32_t max = std::max({
-    amaru_log10_pow2_max    , amaru_log10_pow2_residual_max,
-    amaru_log10_075_pow2_max, amaru_log10_075_pow2_residual_max});
+  std::int32_t max = std::max(amaru_log10_pow2_max, amaru_log10_075_pow2_max);
 
   if (!(json.exponent.maximum <= max))
     throw exception_t{"Constraint violation: "

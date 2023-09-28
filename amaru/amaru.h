@@ -1,11 +1,11 @@
-#ifndef AMARU_AMARU_AMARU_H_
-#define AMARU_AMARU_AMARU_H_
-
 /**
  * @file amaru/amaru.h
  *
  * The implementation of Amaru and some of its helpers.
  */
+
+#ifndef AMARU_AMARU_AMARU_H_
+#define AMARU_AMARU_AMARU_H_
 
 #include "amaru/common.h"
 #include "amaru/config.h"
@@ -45,7 +45,15 @@ is_multiple_of_pow5(amaru_u1_t const m, int32_t const f) {
 }
 
 /**
- * @brief
+ * @brief Returns the quotient \f$q = ((u\cdot 2^N + l) * 2^k) / 2^s\f$, where
+ * \f$N\f$ is the value of \c aramu_size and \f$s\f$ is the value of
+ * \c amaru_calculation_shift.
+ *
+ * @param k                 The value of \f$k\f$.
+ * @param u                 The value of \f$u\f$.
+ * @param l                 The value of \f$l\f$.
+ *
+ * @returns The value of \f$q\f$.
  */
 static inline
 amaru_u1_t
@@ -57,7 +65,7 @@ mshift_pow2(uint32_t const k, amaru_u1_t const u, amaru_u1_t const l) {
 }
 
 /**
- * @brief Creates amaru_fields_t from exponent and mantissa.
+ * @brief Creates \c amaru_fields_t from exponent and mantissa.
  *
  * @param e                 The exponent.
  * @param m                 The mantissa.
@@ -70,9 +78,12 @@ make_fields(int32_t const e, amaru_u1_t const m) {
 }
 
 /**
- * @brief Rotates a number to the right by a given number of bits.
+ * @brief Rotates a given number to the right by a given number of bits.
  *
- *
+ * @pre <tt>s <= amaru_size</tt>.
+ * 
+ * @param n                 The given number.
+ * @param s                 The given number of bits.
  */
 static inline
 amaru_u1_t
@@ -190,8 +201,8 @@ amaru_function(amaru_fields_t binary) {
     if (s > a || (s == a && is_multiple_of_pow5(m_a, f)))
       return remove_trailing_zeros(f + 1, q);
 
-    // m_c = 2 * 2 * m_0
-    // c_2 = amaru_mshift(m_c << de, upper, lower);
+    // m_c = 2 * 2 * m_0 = 2 * 2 * 2^{amaru_mantissa_size}
+    // c_2 = amaru_mshift(m_c << r, upper, lower);
     amaru_u1_t const log2_m_c = amaru_mantissa_size + 2;
     amaru_u1_t const c_2      = mshift_pow2(log2_m_c + r, u, l);
     amaru_u1_t const c        = c_2 / 2;

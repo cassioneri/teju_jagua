@@ -1,11 +1,11 @@
-#ifndef AMARU_CPP_BENCHMARK_SAMPLER_H_
-#define AMARU_CPP_BENCHMARK_SAMPLER_H_
-
 /**
  * @file cpp/benchmark/sampler.hpp
  *
  * Functionalities to draw sample values used in benchmarks.
  */
+
+#ifndef AMARU_CPP_BENCHMARK_SAMPLER_HPP_
+#define AMARU_CPP_BENCHMARK_SAMPLER_HPP_
 
 #include "cpp/common/traits.hpp"
 
@@ -408,4 +408,4 @@ private:
 
 } // namespace amaru
 
-#endif // AMARU_CPP_BENCHMARK_SAMPLER_H_
+#endif // AMARU_CPP_BENCHMARK_SAMPLER_HPP_

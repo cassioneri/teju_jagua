@@ -1,11 +1,11 @@
-#ifndef AMARU_AMARU_FLOAT128_H_
-#define AMARU_AMARU_FLOAT128_H_
-
 /**
  * @file amaru/float128.h
  *
  * Amaru and helpers for \c float128_t values.
  */
+
+#ifndef AMARU_AMARU_FLOAT128_H_
+#define AMARU_AMARU_FLOAT128_H_
 
 #include "amaru/config.h"
 

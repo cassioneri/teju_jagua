@@ -1,3 +1,9 @@
+/**
+ * @file cpp/common/traits.hpp
+ *
+ * Traits for floating point number types.
+ */
+
 #ifndef AMARU_CPP_COMMON_TRAITS_HPP_
 #define AMARU_CPP_COMMON_TRAITS_HPP_
 

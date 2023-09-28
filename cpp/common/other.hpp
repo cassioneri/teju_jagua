@@ -1,3 +1,9 @@
+/**
+ * @file cpp/common/other.hpp
+ *
+ * Wrapper around third-party libraries that Amaru is compared against.
+ */
+
 #ifndef AMARU_CPP_COMMON_OTHER_HPP_
 #define AMARU_CPP_COMMON_OTHER_HPP_
 

@@ -1,5 +1,11 @@
-#ifndef AMARU_TEST_SYNTHETIC_2_HPP_
-#define AMARU_TEST_SYNTHETIC_2_HPP_
+/**
+ * @file cpp/test/synthetic_2.hpp
+ *
+ * Implementation \c amaru_multiply used when testing \e synthetic_2 functions.
+ */
+
+#ifndef AMARU_CPP_TEST_SYNTHETIC_2_HPP_
+#define AMARU_CPP_TEST_SYNTHETIC_2_HPP_
 
 extern "C" {
 
@@ -13,4 +19,4 @@ amaru_multiply(amaru_u2_t const a, amaru_u2_t const b, amaru_u2_t* upper) {
 
 }
 
-#endif // AMARU_TEST_SYNTHETIC_2_HPP_
+#endif // AMARU_CPP_TEST_SYNTHETIC_2_HPP_

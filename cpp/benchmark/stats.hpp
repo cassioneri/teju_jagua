@@ -1,11 +1,11 @@
-#ifndef AMARU_CPP_BENCHMARK_STATS_H_
-#define AMARU_CPP_BENCHMARK_STATS_H_
-
 /**
  * @file cpp/benchmark/stats.hpp
  *
  * Statistic calculators.
  */
+
+#ifndef AMARU_CPP_BENCHMARK_STATS_HPP_
+#define AMARU_CPP_BENCHMARK_STATS_HPP_
 
 #include <cstdint>
 
@@ -60,4 +60,4 @@ private:
 
 } // namespace amaru
 
-#endif // AMARU_CPP_BENCHMARK_STATS_H_
+#endif // AMARU_CPP_BENCHMARK_STATS_HPP_

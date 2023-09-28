@@ -1,3 +1,9 @@
+/**
+ * @file cpp/generator/config.hpp
+ *
+ * Generator of Amaru's implementations. 
+ */
+
 #ifndef AMARU_CPP_GENERATOR_CONFIG_HPP_
 #define AMARU_CPP_GENERATOR_CONFIG_HPP_
 

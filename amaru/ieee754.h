@@ -1,12 +1,12 @@
-#ifndef AMARU_AMARU_IEEE754_H_
-#define AMARU_AMARU_IEEE754_H_
-
 /**
  * @file amaru/ieee754.h
  *
  * Constants defined by the IEEE-754 standard and converters to Amaru's binary
  * representation.
  */
+
+#ifndef AMARU_AMARU_IEEE754_H_
+#define AMARU_AMARU_IEEE754_H_
 
 #include "amaru/common.h"
 

@@ -1,11 +1,11 @@
-#ifndef AMARU_AMARU_MULTIPLY_H_
-#define AMARU_AMARU_MULTIPLY_H_
-
 /**
  * @file amaru/config.h
  *
  * Platform configurations, notably, multiplication capabilities.
  */
+
+#ifndef AMARU_AMARU_CONFIG_H_
+#define AMARU_AMARU_CONFIG_H_
 
 #include <stdint.h>
 
@@ -200,4 +200,4 @@ extern "C" {
 }
 #endif
 
-#endif // AMARU_AMARU_MULTIPLY_H_
+#endif // AMARU_AMARU_CONFIG_H_

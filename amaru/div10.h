@@ -1,11 +1,11 @@
-#ifndef AMARU_AMARU_DIV10_H_
-#define AMARU_AMARU_DIV10_H_
-
 /**
- * @file amaru/div.h
+ * @file amaru/div10.h
  *
  * Different algorithms for division by 10.
  */
+
+#ifndef AMARU_AMARU_DIV10_H_
+#define AMARU_AMARU_DIV10_H_
 
 #if !defined(amaru_u1_t) || !defined(amaru_calculation_shift) || \
   !defined(amaru_size)

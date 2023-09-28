@@ -1,11 +1,11 @@
-#ifndef AMARU_AMARU_COMMON_H_
-#define AMARU_AMARU_COMMON_H_
-
 /**
  * @file amaru/common.h
  *
  * Common functionalities used by Amaru and elsewhere (e.g., tests).
  */
+
+#ifndef AMARU_AMARU_COMMON_H_
+#define AMARU_AMARU_COMMON_H_
 
 #include <assert.h>
 #include <stdint.h>

@@ -1,11 +1,11 @@
-#ifndef AMARU_AMARU_FLOAT_H_
-#define AMARU_AMARU_FLOAT_H_
-
 /**
  * @file amaru/float.h
  *
  * Amaru and helpers for \c float values.
  */
+
+#ifndef AMARU_AMARU_FLOAT_H_
+#define AMARU_AMARU_FLOAT_H_
 
 #include "amaru/generated/ieee32_compact.h"
 #include "amaru/generated/ieee32_full.h"

@@ -1,11 +1,11 @@
-#ifndef AMARU_AMARU_MSHIFT_H_
-#define AMARU_AMARU_MSHIFT_H_
-
 /**
  * @file amaru/mshift.h
  *
  * Multiply-and-shift operations.
  */
+
+#ifndef AMARU_AMARU_MSHIFT_H_
+#define AMARU_AMARU_MSHIFT_H_
 
 #if !defined(amaru_calculation_mshift) || !defined(amaru_calculation_shift) || \
   !defined(amaru_u1_t) || !defined(amaru_size)

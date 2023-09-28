@@ -1,5 +1,11 @@
-#ifndef AMARU_CPP_COMMON_EXCEPTION_H_
-#define AMARU_CPP_COMMON_EXCEPTION_H_
+/**
+ * @file cpp/common/exception.hpp
+ *
+ * Exception thrown by Amaru.
+ */
+
+#ifndef AMARU_CPP_COMMON_EXCEPTION_HPP_
+#define AMARU_CPP_COMMON_EXCEPTION_HPP_
 
 #include <stdexcept>
 
@@ -16,4 +22,4 @@ struct exception_t : std::runtime_error {
 
 } // namespace amaru
 
-#endif // AMARU_CPP_COMMON_EXCEPTION_H_
+#endif // AMARU_CPP_COMMON_EXCEPTION_HPP_

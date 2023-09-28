@@ -1,11 +1,11 @@
-#ifndef AMARU_CPP_TEST_TEST_CASE_HPP_
-#define AMARU_CPP_TEST_TEST_CASE_HPP_
-
 /**
  * @file cpp/test/test_case.hpp
  *
  * Implementation of \c test_case_t.
  */
+
+#ifndef AMARU_CPP_TEST_TEST_CASE_HPP_
+#define AMARU_CPP_TEST_TEST_CASE_HPP_
 
 #include "amaru/config.h"
 #include "cpp/common/fields.hpp"

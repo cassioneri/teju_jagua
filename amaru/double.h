@@ -1,11 +1,11 @@
-#ifndef AMARU_AMARU_DOUBLE_H_
-#define AMARU_AMARU_DOUBLE_H_
-
 /**
  * @file amaru/double.h
  *
  * Amaru and helpers for \c double values.
  */
+
+#ifndef AMARU_AMARU_DOUBLE_H_
+#define AMARU_AMARU_DOUBLE_H_
 
 #include "amaru/generated/ieee64_compact.h"
 #include "amaru/generated/ieee64_full.h"

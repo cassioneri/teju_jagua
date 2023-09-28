@@ -1,6 +1,3 @@
-#ifndef AMARU_AMARU_PACK_H_
-#define AMARU_AMARU_PACK_H_
-
 /**
  * @file amaru/pack.h
  *
@@ -10,6 +7,9 @@
  * literals of this type. This file provides two macros to workaround this
  * issue.
  */
+
+#ifndef AMARU_AMARU_PACK_H_
+#define AMARU_AMARU_PACK_H_
 
 /**
  * @brief Constructs a number from its two binary halves.

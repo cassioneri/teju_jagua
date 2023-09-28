@@ -1,12 +1,12 @@
-#ifndef AMARU_CPP_TEST_IMPL_HPP
-#define AMARU_CPP_TEST_IMPL_HPP
-
 /**
  * @file cpp/test/impl.hpp
  *
- * Several implementations of \c amaru_div10 and \c amaru_mshift based on
- * different platform capabilities which are used for testing purposes.
+ * Several implementations of \c amaru_div10 and \c amaru_mshift used for
+ * testing and based on different platform capabilities.
  */
+
+#ifndef AMARU_CPP_TEST_IMPL_HPP
+#define AMARU_CPP_TEST_IMPL_HPP
 
 #include <cstdint>
 

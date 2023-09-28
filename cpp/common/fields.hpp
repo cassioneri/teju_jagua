@@ -1,3 +1,9 @@
+/**
+ * @file cpp/common/fields.hpp
+ *
+ * C++ wrapper around the C fields of floating point representation.
+ */
+
 #ifndef AMARU_CPP_COMMON_FIELDS_HPP_
 #define AMARU_CPP_COMMON_FIELDS_HPP_
 

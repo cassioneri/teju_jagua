@@ -44,9 +44,9 @@ struct cpp_fields_t<float128_t> {
 
 /**
  * @brief Equality operator for <tt>cpp_fields_t<T></tt>.
- * 
+ *
  * @tparam T                The type \e T.
- * 
+ *
  * @param left              The left operand.
  * @param right             The right operand.
  */
@@ -54,6 +54,19 @@ template <typename T>
 bool operator==(cpp_fields_t<T> const& left, cpp_fields_t<T> const& right) {
   return left.c.exponent == right.c.exponent &&
     left.c.mantissa == right.c.mantissa;
+}
+
+/**
+ * @brief Inequality operator for <tt>cpp_fields_t<T></tt>.
+ *
+ * @tparam T                The type \e T.
+ *
+ * @param left              The left operand.
+ * @param right             The right operand.
+ */
+template <typename T>
+bool operator!=(cpp_fields_t<T> const& left, cpp_fields_t<T> const& right) {
+  return !(left == right);
 }
 
 /**

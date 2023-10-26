@@ -9,9 +9,9 @@
 
 namespace amaru {
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // helpers
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 namespace {
 
@@ -66,7 +66,7 @@ struct splitter_t {
   splitter_t(std::uint32_t size, std::uint32_t parts) :
     size {std::move(size) },
     parts{std::move(parts)} {
-    }
+  }
 
   struct data_t;
 
@@ -95,7 +95,7 @@ struct splitter_t::data_t {
   data_t(splitter_t splitter, integer_t n) :
     splitter{splitter    },
     n       {std::move(n)} {
-    }
+  }
 
   splitter_t splitter;
   integer_t  n;
@@ -301,8 +301,7 @@ to_upper(std::string const& str) {
 /**
  * \brief Fast EAF coefficients.
  *
- * For given alpha > 0 and delta > 0, we often find U > 0 and k >= 0 such
- * that:
+ * For given alpha > 0 and delta > 0, we often find U > 0 and k >= 0 such that:
  *
  *   alpha * m / delta = U * m >> k for m in a certain interval.
  *
@@ -314,8 +313,8 @@ struct fast_eaf_t {
 };
 
 /**
- * \brief Stores alpha, delta (usually pow2(e) and pow2(f)) and the maximum
- * of m / (delta - alpha * m % delta) for m in the set of mantissas.
+ * \brief Stores alpha, delta (usually pow2(e) and pow2(f)) and the maximum of
+ * m / (delta - alpha * m % delta) for m in the set of mantissas.
  */
 struct alpha_delta_maximum_t {
   integer_t  alpha;
@@ -330,9 +329,9 @@ get_index_offset(std::uint32_t const base, std::int32_t const exponent_min) {
 
 } // namespace <anonymous>
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // generator_t::impl_t
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 struct generator_t::impl_t {
 
@@ -399,8 +398,8 @@ struct generator_t::impl_t {
   /**
    * \brief Returns the normal (inclusive) minimal mantissa.
    *
-   * Mantissas for normal floating point numbers are elements of the
-   * interval [normal_mantissa_min(), normal_mantissa_max()[.
+   * Mantissas for normal floating point numbers are elements of the interval
+   * [normal_mantissa_min(), normal_mantissa_max()[.
    */
   integer_t const&
   mantissa_min() const {
@@ -410,8 +409,8 @@ struct generator_t::impl_t {
   /**
    * \brief Returns the normal (exclusive) maximal mantissa.
    *
-   * Mantissas for normal floating point numbers are elements of the
-   * interval [normal_mantissa_min(), normal_mantissa_max()[.
+   * Mantissas for normal floating point numbers are elements of the interval
+   * [normal_mantissa_min(), normal_mantissa_max()[.
    */
   integer_t const&
   mantissa_max() const {
@@ -568,9 +567,9 @@ struct generator_t::impl_t {
         shift = s;
     }
 
-    // Optimal shift is 2 * size since it prevents mshift to deal with
-    // partial limbs. In addition, we subtract 1 to compensate shift's
-    // increment made later on, when shift is output. (See below.)
+    // Optimal shift is 2 * size since it prevents mshift to deal with partial
+    // limbs. In addition, we subtract 1 to compensate shift's increment made
+    // later on, when shift is output. (See below.)
     if (storage_base() == 10)
       shift = std::max(shift, 2 * size() - 1);
 
@@ -672,9 +671,9 @@ struct generator_t::impl_t {
     //     = 20 * mantissa_max * 2^{exponent - f} * 5^{-f}
     //
     // where 2^{exponent} < 10^{f + 1}. Hence, 2^{exponent - f} < 5^f * 10
-    // which yields 2^{exponent - f} * 5^{-f} < 10. Therefore, 200 * mantissa_max
-    // is a conservative bound, i.e., if 5^f > 200 * mantissa_max >= m, then
-    // is_multiple_of_pow5(m, f) == false;
+    // which yields 2^{exponent - f} * 5^{-f} < 10. Therefore,
+    // 200 * mantissa_max is a conservative bound, i.e., if
+    // 5^f > 200 * mantissa_max >= m, then is_multiple_of_pow5(m, f) == false;
     //
     // Also ensure that at least entries up to f = 1 are generated for
     // remove_trailing_zeros.
@@ -699,13 +698,11 @@ struct generator_t::impl_t {
   }
 
   /**
-   * \brief Gets the maxima of all primary problems. (See
-   * get_maximum_primary.)
+   * \brief Gets the maxima of all primary problems. (See get_maximum_primary.)
    *
-   * It returns a vector v of size
-   *     exponent_max() - exponent_min() + 1
-   * such that v[i] contains the maximum of the primary problem
-   * corresponding to exponent = exponent_min() + i.
+   * It returns a vector v of size exponent_max() - exponent_min() + 1 such that
+   * v[i] contains the maximum of the primary problem corresponding to exponent
+   * = exponent_min() + i.
    *
    * \returns The vector v.
    */
@@ -778,9 +775,9 @@ struct generator_t::impl_t {
   }
 
   /**
-   * \brief Get the EAF f(m) = alpha * m / delta which works on an interval
-   * of relevant mantissas. This fast EAF is associated to maximisation of
-   * phi(m) over the set of mantissas.
+   * \brief Get the EAF f(m) = alpha * m / delta which works on an interval of
+   * relevant mantissas. This fast EAF is associated to maximisation of phi(m)
+   * over the set of mantissas.
    *
    * \param x               The container of alpha, beta and the solution of
    *                        the primary maximisation problem.
@@ -788,11 +785,11 @@ struct generator_t::impl_t {
   fast_eaf_t
   get_fast_eaf(alpha_delta_maximum_t const& x) const {
 
-    // Making shift >= size, simplifies mshift executed at runtime. Indeed,
-    // it ensures that the least significant limb of the product is
-    // irrelevant. For this reason, later on, the generator actually outputs
-    // shift - size (still labelling it as 'shift') so that Amaru doesn't need
-    // to do it at runtime.
+    // Making shift >= size, simplifies mshift executed at runtime. Indeed, it
+    // ensures that the least significant limb of the product is irrelevant. For
+    // this reason, later on, the generator actually outputs shift - size
+    // (still labelling it as 'shift') so that Amaru doesn't need to do it at
+    // runtime.
     auto k    = size();
     auto pow2 = integer_t{1} << k;
 
@@ -822,9 +819,9 @@ struct generator_t::impl_t {
 
 }; // generator_t::impl_t
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // generator_t
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 generator_t::generator_t(config_t config, std::string directory) :
   config_      {std::move(config)                            },
@@ -871,7 +868,7 @@ generator_t::generate() const {
 
 generator_t::impl_t const
 generator_t::self() const {
-  return impl_t(this);
+  return impl_t{this};
 }
 
 } // namespace amaru

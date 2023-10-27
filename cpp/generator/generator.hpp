@@ -8,8 +8,7 @@
 #define AMARU_CPP_GENERATOR_GENERATOR_HPP_
 
 #include "cpp/generator/config.hpp"
-
-#include <boost/multiprecision/cpp_int.hpp>
+#include "cpp/generator/multiprecision.hpp"
 
 #include <cstdint>
 #include <string>
@@ -38,8 +37,6 @@ struct generator_t {
   generate() const;
 
 private:
-
-  using integer_t = boost::multiprecision::cpp_int;
 
   struct impl_t;
 

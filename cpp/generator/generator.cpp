@@ -217,6 +217,43 @@ get_index_offset(std::uint32_t const base, std::int32_t const exponent_min) {
 
 } // namespace <anonymous>
 
+// Due to a weird gcc bug, the code below fail to compile if it's moved to
+// splitter.cpp. There's something in this file that works around this issue!
+std::ostream&
+operator<<(std::ostream& os, splitter_t::data_t&& data) {
+
+  auto const size  = data.splitter().size();
+  auto const parts = data.splitter().parts();
+
+  if (parts == 1)
+    return os << "0x" << std::hex << std::setw(size / 4) << std::setfill('0') <<
+      data.value();
+
+  auto const sub_size = size / parts;
+  auto       k        = parts - 1;
+  integer_t  base     = integer_t{1} << (k * sub_size);
+  integer_t  u;
+
+  os << "amaru_pack" << parts << '(';
+
+  goto skip_comma;
+  while (k) {
+
+    --k;
+    base >>= sub_size;
+
+    os << ", ";
+    skip_comma:
+
+    divide_qr(data.value(), base, u, data.value());
+
+    os << "0x" << std::hex << std::setw(sub_size / 4) <<
+      std::setfill('0') << u;
+  }
+
+  return os << ')';
+}
+
 //------------------------------------------------------------------------------
 // generator_t::impl_t
 //------------------------------------------------------------------------------
@@ -531,8 +568,8 @@ struct generator_t::impl_t {
       if (upper >= p2_size)
         throw exception_t{"Multiplier is out of range."};
 
-      stream << "  { " << splitter(upper) << ", " << splitter(lower) <<
-        " }, // " << std::dec << e2_or_f << "\n";
+      stream << "  { " << splitter(std::move(upper)) << ", " <<
+        splitter(std::move(lower)) << " }, // " << std::dec << e2_or_f << "\n";
 
       ++e2_or_f;
     }

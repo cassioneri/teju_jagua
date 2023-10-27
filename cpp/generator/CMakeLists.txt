@@ -2,6 +2,7 @@ add_executable(generator
   config.cpp
   generator.cpp
   main.cpp
+  splitter.cpp
 )
 
 target_include_directories(generator PRIVATE

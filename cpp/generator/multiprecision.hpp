@@ -1,3 +1,9 @@
+/**
+ * @file cpp/generator/multiprecision.hpp
+ *
+ * Multi-precision types used by the generator.
+ */
+
 #ifndef AMARU_CPP_GENERATOR_MULTIPRECISION_HPP_
 #define AMARU_CPP_GENERATOR_MULTIPRECISION_HPP_
 

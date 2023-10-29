@@ -1,4 +1,4 @@
-// This file was auto-generated. DO NOT EDIT IT.
+// This file was generated. DO NOT EDIT IT.
 
 #ifndef AMARU_AMARU_GENERATED_IEEE128_FULL_H_
 #define AMARU_AMARU_GENERATED_IEEE128_FULL_H_

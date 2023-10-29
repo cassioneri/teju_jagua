@@ -234,15 +234,15 @@ operator<<(std::ostream& os, splitter_t::data_t&& data) {
 //------------------------------------------------------------------------------
 
 generator_t::generator_t(config_t config, std::string directory) :
-  config_      {std::move(config)                                },
-  prefix_      {get_prefix(size())                               },
-  function_    {"amaru_" + id()                                  },
-  mantissa_min_{amaru_pow2(integer_t, mantissa_size())           },
-  mantissa_max_{2 * mantissa_min()                               },
-  index_offset_{get_index_offset(storage_base(), exponent_min()) },
-  directory_   {std::move(directory)                             },
-  dot_h_       {id() + ".h"                                      },
-  dot_c_       {id() + ".c"                                      } {
+  config_      {std::move(config)                               },
+  prefix_      {get_prefix(size())                              },
+  function_    {"amaru_" + id()                                 },
+  mantissa_min_{amaru_pow2(integer_t, mantissa_size())          },
+  mantissa_max_{2 * mantissa_min()                              },
+  index_offset_{get_index_offset(storage_base(), exponent_min())},
+  directory_   {std::move(directory)                            },
+  dot_h_       {id() + ".h"                                     },
+  dot_c_       {id() + ".c"                                     } {
 }
 
 void
@@ -399,7 +399,7 @@ generator_t::generate_dot_h(std::ostream& stream) const {
     "_H_";
 
   stream <<
-    "// This file was auto-generated. DO NOT EDIT IT.\n"
+    "// This file was generated. DO NOT EDIT IT.\n"
     "\n"
     "#ifndef " << include_guard << "\n"
     "#define " << include_guard << "\n"
@@ -426,7 +426,7 @@ generator_t::generate_dot_h(std::ostream& stream) const {
 void
 generator_t::generate_dot_c(std::ostream& stream) const {
 
-  stream << "// This file was auto-generated. DO NOT EDIT IT.\n"
+  stream << "// This file was generated. DO NOT EDIT IT.\n"
     "\n"
     "#include \"" << dot_h() << "\"\n"
     "\n"
@@ -519,7 +519,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 
   splitter_t splitter{size(), storage_split()};
 
-  for (const auto &fast_eaf : fast_eafs) {
+  for (auto const& fast_eaf : fast_eafs) {
 
     integer_t upper;
     integer_t lower;

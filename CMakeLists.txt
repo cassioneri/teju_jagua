@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 
 #---------------------------------------------------------------------------
 # amaru
@@ -12,14 +12,10 @@ project(amaru
   LANGUAGES C CXX
 )
 
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  add_compile_options(-mpreferred-stack-boundary=6)
-endif()
-
-cmake_policy(SET CMP0076 NEW)
 
 add_subdirectory(amaru)
 add_subdirectory(cpp)
@@ -63,7 +59,7 @@ FetchContent_MakeAvailable(googletest)
 FetchContent_Declare(
   json
   GIT_REPOSITORY https://github.com/nlohmann/json.git
-  GIT_TAG        v3.11.2
+  GIT_TAG        v3.11.3
   SOURCE_DIR     ${third_party_dir}/json
 )
 

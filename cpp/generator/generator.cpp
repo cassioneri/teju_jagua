@@ -42,8 +42,8 @@ pow5(std::uint32_t const n) {
  *
  * Generated sources might need to hardcode large numbers but the platform might
  * lack support for literals of the required size. This class helps splitting
- * such number into smaller pieces which can be given to macros amaru_pack2 or
- * amaru_pack2 for the large number to be reconstructed.
+ * such number into smaller pieces which can be given to macros amaru_literal2
+ * or amaru_literal4 for the large number to be reconstructed.
  *
  * A typical usage looks like this:
  *
@@ -53,7 +53,7 @@ pow5(std::uint32_t const n) {
  *
  * Which streams:
  *
- *     amaru_pack2(0x0123456789abcdef, 0xfedcba9876543210)
+ *     amaru_literal2(0x0123456789abcdef, 0xfedcba9876543210)
  */
 struct splitter_t {
 
@@ -127,7 +127,7 @@ operator<<(std::ostream& os, splitter_t::data_t&& data) {
   auto       base     = integer_t{1} << (k * sub_size);
   integer_t u;
 
-  os << "amaru_pack" << data.splitter.parts << '(';
+  os << "amaru_literal" << data.splitter.parts << '(';
 
   goto skip_comma;
   while (k) {
@@ -545,7 +545,7 @@ struct generator_t::impl_t {
       "\n"
       "#include \"" << dot_h() << "\"\n"
       "\n"
-      "#include \"amaru/pack.h\"\n"
+      "#include \"amaru/literal.h\"\n"
       "\n"
       "#ifdef __cplusplus\n"
       "extern \"C\" {\n"

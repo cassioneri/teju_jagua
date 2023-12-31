@@ -2,7 +2,7 @@
 
 #include "ieee32_compact.h"
 
-#include "amaru/pack.h"
+#include "amaru/literal.h"
 
 #ifdef __cplusplus
 extern "C" {

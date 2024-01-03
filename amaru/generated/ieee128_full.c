@@ -1,4 +1,4 @@
-// This file was auto-generated. DO NOT EDIT IT.
+// This file was generated. DO NOT EDIT IT.
 
 #include "ieee128_full.h"
 

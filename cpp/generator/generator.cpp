@@ -209,7 +209,7 @@ operator<<(std::ostream& os, splitter_t::data_t&& data) {
   integer_t  base     = integer_t{1} << (k * sub_size);
   integer_t  u;
 
-  os << "amaru_pack" << parts << '(';
+  os << "amaru_literal" << parts << '(';
 
   goto skip_comma;
   while (k) {
@@ -430,7 +430,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "\n"
     "#include \"" << dot_h() << "\"\n"
     "\n"
-    "#include \"amaru/pack.h\"\n"
+    "#include \"amaru/literal.h\"\n"
     "\n"
     "#ifdef __cplusplus\n"
     "extern \"C\" {\n"

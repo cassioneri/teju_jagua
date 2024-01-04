@@ -18,8 +18,8 @@ namespace amaru {
  *
  * Generated sources might need to hardcode large numbers but the platform might
  * lack support for literals of the required size. This class helps splitting
- * such number into smaller pieces which can be given to macros amaru_pack2 or
- * amaru_pack4 for the large number to be reconstructed.
+ * such number into smaller pieces which can be given to macros amaru_literal2
+ * or amaru_literal4 for the large number to be reconstructed.
  *
  * A typical usage looks like the following. Consider a 128-bits unsigned n
  * whose value is 0x0123456789abcdeffedcba9876543210. It can be split into two
@@ -30,7 +30,7 @@ namespace amaru {
  *
  * Which streams:
  *
- *     amaru_pack2(0x0123456789abcdef, 0xfedcba9876543210)
+ *     amaru_literal2(0x0123456789abcdef, 0xfedcba9876543210)
  */
 struct splitter_t {
 

@@ -44,4 +44,42 @@ splitter_t::data_t::value() const {
   return value_;
 }
 
+std::ostream&
+operator<<(std::ostream& os, splitter_t::data_t&& data) {
+
+  auto const size  = data.splitter().size();
+  auto const parts = data.splitter().parts();
+
+  if (parts == 1)
+    return os << "0x" << std::hex << std::setw(size / 4) << std::setfill('0') <<
+      data.value();
+
+  auto const sub_size = size / parts;
+  auto       k        = parts - 1;
+
+  // The cast to int32_t is a workaround for a weird gcc bug which appeared
+  // after version 11.1: https://godbolt.org/z/91MYsPd1E
+  integer_t  base     = integer_t{1} << int32_t(k * sub_size);
+  integer_t  u;
+
+  os << "amaru_literal" << parts << '(';
+
+  goto skip_comma;
+  while (k) {
+
+    --k;
+    base >>= sub_size;
+
+    os << ", ";
+    skip_comma:
+
+    divide_qr(data.value(), base, u, data.value());
+
+    os << "0x" << std::hex << std::setw(sub_size / 4) <<
+      std::setfill('0') << u;
+  }
+
+  return os << ')';
+}
+
 } // namespace amaru

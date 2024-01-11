@@ -68,16 +68,17 @@ get_next(T value) {
 template <typename T>
 void compare_to_other(T const value) {
 
-  using          traits_t = amaru::traits_t<T>;
-  using          fields_t = cpp_fields_t<T>;
+  using      traits_t = amaru::traits_t<T>;
+  using      fields_t = cpp_fields_t<T>;
 
-  auto constexpr digits   = std::numeric_limits<T>::digits10 + 2;
-  auto const     compact  = traits_t::amaru_compact(value);
-  auto const     full     = traits_t::amaru_full(value);
-  auto const     other    = traits_t::dragonbox_full(value);
+  auto const compact  = traits_t::amaru_compact(value);
+  auto const full     = traits_t::amaru_full(value);
+  auto const other    = traits_t::dragonbox_full(value);
 
-  EXPECT_EQ(other, compact);
-  EXPECT_EQ(other, full   );
+  auto const fields   = traits_t::value_to_ieee(value);
+
+  EXPECT_EQ(other, compact) << "IEEE fields: " << fields;
+  EXPECT_EQ(other, full   ) << "IEEE fields: " << fields;
 }
 
 // Test results for all possible strictly positive finite float values.
@@ -250,7 +251,7 @@ TEST(float128, test_hard_coded_binary_representations) {
   };
 
   test_data_t data[] = {
-    // Binary
+    // Binary                                                Decimal
     // exponent                                 mantissa     exponent                                 mantissa
     {{     -114, 6230756230241792923652294673694720_u128 }, {     -34, 2999999999999999888977697537484346_u128 }},
   };
@@ -301,7 +302,7 @@ TEST(ad_hoc, value) {
 
 // Adhoc test for given field values.
 TEST(ad_hoc, fields) {
-  auto const value = from_ieee<float>(127, 0); // = 1.0f
+  auto const value = from_ieee<float>(4, 0); // = 1.0f
   compare_to_other(value);
 }
 

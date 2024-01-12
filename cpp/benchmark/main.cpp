@@ -26,14 +26,12 @@ std::uint64_t
 benchmark(T const value, typename traits_t<T>::fields_t (*function)(T)) {
 
   using clock_t = std::chrono::steady_clock;
-  static_assert(std::is_same<clock_t::duration, std::chrono::nanoseconds>{},
-    "Unsupported clock resolution.");
 
-  auto minimum = std::uint64_t( -1);
-  auto n       = std::uint32_t(256);
+  auto minimum = clock_t::duration{std::numeric_limits<clock_t::rep>::max()};
+  auto n       = std::uint32_t{256};
 
   do {
-    auto  const start = clock_t::now();
+    auto const start = clock_t::now();
     function(value);
     function(value);
     function(value);
@@ -43,14 +41,14 @@ benchmark(T const value, typename traits_t<T>::fields_t (*function)(T)) {
     function(value);
     function(value);
     auto const end = clock_t::now();
-    auto const dt  = 1000 * std::uint64_t((end - start).count()) / 8;
+    auto const dt  = 1000 * (end - start) / 8;
     if (dt < minimum) {
       minimum = dt;
       n = 256;
     }
   } while (n--);
 
-  return minimum;
+  return minimum.count();
 }
 
 template <typename T, population_t population, typename... Args>

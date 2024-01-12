@@ -14,7 +14,6 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -93,7 +92,7 @@ rotr(amaru_u1_t const n, unsigned s) {
 }
 
 /**
- * @brief Shortens the decimal representation m *10^e by removing trailing
+ * @brief Shortens the decimal representation m *10 ^e by removing trailing
  * zeros of m and increasing e.
  *
  * @param e The exponent e.
@@ -140,22 +139,23 @@ amaru_function(amaru_fields_t binary) {
     return remove_trailing_zeros(0, m >> -e);
 
   amaru_u1_t const m_0 = amaru_pow2(amaru_u1_t, amaru_mantissa_size);
-  int32_t    const f   = amaru_log10_pow2(e);
-  uint32_t   const i   = (amaru_storage_base == 10 ? f : e) -
+
+  int32_t  const f = amaru_log10_pow2(e);
+  uint32_t const r = amaru_storage_base == 10 ?
+    amaru_log10_pow2_residual(e) : 0;
+  uint32_t const i = (amaru_storage_base == 10 ? f : e) -
     amaru_storage_index_offset;
-  amaru_u1_t const u   = multipliers[i].upper;
-  amaru_u1_t const l   = multipliers[i].lower;
+
+  amaru_u1_t const u = multipliers[i].upper;
+  amaru_u1_t const l = multipliers[i].lower;
 
   if (m != m_0 || e == amaru_exponent_minimum) {
 
-    uint32_t   const r   = amaru_storage_base == 10 ?
-      amaru_log10_pow2_residual(e) : 0;
+    amaru_u1_t const m_b = (2 * m + 1) << r;
+    amaru_u1_t const b   = amaru_mshift(m_b, u, l);
 
-    amaru_u1_t const m_b = 2 * m + 1;
-    amaru_u1_t const b   = amaru_mshift(m_b << r, u, l);
-
-    amaru_u1_t const m_a = 2 * m - 1;
-    amaru_u1_t const a   = amaru_mshift(m_a << r, u, l);
+    amaru_u1_t const m_a = (2 * m - 1) << r;
+    amaru_u1_t const a   = amaru_mshift(m_a, u, l);
 
     amaru_u1_t const q   = amaru_div10(b);
     amaru_u1_t const s   = 10 * q;
@@ -177,8 +177,8 @@ amaru_function(amaru_fields_t binary) {
     if (amaru_optimisation_mid_point && (a + b) % 2 == 1)
       return make_fields(f, (a + b) / 2 + 1);
 
-    amaru_u1_t const m_c = 2 * 2 * m;
-    amaru_u1_t const c_2 = amaru_mshift(m_c << r, u, l);
+    amaru_u1_t const m_c = (2 * 2 * m) << r;
+    amaru_u1_t const c_2 = amaru_mshift(m_c, u, l);
     amaru_u1_t const c   = c_2 / 2;
 
     if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f)))
@@ -187,25 +187,23 @@ amaru_function(amaru_fields_t binary) {
     return make_fields(f, c + 1);
   }
 
-  if (f == amaru_log10_075_pow2(e)) {
+  amaru_u1_t const m_b = 2 * m_0 + 1;
+  amaru_u1_t const b   = amaru_mshift(m_b << r, u, l);
 
-    uint32_t   const r   = amaru_storage_base == 10 ?
-      amaru_log10_pow2_residual(e) : 0;
+  amaru_u1_t const m_a = 4 * m_0 - 1;
+  amaru_u1_t const a   = amaru_mshift(m_a << r, u, l) / 2;
 
-    amaru_u1_t const m_b = 2 * m_0 + 1;
-    amaru_u1_t const b   = amaru_mshift(m_b << r, u, l);
+  if (b > a) {
 
-    amaru_u1_t const q   = amaru_div10(b);
-    amaru_u1_t const s   = 10 * q;
-
-    amaru_u1_t const m_a = 4 * m_0 - 1;
-    amaru_u1_t const a   = amaru_mshift(m_a << r, u, l) / 2;
+    amaru_u1_t const q = amaru_div10(b);
+    amaru_u1_t const s = 10 * q;
 
     if (s > a || (s == a && is_multiple_of_pow5(m_a, f)))
       return remove_trailing_zeros(f + 1, q);
 
-    // m_c = 2 * 2 * m_0 = 2^2 * 2^{amaru_mantissa_size}
-    amaru_u1_t const log2_m_c = 2 + amaru_mantissa_size;
+    // m_c = 2 * 2 * m_0 = 2 * 2 * 2^{amaru_mantissa_size}
+    // c_2 = amaru_mshift(m_c << r, upper, lower);
+    amaru_u1_t const log2_m_c = amaru_mantissa_size + 2;
     amaru_u1_t const c_2      = mshift_pow2(log2_m_c + r, u, l);
     amaru_u1_t const c        = c_2 / 2;
 
@@ -218,29 +216,21 @@ amaru_function(amaru_fields_t binary) {
     return make_fields(f, c + 1);
   }
 
-  amaru_u1_t const m_b = 20 * m_0 + 10;
-  amaru_u1_t const b   = amaru_mshift(m_b, u, l);
-
-  amaru_u1_t const q   = amaru_div10(b);
-  amaru_u1_t const s   = 10 * q;
-
-  amaru_u1_t const m_a = 40 * m_0 - 10;
-  amaru_u1_t const a   = amaru_mshift(m_a, u, l) / 2;
-
-  if (s > a || (s == a && is_multiple_of_pow5(m_a, f - 1)))
-    return remove_trailing_zeros(f, q);
+  else if (b == a) {
+    if (is_multiple_of_pow5(m_a, f)) {
+      amaru_u1_t const q = amaru_div10(a);
+      return 10 * q == a ? remove_trailing_zeros(f + 1, q) : make_fields(f, a);
+    }
+  }
 
   amaru_u1_t const m_c = 10 * 2 * 2 * m_0;
-  amaru_u1_t const c_2 = amaru_mshift(m_c, u, l);
+  amaru_u1_t const c_2 = amaru_mshift(m_c << r, u, l);
   amaru_u1_t const c   = c_2 / 2;
 
-  if (c == a && !is_multiple_of_pow5(m_a, f - 1))
+  if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2, -f)))
     return make_fields(f - 1, c + 1);
 
-  if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f + 1)))
-    return make_fields(f - 1, c);
-
-  return make_fields(f - 1, c + 1);
+  return make_fields(f - 1, c);
 }
 
 #ifdef __cplusplus

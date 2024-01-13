@@ -213,12 +213,8 @@ amaru_function(amaru_fields_t binary) {
     return make_fields(f, c + 1);
   }
 
-  else if (b == a) {
-    if (is_multiple_of_pow5(m_a, f)) {
-      amaru_u1_t const q = amaru_div10(a);
-      return 10 * q == a ? remove_trailing_zeros(f + 1, q) : make_fields(f, a);
-    }
-  }
+  else if (is_multiple_of_pow5(m_a, f))
+    remove_trailing_zeros(f, a);
 
   amaru_u1_t const m_c = 10 * 2 * 2 * m_0;
   amaru_u1_t const c_2 = amaru_mshift(m_c << r, u, l);

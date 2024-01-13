@@ -227,10 +227,10 @@ amaru_function(amaru_fields_t binary) {
   amaru_u1_t const c_2 = amaru_mshift(m_c << r, u, l);
   amaru_u1_t const c   = c_2 / 2;
 
-  if (c_2 % 2 == 1 && (c % 2 == 1 || !is_multiple_of_pow5(c_2, -f)))
-    return make_fields(f - 1, c + 1);
+  if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f)))
+    return make_fields(f - 1, c);
 
-  return make_fields(f - 1, c);
+  return make_fields(f - 1, c + 1);
 }
 
 #ifdef __cplusplus

@@ -167,10 +167,7 @@ amaru_function(amaru_fields_t binary) {
           return remove_trailing_zeros(f + 1, q);
       }
 
-      else if (s > a)
-        return remove_trailing_zeros(f + 1, q);
-
-      else if (m % 2 == 0 && is_multiple_of_pow5(m_a, f)) // s == a
+      else if (s > a || m % 2 == 0 && is_multiple_of_pow5(m_a, f))
         return remove_trailing_zeros(f + 1, q);
     }
 

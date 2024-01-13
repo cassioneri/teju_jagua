@@ -22,8 +22,8 @@ extern "C" {
 /**
  * @brief Checks whether mantissa m is multiple of \f$2^e\f$.
  *
- * @param m The mantissa \e m.
- * @param e The exponent \e e.
+ * @param m                 The mantissa \e m.
+ * @param e                 The exponent \e e.
  */
 static inline
 bool
@@ -45,13 +45,13 @@ is_multiple_of_pow5(amaru_u1_t const m, int32_t const f) {
 }
 
 /**
- * @brief Returns the quotient \f$q = ((u\cdot 2^N + l) * 2^k) / 2^s\f$, where
- * \f$N\f$ is the value of \c aramu_size and \f$s\f$ is the value of
+ * @brief Returns the quotient \f$q = ((u\cdot 2^N + l)\cdot 2^k) / 2^s\f$,
+ * where  \f$N\f$ is the value of \c aramu_size and \f$s\f$ is the value of
  * \c amaru_calculation_shift.
  *
- * @param k                 The value of \f$k\f$.
- * @param u                 The value of \f$u\f$.
- * @param l                 The value of \f$l\f$.
+ * @param k                 The exponent \e k.
+ * @param u                 The upper part of the multiplicand \e u.
+ * @param l                 The lower part of the multiplicand \e l.
  *
  * @returns The value of \f$q\f$.
  */
@@ -92,11 +92,11 @@ rotr(amaru_u1_t const n, unsigned s) {
 }
 
 /**
- * @brief Shortens the decimal representation m *10 ^e by removing trailing
- * zeros of m and increasing e.
+ * @brief Shortens the decimal representation \f$m\cdot 10^e\f$ by removing
+ * trailing zeros of \e m and increasing \e e.
  *
- * @param e The exponent e.
- * @param m The mantissa m.
+ * @param e                 The exponent \e e.
+ * @param m                 The mantissa \e m.
  *
  * @returns The fields of the shortest close decimal representation.
  */
@@ -121,13 +121,12 @@ remove_trailing_zeros(int32_t e, amaru_u1_t m) {
 /**
  * @brief Amaru itself.
  *
- * Finds the shortest unambiguously close decimal representation of m * 2^e.
+ * Finds the shortest decimal representation of f$m\cdot 2^e\f$.
  *
- * @param e The exponent \e e.
- * @param m The mantissa \e m.
+ * @param e                 The exponent \e e.
+ * @param m                 The mantissa \e m.
  *
- * @returns The fields of the shortest unambiguously close decimal
- * representation.
+ * @returns The fields of the shortest decimal representation.
  */
 amaru_fields_t
 amaru_function(amaru_fields_t binary) {

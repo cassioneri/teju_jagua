@@ -99,26 +99,26 @@ get_maximum_1(integer_t const& alpha_1, integer_t const& delta_1,
   integer_t const& a_1, integer_t const& b_1) {
 
   auto const b_minus_1 = b_1 - 1;
-  auto const maximum1  = phi_1(alpha_1, delta_1, b_minus_1);
+  auto const maximum_1  = phi_1(alpha_1, delta_1, b_minus_1);
 
   if (alpha_1 == 0 || a_1 == b_minus_1)
-    return maximum1;
+    return maximum_1;
 
   auto const a_2 = alpha_1 * a_1 / delta_1 + 1;
   auto const b_2 = alpha_1 * b_minus_1 / delta_1 + 1;
 
   if (a_2 == b_2)
-    return maximum1;
+    return maximum_1;
 
   auto const  alpha_2 = delta_1 % alpha_1;
   auto const& delta_2 = alpha_1;
   auto const  other   = get_maximum_2(alpha_2, delta_2, a_2, b_2);
 
-  auto const  maximum2 = rational_t{
+  auto const  maximum_2 = rational_t{
     delta_1 * numerator(other) - denominator(other),
       alpha_1 * denominator(other)};
 
-  return std::max(maximum1, maximum2);
+  return std::max(maximum_1, maximum_2);
 }
 
 rational_t
@@ -128,26 +128,26 @@ get_maximum_2(integer_t const& alpha_2,
   if (alpha_2 == 0)
     return b_2 - 1;
 
-  auto const maximum1 = phi_2(alpha_2, delta_2, a_2);
+  auto const maximum_1 = phi_2(alpha_2, delta_2, a_2);
 
   if (a_2 == b_2 - 1)
-    return maximum1;
+    return maximum_1;
 
   auto const a1 = (alpha_2 * a_2 - 1) / delta_2 + 1;
   auto const b1 = (alpha_2 * (b_2 - 1) - 1) / delta_2 + 1;
 
   if (a1 == b1)
-    return maximum1;
+    return maximum_1;
 
   auto const  alpha1 = delta_2 % alpha_2;
   auto const& delta1 = alpha_2;
   auto const  other  = get_maximum_1(alpha1, delta1, a1, b1);
 
-  auto const  maximum2 = rational_t{
+  auto const  maximum_2 = rational_t{
     delta_2 * numerator(other) + denominator(other),
     alpha_2 * denominator(other)};
 
-  return std::max(maximum1, maximum2);
+  return std::max(maximum_1, maximum_2);
 }
 
 /**

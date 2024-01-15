@@ -137,25 +137,20 @@ amaru_function(amaru_fields_t binary) {
   if (amaru_optimisation_integer && is_multiple_of_pow2(m, -e))
     return remove_trailing_zeros(0, m >> -e);
 
-  amaru_u1_t const m_0 = amaru_pow2(amaru_u1_t, amaru_mantissa_size);
-
-  int32_t  const f = amaru_log10_pow2(e);
-  uint32_t const r = amaru_storage_base == 10 ?
-    amaru_log10_pow2_residual(e) : 0;
-  uint32_t const i = (amaru_storage_base == 10 ? f : e) -
-    amaru_storage_index_offset;
-
-  amaru_u1_t const u = multipliers[i].upper;
-  amaru_u1_t const l = multipliers[i].lower;
+  bool       const full = amaru_storage_base == 2;
+  amaru_u1_t const m_0  = amaru_pow2(amaru_u1_t, amaru_mantissa_size);
+  int32_t    const f    = amaru_log10_pow2(e);
+  uint32_t   const r    = full ? 0 : amaru_log10_pow2_residual(e);
+  uint32_t   const i    = (full ? e : f) - amaru_storage_index_offset;
+  amaru_u1_t const u    = multipliers[i].upper;
+  amaru_u1_t const l    = multipliers[i].lower;
 
   if (m != m_0 || e == amaru_exponent_minimum) {
 
     amaru_u1_t const m_b = (2 * m + 1) << r;
     amaru_u1_t const b   = amaru_mshift(m_b, u, l);
-
     amaru_u1_t const m_a = (2 * m - 1) << r;
     amaru_u1_t const a   = amaru_mshift(m_a, u, l);
-
     amaru_u1_t const q   = amaru_div10(b);
     amaru_u1_t const s   = 10 * q;
 

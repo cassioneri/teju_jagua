@@ -186,8 +186,8 @@ to_upper(std::string const& str) {
 }
 
 std::int32_t
-get_index_offset(std::uint32_t const base, std::int32_t const exponent_min) {
-  return base == 10 ? amaru_log10_pow2(exponent_min) : exponent_min;
+get_index_offset(bool const full, std::int32_t const exponent_min) {
+  return full ? exponent_min : amaru_log10_pow2(exponent_min);
 }
 
 } // namespace <anonymous>
@@ -200,9 +200,9 @@ generator_t::generator_t(config_t config, std::string directory) :
   config_      {std::move(config)                               },
   prefix_      {get_prefix(size())                              },
   function_    {"amaru_" + id()                                 },
-  mantissa_min_{amaru_pow2(integer_t, mantissa_size())          },
+  mantissa_min_{pow2(mantissa_size())                           },
   mantissa_max_{2 * mantissa_min()                              },
-  index_offset_{get_index_offset(storage_base(), exponent_min())},
+  index_offset_{get_index_offset(storage_full(), exponent_min())},
   directory_   {std::move(directory)                            },
   dot_h_       {id() + ".h"                                     },
   dot_c_       {id() + ".c"                                     } {
@@ -211,19 +211,19 @@ generator_t::generator_t(config_t config, std::string directory) :
 void
 generator_t::generate() const {
 
-  auto const p2_size      = integer_t{1} << size();
+  auto const p2size       = pow2(size());
   auto       dot_h_stream = std::ofstream{directory() + dot_h()};
   auto       dot_c_stream = std::ofstream{directory() + dot_c()};
 
   std::cout << "Generation started.\n";
 
   // Overflow check 1:
-  if (2 * mantissa_max() + 1 >= p2_size)
+  if (2 * mantissa_max() + 1 >= p2size)
     throw exception_t("The limb is not large enough for calculations to "
       "not overflow.");
 
   // Overflow check 2:
-  if (20 * mantissa_min() >= p2_size)
+  if (20 * mantissa_min() >= p2size)
     throw exception_t("The limb is not large enough for calculations to "
       "not overflow.");
 
@@ -281,9 +281,9 @@ generator_t::mantissa_max() const {
   return mantissa_max_;
 }
 
-std::uint32_t
-generator_t::storage_base() const {
-  return config_.storage.base;
+bool
+generator_t::storage_full() const {
+  return config_.storage.full;
 }
 
 std::uint32_t
@@ -418,12 +418,12 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   // Optimal shift is 2 * size since it prevents mshift to deal with partial
   // limbs. In addition, we subtract 1 to compensate shift's increment made
   // later on, when shift is output. (See below.)
-  if (storage_base() == 10)
+  if (!storage_full())
     shift = std::max(shift, 2 * size() - 1);
 
   // Replace minimal fast EAFs to use the same shift.
 
-  auto const p2shift = integer_t{1} << shift;
+  auto const p2shift = pow2(shift);
 
   for (std::uint32_t i = 0; i < maxima.size(); ++i) {
 
@@ -438,13 +438,13 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     fast_eafs[i] = fast_eaf_t{q + 1, shift};
   }
 
-  auto const p2_size = integer_t{1} << size();
+  auto const p2size = pow2(size());
 
   stream <<
     "#define amaru_size                   " << size()          << "\n"
     "#define amaru_exponent_minimum       " << exponent_min()  << "\n"
     "#define amaru_mantissa_size          " << mantissa_size() << "\n"
-    "#define amaru_storage_base           " << storage_base()  << "\n"
+    "#define amaru_full                   " << storage_full()  << "\n"
     "#define amaru_storage_index_offset   " << index_offset()  << "\n";
 
   if (!calculation_div10().empty())
@@ -478,7 +478,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "} const multipliers[] = {\n";
 
   auto e2      = exponent_min();
-  auto e2_or_f = storage_base() == 10 ? amaru_log10_pow2(e2) : e2;
+  auto e2_or_f = storage_full() ? e2 : amaru_log10_pow2(e2);
 
   splitter_t splitter{size(), storage_split()};
 
@@ -486,9 +486,9 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 
     integer_t upper;
     integer_t lower;
-    divide_qr(fast_eaf.U, p2_size, upper, lower);
+    divide_qr(fast_eaf.U, p2size, upper, lower);
 
-    if (upper >= p2_size)
+    if (upper >= p2size)
       throw exception_t{"Multiplier is out of range."};
 
     stream << "  { " << splitter(std::move(upper)) << ", " <<
@@ -504,9 +504,9 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "  amaru_u1_t const bound;\n"
     "} const minverse[] = {\n";
 
-  auto const minverse5 = integer_t{ p2_size - (p2_size - 1) / 5 };
-  auto multiplier = integer_t{1};
-  auto p5 = integer_t{1};
+  auto const minverse5  = integer_t{p2size - (p2size - 1) / 5};
+  auto       multiplier = integer_t{1};
+  auto       p5         = integer_t{1};
 
   // Amaru calls is_multiple_of_pow5(m, f) for
   //
@@ -526,12 +526,12 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   // Also ensure that at least entries up to f = 1 are generated for
   // remove_trailing_zeros.
   for (std::int32_t f = 0; f < 1 || p5 <= 200 * mantissa_max(); ++f) {
-    const auto bound = p2_size / p5 - (f == 0);
+    const auto bound = p2size / p5 - (f == 0);
 
     stream << "  { " << splitter(multiplier) << ", " << splitter(bound) <<
       " },\n";
 
-    multiplier = (multiplier * minverse5) % p2_size;
+    multiplier = (multiplier * minverse5) % p2size;
     p5 *= 5;
   }
 
@@ -557,11 +557,10 @@ generator_t::get_maxima() const {
 
     auto const f = amaru_log10_pow2(e);
 
-    if (storage_base() == 10 && f == f_done)
+    if (!storage_full() && f == f_done)
       continue;
 
-    auto const e0 = (storage_base() == 10 ?
-      e - amaru_log10_pow2_residual(e) : e) - f;
+    auto const e0 = (storage_full() ? e : e - amaru_log10_pow2_residual(e)) - f;
 
     alpha_delta_maximum_t x;
     x.alpha   = f >= 0 ? pow2(e0) : pow5(-f );
@@ -584,8 +583,8 @@ generator_t::get_maximum(integer_t alpha, integer_t const& delta,
   // Usual interval.
 
   auto const a = start_at_1 ? integer_t{1} : integer_t{2 * mantissa_min()};
-  auto const b = storage_base() == 10 ? integer_t{16 * mantissa_max() - 15} :
-    integer_t{2 * mantissa_max()};
+  auto const b = storage_full() ? integer_t{2 * mantissa_max()} :
+    integer_t{16 * mantissa_max() - 15};
 
   auto const max_ab = get_maximum_1(alpha, delta, a, b);
 
@@ -599,7 +598,7 @@ generator_t::get_maximum(integer_t alpha, integer_t const& delta,
     return std::max(max_m_a, max_m_c);
   };
 
-  if (storage_base() == 2)
+  if (storage_full())
     return std::max(max_ab, max_extras(mantissa_min()));
 
   return std::max({max_ab, max_extras(mantissa_min()),
@@ -615,22 +614,22 @@ generator_t::get_fast_eaf(alpha_delta_maximum_t const& x) const {
   // this reason, later on, the generator actually outputs shift - size
   // (still labelling it as 'shift') so that Amaru doesn't need to do it at
   // runtime.
-  auto k    = size();
-  auto pow2 = integer_t{1} << k;
+  auto k   = size();
+  auto p2k = pow2(k);
 
   integer_t q, r;
-  divide_qr(pow2 * x.alpha, x.delta, q, r);
+  divide_qr(p2k * x.alpha, x.delta, q, r);
 
   // It should return from inside the loop but let's set an upper bound.
   while (k < 3 * size()) {
 
-    if (x.maximum < rational_t{pow2, x.delta - r})
+    if (x.maximum < rational_t{p2k, x.delta - r})
       return { q + 1, k };
 
-    k    += 1;
-    pow2 *= 2;
-    q    *= 2;
-    r    *= 2;
+    k   += 1;
+    p2k *= 2;
+    q   *= 2;
+    r   *= 2;
     while (r >= x.delta) {
       q += 1;
       r -= x.delta;

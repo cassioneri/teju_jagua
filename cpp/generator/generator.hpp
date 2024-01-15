@@ -98,10 +98,10 @@ private:
   mantissa_max() const;
 
   /**
-   * \brief Returns the base of the stored exponent.
+   * \brief Returns whether the table of exponents is full or compact.
    */
-  std::uint32_t
-  storage_base() const;
+  bool
+  storage_full() const;
 
   /**
    * \brief Returns the number of parts that each stored limb is split into.

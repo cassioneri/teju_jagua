@@ -13,7 +13,7 @@
   },
 
   "storage": {
-    "base" : 10,
+    "full" : false,
     "split": 1
   },
 

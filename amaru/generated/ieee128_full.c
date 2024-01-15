@@ -11,7 +11,7 @@ extern "C" {
 #define amaru_size                   128
 #define amaru_exponent_minimum       -16494
 #define amaru_mantissa_size          112
-#define amaru_storage_base           2
+#define amaru_full                   1
 #define amaru_storage_index_offset   -16494
 #define amaru_calculation_div10      amaru_built_in_1
 #define amaru_calculation_mshift     amaru_built_in_1

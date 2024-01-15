@@ -52,9 +52,9 @@ struct config_t {
 
   struct storage_t {
 
-    // The table of multipliers is indexed by the exponent of either the
-    // binary (base = 2) or decimal (base = 10) representation.
-    std::uint32_t base;
+    // The table of multipliers can be full (an entry per  binary exponent) or
+    // compact (an entry per decimal exponent.)
+    bool full;
 
     // The upper and lower limb of the multiplier can be further split into
     // 1 (no split), 2 or 4 parts. This is useful for large types (e.g.,

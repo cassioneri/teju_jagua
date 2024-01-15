@@ -22,7 +22,7 @@ from_json(nlohmann::json const& src, config_t::mantissa_t& tgt) {
 
 void
 from_json(nlohmann::json const& src, config_t::storage_t& tgt) {
-  src.at("base" ).get_to(tgt.base );
+  src.at("full" ).get_to(tgt.full );
   src.at("split").get_to(tgt.split);
 }
 
@@ -81,10 +81,6 @@ validate(config_t const& json) {
   if (!(std::uint64_t{json.exponent.size} + json.mantissa.size <= json.size))
     throw exception_t{"Constraint violation: "
       "exponent.size + mantissa.size <= size"};
-
-  if (!(json.storage.base != 2 || json.storage.base != 10))
-    throw exception_t{"Constraint violation: "
-      "storage.base in { 2, 10 }"};
 
   if (!(json.storage.split != 1 || json.storage.split != 2 ||
     json.storage.split != 4))

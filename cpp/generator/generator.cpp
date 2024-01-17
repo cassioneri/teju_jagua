@@ -35,6 +35,21 @@ pow5(std::uint32_t const n) {
 }
 
 /**
+ * \brief Returns the inverse of 5 modulo 2^s.
+ */
+integer_t
+minverse5(std::uint32_t s) {
+  auto const n    = pow2(s) + 2;
+  auto const mask = n - 3; // pow2(s) - 1
+  auto m = integer_t{1};
+  while (s > 1) {
+    m  = (m * (n - ((5 * m) & mask))) & mask;
+    s /= 2;
+  }
+  return m;
+}
+
+/**
  * \brief The objective function of the primary maximisation problem:
  *
  *     phi_1(m) := m / (delta_1 - alpha_1 * m % delta_1).
@@ -438,7 +453,10 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     fast_eafs[i] = fast_eaf_t{q + 1, shift};
   }
 
-  auto const p2size = pow2(size());
+  auto const p2size   = pow2(size());
+  auto const mask     = p2size - 1;
+  auto const minv5    = minverse5(size());
+  auto const splitter = splitter_t{size(), storage_split()};
 
   stream <<
     "#define amaru_size                   " << size()          << "\n"
@@ -459,6 +477,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "#define amaru_calculation_shift      " << shift + 1             << "\n"
     "#define amaru_optimisation_integer   " << optimise_integer()    << "\n"
     "#define amaru_optimisation_mid_point " << optimise_midpoint()   << "\n"
+    "#define amaru_minverse5              " << splitter(minv5)       << "\n"
     "\n"
     "#define amaru_function               " << function() << "\n"
     "#define amaru_fields_t               " << prefix()   << "fields_t\n"
@@ -480,13 +499,10 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   auto e2      = exponent_min();
   auto e2_or_f = storage_full() ? e2 : amaru_log10_pow2(e2);
 
-  splitter_t splitter{size(), storage_split()};
-
   for (auto const& fast_eaf : fast_eafs) {
 
-    integer_t upper;
-    integer_t lower;
-    divide_qr(fast_eaf.U, p2size, upper, lower);
+    integer_t upper = fast_eaf.U >> size();
+    integer_t lower = fast_eaf.U & mask;
 
     if (upper >= p2size)
       throw exception_t{"Multiplier is out of range."};
@@ -504,7 +520,6 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "  amaru_u1_t const bound;\n"
     "} const minverse[] = {\n";
 
-  auto const minverse5  = integer_t{p2size - (p2size - 1) / 5};
   auto       multiplier = integer_t{1};
   auto       p5         = integer_t{1};
 
@@ -526,12 +541,13 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   // Also ensure that at least entries up to f = 1 are generated for
   // remove_trailing_zeros.
   for (std::int32_t f = 0; f < 1 || p5 <= 200 * mantissa_max(); ++f) {
-    const auto bound = p2size / p5 - (f == 0);
 
-    stream << "  { " << splitter(multiplier) << ", " << splitter(bound) <<
-      " },\n";
+    auto bound = p2size / p5 - (f == 0);
 
-    multiplier = (multiplier * minverse5) % p2size;
+    stream << "  { " << splitter(multiplier) << ", " <<
+      splitter(std::move(bound)) << " },\n";
+
+    multiplier = (multiplier * minv5) & mask;
     p5 *= 5;
   }
 

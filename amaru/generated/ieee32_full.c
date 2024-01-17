@@ -18,6 +18,7 @@ extern "C" {
 #define amaru_calculation_shift      55
 #define amaru_optimisation_integer   1
 #define amaru_optimisation_mid_point 1
+#define amaru_minverse5              0xcccccccd
 
 #define amaru_function               amaru_ieee32_full
 #define amaru_fields_t               amaru32_fields_t

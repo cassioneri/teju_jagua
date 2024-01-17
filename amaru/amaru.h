@@ -103,18 +103,14 @@ rotr(amaru_u1_t const n, unsigned s) {
 static inline
 amaru_fields_t
 remove_trailing_zeros(int32_t e, amaru_u1_t m) {
-
-  amaru_u1_t const minv5 = minverse[1].multiplier;
-  amaru_u1_t const inv10 = minverse[1].bound / 2;
-
-  while (true) {
-    amaru_u1_t const n = rotr(minv5 * m, 1);
-    if (n > inv10)
-      break;
+  amaru_u1_t const minv5 = amaru_minverse5;
+  amaru_u1_t const inv10 = ((amaru_u1_t) -1) / 10;
+  amaru_u1_t       n     = rotr(minv5 * m, 1);
+  while (n <= inv10) {
     ++e;
     m = n;
+    n = rotr(minv5 * m, 1);
   }
-
   return make_fields(e, m);
 }
 

@@ -20,7 +20,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Checks whether mantissa m is multiple of \f$2^e\f$.
+ * @brief Checks whether mantissa \f$m\f$ is multiple of \f$2^e\f$.
  *
  * @param m                 The mantissa \e m.
  * @param e                 The exponent \e e.
@@ -32,16 +32,44 @@ is_multiple_of_pow2(amaru_u1_t const m, int32_t const e) {
 }
 
 /**
- * @brief Checks whether mantissa m is multiple of \f$2^f\f$.
+ * @brief Checks whether mantissa \f$m\f$ is multiple of \f$5^f\f$.
+ *
+ * @pre minverse[f] is well defined.
  *
  * @param m                 The mantissa \e m.
- * @param e                 The exponent \e f.
+ * @param f                 The exponent \e f.
  */
 static inline
 bool
 is_multiple_of_pow5(amaru_u1_t const m, int32_t const f) {
+  return m * minverse[f].multiplier <= minverse[f].bound;
+}
+
+/**
+ * @brief Checks whether m, for m in {m_a, m_b, c_2}, yields a tie.
+ *
+ * @param m                 The number m.
+ * @param f                 The exponent f (for m == m_a and m == m_b) or
+ *                          its negation -f for (m == c_2).
+ */
+static inline
+bool
+is_tie(amaru_u1_t const m, int32_t const f) {
   return 0 <= f && f < (int32_t) (sizeof(minverse) / sizeof(minverse[0])) &&
-    m * minverse[f].multiplier <= minverse[f].bound;
+    is_multiple_of_pow5(m, f);
+}
+
+/**
+ * @brief Checks whether m_a = 4 * m_0 - 1, where m_0 is the mantissa of
+ * uncentred values, can yield a tie.
+ *
+ * @param f                 The exponent \e f.
+ */
+static inline
+bool
+is_tie_uncentred(int32_t const f) {
+  return (f == 0 && !amaru_optimisation_integer) ||
+    (f > 0 && amaru_mantissa_size % 4 == 2);
 }
 
 /**
@@ -152,11 +180,11 @@ amaru_function(amaru_fields_t binary) {
     if (s >= a) {
 
       if (s == b) {
-        if (m % 2 == 0 || !is_multiple_of_pow5(m_b, f))
+        if (m % 2 == 0 || !is_tie(m_b, f))
           return remove_trailing_zeros(f + 1, q);
       }
 
-      else if (s > a || m % 2 == 0 && is_multiple_of_pow5(m_a, f))
+      else if (s > a || m % 2 == 0 && is_tie(m_a, f))
         return remove_trailing_zeros(f + 1, q);
     }
 
@@ -167,7 +195,7 @@ amaru_function(amaru_fields_t binary) {
     amaru_u1_t const c_2 = amaru_mshift(m_c, u, l);
     amaru_u1_t const c   = c_2 / 2;
 
-    if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f)))
+    if (c_2 % 2 == 0 || (c % 2 == 0 && is_tie(c_2, -f)))
       return make_fields(f, c);
 
     return make_fields(f, c + 1);
@@ -184,7 +212,7 @@ amaru_function(amaru_fields_t binary) {
     amaru_u1_t const q = amaru_div10(b);
     amaru_u1_t const s = 10 * q;
 
-    if (s > a || (s == a && is_multiple_of_pow5(m_a, f)))
+    if (s > a || (s == a && is_tie_uncentred(f)))
       return remove_trailing_zeros(f + 1, q);
 
     // m_c = 2 * 2 * m_0 = 2 * 2 * 2^{amaru_mantissa_size}
@@ -193,23 +221,23 @@ amaru_function(amaru_fields_t binary) {
     amaru_u1_t const c_2      = mshift_pow2(log2_m_c + r, u, l);
     amaru_u1_t const c        = c_2 / 2;
 
-    if (c == a && !is_multiple_of_pow5(m_a, f))
+    if (c == a && !is_tie_uncentred(f))
       return make_fields(f, c + 1);
 
-    if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f)))
+    if (c_2 % 2 == 0 || (c % 2 == 0 && is_tie(c_2, -f)))
       return make_fields(f, c);
 
     return make_fields(f, c + 1);
   }
 
-  else if (is_multiple_of_pow5(m_a, f))
+  else if (is_tie_uncentred(f))
     remove_trailing_zeros(f, a);
 
   amaru_u1_t const m_c = 10 * 2 * 2 * m_0;
   amaru_u1_t const c_2 = amaru_mshift(m_c << r, u, l);
   amaru_u1_t const c   = c_2 / 2;
 
-  if (c_2 % 2 == 0 || (c % 2 == 0 && is_multiple_of_pow5(c_2, -f)))
+  if (c_2 % 2 == 0 || (c % 2 == 0 && is_tie(c_2, -f)))
     return make_fields(f - 1, c);
 
   return make_fields(f - 1, c + 1);

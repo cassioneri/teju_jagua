@@ -22,13 +22,27 @@ extern "C" {
 /**
  * @brief Checks whether mantissa \f$m\f$ is multiple of \f$2^e\f$.
  *
+ * @pre 0 <= e && e <= amaru_mantissa_size.
+ *
  * @param m                 The mantissa \e m.
  * @param e                 The exponent \e e.
  */
 static inline
 bool
 is_multiple_of_pow2(amaru_u1_t const m, int32_t const e) {
-  return 0 <= e && e <= amaru_mantissa_size && ((m >> e) << e) == m;
+  return ((m >> e) << e) == m;
+}
+
+/**
+ * @brief Checks whether the number m * 2^e is a small integer.
+ *
+ * @param m                 The mantissa \e m.
+ * @param e                 The exponent \e e.
+ */
+static inline
+bool
+is_small_integer(amaru_u1_t const m, int32_t const e) {
+  return 0 <= -e && -e <= amaru_mantissa_size && is_multiple_of_pow2(m, -e);
 }
 
 /**
@@ -157,7 +171,7 @@ amaru_function(amaru_fields_t const binary) {
   int32_t    const e = binary.exponent;
   amaru_u1_t const m = binary.mantissa;
 
-  if (is_multiple_of_pow2(m, -e))
+  if (is_small_integer(m, e))
     return remove_trailing_zeros(0, m >> -e);
 
   amaru_u1_t const m_0  = amaru_pow2(amaru_u1_t, amaru_mantissa_size);

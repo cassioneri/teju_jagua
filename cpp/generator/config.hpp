@@ -17,7 +17,7 @@
 namespace amaru {
 
 /**
- * \brief Configuration of Amaru's implementation.
+ * @brief Configuration of Amaru's implementation.
  */
 struct config_t {
 

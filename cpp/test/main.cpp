@@ -41,9 +41,9 @@ struct make_number<T, C, Cs...> {
 };
 
 /**
- * @brief Gets the next value of type \e T following a given one.
+ * @brief Gets the next value of type T following a given one.
  *
- * @pre <tt>value >= 0</tt>.
+ * @pre value >= 0.
  *
  * @tparam T                The floating point value type.
  * @param  value            The given value.

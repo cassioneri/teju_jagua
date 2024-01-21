@@ -16,8 +16,7 @@ namespace amaru {
 /**
  * @brief C++ wrapper around the C fields of floating point representation.
  * 
- * Instantiations are provided for \c float, \c double and \c float128_t (if
- * supported).
+ * Instantiations are provided for float, double and float128_t (if supported).
  */
 template <typename T>
 struct cpp_fields_t;
@@ -43,9 +42,9 @@ struct cpp_fields_t<float128_t> {
 #endif // defined(AMARU_HAS_FLOAT128)
 
 /**
- * @brief Equality operator for <tt>cpp_fields_t<T></tt>.
+ * @brief Equality operator for cpp_fields_t<T>.
  *
- * @tparam T                The type \e T.
+ * @tparam T                The type T.
  *
  * @param left              The left operand.
  * @param right             The right operand.
@@ -57,9 +56,9 @@ bool operator==(cpp_fields_t<T> const& left, cpp_fields_t<T> const& right) {
 }
 
 /**
- * @brief Inequality operator for <tt>cpp_fields_t<T></tt>.
+ * @brief Inequality operator for cpp_fields_t<T>.
  *
- * @tparam T                The type \e T.
+ * @tparam T                The type T.
  *
  * @param left              The left operand.
  * @param right             The right operand.
@@ -70,11 +69,11 @@ bool operator!=(cpp_fields_t<T> const& left, cpp_fields_t<T> const& right) {
 }
 
 /**
- * @brief Stream operator for <tt>cpp_fields_t<T></tt>.
+ * @brief Stream operator for cpp_fields_t<T>.
  * 
  * @tparam C                The char type.
  * @tparam CT               The char-traits type.
- * @tparam T                The type \e T.
+ * @tparam T                The type T.
  * 
  * @param os                The object that fields are streamed to.
  * @param fields            The fields.

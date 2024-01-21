@@ -16,7 +16,7 @@ namespace amaru {
 namespace {
 
 /**
- * \brief Returns 2^n.
+ * @brief Returns 2^n.
  */
 integer_t
 pow2(std::uint32_t const n) {
@@ -24,7 +24,7 @@ pow2(std::uint32_t const n) {
 }
 
 /**
- * \brief Returns 5^n.
+ * @brief Returns 5^n.
  */
 integer_t
 pow5(std::uint32_t const n) {
@@ -35,7 +35,7 @@ pow5(std::uint32_t const n) {
 }
 
 /**
- * \brief Returns the inverse of 5 modulo 2^s.
+ * @brief Returns the inverse of 5 modulo 2^s.
  */
 integer_t
 minverse5(std::uint32_t s) {
@@ -50,13 +50,13 @@ minverse5(std::uint32_t s) {
 }
 
 /**
- * \brief The objective function of the primary maximisation problem:
+ * @brief The objective function of the primary maximisation problem:
  *
  *     phi_1(m) := m / (delta_1 - alpha_1 * m % delta_1).
  *
- * \param alpha_1           Parameter alpha_1.
- * \param delta_1           Parameter delta_1.
- * \param m                 Variable m.
+ * @param alpha_1           Parameter alpha_1.
+ * @param delta_1           Parameter delta_1.
+ * @param m                 Variable m.
  */
 rational_t
 phi_1(integer_t const& alpha_1, integer_t const& delta_1,
@@ -65,13 +65,13 @@ phi_1(integer_t const& alpha_1, integer_t const& delta_1,
 }
 
 /**
- * \brief The objective function of the secondary maximisation problem:
+ * @brief The objective function of the secondary maximisation problem:
  *
  *     phi_2(m) := m / (1 + (alpha_2 * m - 1) % delta_2).
  *
- * \param alpha_2           Parameter alpha_2.
- * \param delta_2           Parameter delta_2.
- * \param m                 Variable m.
+ * @param alpha_2           Parameter alpha_2.
+ * @param delta_2           Parameter delta_2.
+ * @param m                 Variable m.
  */
 rational_t
 phi_2(integer_t const& alpha_2, integer_t const& delta_2,
@@ -80,30 +80,30 @@ phi_2(integer_t const& alpha_2, integer_t const& delta_2,
 }
 
 /**
- * \brief Given alpha_1, delta_1, a_1 and b_1, this function calculates the
+ * @brief Given alpha_1, delta_1, a_1 and b_1, this function calculates the
  * maximiser of phi_1(m) over [a_1, b_1[.
  *
- * \pre 0 <= alpha_1 && alpha_1 < delta_1 && a_1 < b_1.
+ * @pre 0 <= alpha_1 && alpha_1 < delta_1 && a_1 < b_1.
  *
- * \param alpha_1           Parameter alpha_1.
- * \param delta_1           Parameter delta_1.
- * \param a_1               Lower bound a_1.
- * \param b_1               Upper bound b_1.
+ * @param alpha_1           Parameter alpha_1.
+ * @param delta_1           Parameter delta_1.
+ * @param a_1               Lower bound a_1.
+ * @param b_1               Upper bound b_1.
  */
 rational_t
 get_maximum_1(integer_t const& alpha_1, integer_t const& delta_1,
   integer_t const& a_1, integer_t const& b_1);
 
 /**
- * \brief Given alpha, delta, a_2 and b_2, this function calculates the
+ * @brief Given alpha, delta, a_2 and b_2, this function calculates the
  * maximiser of phi_2(m) over [a_2, b_2[.
  *
- * \pre 0 < alpha_2 && 0 < delta_2 && 1 <= a_2 && a_2 < b_2.
+ * @pre 0 < alpha_2 && 0 < delta_2 && 1 <= a_2 && a_2 < b_2.
  *
- * \param alpha_2           Parameter alpha_1.
- * \param delta_2           Parameter delta_1.
- * \param a_2               Lower bound a_2.
- * \param b_2               Upper bound b_2.
+ * @param alpha_2           Parameter alpha_1.
+ * @param delta_2           Parameter delta_1.
+ * @param a_2               Lower bound a_2.
+ * @param b_2               Upper bound b_2.
  */
 rational_t
 get_maximum_2(integer_t const& alpha_2, integer_t const& delta_2,
@@ -166,11 +166,11 @@ get_maximum_2(integer_t const& alpha_2,
 }
 
 /**
- * \brief Returns the type prefix corresponding to a given size.
+ * @brief Returns the type prefix corresponding to a given size.
  *
- * \param size              The size.
+ * @param size              The size.
  *
- * \returns The type prefix corresponding to a given size.
+ * @returns The type prefix corresponding to a given size.
  */
 std::string
 get_prefix(std::uint32_t const size) {
@@ -186,11 +186,11 @@ get_prefix(std::uint32_t const size) {
 }
 
 /**
- * \brief Converts a given string to upper case letters.
+ * @brief Converts a given string to upper case letters.
  *
- * \param str                The given string
+ * @param str                The given string
  *
- * \returns The upper case string.
+ * @returns The upper case string.
  */
 std::string
 to_upper(std::string const& str) {
@@ -325,7 +325,7 @@ generator_t::dot_c() const {
 }
 
 /**
- * \brief Fast EAF coefficients.
+ * @brief Fast EAF coefficients.
  *
  * For given alpha > 0 and delta > 0, we often find U > 0 and k >= 0 such that:
  *
@@ -339,7 +339,7 @@ struct generator_t::fast_eaf_t {
 };
 
 /**
- * \brief Stores alpha, delta (usually pow2(e) and pow2(f)) and the maximum of
+ * @brief Stores alpha, delta (usually pow2(e) and pow2(f)) and the maximum of
  * m / (delta - alpha * m % delta) for m in the set of mantissas.
  */
 struct generator_t::alpha_delta_maximum_t {

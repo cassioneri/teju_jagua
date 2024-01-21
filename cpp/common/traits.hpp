@@ -24,18 +24,18 @@ namespace amaru {
  * Amaru (and possibly other third-party libraries with the same purpose) are
  * supposed to be called in C which doesn't support overloading and templates.
  * This class serves to wrap C functions (and data) referring to specific types
- * into a generic interface. For instance, \c amaru_from_double_to_decimal is
- * wrapped by \c traits_t<double>::amaru, making easier to call it in generic
- * tests. Specialisations of \c traits_t are provided for \c float and \c double
- * and, if supported \c float128_t. They contain the following members.
+ * into a generic interface. For instance, amaru_from_double_to_decimal is
+ * wrapped by traits_t<double>::amaru, making easier to call it in generic
+ * tests. Specialisations of traits_t are provided for float and double and, if
+ * supported float128_t. They contain the following members.
  *
  * Types:
  *
- * \li u1_t               The 1-limb \c unsigned integer type.
+ * \li u1_t               The 1-limb unsigned integer type.
  * \li fields_t           Fields type storing exponent and mantissa.
  * \li streamable_float_t A type constructible from the one of interest that is
  *                        streamable.
- * \li streamable_uint_t  A type constructible from \e u1_t that is streamable.
+ * \li streamable_uint_t  A type constructible from u1_t that is streamable.
  *
  * Static data:
  *
@@ -45,11 +45,11 @@ namespace amaru {
  * Static functions:
  *
  * \li fields_t to_ieee(T value)
- *   Returns IEEE-754's representation of \e value.
+ *   Returns IEEE-754's representation of value.
  * \li fields_t amaru(T value)
- *   Returns Amaru decimal fields of \e value.
+ *   Returns Amaru decimal fields of value.
  * \li fields_t other(T value)
- *   Returns the third-party library binary fields of \e value.
+ *   Returns the third-party library binary fields of value.
  *
  * \tparam T                The type of interest.
  */
@@ -59,12 +59,12 @@ struct traits_t;
 namespace detail {
 
   /**
-   * \brief Returns the IEEE-754 floating point value corresponding to the
+   * @brief Returns the IEEE-754 floating point value corresponding to the
    * given mantissa and exponent.
    *
    * \tparam T              The floating point number type.
    * \tparam mantissa_size  The number of bits in the mantissa.
-   * \tparam U              An unsigned integer type of the same size as \c T.
+   * \tparam U              An unsigned integer type of the same size as T.
    */
   template <typename T, std::uint32_t mantissa_size>
   T

@@ -13,17 +13,17 @@
 namespace amaru {
 
 /**
- * \brief Amaru's exception.
+ * @brief Amaru's exception.
  */
 struct exception_t : std::runtime_error {
   using std::runtime_error::runtime_error;
 };
 
 /**
- * \brief Throws an exception if a given condition doesn't hold.
+ * @brief Throws an exception if a given condition doesn't hold.
  *
- * \param condition       The condition.
- * \param message         The error message.
+ * @param condition       The condition.
+ * @param message         The error message.
  */
 static inline
 void
@@ -33,10 +33,10 @@ require(bool const condition, const char* const message) {
 }
 
 /**
- * \brief Report an error to stderr.
+ * @brief Report an error to stderr.
  *
- * \param program         The program that generates the error, i.e., argv[0].
- * \param message         The error message.
+ * @param program         The program that generates the error, i.e., argv[0].
+ * @param message         The error message.
  */
 static inline
 void

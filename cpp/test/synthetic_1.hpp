@@ -1,7 +1,7 @@
 /**
  * @file cpp/test/synthetic_1.hpp
  *
- * Implementation \c amaru_multiply used when testing synthetic_1 functions.
+ * Implementation amaru_multiply used when testing synthetic_1 functions.
  */
 
 #ifndef AMARU_CPP_TEST_SYNTHETIC_1_HPP_

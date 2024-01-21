@@ -20,12 +20,12 @@ extern "C" {
 #endif
 
 /**
- * @brief Checks whether mantissa \f$m\f$ is multiple of \f$2^e\f$.
+ * @brief Checks whether mantissa m is multiple of 2^e.
  *
  * @pre 0 <= e && e <= amaru_mantissa_size.
  *
- * @param m                 The mantissa \e m.
- * @param e                 The exponent \e e.
+ * @param m                 The mantissa m.
+ * @param e                 The exponent e.
  */
 static inline
 bool
@@ -36,8 +36,8 @@ is_multiple_of_pow2(amaru_u1_t const m, int32_t const e) {
 /**
  * @brief Checks whether the number m * 2^e is a small integer.
  *
- * @param m                 The mantissa \e m.
- * @param e                 The exponent \e e.
+ * @param m                 The mantissa m.
+ * @param e                 The exponent e.
  */
 static inline
 bool
@@ -46,12 +46,12 @@ is_small_integer(amaru_u1_t const m, int32_t const e) {
 }
 
 /**
- * @brief Checks whether mantissa \f$m\f$ is multiple of \f$5^f\f$.
+ * @brief Checks whether mantissa m is multiple of 5^f.
  *
  * @pre minverse[f] is well defined.
  *
- * @param m                 The mantissa \e m.
- * @param f                 The exponent \e f.
+ * @param m                 The mantissa m.
+ * @param f                 The exponent f.
  */
 static inline
 bool
@@ -60,7 +60,7 @@ is_multiple_of_pow5(amaru_u1_t const m, int32_t const f) {
 }
 
 /**
- * @brief Checks whether m, for m in {m_a, m_b, c_2}, yields a tie.
+ * @brief Checks whether m, for m in { m_a, m_b, c_ 2}, yields a tie.
  *
  * @param m                 The number m.
  * @param f                 The exponent f (for m == m_a and m == m_b) or
@@ -77,7 +77,7 @@ is_tie(amaru_u1_t const m, int32_t const f) {
  * @brief Checks whether m_a = 4 * m_0 - 1, where m_0 is the mantissa of
  * uncentred values, can yield a tie.
  *
- * @param f                 The exponent \e f.
+ * @param f                 The exponent f.
  */
 static inline
 bool
@@ -86,15 +86,14 @@ is_tie_uncentred(int32_t const f) {
 }
 
 /**
- * @brief Returns the quotient \f$q = ((u\cdot 2^N + l)\cdot 2^k) / 2^s\f$,
- * where  \f$N\f$ is the value of \c aramu_size and \f$s\f$ is the value of
- * \c amaru_calculation_shift.
+ * @brief Returns the quotient q = ((u * 2^N + l) * 2^k) / 2^s, where
+ * N = aramu_size and s = amaru_calculation_shift.
  *
- * @param k                 The exponent \e k.
- * @param u                 The upper part of the multiplicand \e u.
- * @param l                 The lower part of the multiplicand \e l.
+ * @param k                 The exponent k.
+ * @param u                 The upper part of the multiplicand u.
+ * @param l                 The lower part of the multiplicand l.
  *
- * @returns The value of \f$q\f$.
+ * @returns The value of q.
  */
 static inline
 amaru_u1_t
@@ -106,7 +105,7 @@ mshift_pow2(uint32_t const k, amaru_u1_t const u, amaru_u1_t const l) {
 }
 
 /**
- * @brief Creates \c amaru_fields_t from exponent and mantissa.
+ * @brief Creates amaru_fields_t from exponent and mantissa.
  *
  * @param e                 The exponent.
  * @param m                 The mantissa.
@@ -121,7 +120,7 @@ make_fields(int32_t const e, amaru_u1_t const m) {
 /**
  * @brief Rotates a given number to the right by a given number of bits.
  *
- * @pre <tt>s <= amaru_size</tt>.
+ * @pre s <= amaru_size.
  * 
  * @param n                 The given number.
  * @param s                 The given number of bits.
@@ -133,11 +132,11 @@ rotr(amaru_u1_t const n, unsigned const s) {
 }
 
 /**
- * @brief Shortens the decimal representation \f$m\cdot 10^e\f$ by removing
- * trailing zeros of \e m and increasing \e e.
+ * @brief Shortens the decimal representation m\cdot 10^e\f by removing trailing
+ * zeros of m and increasing e.
  *
- * @param e                 The exponent \e e.
- * @param m                 The mantissa \e m.
+ * @param e                 The exponent e.
+ * @param m                 The mantissa m.
  *
  * @returns The fields of the shortest close decimal representation.
  */
@@ -158,10 +157,10 @@ remove_trailing_zeros(int32_t e, amaru_u1_t m) {
 /**
  * @brief Amaru itself.
  *
- * Finds the shortest decimal representation of f$m\cdot 2^e\f$.
+ * Finds the shortest decimal representation of m * 2^e.
  *
- * @param e                 The exponent \e e.
- * @param m                 The mantissa \e m.
+ * @param e                 The exponent e.
+ * @param m                 The mantissa m.
  *
  * @returns The fields of the shortest decimal representation.
  */

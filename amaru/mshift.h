@@ -20,14 +20,13 @@ extern "C" {
 #endif
 
 /**
- * @brief Returns the quotient \f$q = (r_2\cdot 2^{2N} + r_1\cdot 2^N) / 2^s\f$,
- * where \f$N\f$ is the value of \c aramu_size and \f$s$ is the value of
- * \c amaru_calculation_shift.
+ * @brief Returns the quotient q = (r_2 * 2^(2 * N) + r_1 * 2^N) / 2^s, where
+ * N = aramu_size and s = amaru_calculation_shift.
  *
- * @param r2                The value of \f$r_2\f$.
- * @param r1                The value of \f$r_1\f$.
+ * @param r2                The value of r_2.
+ * @param r1                The value of r_1$.
  *
- * @returns The value of \f$q\f$.
+ * @returns The quotient q.
  */
 static inline
 amaru_u1_t
@@ -46,15 +45,14 @@ amaru_rshift(amaru_u1_t const r2, amaru_u1_t const r1) {
 }
 
 /**
- * @brief Returns the quotient \f$q = ((u\cdot 2^N + l) * m) / 2^s\f$, where
- * \f$N\f$ is the value of \c aramu_size and \f$s\f$ is the value of
- * \c amaru_calculation_shift.
+ * @brief Returns the quotient q = ((u * 2^N + l) * m) / 2^s, where
+ * N = aramu_size and s = amaru_calculation_shift.
  *
- * @param m                 The value of \f$m\f$.
- * @param u                 The value of \f$u\f$.
- * @param l                 The value of \f$l\f$.
+ * @param m                 The 1st multiplicand  m.
+ * @param u                 The upper half u.
+ * @param l                 The lower half l.
  *
- * @returns The value of \f$q\f$.
+ * @returns The quotient q.
  */
 static inline
 amaru_u1_t

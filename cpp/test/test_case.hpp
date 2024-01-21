@@ -1,7 +1,7 @@
 /**
  * @file cpp/test/test_case.hpp
  *
- * Implementation of \c test_case_t.
+ * Implementation of test_case_t.
  */
 
 #ifndef AMARU_CPP_TEST_TEST_CASE_HPP_
@@ -19,9 +19,9 @@ namespace test {
 /**
  * @brief Test case for a given type.
  * 
- * It stores a value of type \e T and the expected fields of its Amaru's
- * decimal representation. Instantiations are provided for \c float, \c double
- * and \c float128_t (if supported).
+ * It stores a value of type T and the expected fields of its Amaru's
+ * decimal representation. Instantiations are provided for float, double and
+ * float128_t (if supported).
  * 
  * \tparam                  The given type.
  */
@@ -72,11 +72,11 @@ private:
 }; // test_case_t
 
 /**
- * @brief Stream operator for <tt>test_case_t<T></tt>.
+ * @brief Stream operator for test_case_t<T>.
  * 
  * @tparam C                The char type.
  * @tparam CT               The char-traits type.
- * @tparam T                The type \e T.
+ * @tparam T                The type T.
  * 
  * @param os                The object that the test case is streamed to.
  * @param test_case         The test case.

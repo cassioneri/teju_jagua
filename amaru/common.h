@@ -15,41 +15,41 @@ extern "C" {
 #endif
 
 /**
- * @brief Gets the \e k least significant bits of \e n (i.e., \f$e\%2^k\f$.)
+ * @brief Gets the k least significant bits of n (i.e., e % 2^k.)
  *
- * @pre <tt>k < sizeof(n) * CHAR_BIT</tt>.
+ * @pre k < sizeof(n) * CHAR_BIT.
  *
- * @param n                 The value of \e n.
- * @param k                 The value of \e k.
+ * @param n                 The value of n.
+ * @param k                 The value of k.
  *
- * @returns The number \e k least significant bits of \e n.
+ * @returns The k least significant bits of n.
  */
 #define amaru_lsb(n, k) ((n) & (((0 * (n) + 1) << (k)) - 1))
 
 /**
- * @brief Returns \f$2^n\f$ as a given type.
+ * @brief Returns 2^e as a given type.
  *
- * @pre <tt>n < sizeof(type) * CHAR_BIT</tt>.
+ * @pre e < sizeof(type) * CHAR_BIT.
  *
  * @param type              The type.
- * @param n                 The value of \f$n\f$.
+ * @param n                 The exponent e.
  *
- * @returns \f$2^n\f$.
+ * @returns 2^e.
  */
-#define amaru_pow2(type, n) (((type) 1) << (n))
+#define amaru_pow2(type, e) (((type) 1) << (e))
 
 // Argument bounds of amaru_log10_pow2.
 #define amaru_log10_pow2_min -112815
 #define amaru_log10_pow2_max  112815
 
 /**
- * @brief Returns the largest number \f$f\f$ such that \f$10^f <= 2^e\f$.
+ * @brief Returns the largest exponent f such that 10^f <= 2^e.
  *
- * @pre <tt>amaru_log10_pow2_min <= e && e <= amaru_log10_pow2_max</tt>.
+ * @pre amaru_log10_pow2_min <= e && e <= amaru_log10_pow2_max.
  *
- * @param e                 The value of \f$e\f$.
+ * @param e                 The exponent e.
  *
- * @returns The value of \f$f\f$ defined above.
+ * @returns The exponent f.
  */
 static inline
 int32_t
@@ -58,15 +58,14 @@ amaru_log10_pow2(int32_t const e) {
 }
 
 /**
- * @brief Returns the residual \f$r = e - e_0\f$, where \f$e_0\f$ is the
- * smallest number such that \f$\lfloor\log_{10}(2^{e_0})\rfloor =
- * \lfloor\log_{10}(2^e)\rfloor\f$.
+ * @brief Returns the residual r = e - e_0, where e_0 is the smallest exponent
+ * such that the integer part of log_10(2^e_0) matches that of log_10(2^e).
  *
- * @pre <tt>amaru_log10_pow2_min <= e && e <= amaru_log10_pow2_max</tt>.
+ * @pre amaru_log10_pow2_min <= e && e <= amaru_log10_pow2_max.
  *
- * @param e                 The value of \f$e\f$.
+ * @param e                 The exponent e.
  *
- * @returns The residual \f$r\f$.
+ * @returns The residual r.
  */
 static inline
 uint32_t
@@ -79,14 +78,13 @@ amaru_log10_pow2_residual(int32_t const e) {
 #define amaru_log10_075_pow2_max  111480
 
 /**
- * @brief Returns the largest number \f$f\f$ such that \f$10^f <= \frac{3}{4}
- * \cdot 2^e\f$.
+ * @brief Returns the largest exponent f such that 10^f <= 0.75 * 2^e.
  *
- * @pre <tt>amaru_log10_075_pow2_min <= e && e <= amaru_log10_075_pow2_max</tt>.
+ * @pre amaru_log10_075_pow2_min <= e && e <= amaru_log10_075_pow2_max.
  *
- * @param e                 The value of \f$e\f$.
+ * @param e                 The exponent e.
  *
- * @returns The value of \f$f\f$ defined above.
+ * @returns The exponent f.
  */
 static inline
 int32_t
@@ -95,15 +93,15 @@ amaru_log10_075_pow2(int32_t const e) {
 }
 
 /**
- * @brief Returns the residual \f$r = e - e_0\f$, where \f$e_0\f$ is the
- * smallest number such that \f$\lfloor\log_(\frac{3}{4}\cdot 2^{e_0})\rfloor =
- * \lfloor\log_{10}(2^e)\rfloor\f$.
+ * @brief Returns the residual r = e - e_0, where e_0 is the smallest exponent
+ * such that the integer part of log_10(0.75 * 2^e_0) matches that of
+ * log_10(0.75 * 2^e).
  *
- * @pre <tt>amaru_log10_075_pow2_min <= e && e <= amaru_log10_075_pow2_max</tt>.
+ * @pre amaru_log10_075_pow2_min <= e && e <= amaru_log10_075_pow2_max.
  *
- * @param e                 The value of \f$e\f$.
+ * @param e                 The exponent e.
  *
- * @returns The residual \f$r\f$.
+ * @returns The residual r.
  */
 static inline
 uint32_t

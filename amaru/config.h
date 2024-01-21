@@ -39,7 +39,7 @@
 // in their documentation.
 
 /**
- * @brief The platform provides operator \c * for 1-limb unsigned integers that
+ * @brief The platform provides operator * for 1-limb unsigned integers that
  * yields the lower 1-limb of the 2-limb product. For instance, assuming 1-limb
  * is 32-bits:
  * \code{.cpp}
@@ -50,10 +50,10 @@
 #define amaru_built_in_1 0
 
 /**
- * @brief The platform implements <tt>amaru_multiply()</tt> which takes two
- * 1-limb unsigned integers and returns the lower 1-limb of the 2-limb product.
- * It also takes a third argument of pointer type where the upper 1-limb of the
- * product is stored on exit. For instance, assuming 1-limb is 32-bits:
+ * @brief The platform implements amaru_multiply() which takes two 1-limb
+ * unsigned integers and returns the lower 1-limb of the 2-limb product. It also
+ * takes a third argument of pointer type where the upper 1-limb of the product
+ * is stored on exit. For instance, assuming 1-limb is 32-bits:
  * \code{.cpp}
  *     uint32_t a, b, upper;
  *     uint32_t lower = amaru_multiply(a, b, &upper);
@@ -62,7 +62,7 @@
 #define amaru_synthetic_1 1
 
 /**
- * @brief The platform provides operator \c * for 2-limb unsigned integers that
+ * @brief The platform provides operator * for 2-limb unsigned integers that
  * yields the lower 2-limb of the 4-limb product. For instance, assuming 1-limb
  * is 32-bits:
  * \code{.cpp}
@@ -73,10 +73,10 @@
 #define amaru_built_in_2  2
 
 /**
- * @brief The platform implements <tt>amaru_multiply()</tt> which takes two
- * 2-limb unsigned integers and returns the lower 2-limb of the 4-limb product.
- * It also also takes a third argument of pointer type where the upper 2-limb of
- * the product is stored on exit. For instance, assuming 1-limb is 32-bits:
+ * @brief The platform implements amaru_multiply() which takes two 2-limb
+ * unsigned integers and returns the lower 2-limb of the 4-limb product. It also
+ * takes a third argument of pointer type where the upper 2-limb of the product
+ * is stored on exit. For instance, assuming 1-limb is 32-bits:
  * \code{.cpp}
  *     uint64_t a, b, upper;
  *     uint64_t lower = amaru_multiply(a, b, &upper);
@@ -85,7 +85,7 @@
 #define amaru_synthetic_2 3
 
 /**
- * @brief The platform provides operator \c * for 4-limb unsigned integers that
+ * @brief The platform provides operator * for 4-limb unsigned integers that
  * yields the lower 4-limb of the 8-limb product. For instance, assuming 1-limb
  * is 32-bits, gcc and clang support the following:
  * \code{.cpp}

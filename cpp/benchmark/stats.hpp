@@ -14,7 +14,7 @@ namespace amaru {
 /**
  * @brief Online mean and standard deviation calculator.
  *
- * @warning Sample values must be small numbers of type \e std::uint64_t.
+ * @warning Sample values must be small numbers of type std::uint64_t.
  */
 struct stats_t {
 
@@ -41,7 +41,7 @@ struct stats_t {
   }
 
   /**
-   * \brief Gets the current standard deviation.
+   * @brief Gets the current standard deviation.
    *
    * @returns The current standard deviation.
    */

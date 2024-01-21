@@ -57,7 +57,7 @@ struct mantissa_provider_t {
   /**
    * @brief Checks whether there are still mantissas to generate.
    *
-   * @returns \c true when there are no more mantissas to generate.
+   * @returns true when there are no more mantissas to generate.
    */
   bool
   empty() const {
@@ -67,7 +67,7 @@ struct mantissa_provider_t {
   /**
    * @brief Gets the next pseudo-random mantissa.
    *
-   * @pre <tt>!empty()</tt>.
+   * @pre !empty().
    *
    * @returns The next pseudo-random mantissa.
    */
@@ -121,7 +121,7 @@ struct generic_sampler_t {
    * @brief Checks whether there are still floating point numbers to be
    * generated.
    *
-   * @returns \c true when there are no more floating point numbers to generate.
+   * @returns true when there are no more floating point numbers to generate.
    */
   bool
   empty() const {
@@ -131,7 +131,7 @@ struct generic_sampler_t {
   /**
    * @brief Gets the next floating point number.
    *
-   * @pre <tt>!empty()</tt>.
+   * @pre !empty().
    *
    * @returns The next generated floating point number.
    */
@@ -171,7 +171,7 @@ template <typename T, population_t population>
 struct sampler_t;
 
 /**
- * @brief Specialisation of \c sampler_t for \c population_t::integer.
+ * @brief Specialisation of sampler_t for population_t::integer.
  *
  * The generator generates all strictly positive integers less than or equal to
  * a given upper bound.
@@ -184,7 +184,7 @@ struct sampler_t<T, population_t::integer> {
   /**
    * @brief Constructor.
    *
-   * @pre <tt>bound >= 0</tt>.
+   * @pre bound >= 0.
    *
    * @param bound           The given upper bound.
    */
@@ -195,7 +195,7 @@ struct sampler_t<T, population_t::integer> {
    * @brief Checks whether there are still floating point numbers to be
    * generated.
    *
-   * @returns \c true when there are no more floating point numbers to generate.
+   * @returns true when there are no more floating point numbers to generate.
    */
   bool
   empty() const {
@@ -205,7 +205,7 @@ struct sampler_t<T, population_t::integer> {
   /**
    * @brief Gets the next floating point number.
    *
-   * @pre <tt>!empty()</tt>.
+   * @pre !empty().
    *
    * @returns The next generated floating point number.
    */
@@ -222,10 +222,10 @@ private:
 }; // sampler_t<T, population_t::integer>
 
 /**
- * @brief Specialisation of \c sampler_t for \c population_t::centred.
+ * @brief Specialisation of sampler_t for population_t::centred.
  *
- * The generator gets a mantissa value from a \c mantissa_provider_t and loops
- * over the set of all exponents, generating all floating point values with the
+ * The generator gets a mantissa value from a mantissa_provider_t and loops over
+ * the set of all exponents, generating all floating point values with the
  * obtained mantissa. When the exponents are exhausted, the provider is called
  * again and the cycle repeats.
  *
@@ -250,7 +250,7 @@ struct sampler_t<T, population_t::centred> {
    * @brief Checks whether there are still floating point numbers to be
    * generated.
    *
-   * @returns \c true when there are no more floating point numbers to generate.
+   * @returns true when there are no more floating point numbers to generate.
    */
   bool
   empty() const {
@@ -260,7 +260,7 @@ struct sampler_t<T, population_t::centred> {
   /**
    * @brief Gets the next floating point number.
    *
-   * @pre <tt>!empty()</tt>.
+   * @pre !empty().
    *
    * @returns The next generated floating point number.
    */
@@ -276,7 +276,7 @@ private:
 }; // sampler_t<T, population_t::centred>
 
 /**
- * @brief Specialisation of \c sampler_t for \c population_t::uncentred.
+ * @brief Specialisation of sampler_t for population_t::uncentred.
  *
  * Generates all floating point values which are uncentred.
  *
@@ -292,7 +292,7 @@ struct sampler_t<T, population_t::uncentred> {
    * @brief Checks whether there are still floating point numbers to be
    * generated.
    *
-   * @returns \c true when there are no more floating point numbers to generate.
+   * @returns true when there are no more floating point numbers to generate.
    */
   bool
   empty() const {
@@ -302,7 +302,7 @@ struct sampler_t<T, population_t::uncentred> {
   /**
    * @brief Gets the next floating point number.
    *
-   * @pre <tt>!empty()</tt>.
+   * @pre !empty().
    *
    * @returns The next generated floating point number.
    */
@@ -321,7 +321,7 @@ private:
     /**
      * @brief Checks whether there are still mantissas to generate.
      *
-     * @returns \c true when there are no more mantissas to generate.
+     * @returns true when there are no more mantissas to generate.
      */
     bool
     empty() const {
@@ -331,7 +331,7 @@ private:
     /**
      * @brief Gets the minimum mantissa.
      *
-     * @pre <tt>!empty()</tt>.
+   * @pre !empty().
      *
      * @returns The minimum mantissa.
      */
@@ -350,13 +350,13 @@ private:
 }; // sampler_t<T, population_t::uncentred>
 
 /**
- * @brief Specialisation of \c sampler_t for \c population_t::mixed.
+ * @brief Specialisation of sampler_t for population_t::mixed.
  *
- * The generator gets a mantissa value from a \c mantissa_provider_t and loops
- * over the set of all exponents, generating all floating point values with the
+ * The generator gets a mantissa value from a mantissa_provider_t and loops over
+ * the set of all exponents, generating all floating point values with the
  * obtained mantissa. When the exponents are exhausted, the provider is called
  * again and the cycle repeats. When there are no more mantissas to be provided.
- * from the \c mantissa_provider_t instance, then all uncentred floating point
+ * from the mantissa_provider_t instance, then all uncentred floating point
  * values are generated.
  *
  * @tparam T                The floating point number type.
@@ -380,7 +380,7 @@ struct sampler_t<T, population_t::mixed> {
    * @brief Checks whether there are still floating point numbers to be
    * generated.
    *
-   * @returns \c true when there are no more floating point numbers to generate.
+   * @returns true when there are no more floating point numbers to generate.
    */
   bool
   empty() const {
@@ -390,7 +390,7 @@ struct sampler_t<T, population_t::mixed> {
   /**
    * @brief Gets the next floating point number.
    *
-   * @pre <tt>!empty()</tt>.
+   * @pre !empty().
    *
    * @returns The next generated floating point number.
    */

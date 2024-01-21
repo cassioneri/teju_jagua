@@ -1,7 +1,7 @@
 /**
  * @file amaru/float128.h
  *
- * Amaru and helpers for \c float128_t values.
+ * Amaru and helpers for float128_t values.
  */
 
 #ifndef AMARU_AMARU_FLOAT128_H_
@@ -18,15 +18,15 @@ extern "C" {
 #endif
 
 /**
- * @brief Gets IEEE-754's binary128 representation of a \c float128_t.
+ * @brief Gets IEEE-754's binary128 representation of a float128_t.
  *
  * See https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format
  *
- * @pre <tt>value > 0</tt>.
+ * @pre value > 0.
  *
- * @param value             The given \c float128_t.
+ * @param value             The given float128_t.
  *
-  * @returns IEEE-754's binary128 representation of \e value.
+  * @returns IEEE-754's binary128 representation of value.
  */
 amaru128_fields_t
 amaru_float128_to_ieee128(float128_t value);
@@ -34,23 +34,23 @@ amaru_float128_to_ieee128(float128_t value);
 /**
  * @brief Gets Amaru's binary representation of a given IEEE-754 binary128 one.
  *
- * @pre <tt>value > 0</tt>.
+ * @pre value > 0.
  *
  * @param ieee128           The given IEEE-754 binary128 representation.
  *
- * @returns Amaru's binary representation \e value.
+ * @returns Amaru's binary representation value.
  */
 amaru128_fields_t
 amaru_ieee128_to_amaru_binary(amaru128_fields_t ieee128);
 
 /**
- * @brief Gets Amaru's decimal representation of a \c float128_t.
+ * @brief Gets Amaru's decimal representation of a float128_t.
  *
- * @pre <tt>value > 0</tt>.
+ * @pre value > 0.
  *
- * @param value             The given \c float128_t.
+ * @param value             The given float128_t.
  *
- * @returns Amaru's decimal representation of \e value.
+ * @returns Amaru's decimal representation of value.
  */
 amaru128_fields_t
 amaru_float128_to_amaru_decimal(float128_t value);

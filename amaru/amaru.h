@@ -114,7 +114,7 @@ make_fields(int32_t const e, amaru_u1_t const m) {
  */
 static inline
 amaru_u1_t
-rotr(amaru_u1_t const n, unsigned s) {
+rotr(amaru_u1_t const n, unsigned const s) {
   return (n >> s) | (n << (amaru_size - s));
 }
 
@@ -152,7 +152,7 @@ remove_trailing_zeros(int32_t e, amaru_u1_t m) {
  * @returns The fields of the shortest decimal representation.
  */
 amaru_fields_t
-amaru_function(amaru_fields_t binary) {
+amaru_function(amaru_fields_t const binary) {
 
   int32_t    const e = binary.exponent;
   amaru_u1_t const m = binary.mantissa;

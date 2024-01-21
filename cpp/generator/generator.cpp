@@ -200,11 +200,6 @@ to_upper(std::string const& str) {
   return result;
 }
 
-std::int32_t
-get_index_offset(bool const full, std::int32_t const exponent_min) {
-  return full ? exponent_min : amaru_log10_pow2(exponent_min);
-}
-
 } // namespace <anonymous>
 
 //------------------------------------------------------------------------------
@@ -212,15 +207,15 @@ get_index_offset(bool const full, std::int32_t const exponent_min) {
 //------------------------------------------------------------------------------
 
 generator_t::generator_t(config_t config, std::string directory) :
-  config_      {std::move(config)                               },
-  prefix_      {get_prefix(size())                              },
-  function_    {"amaru_" + id()                                 },
-  mantissa_min_{pow2(mantissa_size())                           },
-  mantissa_max_{2 * mantissa_min()                              },
-  index_offset_{get_index_offset(storage_full(), exponent_min())},
-  directory_   {std::move(directory)                            },
-  dot_h_       {id() + ".h"                                     },
-  dot_c_       {id() + ".c"                                     } {
+  config_      {std::move(config)               },
+  prefix_      {get_prefix(size())              },
+  function_    {"amaru_" + id()                 },
+  mantissa_min_{pow2(mantissa_size())           },
+  mantissa_max_{2 * mantissa_min()              },
+  index_offset_{amaru_log10_pow2(exponent_min())},
+  directory_   {std::move(directory)            },
+  dot_h_       {id() + ".h"                     },
+  dot_c_       {id() + ".c"                     } {
 }
 
 void
@@ -294,11 +289,6 @@ generator_t::mantissa_min() const {
 integer_t const&
 generator_t::mantissa_max() const {
   return mantissa_max_;
-}
-
-bool
-generator_t::storage_full() const {
-  return config_.storage.full;
 }
 
 std::uint32_t
@@ -433,8 +423,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   // Optimal shift is 2 * size since it prevents mshift to deal with partial
   // limbs. In addition, we subtract 1 to compensate shift's increment made
   // later on, when shift is output. (See below.)
-  if (!storage_full())
-    shift = std::max(shift, 2 * size() - 1);
+  shift = std::max(shift, 2 * size() - 1);
 
   // Replace minimal fast EAFs to use the same shift.
 
@@ -462,7 +451,6 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "#define amaru_size                   " << size()          << "\n"
     "#define amaru_exponent_minimum       " << exponent_min()  << "\n"
     "#define amaru_mantissa_size          " << mantissa_size() << "\n"
-    "#define amaru_full                   " << storage_full()  << "\n"
     "#define amaru_storage_index_offset   " << index_offset()  << "\n";
 
   if (!calculation_div10().empty())
@@ -496,8 +484,8 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "  amaru_u1_t const lower;\n"
     "} const multipliers[] = {\n";
 
-  auto e2      = exponent_min();
-  auto e2_or_f = storage_full() ? e2 : amaru_log10_pow2(e2);
+  auto e2 = exponent_min();
+  auto f  = amaru_log10_pow2(e2);
 
   for (auto const& fast_eaf : fast_eafs) {
 
@@ -508,9 +496,9 @@ generator_t::generate_dot_c(std::ostream& stream) const {
       throw exception_t{"Multiplier is out of range."};
 
     stream << "  { " << splitter(std::move(upper)) << ", " <<
-      splitter(std::move(lower)) << " }, // " << std::dec << e2_or_f << "\n";
+      splitter(std::move(lower)) << " }, // " << std::dec << f << "\n";
 
-    ++e2_or_f;
+    ++f;
   }
 
   stream << "};\n"
@@ -573,10 +561,10 @@ generator_t::get_maxima() const {
 
     auto const f = amaru_log10_pow2(e);
 
-    if (!storage_full() && f == f_done)
+    if (f == f_done)
       continue;
 
-    auto const e0 = (storage_full() ? e : e - amaru_log10_pow2_residual(e)) - f;
+    auto const e0 = e - amaru_log10_pow2_residual(e) - f;
 
     alpha_delta_maximum_t x;
     x.alpha   = f >= 0 ? pow2(e0) : pow5(-f );
@@ -599,8 +587,7 @@ generator_t::get_maximum(integer_t alpha, integer_t const& delta,
   // Usual interval.
 
   auto const a = start_at_1 ? integer_t{1} : integer_t{2 * mantissa_min()};
-  auto const b = storage_full() ? integer_t{2 * mantissa_max()} :
-    integer_t{16 * mantissa_max() - 15};
+  auto const b = integer_t{16 * mantissa_max() - 15};
 
   auto const max_ab = get_maximum_1(alpha, delta, a, b);
 
@@ -613,9 +600,6 @@ generator_t::get_maximum(integer_t alpha, integer_t const& delta,
     auto const max_m_c = phi_2(alpha, delta, m_c);
     return std::max(max_m_a, max_m_c);
   };
-
-  if (storage_full())
-    return std::max(max_ab, max_extras(mantissa_min()));
 
   return std::max({max_ab, max_extras(mantissa_min()),
     max_extras(2 * mantissa_min()), max_extras(4 * mantissa_min()),

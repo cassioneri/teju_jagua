@@ -7,8 +7,7 @@
 #ifndef AMARU_AMARU_FLOAT_H_
 #define AMARU_AMARU_FLOAT_H_
 
-#include "amaru/generated/ieee32_compact.h"
-#include "amaru/generated/ieee32_full.h"
+#include "amaru/generated/ieee32.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,8 +42,6 @@ amaru_ieee32_to_amaru_binary(amaru32_fields_t ieee32);
 /**
  * @brief Gets Amaru's decimal representation of a \c float.
  *
- * This function uses algorithm based on the compact table storage.
- *
  * @pre <tt>value > 0</tt>.
  *
  * @param value             The given \c float.
@@ -52,21 +49,7 @@ amaru_ieee32_to_amaru_binary(amaru32_fields_t ieee32);
  * @returns Amaru's decimal representation of \e value.
  */
 amaru32_fields_t
-amaru_float_to_amaru_decimal_compact(float value);
-
-/**
- * @brief Gets Amaru's decimal representation of a \c float.
- *
- * This function uses algorithm based on the full table storage.
- *
- * @pre <tt>value > 0</tt>.
- *
- * @param value             The given \c float.
- *
- * @returns Amaru's decimal representation of \e value.
- */
-amaru32_fields_t
-amaru_float_to_amaru_decimal_full(float value);
+amaru_float_to_amaru_decimal(float value);
 
 #ifdef __cplusplus
 }

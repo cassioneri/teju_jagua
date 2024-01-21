@@ -24,13 +24,10 @@ namespace amaru {
  * Amaru (and possibly other third-party libraries with the same purpose) are
  * supposed to be called in C which doesn't support overloading and templates.
  * This class serves to wrap C functions (and data) referring to specific types
- * into a generic interface. For instance,
- * \c amaru_from_double_to_decimal_compact and
- * \c amaru_from_float_to_decimal_compact are two such functions that are
- * wrapped, respectively, by \c traits_t<double>::amaru_compact and
- * \c traits_t<float>::amaru_compact, make easier to call then in generic
- * tests. Specialisations of \c traits_t are provided for \c float and
- * \c double. They contain the following members.
+ * into a generic interface. For instance, \c amaru_from_double_to_decimal is
+ * wrapped by \c traits_t<double>::amaru, making easier to call it in generic
+ * tests. Specialisations of \c traits_t are provided for \c float and \c double
+ * and, if supported \c float128_t. They contain the following members.
  *
  * Types:
  *
@@ -49,17 +46,10 @@ namespace amaru {
  *
  * \li fields_t to_ieee(T value)
  *   Returns IEEE-754's representation of \e value.
- * \li fields_t amaru_compact(T value)
- *   Returns Amaru decimal fields of \e value found by the compact table method.
- * \li fields_t amaru_full(T value)
- *   Returns Amaru decimal fields of \e value found by the full table method.
+ * \li fields_t amaru(T value)
+ *   Returns Amaru decimal fields of \e value.
  * \li fields_t other(T value)
  *   Returns the third-party library binary fields of \e value.
- *
- * @warning Since platforms and third-party libraries lack support for larger
- * types (e.g., float128_t and uint128_t). Hence, some of the functions above or
- * even the whole corresponding \c traits_t specialisation might be
- * undefined.
  *
  * \tparam T                The type of interest.
  */
@@ -127,14 +117,8 @@ struct traits_t<float> {
 
   static
   fields_t
-  amaru_compact(float const value) {
-    return fields_t{amaru_float_to_amaru_decimal_compact(value)};
-  }
-
-  static
-  fields_t
-  amaru_full(float const value) {
-    return fields_t{amaru_float_to_amaru_decimal_full(value)};
+  amaru(float const value) {
+    return fields_t{amaru_float_to_amaru_decimal(value)};
   }
 
   static
@@ -185,14 +169,8 @@ struct traits_t<double> {
 
   static
   fields_t
-  amaru_compact(double const value) {
-    return fields_t{amaru_double_to_amaru_decimal_compact(value)};
-  }
-
-  static
-  fields_t
-  amaru_full(double const value) {
-    return fields_t{amaru_double_to_amaru_decimal_full(value)};
+  amaru(double const value) {
+    return fields_t{amaru_double_to_amaru_decimal(value)};
   }
 
   static
@@ -245,14 +223,8 @@ struct traits_t<float128_t> {
 
   static
   fields_t
-  amaru_compact(float128_t const value) {
-    return {amaru_float128_to_amaru_decimal_compact(value)};
-  }
-
-  static
-  fields_t
-  amaru_full(float128_t const value) {
-    return {amaru_float128_to_amaru_decimal_full(value)};
+  amaru(float128_t const value) {
+    return {amaru_float128_to_amaru_decimal(value)};
   }
 
   // TODO (CN): Perhaps we could use Ryu for float128_t but at the moment

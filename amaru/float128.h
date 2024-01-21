@@ -11,8 +11,7 @@
 
 #if defined(AMARU_HAS_FLOAT128)
 
-#include "amaru/generated/ieee128_compact.h"
-#include "amaru/generated/ieee128_full.h"
+#include "amaru/generated/ieee128.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,8 +46,6 @@ amaru_ieee128_to_amaru_binary(amaru128_fields_t ieee128);
 /**
  * @brief Gets Amaru's decimal representation of a \c float128_t.
  *
- * This function uses algorithm based on the compact table storage.
- *
  * @pre <tt>value > 0</tt>.
  *
  * @param value             The given \c float128_t.
@@ -56,21 +53,7 @@ amaru_ieee128_to_amaru_binary(amaru128_fields_t ieee128);
  * @returns Amaru's decimal representation of \e value.
  */
 amaru128_fields_t
-amaru_float128_to_amaru_decimal_compact(float128_t value);
-
-/**
- * @brief Gets Amaru's decimal representation of a \c float128_t.
- *
- * This function uses algorithm based on the full table storage.
- *
- * @pre <tt>value > 0</tt>.
- *
- * @param value             The given \c float128_t.
- *
- * @returns Amaru's decimal representation of \e value.
- */
-amaru128_fields_t
-amaru_float128_to_amaru_decimal_full(float128_t value);
+amaru_float128_to_amaru_decimal(float128_t value);
 
 #ifdef __cplusplus
 }

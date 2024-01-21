@@ -1,5 +1,5 @@
 {
-  "id"  : "ieee128_compact",
+  "id"  : "ieee128",
   "size": 128,
 
   "exponent": {
@@ -13,7 +13,6 @@
   },
 
   "storage": {
-    "full" : false,
     "split": 2
   },
 

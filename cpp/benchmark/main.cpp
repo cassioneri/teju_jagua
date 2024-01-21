@@ -58,15 +58,14 @@ benchmark(const char* filename, Args... args) {
   auto out = std::ofstream{filename};
 
   out.precision(std::numeric_limits<T>::digits10 + 2);
-  out << "exponent, mantissa, integer, value, amaru\\\\_compact, "
-    "amaru\\\\_full, dragonbox\\\\_compact, dragonbox\\\\_full\n";
+  out << "exponent, mantissa, integer, value, amaru, dragonbox\\\\_compact, "
+    "dragonbox\\\\_full\n";
 
   using traits_t = amaru::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
   auto  sampler  = sampler_t<T, population>{args...};
 
-  stats_t amaru_compact_stats, amaru_full_stats, dragonbox_compact_stats,
-    dragonbox_full_stats;
+  stats_t amaru_stats, dragonbox_compact_stats, dragonbox_full_stats;
 
   while (!sampler.empty()) {
 
@@ -76,11 +75,8 @@ benchmark(const char* filename, Args... args) {
     if (value == T{0})
       continue;
 
-    auto const amaru_compact = benchmark(value, &traits_t::amaru_compact);
-    amaru_compact_stats.update(amaru_compact);
-
-    auto const amaru_full = benchmark(value, &traits_t::amaru_full);
-    amaru_full_stats.update(amaru_full);
+    auto const amaru = benchmark(value, &traits_t::amaru);
+    amaru_stats.update(amaru);
 
     auto const dragonbox_compact = benchmark(value,
       &traits_t::dragonbox_compact);
@@ -100,28 +96,20 @@ benchmark(const char* filename, Args... args) {
       fields.mantissa           << ", " <<
       integer                   << ", " <<
       value                     << ", " <<
-      0.001 * amaru_compact     << ", " <<
-      0.001 * amaru_full        << ", " <<
+      0.001 * amaru             << ", " <<
       0.001 * dragonbox_compact << ", " <<
       0.001 * dragonbox_full    << "\n";
   }
 
-  auto const baseline = std::min(amaru_compact_stats.mean(),
-    amaru_full_stats.mean());
+  auto const baseline = amaru_stats.mean();
 
   auto const print = [](const char* m, std::uint64_t const n) {
     std::cout << m << 0.001 * n << '\n';
   };
 
-  print("amaru_compact     (mean)   = ", amaru_compact_stats.mean  ());
-  print("amaru_compact     (stddev) = ", amaru_compact_stats.stddev());
-  print("amaru_compact     (rel.)   = ", 1000 *
-    amaru_compact_stats.mean() / baseline);
-
-  print("amaru_full        (mean)   = ", amaru_full_stats.mean  ());
-  print("amaru_full        (stddev) = ", amaru_full_stats.stddev());
-  print("amaru_full        (rel.)   = ", 1000 *
-    amaru_full_stats.mean() / baseline);
+  print("amaru             (mean)   = ", amaru_stats.mean  ());
+  print("amaru             (stddev) = ", amaru_stats.stddev());
+  print("amaru             (rel.)   = ", 1000 * amaru_stats.mean() / baseline);
 
   print("dragonbox_compact (mean)   = ", dragonbox_compact_stats.mean  ());
   print("dragonbox_compact (stddev) = ", dragonbox_compact_stats.stddev());

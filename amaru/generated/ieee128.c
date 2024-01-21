@@ -1,6 +1,6 @@
 // This file was generated. DO NOT EDIT IT.
 
-#include "ieee128_compact.h"
+#include "ieee128.h"
 
 #include "amaru/literal.h"
 
@@ -11,7 +11,6 @@ extern "C" {
 #define amaru_size                   128
 #define amaru_exponent_minimum       -16494
 #define amaru_mantissa_size          112
-#define amaru_full                   0
 #define amaru_storage_index_offset   -4966
 #define amaru_calculation_div10      amaru_built_in_1
 #define amaru_calculation_mshift     amaru_built_in_1
@@ -20,7 +19,7 @@ extern "C" {
 #define amaru_optimisation_mid_point 1
 #define amaru_minverse5              amaru_literal2(0xcccccccccccccccc, 0xcccccccccccccccd)
 
-#define amaru_function               amaru_ieee128_compact
+#define amaru_function               amaru_ieee128
 #define amaru_fields_t               amaru128_fields_t
 #define amaru_u1_t                   amaru128_u1_t
 

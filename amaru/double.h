@@ -7,8 +7,7 @@
 #ifndef AMARU_AMARU_DOUBLE_H_
 #define AMARU_AMARU_DOUBLE_H_
 
-#include "amaru/generated/ieee64_compact.h"
-#include "amaru/generated/ieee64_full.h"
+#include "amaru/generated/ieee64.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,8 +42,6 @@ amaru_ieee64_to_amaru_binary(amaru64_fields_t ieee64);
 /**
  * @brief Gets Amaru's decimal representation of a \c double.
  *
- * This function uses algorithm based on the compact table storage.
- *
  * @pre <tt>value > 0</tt>.
  *
  * @param value             The given \c double.
@@ -52,21 +49,7 @@ amaru_ieee64_to_amaru_binary(amaru64_fields_t ieee64);
  * @returns Amaru's decimal representation of \e value.
  */
 amaru64_fields_t
-amaru_double_to_amaru_decimal_compact(double value);
-
-/**
- * @brief Gets Amaru's decimal representation of a \c double.
- *
- * This function uses algorithm based on the full table storage.
- *
- * @pre <tt>value > 0</tt>.
- *
- * @param value             The given \c double.
- *
- * @returns Amaru's decimal representation of \e value.
- */
-amaru64_fields_t
-amaru_double_to_amaru_decimal_full(double value);
+amaru_double_to_amaru_decimal(double value);
 
 #ifdef __cplusplus
 }

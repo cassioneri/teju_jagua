@@ -22,7 +22,6 @@ from_json(nlohmann::json const& src, config_t::mantissa_t& tgt) {
 
 void
 from_json(nlohmann::json const& src, config_t::storage_t& tgt) {
-  src.at("full" ).get_to(tgt.full );
   src.at("split").get_to(tgt.split);
 }
 

@@ -1,5 +1,5 @@
 {
-  "id"  : "ieee32_full",
+  "id"  : "ieee32",
   "size": 32,
 
   "exponent": {
@@ -13,7 +13,6 @@
   },
 
   "storage": {
-    "full" : true,
     "split": 1
   },
 

@@ -71,14 +71,12 @@ void compare_to_other(T const value) {
   using      traits_t = amaru::traits_t<T>;
   using      fields_t = cpp_fields_t<T>;
 
-  auto const compact  = traits_t::amaru_compact(value);
-  auto const full     = traits_t::amaru_full(value);
+  auto const amaru    = traits_t::amaru(value);
   auto const other    = traits_t::dragonbox_full(value);
 
   auto const fields   = traits_t::value_to_ieee(value);
 
-  EXPECT_EQ(other, compact) << "IEEE fields: " << fields;
-  EXPECT_EQ(other, full   ) << "IEEE fields: " << fields;
+  EXPECT_EQ(other, amaru) << "IEEE fields: " << fields;
 }
 
 // Test results for all possible strictly positive finite float values.
@@ -225,15 +223,9 @@ TEST(float128, test_hard_coded_values) {
   for (std::size_t i = 0; i < std::size(data); ++i) {
     auto const value     = data[i].value;
     auto const test_case = test_case_t{value, data[i].decimal};
-    {
-      auto const actual = traits_t::amaru_compact(test_case.value());
-      ASSERT_EQ(test_case.expected(), actual) <<
-        "    Note: test case number = " << i;
-    }{
-      auto const actual = traits_t::amaru_full(test_case.value());
-      ASSERT_EQ(test_case.expected(), actual) <<
-        "    Note: test case number = " << i;
-    }
+    auto const actual    = traits_t::amaru(test_case.value());
+    ASSERT_EQ(test_case.expected(), actual) <<
+      "    Note: test case number = " << i;
   }
 }
 
@@ -258,15 +250,9 @@ TEST(float128, test_hard_coded_binary_representations) {
 
   for (std::size_t i = 0; i < std::size(data); ++i) {
     auto const test_case = test_case_t{data[i].binary, data[i].decimal};
-    {
-      auto const actual = traits_t::amaru_compact(test_case.value());
-      ASSERT_EQ(test_case.expected(), actual) <<
-        "    Note: test case number = " << i;
-    }{
-      auto const actual = traits_t::amaru_full(test_case.value());
-      ASSERT_EQ(test_case.expected(), actual) <<
-        "    Note: test case number = " << i;
-    }
+    auto const actual    = traits_t::amaru(test_case.value());
+    ASSERT_EQ(test_case.expected(), actual) <<
+      "    Note: test case number = " << i;
   }
 }
 

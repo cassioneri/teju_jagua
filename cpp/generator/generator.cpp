@@ -311,16 +311,6 @@ generator_t::calculation_mshift() const {
   return config_.calculation.mshift;
 }
 
-bool
-generator_t::optimise_integer() const {
-  return config_.optimisation.integer;
-}
-
-bool
-generator_t::optimise_midpoint() const {
-  return config_.optimisation.mid_point;
-}
-
 std::string const&
 generator_t::directory() const {
   return directory_;
@@ -448,35 +438,33 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   auto const splitter = splitter_t{size(), storage_split()};
 
   stream <<
-    "#define amaru_size                   " << size()          << "\n"
-    "#define amaru_exponent_minimum       " << exponent_min()  << "\n"
-    "#define amaru_mantissa_size          " << mantissa_size() << "\n"
-    "#define amaru_storage_index_offset   " << index_offset()  << "\n";
+    "#define amaru_size                 " << size()          << "\n"
+    "#define amaru_exponent_minimum     " << exponent_min()  << "\n"
+    "#define amaru_mantissa_size        " << mantissa_size() << "\n"
+    "#define amaru_storage_index_offset " << index_offset()  << "\n";
 
   if (!calculation_div10().empty())
-    stream << "#define amaru_calculation_div10      "
-      "amaru_" << calculation_div10()   << "\n";
+    stream <<
+    "#define amaru_calculation_div10    amaru_" << calculation_div10() << "\n";
 
   stream <<
-    "#define amaru_calculation_mshift     "
+    "#define amaru_calculation_mshift   "
       "amaru_" << calculation_mshift() << "\n"
     // Instead of using mshift(m, upper, lower) / 2 in Amaru, shift is
     // incremented here and the division by 2 is removed.
-    "#define amaru_calculation_shift      " << shift + 1             << "\n"
-    "#define amaru_optimisation_integer   " << optimise_integer()    << "\n"
-    "#define amaru_optimisation_mid_point " << optimise_midpoint()   << "\n"
-    "#define amaru_minverse5              " << splitter(minv5)       << "\n"
+    "#define amaru_calculation_shift    " << shift + 1             << "\n"
+    "#define amaru_minverse5            " << splitter(minv5)       << "\n"
     "\n"
-    "#define amaru_function               " << function() << "\n"
-    "#define amaru_fields_t               " << prefix()   << "fields_t\n"
-    "#define amaru_u1_t                   " << prefix()   << "u1_t\n"
+    "#define amaru_function             " << function() << "\n"
+    "#define amaru_fields_t             " << prefix()   << "fields_t\n"
+    "#define amaru_u1_t                 " << prefix()   << "u1_t\n"
     "\n"
     "#if defined(" << prefix() << "u2_t)\n"
-    "  #define amaru_u2_t                 " << prefix()   << "u2_t\n"
+    "  #define amaru_u2_t               " << prefix()   << "u2_t\n"
     "#endif\n"
     "\n"
     "#if defined(" << prefix() << "u4_t)\n"
-    "  #define amaru_u4_t                 " << prefix()   << "u4_t\n"
+    "  #define amaru_u4_t               " << prefix()   << "u4_t\n"
     "#endif\n"
     "\n"
     "static struct {\n"

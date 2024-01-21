@@ -68,8 +68,7 @@ is_tie(amaru_u1_t const m, int32_t const f) {
 static inline
 bool
 is_tie_uncentred(int32_t const f) {
-  return (f == 0 && !amaru_optimisation_integer) ||
-    (f > 0 && amaru_mantissa_size % 4 == 2);
+  return f > 0 && amaru_mantissa_size % 4 == 2;
 }
 
 /**
@@ -158,7 +157,7 @@ amaru_function(amaru_fields_t binary) {
   int32_t    const e = binary.exponent;
   amaru_u1_t const m = binary.mantissa;
 
-  if (amaru_optimisation_integer && is_multiple_of_pow2(m, -e))
+  if (is_multiple_of_pow2(m, -e))
     return remove_trailing_zeros(0, m >> -e);
 
   amaru_u1_t const m_0  = amaru_pow2(amaru_u1_t, amaru_mantissa_size);
@@ -188,7 +187,7 @@ amaru_function(amaru_fields_t binary) {
         return remove_trailing_zeros(f + 1, q);
     }
 
-    if (amaru_optimisation_mid_point && (a + b) % 2 == 1)
+    if ((a + b) % 2 == 1)
       return make_fields(f, (a + b) / 2 + 1);
 
     amaru_u1_t const m_c = (2 * 2 * m) << r;

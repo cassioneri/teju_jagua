@@ -19,10 +19,5 @@
   "calculation": {
     "div10" : "built_in_2",
     "mshift": "built_in_4"
-  },
-
-  "optimisation": {
-    "integer"  : true,
-    "mid_point": true
   }
 }

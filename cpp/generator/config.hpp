@@ -70,12 +70,6 @@ struct config_t {
     std::string mshift;
 
   } calculation;
-
-  struct optimisation_t {
-    bool integer;
-    bool mid_point;
-  } optimisation;
-
 }; // struct config_t
 
 void

@@ -8,27 +8,25 @@
 extern "C" {
 #endif
 
-#define amaru_size                   32
-#define amaru_exponent_minimum       -149
-#define amaru_mantissa_size          23
-#define amaru_storage_index_offset   -45
-#define amaru_calculation_div10      amaru_built_in_2
-#define amaru_calculation_mshift     amaru_built_in_4
-#define amaru_calculation_shift      64
-#define amaru_optimisation_integer   1
-#define amaru_optimisation_mid_point 1
-#define amaru_minverse5              0xcccccccd
+#define amaru_size                 32
+#define amaru_exponent_minimum     -149
+#define amaru_mantissa_size        23
+#define amaru_storage_index_offset -45
+#define amaru_calculation_div10    amaru_built_in_2
+#define amaru_calculation_mshift   amaru_built_in_4
+#define amaru_calculation_shift    64
+#define amaru_minverse5            0xcccccccd
 
-#define amaru_function               amaru_ieee32
-#define amaru_fields_t               amaru32_fields_t
-#define amaru_u1_t                   amaru32_u1_t
+#define amaru_function             amaru_ieee32
+#define amaru_fields_t             amaru32_fields_t
+#define amaru_u1_t                 amaru32_u1_t
 
 #if defined(amaru32_u2_t)
-  #define amaru_u2_t                 amaru32_u2_t
+  #define amaru_u2_t               amaru32_u2_t
 #endif
 
 #if defined(amaru32_u4_t)
-  #define amaru_u4_t                 amaru32_u4_t
+  #define amaru_u4_t               amaru32_u4_t
 #endif
 
 static struct {

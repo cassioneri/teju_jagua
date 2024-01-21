@@ -33,12 +33,6 @@ from_json(nlohmann::json const& src, config_t::calculation_t& tgt) {
 }
 
 void
-from_json(nlohmann::json const& src, config_t::optimisation_t& tgt) {
-  src.at("integer"  ).get_to(tgt.integer  );
-  src.at("mid_point").get_to(tgt.mid_point);
-}
-
-void
 from_json(nlohmann::json const& src, config_t& tgt) {
   src.at("id"          ).get_to(tgt.id          );
   src.at("size"        ).get_to(tgt.size        );
@@ -46,7 +40,6 @@ from_json(nlohmann::json const& src, config_t& tgt) {
   src.at("mantissa"    ).get_to(tgt.mantissa    );
   src.at("storage"     ).get_to(tgt.storage     );
   src.at("calculation" ).get_to(tgt.calculation );
-  src.at("optimisation").get_to(tgt.optimisation);
 }
 
 void

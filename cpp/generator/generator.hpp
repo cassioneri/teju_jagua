@@ -122,18 +122,6 @@ private:
   calculation_mshift() const;
 
   /**
-   * \brief Optimises for integers.
-   */
-  bool
-  optimise_integer() const;
-
-  /**
-   * \brief Optimises for mid points.
-   */
-  bool
-  optimise_midpoint() const;
-
-  /**
    * \brief Returns the directory where generated files are saved.
    */
   std::string const&

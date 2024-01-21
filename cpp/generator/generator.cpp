@@ -228,14 +228,12 @@ generator_t::generate() const {
   std::cout << "Generation started.\n";
 
   // Overflow check 1:
-  if (2 * mantissa_max() + 1 >= p2size)
-    throw exception_t("The limb is not large enough for calculations to "
-      "not overflow.");
+  require(2 * mantissa_max() + 1 < p2size,
+    "The limb is not large enough for calculations to not overflow.");
 
   // Overflow check 2:
-  if (20 * mantissa_min() >= p2size)
-    throw exception_t("The limb is not large enough for calculations to "
-      "not overflow.");
+  require(20 * mantissa_min() < p2size,
+    "The limb is not large enough for calculations to not overflow.");
 
   std::cout << "  Generating \"" << dot_h() << "\".\n";
   generate_dot_h(dot_h_stream);
@@ -426,8 +424,8 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     integer_t q, r;
     divide_qr(x.alpha << shift, x.delta, q, r);
 
-    if (x.maximum >= rational_t{p2shift, x.delta - r})
-      throw exception_t{"Unable to use same shift."};
+    require(x.maximum < rational_t{p2shift, x.delta - r},
+      "Unable to use same shift.");
 
     fast_eafs[i] = fast_eaf_t{q + 1, shift};
   }
@@ -480,8 +478,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     integer_t upper = fast_eaf.U >> size();
     integer_t lower = fast_eaf.U & mask;
 
-    if (upper >= p2size)
-      throw exception_t{"Multiplier is out of range."};
+    require(upper < p2size, "Multiplier is out of range.");
 
     stream << "  { " << splitter(std::move(upper)) << ", " <<
       splitter(std::move(lower)) << " }, // " << std::dec << f << "\n";

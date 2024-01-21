@@ -3,6 +3,7 @@
 #include "amaru/float.h"
 #include "cpp/benchmark/sampler.hpp"
 #include "cpp/benchmark/stats.hpp"
+#include "cpp/common/exception.hpp"
 
 #include <chrono>
 #include <cmath>
@@ -139,66 +140,104 @@ benchmark(const char* filename, population_t population, T bound,
   }
 }
 
+void
+report_usage(const char* const prog) noexcept {
+  std::fprintf(stderr,
+    "Usage: %s SET TYPE\n"
+    "\n"
+    "SET    Either help (to see this message and return) or one of the sample "
+      "sets: integer, mixed, centred or uncentred.\n"
+    "TYPE   The type of the sample: float or double.\n",
+    prog);
+}
+
 } // namespace amaru
 
 int main(int argc, char const* const argv[]) {
 
   using namespace amaru;
 
-  auto is_double  = true;
-  auto population = population_t::mixed;
+  try {
 
-  while (--argc) {
+    auto is_double  = true;
+    auto population = population_t::mixed;
 
-    if (std::strncmp(argv[argc], "-h", 2) == 0) {
-      std::cout << "usage...\n";
-      std::exit(0);
+    // First argument.
+
+    require(argc >= 2, "Missing command (help, integer, mixed, centred or "
+      "uncentred).");
+
+    if (std::strncmp(argv[1], "help", 5) == 0) {
+      report_usage(argv[0]);
+      return 0;
     }
 
-    else if (std::strncmp(argv[argc], "-d", 2) == 0)
-      is_double = true;
-
-    else if (std::strncmp(argv[argc], "-f", 2) == 0)
-      is_double = false;
-
-    else if (std::strncmp(argv[argc], "-integer", 8) == 0)
+    else if (std::strncmp(argv[1], "integer", 8) == 0)
       population = population_t::integer;
 
-    else if (std::strncmp(argv[argc], "-mixed", 6) == 0)
+    else if (std::strncmp(argv[1], "mixed", 6) == 0)
       population = population_t::mixed;
 
-    else if (std::strncmp(argv[argc], "-centred", 8) == 0)
+    else if (std::strncmp(argv[1], "centred", 8) == 0)
       population = population_t::centred;
 
-    else if (std::strncmp(argv[argc], "-uncentred", 10) == 0)
+    else if (std::strncmp(argv[1], "uncentred", 10) == 0)
       population = population_t::uncentred;
+
+    else
+      throw exception_t{"Unknow SET"};
+
+    // 2nd argument.
+
+    require(argc == 3, "Missing type (float or double).");
+
+    if (std::strncmp(argv[2], "float", 6) == 0)
+      is_double = false;
+
+    else if (std::strncmp(argv[2], "double", 7) == 0)
+      is_double = true;
+
+    else
+      throw exception_t{"Unknow TYPE"};
+
+    // Disable CPU Frequency Scaling:
+    //     $ sudo cpupower frequency-set --governor performance
+
+    // Run on CPU 2 only:
+    cpu_set_t my_set;
+    CPU_ZERO(&my_set);
+    CPU_SET(2, &my_set);
+    sched_setaffinity(getpid(), sizeof(cpu_set_t), &my_set);
+
+    // Disable other threads/CPU running on same core as CPU 2:
+    // 1) Find the other CPU that's a thread on the same core:
+    //      $ cat /sys/devices/system/cpu/cpu2/topology/thread_siblings_list
+    //      2,6
+    //    The above means we need to disable CPU 6.
+    // 2) Disable the other CPU:
+    //      sudo /bin/bash -c "echo 0 > /sys/devices/system/cpu/cpu6/online"
+
+    if (is_double) {
+      auto constexpr n_bound = 100000.0;
+      auto constexpr n_mantissas = std::uint64_t(256);
+      benchmark<double>("double.csv", population, n_bound, n_mantissas);
+    }
+    else {
+      auto constexpr n_bound = 100000.f;
+      auto constexpr n_mantissas = std::uint32_t(256);
+      benchmark<float>("float.csv", population, n_bound, n_mantissas);
+    }
   }
 
-  // Disable CPU Frequency Scaling:
-  //     $ sudo cpupower frequency-set --governor performance
-
-  // Run on CPU 2 only:
-  cpu_set_t my_set;
-  CPU_ZERO(&my_set);
-  CPU_SET(2, &my_set);
-  sched_setaffinity(getpid(), sizeof(cpu_set_t), &my_set);
-
-  // Disable other threads/CPU running on same core as CPU 2:
-  // 1) Find the other CPU that's a thread on the same core:
-  //      $ cat /sys/devices/system/cpu/cpu2/topology/thread_siblings_list
-  //      2,6
-  //    The above means we need to disable CPU 6.
-  // 2) Disable the other CPU:
-  //      sudo /bin/bash -c "echo 0 > /sys/devices/system/cpu/cpu6/online"
-
-  if (is_double) {
-    auto constexpr n_bound = 100000.0;
-    auto constexpr n_mantissas = std::uint64_t(256);
-    benchmark<double>("double.csv", population, n_bound, n_mantissas);
+  catch (exception_t const& e) {
+    report_error(argv[0], e.what());
   }
-  else {
-    auto constexpr n_bound = 100000.f;
-    auto constexpr n_mantissas = std::uint32_t(256);
-    benchmark<float>("float.csv", population, n_bound, n_mantissas);
+
+  catch (std::exception const& e) {
+    report_error(argv[0], e.what());
+  }
+
+  catch (...) {
+    report_error(argv[0], "unknown error");
   }
 }

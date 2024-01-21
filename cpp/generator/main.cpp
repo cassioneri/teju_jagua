@@ -20,11 +20,6 @@ report_usage(const char* const prog) noexcept {
     prog);
 }
 
-void
-report_error(const char* const prog, const char* const msg) noexcept {
-  std::fprintf(stderr, "%s: error: %s.\n", prog, msg);
-}
-
 generator_t
 parse(const char* const filename, const char* const dir) {
 

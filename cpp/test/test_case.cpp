@@ -27,10 +27,10 @@ namespace {
     auto const exponent_max   =
       amaru_max_binary_exponent_from_ieee754(exponent_size, mantissa_size);
 
-    AMARU_ASSERT(amaru_binary_c.exponent >= exponent_min,
+    require(amaru_binary_c.exponent >= exponent_min,
       "Exponent provided to Amaru binary representation is too low.");
 
-    AMARU_ASSERT(amaru_binary_c.exponent <= exponent_max,
+    require(amaru_binary_c.exponent <= exponent_max,
       "Exponent provided to Amaru binary representation is too high.");
 
     auto exponent_ieee =
@@ -41,15 +41,15 @@ namespace {
 
     u1_t mantissa_ieee = 0;
     if (subnormal) {
-      AMARU_ASSERT(amaru_binary_c.mantissa < mantissa_bound,
+      require(amaru_binary_c.mantissa < mantissa_bound,
         "Mantissa provided to Amaru binary representation is too high."
         "(Note: subnormal case.)");
       mantissa_ieee = amaru_binary_c.mantissa;
     }
     else {
-      AMARU_ASSERT(amaru_binary_c.mantissa >= mantissa_bound,
+      require(amaru_binary_c.mantissa >= mantissa_bound,
         "Mantissa provided to Amaru binary representation is too low.");
-      AMARU_ASSERT(amaru_binary_c.mantissa < 2 * mantissa_bound,
+      require(amaru_binary_c.mantissa < 2 * mantissa_bound,
         "Mantissa provided to Amaru binary representation is too high.");
       ++exponent_ieee;
       mantissa_ieee = amaru_binary_c.mantissa - mantissa_bound;

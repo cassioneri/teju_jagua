@@ -45,39 +45,33 @@ from_json(nlohmann::json const& src, config_t& tgt) {
 void
 validate(config_t const& json) {
 
-  if (!(json.size == 32 || json.size == 64 || json.size == 128))
-    throw exception_t{"Constraint violation: "
-      "size in { 32, 64 }"};
+  require(json.size == 32 || json.size == 64 || json.size == 128,
+    "Constraint violation: size in { 32, 64 }");
 
-  if (!(json.exponent.minimum <= json.exponent.maximum))
-    throw exception_t{"Constraint violation: "
-      "exponent.minimum <= exponent.maximum"};
+  require(json.exponent.minimum <= json.exponent.maximum,
+    "Constraint violation: exponent.minimum <= exponent.maximum");
 
   std::int32_t min = std::min(amaru_log10_pow2_min, amaru_log10_075_pow2_min);
 
-  if (!(json.exponent.minimum >= min))
-    throw exception_t{"Constraint violation: "
-      "json.exponent.minimum >= min"};
+  require(json.exponent.minimum >= min,
+    "Constraint violation: json.exponent.minimum >= min");
 
   std::int32_t max = std::max(amaru_log10_pow2_max, amaru_log10_075_pow2_max);
 
-  if (!(json.exponent.maximum <= max))
-    throw exception_t{"Constraint violation: "
-      "json.exponent.maximum <= max"};
+  require(json.exponent.maximum <= max,
+    "Constraint violation: json.exponent.maximum <= max");
 
   auto const p2size = std::uint64_t{1} << json.exponent.size;
-  if (!(json.exponent.maximum - json.exponent.minimum < p2size))
-    throw exception_t{"Constraint violation: "
-      "exponent.maximum - exponent.minimum <= 2^{exponent.size}"};
+  require(json.exponent.maximum - json.exponent.minimum < p2size,
+    "Constraint violation: "
+    "exponent.maximum - exponent.minimum <= 2^{exponent.size}");
 
-  if (!(std::uint64_t{json.exponent.size} + json.mantissa.size <= json.size))
-    throw exception_t{"Constraint violation: "
-      "exponent.size + mantissa.size <= size"};
+  require(std::uint64_t{json.exponent.size} + json.mantissa.size <= json.size,
+    "Constraint violation: exponent.size + mantissa.size <= size");
 
-  if (!(json.storage.split != 1 || json.storage.split != 2 ||
-    json.storage.split != 4))
-    throw exception_t{"Constraint violation: "
-      "storage.base in { 1, 2, 4 }"};
+  require(json.storage.split != 1 || json.storage.split != 2 ||
+    json.storage.split != 4,
+    "Constraint violation: storage.base in { 1, 2, 4 }");
 
   std::string const multiply_types[] = {
     "", "built_in_1", "synthetic_1", "built_in_2", "synthetic_2",
@@ -88,19 +82,17 @@ validate(config_t const& json) {
     std::find(std::cbegin(multiply_types), std::cend(multiply_types),
     json.calculation.div10));
 
-  if (!(i_div10 <= 3))
-    throw exception_t{"Constraint violation: "
-      "calculation.div10 in { \"\", \"built_in_1\", \"synthetic_1\", "
-      "\"built_in_2\" }"};
+  require(i_div10 <= 3,
+    "Constraint violation: calculation.div10 in { "
+    "\"\", \"built_in_1\", \"synthetic_1\", \"built_in_2\" }");
 
   auto const i_mshift = std::distance(std::cbegin(multiply_types),
     std::find(std::cbegin(multiply_types), std::cend(multiply_types),
     json.calculation.div10));
 
-  if (!(i_mshift <= 4))
-    throw exception_t{"Constraint violation: "
-      "calculation.mshift in { \"built_in_1\", \"synthetic_1\", "
-      "\"built_in_2\", \"synthetic_2\", \"built_in_4\" }"};
+  require(i_mshift <= 4,
+    "Constraint violation: calculation.mshift in { \"built_in_1\", "
+    "\"synthetic_1\", \"built_in_2\", \"synthetic_2\", \"built_in_4\" }");
 }
 
 } // namespace amaru

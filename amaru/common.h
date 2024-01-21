@@ -77,38 +77,6 @@ amaru_log10_pow2_residual(int32_t const e) {
 #define amaru_log10_075_pow2_min -100849
 #define amaru_log10_075_pow2_max  111480
 
-/**
- * @brief Returns the largest exponent f such that 10^f <= 0.75 * 2^e.
- *
- * @pre amaru_log10_075_pow2_min <= e && e <= amaru_log10_075_pow2_max.
- *
- * @param e                 The exponent e.
- *
- * @returns The exponent f.
- */
-static inline
-int32_t
-amaru_log10_075_pow2(int32_t const e) {
-  return (((uint64_t) 1292913986) * e - 536607788) >> 32;
-}
-
-/**
- * @brief Returns the residual r = e - e_0, where e_0 is the smallest exponent
- * such that the integer part of log_10(0.75 * 2^e_0) matches that of
- * log_10(0.75 * 2^e).
- *
- * @pre amaru_log10_075_pow2_min <= e && e <= amaru_log10_075_pow2_max.
- *
- * @param e                 The exponent e.
- *
- * @returns The residual r.
- */
-static inline
-uint32_t
-amaru_log10_075_pow2_residual(int32_t const e) {
-  return ((uint32_t) (((uint64_t) 1292913986) * e - 536607788)) / 1292913986;
-}
-
 #ifdef __cplusplus
 }
 #endif

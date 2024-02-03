@@ -5,7 +5,7 @@ add_library(amaru STATIC
   double.c
 )
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if (AMARU_HAS_FLOAT128)
   target_sources(amaru PUBLIC
     generated/ieee128.c
     float128.c

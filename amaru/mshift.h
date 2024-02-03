@@ -158,6 +158,7 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     r1 += n3 * m1 + c * y;
 
     #if amaru_calculation_shift >= 2 * amaru_size
+      (void) r0;
       return r1 >> (amaru_calculation_shift - 2 * amaru_size);
     #elif amaru_calculation_shift >= 3 * amaru_size / 2
       return (r1 << (2 * amaru_size - amaru_calculation_shift)) |

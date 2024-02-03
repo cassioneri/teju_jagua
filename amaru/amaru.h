@@ -194,7 +194,7 @@ amaru_function(amaru_fields_t const binary) {
         if (m % 2 == 0 || !is_tie(m_b, f))
           return remove_trailing_zeros(f + 1, q);
       }
-      else if (s > a || m % 2 == 0 && is_tie(m_a, f))
+      else if (s > a || (m % 2 == 0 && is_tie(m_a, f)))
         return remove_trailing_zeros(f + 1, q);
     }
 

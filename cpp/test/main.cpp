@@ -69,11 +69,8 @@ template <typename T>
 void compare_to_other(T const value) {
 
   using      traits_t = amaru::traits_t<T>;
-  using      fields_t = cpp_fields_t<T>;
-
   auto const amaru    = traits_t::amaru(value);
   auto const other    = traits_t::dragonbox_full(value);
-
   auto const fields   = traits_t::value_to_ieee(value);
 
   EXPECT_EQ(other, amaru) << "IEEE fields: " << fields;

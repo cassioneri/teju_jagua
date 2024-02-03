@@ -13,13 +13,8 @@
   #include <intrin.h>
 #endif
 
-#if defined(__SIZEOF_INT128__)
-  #define AMARU_HAS_UINT128
+#if defined(AMARU_HAS_FLOAT128)
   typedef __uint128_t uint128_t;
-#endif
-
-#if defined(AMARU_HAS_UINT128) && defined(__SIZEOF_FLOAT128__)
-  #define AMARU_HAS_FLOAT128
   typedef __float128 float128_t;
 #endif
 
@@ -158,10 +153,10 @@ typedef struct {
   #define amaru128_u1_t          uint128_t
   #define amaru128_multiply_type amaru_built_in_1
 
-typedef struct {
-  int32_t       exponent;
-  amaru128_u1_t mantissa;
-} amaru128_fields_t;
+  typedef struct {
+    int32_t       exponent;
+    amaru128_u1_t mantissa;
+  } amaru128_fields_t;
 
 #endif
 

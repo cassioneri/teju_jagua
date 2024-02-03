@@ -18,6 +18,6 @@
 
   "calculation": {
     "div10" : "built_in_2",
-    "mshift": "built_in_4"
+    "mshift": "built_in_2"
   }
 }

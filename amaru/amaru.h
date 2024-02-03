@@ -173,12 +173,12 @@ amaru_function(amaru_fields_t const binary) {
   if (is_small_integer(m, e))
     return remove_trailing_zeros(0, m >> -e);
 
-  amaru_u1_t const m_0  = amaru_pow2(amaru_u1_t, amaru_mantissa_size);
-  int32_t    const f    = amaru_log10_pow2(e);
-  uint32_t   const r    = amaru_log10_pow2_residual(e);
-  uint32_t   const i    = f - amaru_storage_index_offset;
-  amaru_u1_t const u    = multipliers[i].upper;
-  amaru_u1_t const l    = multipliers[i].lower;
+  amaru_u1_t const m_0 = amaru_pow2(amaru_u1_t, amaru_mantissa_size);
+  int32_t    const f   = amaru_log10_pow2(e);
+  uint32_t   const r   = amaru_log10_pow2_residual(e);
+  uint32_t   const i   = f - amaru_storage_index_offset;
+  amaru_u1_t const u   = multipliers[i].upper;
+  amaru_u1_t const l   = multipliers[i].lower;
 
   if (m != m_0 || e == amaru_exponent_minimum) {
 

@@ -2,4 +2,5 @@ build/
 third-party/
 
 # Folders created by IDEs:
+.vs/
 .vscode/

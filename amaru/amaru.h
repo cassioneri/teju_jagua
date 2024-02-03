@@ -182,20 +182,18 @@ amaru_function(amaru_fields_t const binary) {
 
   if (m != m_0 || e == amaru_exponent_minimum) {
 
-    amaru_u1_t const m_b = (2 * m + 1) << r;
-    amaru_u1_t const b   = amaru_mshift(m_b, u, l);
     amaru_u1_t const m_a = (2 * m - 1) << r;
     amaru_u1_t const a   = amaru_mshift(m_a, u, l);
+    amaru_u1_t const m_b = (2 * m + 1) << r;
+    amaru_u1_t const b   = amaru_mshift(m_b, u, l);
     amaru_u1_t const q   = amaru_div10(b);
     amaru_u1_t const s   = 10 * q;
 
     if (s >= a) {
-
       if (s == b) {
         if (m % 2 == 0 || !is_tie(m_b, f))
           return remove_trailing_zeros(f + 1, q);
       }
-
       else if (s > a || m % 2 == 0 && is_tie(m_a, f))
         return remove_trailing_zeros(f + 1, q);
     }

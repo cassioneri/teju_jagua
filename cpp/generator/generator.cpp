@@ -549,7 +549,7 @@ generator_t::get_maxima() const {
     if (f == f_done)
       continue;
 
-    auto const e0 = e - amaru_log10_pow2_residual(e) - f;
+    auto const e0 = e - int32_t(amaru_log10_pow2_residual(e)) - f;
 
     alpha_delta_maximum_t x;
     x.alpha   = f >= 0 ? pow2(e0) : pow5(-f );

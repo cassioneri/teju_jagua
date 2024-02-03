@@ -49,7 +49,7 @@ struct stats_t {
   stddev() const {
     auto const num = n_ * sum_of_squares_ - sum_ * sum_;
     auto const den = n_ * (n_ - 1);
-    return std::sqrt(double(num) / double(den));
+    return std::uint64_t(std::sqrt(double(num) / double(den)));
   }
 
 private:

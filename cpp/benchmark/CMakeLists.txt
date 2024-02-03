@@ -5,4 +5,5 @@ add_executable(benchmark
 target_link_libraries(benchmark
   amaru
   other
+  boost_multiprecision
 )

@@ -26,7 +26,7 @@ amaru_double_to_ieee64(double const value) {
   amaru64_fields_t binary;
   binary.mantissa = amaru_lsb(bits, mantissa_size);
   bits >>= mantissa_size;
-  binary.exponent = amaru_lsb(bits, exponent_size);
+  binary.exponent = (int32_t) amaru_lsb(bits, exponent_size);
 
   return binary;
 }

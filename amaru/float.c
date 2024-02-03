@@ -26,7 +26,7 @@ amaru_float_to_ieee32(float const value) {
   amaru32_fields_t binary;
   binary.mantissa = amaru_lsb(bits, mantissa_size);
   bits >>= mantissa_size;
-  binary.exponent = amaru_lsb(bits, exponent_size);
+  binary.exponent = (int32_t) amaru_lsb(bits, exponent_size);
 
   return binary;
 }

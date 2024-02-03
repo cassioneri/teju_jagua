@@ -92,8 +92,10 @@ struct test_case_t<float>;
 template
 struct test_case_t<double>;
 
+#if defined(AMARU_HAS_FLOAT128)
 template
 struct test_case_t<float128_t>;
+#endif
 
 } // namespace test
 } // namespace amaru

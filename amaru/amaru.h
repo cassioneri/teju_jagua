@@ -227,7 +227,7 @@ amaru_function(amaru_fields_t const binary) {
 
     // m_c = 2 * 2 * m_0 = 2 * 2 * 2^{amaru_mantissa_size}
     // c_2 = amaru_mshift(m_c << r, upper, lower);
-    amaru_u1_t const log2_m_c = amaru_mantissa_size + 2;
+    uint32_t   const log2_m_c = amaru_mantissa_size + 2;
     amaru_u1_t const c_2      = mshift_pow2(log2_m_c + r, u, l);
     amaru_u1_t const c        = c_2 / 2;
 

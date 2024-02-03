@@ -15,13 +15,16 @@
 #include <iostream>
 
 #include <sys/types.h>
-#include <unistd.h>
+
+#if defined(__unix__)
+  #include <unistd.h>
+#endif
 
 namespace amaru {
 
 template <typename T>
 #if defined(__GNUC__) && !defined(__clang__)
-__attribute__((optimize("-falign-loops=32")))
+  __attribute__((optimize("-falign-loops=32")))
 #endif
 std::uint64_t
 benchmark(T const value, typename traits_t<T>::fields_t (*function)(T)) {
@@ -200,22 +203,26 @@ int main(int argc, char const* const argv[]) {
     else
       throw exception_t{"Unknow TYPE"};
 
-    // Disable CPU Frequency Scaling:
-    //     $ sudo cpupower frequency-set --governor performance
+    #if defined(__unix__)
 
-    // Run on CPU 2 only:
-    cpu_set_t my_set;
-    CPU_ZERO(&my_set);
-    CPU_SET(2, &my_set);
-    sched_setaffinity(getpid(), sizeof(cpu_set_t), &my_set);
+      // Disable CPU Frequency Scaling:
+      //   $ sudo cpupower frequency-set --governor performance
 
-    // Disable other threads/CPU running on same core as CPU 2:
-    // 1) Find the other CPU that's a thread on the same core:
-    //      $ cat /sys/devices/system/cpu/cpu2/topology/thread_siblings_list
-    //      2,6
-    //    The above means we need to disable CPU 6.
-    // 2) Disable the other CPU:
-    //      sudo /bin/bash -c "echo 0 > /sys/devices/system/cpu/cpu6/online"
+      // Run on CPU 2 only:
+      cpu_set_t my_set;
+      CPU_ZERO(&my_set);
+      CPU_SET(2, &my_set);
+      sched_setaffinity(getpid(), sizeof(cpu_set_t), &my_set);
+
+      // Disable other threads/CPU running on same core as CPU 2:
+      // 1) Find the other CPU that's a thread on the same core:
+      //      $ cat /sys/devices/system/cpu/cpu2/topology/thread_siblings_list
+      //      2,6
+      //    The above means we need to disable CPU 6.
+      // 2) Disable the other CPU:
+      //      sudo /bin/bash -c "echo 0 > /sys/devices/system/cpu/cpu6/online"
+
+    #endif
 
     if (is_double) {
       auto constexpr n_bound = 100000.0;

@@ -49,8 +49,8 @@ amaru_rshift(amaru_u1_t const r2, amaru_u1_t const r1) {
  * N = aramu_size and s = amaru_calculation_shift.
  *
  * @param m                 The 1st multiplicand  m.
- * @param u                 The upper half u.
- * @param l                 The lower half l.
+ * @param u                 The 2nd multiplicand upper half u.
+ * @param l                 The 2nd multiplicand lower half l.
  *
  * @returns The quotient q.
  */
@@ -106,7 +106,7 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
 
   #elif amaru_calculation_mshift == amaru_built_in_1
 
-    // Let y := 2^(amaru_size / 2), so that, x = y^2. Then:
+    // Let y := 2^(N / 2), so that, x = y^2. Then:
     // u := (n3 * y + n2) with n3 := u / y, n2 = u % y in [0, y[,
     // l := (n1 * y + n0) with n1 := l / y, n0 = l % y in [0, y[,
     // m := (m1 * y + m0) with m1 := m / y, m0 = m % y in [0, y[.
@@ -147,10 +147,10 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     r1 /= y;
 
     // order 3:
-    r1+= n2 * m1 + c * y; // This doesn't wraparound.
+    r1 += n2 * m1 + c * y; // This doesn't wraparound.
     t   = n3 * m0;
-    r1 += t;              // This might wraparound.
-    c   = r1 < t;         // Carry.
+    r1 += t;               // This might wraparound.
+    c   = r1 < t;          // Carry.
     r0  = r1 % y;
     r1 /= y;
 

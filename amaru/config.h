@@ -13,8 +13,14 @@
   #include <intrin.h>
 #endif
 
-#if defined(AMARU_HAS_FLOAT128)
+#if defined(AMARU_HAS_UINT128)
   typedef __uint128_t uint128_t;
+#else
+  // Cannot support float128_t if uint128_t is not defined.
+  #undef AMARU_HAS_FLOAT128
+#endif
+
+#if defined(AMARU_HAS_FLOAT128)
   typedef __float128 float128_t;
 #endif
 

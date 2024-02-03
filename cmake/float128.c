@@ -1,7 +1,8 @@
-// Test whether __SIZEOF_FLOAT128__ is defined.
+// Tests whether __float128 exists.
+
+typedef __float128 float128_t;
+
 int main() {
-  __uint128_t i = 0;
-  (void)i;
-  __float128 f = 0;
+  float128_t f = 0;
   (void)f;
 }

@@ -23,13 +23,24 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
   string(REPLACE "-O2" "-O3" CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
 endif()
 
-try_compile(AMARU_HAS_FLOAT128
+try_compile(AMARU_HAS_UINT128
   ${CMAKE_BINARY_DIR}
-  ${PROJECT_SOURCE_DIR}/cmake/float128.c
+  ${PROJECT_SOURCE_DIR}/cmake/uint128.c
+)
+
+if (AMARU_HAS_UINT128)
+
+  add_compile_definitions(AMARU_HAS_UINT128)
+
+  try_compile(AMARU_HAS_FLOAT128
+    ${CMAKE_BINARY_DIR}
+    ${PROJECT_SOURCE_DIR}/cmake/float128.c
   )
 
-if (AMARU_HAS_FLOAT128)
-  add_compile_definitions(AMARU_HAS_FLOAT128)
+  if (AMARU_HAS_FLOAT128)
+    add_compile_definitions(AMARU_HAS_FLOAT128)
+  endif()
+
 endif()
 
 add_subdirectory(amaru)

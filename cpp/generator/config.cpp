@@ -69,9 +69,9 @@ validate(config_t const& json) {
   require(std::uint64_t{json.exponent.size} + json.mantissa.size <= json.size,
     "Constraint violation: exponent.size + mantissa.size <= size");
 
-  require(!(json.storage.split == 1 || json.storage.split == 2 ||
-    json.storage.split == 4),
-    "Constraint violation: storage.base in { 1, 2, 4 }");
+  require(json.storage.split == 1 || json.storage.split == 2 ||
+    json.storage.split == 4,
+    "Constraint violation: storage.split in { 1, 2, 4 }");
 
   std::string const multiply_types[] = {
     "", "built_in_1", "synthetic_1", "built_in_2", "synthetic_2",

@@ -51,6 +51,7 @@ struct config_t {
   } mantissa;
 
   struct storage_t {
+    
     // The upper and lower limb of the multiplier can be further split into
     // 1 (no split), 2 or 4 parts. This is useful for large types (e.g.,
     // __uint128_t) for which the platform does not support literals of.

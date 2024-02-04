@@ -32,7 +32,7 @@ endif()
  # Sets inlining level to /Ob3 in Release and RelWithDebInfo builds for MSVC
  # compilers.
 
-if (MSVC)
+if (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
 
   foreach (flags IN ITEMS CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO
     CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO)

@@ -46,7 +46,10 @@ is_multiple_of_pow2(amaru_u1_t const m, int32_t const e) {
 static inline
 bool
 is_small_integer(amaru_u1_t const m, int32_t const e) {
-  return 0 <= -e && -e <= amaru_mantissa_size && is_multiple_of_pow2(m, -e);
+  if (0 < e || e < -amaru_mantissa_size)
+    return false;
+  return is_multiple_of_pow2(m, -e);
+  //return -amaru_mantissa_size <= e && e <= 0 && is_multiple_of_pow2(m, -e);
 }
 
 /**

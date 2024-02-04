@@ -10,7 +10,7 @@ if (AMARU_HAS_FLOAT128)
     generated/ieee128.c
     float128.c
   )
-endif()
+endif ()
 
 target_include_directories(amaru PUBLIC
   "${CMAKE_SOURCE_DIR}"

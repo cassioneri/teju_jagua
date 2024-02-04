@@ -22,12 +22,12 @@ if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
   string(REPLACE "-O2" "-O3" CMAKE_C_FLAGS_RELWITHDEBINFO
     ${CMAKE_C_FLAGS_RELWITHDEBINFO}
   )
-endif()
+endif ()
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   string(REPLACE "-O2" "-O3" CMAKE_CXX_FLAGS_RELWITHDEBINFO
     ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}
   )
-endif()
+endif ()
 
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
@@ -39,7 +39,7 @@ try_compile(AMARU_HAS_UINT128
 )
 if (AMARU_HAS_UINT128)
   add_compile_definitions(AMARU_HAS_UINT128)
-endif()
+endif ()
 
 # Tests existence of __float128.
 try_compile(AMARU_HAS_FLOAT128
@@ -48,7 +48,7 @@ try_compile(AMARU_HAS_FLOAT128
 )
 if (AMARU_HAS_FLOAT128)
   add_compile_definitions(AMARU_HAS_FLOAT128)
-endif()
+endif ()
 
 set(third_party_dir ${CMAKE_SOURCE_DIR}/third-party)
 

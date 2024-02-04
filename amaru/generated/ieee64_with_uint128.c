@@ -1,6 +1,6 @@
 // This file was generated. DO NOT EDIT IT.
 
-#include "ieee64.h"
+#include "ieee64_with_uint128.h"
 
 #include "amaru/literal.h"
 
@@ -17,7 +17,7 @@ extern "C" {
 #define amaru_calculation_shift    128
 #define amaru_minverse5            0xcccccccccccccccd
 
-#define amaru_function             amaru_ieee64
+#define amaru_function             amaru_ieee64_with_uint128
 #define amaru_fields_t             amaru64_fields_t
 #define amaru_u1_t                 amaru64_u1_t
 

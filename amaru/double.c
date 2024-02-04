@@ -49,7 +49,7 @@ amaru64_fields_t
 amaru_double_to_amaru_decimal(double const value) {
   amaru64_fields_t ieee64       = amaru_double_to_ieee64(value);
   amaru64_fields_t amaru_binary = amaru_ieee64_to_amaru_binary(ieee64);
-  return amaru_ieee64(amaru_binary);
+  return amaru_ieee64_with_uint128(amaru_binary);
 }
 
 #ifdef __cplusplus

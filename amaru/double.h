@@ -7,7 +7,11 @@
 #ifndef AMARU_AMARU_DOUBLE_H_
 #define AMARU_AMARU_DOUBLE_H_
 
-#include "amaru/generated/ieee64.h"
+#if defined(AMARU_HAS_UINT128)
+  #include "amaru/generated/ieee64_with_uint128.h"
+#else
+  #include "amaru/generated/ieee64_no_uint128.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {

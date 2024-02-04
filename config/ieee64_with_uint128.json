@@ -1,5 +1,5 @@
 {
-  "id"  : "ieee64",
+  "id"  : "ieee64_with_uint128",
   "size": 64,
 
   "exponent": {

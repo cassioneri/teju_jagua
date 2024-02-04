@@ -1,0 +1,23 @@
+{
+  "id"  : "ieee64_no_uint128",
+  "size": 64,
+
+  "exponent": {
+    "size"   :    11,
+    "minimum": -1074,
+    "maximum":   971
+  },
+
+  "mantissa": {
+    "size": 52
+  },
+
+  "storage": {
+    "split": 1
+  },
+
+  "calculation": {
+    "div10" : "synthetic_1",
+    "mshift": "synthetic_1"
+  }
+}

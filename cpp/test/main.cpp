@@ -285,7 +285,7 @@ TEST(ad_hoc, value) {
 
 // Adhoc test for given field values.
 TEST(ad_hoc, fields) {
-  auto const value = from_ieee<float>(4, 0); // = 1.0f
+  auto const value = from_ieee<float>(127, 0); // = 1.0f
   compare_to_other(value);
 }
 

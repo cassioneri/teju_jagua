@@ -1,58 +1,69 @@
-cmake_minimum_required(VERSION 3.5)
+#-------------------------------------------------------------------------------
+# cmake
+#-------------------------------------------------------------------------------
 
-#---------------------------------------------------------------------------
-# amaru
-#---------------------------------------------------------------------------
+cmake_minimum_required(VERSION 3.5)
 
 project(amaru
   VERSION 1.0
-  DESCRIPTION "The Incan dragon-like creature which comes from the \
-    underworld to help us efficiently finding decimal representations of \
-    floating point numbers."
+  DESCRIPTION "The Incan dragon-like creature which comes from the underworld \
+    to help us efficiently finding decimal representations of floating-point  \
+    numbers."
   LANGUAGES C CXX
 )
 
 cmake_policy(SET CMP0076 NEW)
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD   99)
 set(CMAKE_CXX_STANDARD 17)
+
+# Changes optimisation level to -O3 in RelWithDebInfo build.
+if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+  string(REPLACE "-O2" "-O3" CMAKE_C_FLAGS_RELWITHDEBINFO
+    ${CMAKE_C_FLAGS_RELWITHDEBINFO}
+  )
+endif()
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  string(REPLACE "-O2" "-O3" CMAKE_CXX_FLAGS_RELWITHDEBINFO
+    ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}
+  )
+endif()
+
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
-if (CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
-  string(REPLACE "-O2" "-O3" CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
-endif()
-
+# Tests existence of __uint128_t.
 try_compile(AMARU_HAS_UINT128
   ${CMAKE_BINARY_DIR}
   ${PROJECT_SOURCE_DIR}/cmake/uint128.c
 )
-
 if (AMARU_HAS_UINT128)
-
   add_compile_definitions(AMARU_HAS_UINT128)
-
-  try_compile(AMARU_HAS_FLOAT128
-    ${CMAKE_BINARY_DIR}
-    ${PROJECT_SOURCE_DIR}/cmake/float128.c
-  )
-
-  if (AMARU_HAS_FLOAT128)
-    add_compile_definitions(AMARU_HAS_FLOAT128)
-  endif()
-
 endif()
 
-add_subdirectory(amaru)
-add_subdirectory(cpp)
+# Tests existence of __float128.
+try_compile(AMARU_HAS_FLOAT128
+  ${CMAKE_BINARY_DIR}
+  ${PROJECT_SOURCE_DIR}/cmake/float128.c
+)
+if (AMARU_HAS_FLOAT128)
+  add_compile_definitions(AMARU_HAS_FLOAT128)
+endif()
 
 set(third_party_dir ${CMAKE_SOURCE_DIR}/third-party)
 
 include(FetchContent)
 
-#---------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# amaru
+#-------------------------------------------------------------------------------
+
+add_subdirectory(amaru)
+add_subdirectory(cpp)
+
+#-------------------------------------------------------------------------------
 # dragonbox
-#---------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 FetchContent_Declare(
   dragonbox
@@ -64,9 +75,9 @@ FetchContent_Declare(
 set(DRAGONBOX_INSTALL_TO_CHARS off)
 FetchContent_MakeAvailable(dragonbox)
 
-#---------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # googletest
-#---------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 FetchContent_Declare(
   googletest
@@ -78,9 +89,9 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-#---------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # json
-#---------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 FetchContent_Declare(
   json
@@ -93,9 +104,9 @@ set(BOOST_MP_STANDALONE on)
 set(BUILD_TESTING off)
 FetchContent_MakeAvailable(json)
 
-#---------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # multiprecision
-#---------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 FetchContent_Declare(
   multiprecision

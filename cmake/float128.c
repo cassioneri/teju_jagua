@@ -1,8 +1,8 @@
-// Tests whether __float128 exists.
+/**
+ * \brief Tests existence of __float128.
+ */
 
 typedef __float128 float128_t;
 
 int main() {
-  float128_t f = 0;
-  (void)f;
 }

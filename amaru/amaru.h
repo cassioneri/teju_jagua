@@ -12,6 +12,10 @@
 #include "amaru/div10.h"
 #include "amaru/mshift.h"
 
+#if defined(_MSC_VER)
+  #include <intrin.h>
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -127,8 +131,18 @@ make_fields(int32_t const e, amaru_u1_t const m) {
  */
 static inline
 amaru_u1_t
-rotr(amaru_u1_t const n, unsigned const s) {
-  return (n >> s) | (n << (amaru_size - s));
+ror(amaru_u1_t const n) {
+  #if defined(_MSC_VER)
+    #if amaru_size == 32
+      return _rotr(n, 1);
+    #elif amaru_size == 64
+      return _rotr64(n, 1);
+    #else
+      #error "Unsupported size for ror."
+    #endif
+  #else
+    return (n >> 1) | (n << (amaru_size - 1));
+  #endif
 }
 
 /**
@@ -145,11 +159,11 @@ amaru_fields_t
 remove_trailing_zeros(int32_t e, amaru_u1_t m) {
   amaru_u1_t const minv5 = amaru_minverse5;
   amaru_u1_t const inv10 = ((amaru_u1_t) -1) / 10;
-  amaru_u1_t       n     = rotr(minv5 * m, 1);
+  amaru_u1_t       n     = ror(minv5 * m);
   while (n <= inv10) {
     ++e;
     m = n;
-    n = rotr(minv5 * m, 1);
+    n = ror(minv5 * m);
   }
   return make_fields(e, m);
 }

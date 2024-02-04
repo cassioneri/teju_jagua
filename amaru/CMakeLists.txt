@@ -8,18 +8,18 @@ if (AMARU_HAS_UINT128)
   target_sources(amaru PUBLIC
     generated/ieee64_with_uint128.c
   )
-else ()
+else()
   target_sources(amaru PUBLIC
     generated/ieee64_no_uint128.c
   )
-endif ()
+endif()
 
 if (AMARU_HAS_FLOAT128)
   target_sources(amaru PUBLIC
     generated/ieee128.c
     float128.c
   )
-endif ()
+endif()
 
 target_include_directories(amaru PUBLIC
   "${CMAKE_SOURCE_DIR}"

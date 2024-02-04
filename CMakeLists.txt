@@ -17,38 +17,55 @@ cmake_policy(SET CMP0076 NEW)
 set(CMAKE_C_STANDARD   99)
 set(CMAKE_CXX_STANDARD 17)
 
-# Changes optimisation level to -O3 in RelWithDebInfo build.
+# Sets optimisation level to -O3 in RelWithDebInfo build for GNU and Clang
+# compilers.
+
 if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-  string(REPLACE "-O2" "-O3" CMAKE_C_FLAGS_RELWITHDEBINFO
-    ${CMAKE_C_FLAGS_RELWITHDEBINFO}
-  )
-endif ()
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  string(REPLACE "-O2" "-O3" CMAKE_CXX_FLAGS_RELWITHDEBINFO
-    ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}
-  )
-endif ()
+  foreach (flags IN ITEMS CMAKE_C_FLAGS_RELWITHDEBINFO
+    CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+
+    string(REPLACE "-O2" "-O3" ${flags} ${${flags}})
+
+  endforeach()
+endif()
+
+ # Sets inlining level to /Ob3 in Release and RelWithDebInfo builds for MSVC
+ # compilers.
+
+if (MSVC)
+
+  foreach (flags IN ITEMS CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO
+    CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+
+    string(REGEX REPLACE "/Ob[0-9]" "/Ob3" ${flags} ${${flags}})
+
+  endforeach()
+endif()
 
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
 # Tests existence of __uint128_t.
+
 try_compile(AMARU_HAS_UINT128
   ${CMAKE_BINARY_DIR}
   ${PROJECT_SOURCE_DIR}/cmake/uint128.c
 )
+
 if (AMARU_HAS_UINT128)
   add_compile_definitions(AMARU_HAS_UINT128)
-endif ()
+endif()
 
 # Tests existence of __float128.
+
 try_compile(AMARU_HAS_FLOAT128
   ${CMAKE_BINARY_DIR}
   ${PROJECT_SOURCE_DIR}/cmake/float128.c
 )
+
 if (AMARU_HAS_FLOAT128)
   add_compile_definitions(AMARU_HAS_FLOAT128)
-endif ()
+endif()
 
 set(third_party_dir ${CMAKE_SOURCE_DIR}/third-party)
 

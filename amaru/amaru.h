@@ -255,7 +255,7 @@ amaru_function(amaru_fields_t const binary) {
   }
 
   else if (is_tie_uncentred(f))
-    remove_trailing_zeros(f, a);
+    return remove_trailing_zeros(f, a);
 
   amaru_u1_t const m_c = 10 * 2 * 2 * m_0;
   amaru_u1_t const c_2 = amaru_mshift(m_c << r, u, l);

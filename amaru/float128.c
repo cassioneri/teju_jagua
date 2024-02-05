@@ -38,14 +38,15 @@ amaru_float128_to_ieee128(float128_t const value) {
 amaru128_fields_t
 amaru_ieee128_to_amaru_binary(amaru128_fields_t ieee128) {
 
-  amaru128_fields_t amaru_binary = ieee128;
+  int32_t  e = ieee128.exponent + exponent_min;
+  uint128_t m = ieee128.mantissa;
 
-  amaru_binary.exponent += exponent_min;
   if (ieee128.exponent != 0) {
-    amaru_binary.mantissa += amaru_pow2(uint128_t, mantissa_size);
-    amaru_binary.exponent -= 1;
+    e -= 1;
+    m += amaru_pow2(uint128_t, mantissa_size);
   }
 
+  amaru128_fields_t amaru_binary = { e, m };
   return amaru_binary;
 }
 

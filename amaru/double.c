@@ -26,22 +26,23 @@ amaru_double_to_ieee64(double const value) {
   amaru64_fields_t binary;
   binary.mantissa = amaru_lsb(bits, mantissa_size);
   bits >>= mantissa_size;
-  binary.exponent = (int32_t) amaru_lsb(bits, exponent_size);
+  binary.exponent = (int32_t)amaru_lsb(bits, exponent_size);
 
   return binary;
 }
 
 amaru64_fields_t
-amaru_ieee64_to_amaru_binary(amaru64_fields_t ieee64) {
+amaru_ieee64_to_amaru_binary(amaru64_fields_t const ieee64) {
 
-  amaru64_fields_t amaru_binary = ieee64;
+  int32_t  e = ieee64.exponent + exponent_min;
+  uint64_t m = ieee64.mantissa;
 
-  amaru_binary.exponent += exponent_min;
   if (ieee64.exponent != 0) {
-    amaru_binary.mantissa += amaru_pow2(uint64_t, mantissa_size);
-    amaru_binary.exponent -= 1;
+    e -= 1;
+    m += amaru_pow2(uint64_t, mantissa_size);
   }
 
+  amaru64_fields_t amaru_binary = { e, m };
   return amaru_binary;
 }
 

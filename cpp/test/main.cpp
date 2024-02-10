@@ -145,8 +145,13 @@ TYPED_TEST_P(typed_tests_t, small_integers) {
 
   using fp_t = TypeParam;
 
-  auto constexpr min = fp_t{ 1.0 };
-  auto constexpr max = fp_t{ 100000.0 };
+  // Let [1, M<T>[ be the interval of T-values for which the optimisation for
+  // small integers applies. The tested range is [1, min(M<T>, M<float>)[.
+
+  auto constexpr min = fp_t{1};
+  auto constexpr exp = std::min(traits_t<fp_t>::mantissa_size,
+    traits_t<float>::mantissa_size);
+  auto const     max = std::pow(fp_t{2.0}, exp + 1);
 
   for (fp_t value = min; value < max && !this->HasFailure(); ++value) {
     compare_to_other(value);

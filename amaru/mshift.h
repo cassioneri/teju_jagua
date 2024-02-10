@@ -15,9 +15,39 @@
 #include "amaru/common.h"
 #include "amaru/config.h"
 
+#if defined(_MSC_VER)
+  #include <intrin.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+static inline
+amaru_u1_t
+amaru_add_and_carry(amaru_u1_t x, amaru_u1_t y, amaru_u1_t* carry) {
+
+  #if defined(_MSC_VER)
+
+    #if amaru_size == 16
+      *carry = _addcarry_u16(0, x, y, &x);
+    #elif amaru_size == 32
+      *carry = _addcarry_u32(0, x, y, &x);
+    #elif amaru_size == 64
+      *carry = _addcarry_u64(0, x, y, &x);
+    #else
+      #error "Size not supported by msvc."
+    #endif
+
+  #else
+
+    x      += y;
+    *carry  = x < y;
+
+  #endif
+
+  return x;
+}
 
 /**
  * @brief Returns the quotient q = (r_2 * 2^(2 * N) + r_1 * 2^N) / 2^s, where
@@ -97,11 +127,10 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     //                            s01 := s0 / x, s00 := s0 % x in [0, x[,
     //                 = s11 * x^2 +(s10 + s01) * x + s00
 
-    amaru_u1_t s01, s11;
-    (void) amaru_multiply(l, m, &s01); // s00 is discarded
+    amaru_u1_t s01, s11, c;
+    (void) amaru_multiply(l, m, &s01);
     amaru_u1_t const s10 = amaru_multiply(u, m, &s11);
-    amaru_u1_t const r0  = s01 + s10; // This might wraparound.
-    amaru_u1_t const c   = r0 < s01;  // Carry.
+    amaru_u1_t const r0  = amaru_add_and_carry(s01, s10, &c);
     amaru_u1_t const r1  = s11 + c;
     return amaru_rshift(r1, r0);
 
@@ -135,24 +164,21 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     r1  = t / y;
 
     // order 1:
-    r1 += n0 * m1;         // This doesn't wraparound.
+    r1 += n0 * m1; // This addition doesn't wraparound.
     t   = n1 * m0;
-    r1 += t;               // This might wraparound.
-    c   = r1 < t;          // Carry.
+    r1  = amaru_add_and_carry(r1, t, &c);
     r1 /= y;
 
     // order 2:
-    r1 += n1 * m1 + c * y; // This doesn't wraparound.
+    r1 += n1 * m1 + c * y; // This addition doesn't wraparound.
     t   = n2 * m0;
-    r1 += t;               // This might wraparound.
-    c   = r1 < t;          // Carry.
+    r1  = amaru_add_and_carry(r1, t, &c);
     r1 /= y;
 
     // order 3:
-    r1 += n2 * m1 + c * y; // This doesn't wraparound.
+    r1 += n2 * m1 + c * y; // This addition doesn't wraparound.
     t   = n3 * m0;
-    r1 += t;               // This might wraparound.
-    c   = r1 < t;          // Carry.
+    r1  = amaru_add_and_carry(r1, t, &c);
     r0  = r1 % y;
     r1 /= y;
 

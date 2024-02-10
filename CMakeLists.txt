@@ -34,8 +34,8 @@ endif()
 
 if (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
 
-  # The C++ compiler emits better code than the C compiler (e.g., RVO) hence,
-  # we specify that all source files are C++.
+  # The C++ compiler emits better code than the C compiler (e.g., RVO) hence, we
+  # specify that all source files are C++.
   add_compile_options(/TP)
 
   foreach (flags IN ITEMS CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO

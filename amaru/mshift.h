@@ -82,6 +82,7 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     //                 = s1 * x + (s01 * x + s00)
     //                       with s01 := s0 / x, s00 := s0 % x in [0, x[,
     //                 = (s1 + s01) * x + s00.
+
     amaru_u2_t const s0 = ((amaru_u2_t) l) * m;
     amaru_u2_t const s1 = ((amaru_u2_t) u) * m;
     return (s1 + (s0 >> amaru_size)) >>
@@ -110,6 +111,7 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     // u := (n3 * y + n2) with n3 := u / y, n2 = u % y in [0, y[,
     // l := (n1 * y + n0) with n1 := l / y, n0 = l % y in [0, y[,
     // m := (m1 * y + m0) with m1 := m / y, m0 = m % y in [0, y[.
+
     amaru_u1_t const y  = amaru_pow2(amaru_u1_t, amaru_size / 2);
     amaru_u1_t const n3 = u / y;
     amaru_u1_t const n2 = u % y;

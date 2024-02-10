@@ -15,7 +15,7 @@
 #include "amaru/common.h"
 #include "amaru/config.h"
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !defined(__clang__)
   #include <intrin.h>
 #endif
 
@@ -36,7 +36,7 @@ static inline
 amaru_u1_t
 amaru_add_and_carry(amaru_u1_t x, amaru_u1_t y, amaru_u1_t* c) {
 
-  #if defined(_MSC_VER)
+  #if defined(_MSC_VER) && !defined(__clang__)
 
     #if amaru_size == 16
       *c = _addcarry_u16(0, x, y, &x);

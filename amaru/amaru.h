@@ -132,7 +132,7 @@ make_fields(int32_t const e, amaru_u1_t const m) {
 static inline
 amaru_u1_t
 ror(amaru_u1_t const n) {
-  #if defined(_MSC_VER)
+  #if defined(_MSC_VER) && !defined(__clang__)
     #if amaru_size == 32
       return _rotr(n, 1);
     #elif amaru_size == 64

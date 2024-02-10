@@ -141,7 +141,27 @@ TYPED_TEST_P(typed_tests_t, mantissa_min_all_exponents) {
   }
 }
 
-REGISTER_TYPED_TEST_SUITE_P(typed_tests_t, mantissa_min_all_exponents);
+TYPED_TEST_P(typed_tests_t, small_integers) {
+
+  using fp_t = TypeParam;
+
+  auto constexpr min = fp_t{ 1.0 };
+  auto constexpr max = fp_t{ 100000.0 };
+
+  for (fp_t value = min; value < max && !this->HasFailure(); ++value) {
+    compare_to_other(value);
+    if ((value + 1.0) - value != 1.0) {
+      std::cerr << "Breaking at " << value << std::endl;
+      break;
+    }
+  }
+}
+
+REGISTER_TYPED_TEST_SUITE_P(typed_tests_t,
+  mantissa_min_all_exponents,
+  small_integers
+);
+
 using fp_types_t = ::testing::Types<float, double>;
 INSTANTIATE_TYPED_TEST_SUITE_P(typed_tests_t, typed_tests_t, fp_types_t);
 

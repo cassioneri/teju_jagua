@@ -23,9 +23,17 @@ namespace {
 using namespace amaru;
 using namespace amaru::test;
 
+/**
+ * @brief Creates an integer number from the decimal representation (chars).
+ * 
+ * @tparam T
+ * @tparam T                The type of the number to be generated.
+ * @tparam Cs...            The chars of decimal representation of the number.
+ */
 template <typename T, char... Cs>
 struct make_number;
 
+// Specialisation when the pack of chars is empty.
 template <typename T>
 struct make_number<T> {
   static T value(T n) {
@@ -33,8 +41,18 @@ struct make_number<T> {
   }
 };
 
+// Generic implementation.
 template <typename T, char C, char... Cs>
 struct make_number<T, C, Cs...> {
+
+  /**
+   * @brief Appends to n the digits C, Cs...
+   * 
+   * For instance, for n = 123 and the pack '4', '5', '6', returns the integer
+   * 123456.
+   * 
+   * @param n                 The value of n.
+   */
   static T value(T n) {
     return make_number<T, Cs...>::value(10 * n + (C - '0'));
   }

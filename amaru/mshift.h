@@ -23,26 +23,35 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Returns x + y sets a carry flag if the addition has wrapped up.
+ * 
+ * @param x                 The value of x.
+ * @param y                 The value of y.
+ * @param c                 The addess of the carry flag to be set.
+ * 
+ * @returns The sum x + y.
+ */
 static inline
 amaru_u1_t
-amaru_add_and_carry(amaru_u1_t x, amaru_u1_t y, amaru_u1_t* carry) {
+amaru_add_and_carry(amaru_u1_t x, amaru_u1_t y, amaru_u1_t* c) {
 
   #if defined(_MSC_VER)
 
     #if amaru_size == 16
-      *carry = _addcarry_u16(0, x, y, &x);
+      *c = _addcarry_u16(0, x, y, &x);
     #elif amaru_size == 32
-      *carry = _addcarry_u32(0, x, y, &x);
+      *c = _addcarry_u32(0, x, y, &x);
     #elif amaru_size == 64
-      *carry = _addcarry_u64(0, x, y, &x);
+      *c = _addcarry_u64(0, x, y, &x);
     #else
       #error "Size not supported by msvc."
     #endif
 
   #else
 
-    x      += y;
-    *carry  = x < y;
+    x  += y;
+    *c  = x < y;
 
   #endif
 
@@ -50,11 +59,11 @@ amaru_add_and_carry(amaru_u1_t x, amaru_u1_t y, amaru_u1_t* carry) {
 }
 
 /**
- * @brief Returns the quotient q = (r_2 * 2^(2 * N) + r_1 * 2^N) / 2^s, where
+ * @brief Returns the quotient q = (r2 * 2^(2 * N) + r1 * 2^N) / 2^s, where
  * N = aramu_size and s = amaru_calculation_shift.
  *
- * @param r2                The value of r_2.
- * @param r1                The value of r_1$.
+ * @param r2                The value of r2.
+ * @param r1                The value of r1.
  *
  * @returns The quotient q.
  */
@@ -78,7 +87,7 @@ amaru_rshift(amaru_u1_t const r2, amaru_u1_t const r1) {
  * @brief Returns the quotient q = ((u * 2^N + l) * m) / 2^s, where
  * N = aramu_size and s = amaru_calculation_shift.
  *
- * @param m                 The 1st multiplicand  m.
+ * @param m                 The 1st multiplicand m.
  * @param u                 The 2nd multiplicand upper half u.
  * @param l                 The 2nd multiplicand lower half l.
  *

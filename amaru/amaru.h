@@ -158,7 +158,7 @@ static inline
 amaru_fields_t
 remove_trailing_zeros(int32_t e, amaru_u1_t m) {
   amaru_u1_t const minv5 = amaru_minverse5;
-  amaru_u1_t const inv10 = ((amaru_u1_t) -1) / 10;
+  amaru_u1_t const inv10 = ((amaru_u1_t) - 1) / 10;
   amaru_u1_t       n     = ror(minv5 * m);
   while (n <= inv10) {
     ++e;

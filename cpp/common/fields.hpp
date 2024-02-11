@@ -7,7 +7,9 @@
 #ifndef AMARU_CPP_COMMON_FIELDS_HPP_
 #define AMARU_CPP_COMMON_FIELDS_HPP_
 
-#include <boost/multiprecision/cpp_int.hpp>
+#if defined(AMARU_HAS_FLOAT128)
+  #include <boost/multiprecision/cpp_int.hpp>
+#endif
 
 #include <iostream>
 

@@ -155,10 +155,7 @@ TYPED_TEST_P(typed_tests_t, small_integers) {
 
   for (fp_t value = min; value < max && !this->HasFailure(); ++value) {
     compare_to_other(value);
-    if ((value + 1.0) - value != 1.0) {
-      std::cerr << "Breaking at " << value << std::endl;
-      break;
-    }
+    ASSERT_NE(value + 1.0, value);
   }
 }
 

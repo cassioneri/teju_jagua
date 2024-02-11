@@ -142,3 +142,16 @@ FetchContent_Declare(
 set(BOOST_MP_STANDALONE on)
 set(BUILD_TESTING off)
 FetchContent_MakeAvailable(multiprecision)
+
+#-------------------------------------------------------------------------------
+# nanobench
+#-------------------------------------------------------------------------------
+
+FetchContent_Declare(
+  nanobench
+  GIT_REPOSITORY https://github.com/martinus/nanobench.git
+  GIT_TAG        v4.3.11
+  GIT_SHALLOW    TRUE
+  SOURCE_DIR     ${third_party_dir}/nanobench
+)
+FetchContent_MakeAvailable(nanobench)

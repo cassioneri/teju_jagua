@@ -89,6 +89,7 @@ FetchContent_Declare(
   dragonbox
   GIT_REPOSITORY https://github.com/jk-jeon/dragonbox.git
   GIT_TAG        1.1.3
+  GIT_SHALLOW    TRUE
   SOURCE_DIR     ${third_party_dir}/dragonbox
 )
 
@@ -103,6 +104,7 @@ FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
   GIT_TAG        release-1.12.1
+  GIT_SHALLOW    TRUE
   SOURCE_DIR     ${third_party_dir}/googletest
 )
 
@@ -117,6 +119,7 @@ FetchContent_Declare(
   json
   GIT_REPOSITORY https://github.com/nlohmann/json.git
   GIT_TAG        v3.11.3
+  GIT_SHALLOW    TRUE
   SOURCE_DIR     ${third_party_dir}/json
 )
 
@@ -132,6 +135,7 @@ FetchContent_Declare(
   multiprecision
   GIT_REPOSITORY https://github.com/boostorg/multiprecision.git
   GIT_TAG        Boost_1_80_0
+  GIT_SHALLOW    TRUE
   SOURCE_DIR     ${third_party_dir}/multiprecision
 )
 

@@ -32,23 +32,23 @@ benchmark(T const value, typename traits_t<T>::fields_t (*function)(T)) {
   using clock_t = std::chrono::steady_clock;
 
   auto minimum = clock_t::duration{std::numeric_limits<clock_t::rep>::max()};
-  auto n       = std::uint32_t{256};
+  auto n       = std::uint32_t{64};
 
   do {
     auto const start = clock_t::now();
-    function(value);
-    function(value);
-    function(value);
-    function(value);
-    function(value);
-    function(value);
-    function(value);
-    function(value);
+    function(value); function(value); function(value); function(value);
+    function(value); function(value); function(value); function(value);
+    function(value); function(value); function(value); function(value);
+    function(value); function(value); function(value); function(value);
+    function(value); function(value); function(value); function(value);
+    function(value); function(value); function(value); function(value);
+    function(value); function(value); function(value); function(value);
+    function(value); function(value); function(value); function(value);
     auto const end = clock_t::now();
-    auto const dt  = 1000 * (end - start) / 8;
+    auto const dt  = 1000 * (end - start) / 32;
     if (dt < minimum) {
       minimum = dt;
-      n = 256;
+      n = 64;
     }
   } while (n--);
 

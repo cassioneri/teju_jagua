@@ -17,10 +17,9 @@ cmake_policy(SET CMP0076 NEW)
 set(CMAKE_C_STANDARD   99)
 set(CMAKE_CXX_STANDARD 17)
 
-# Sets optimisation level to -O3 in RelWithDebInfo build for GNU and Clang
-# compilers.
+# Sets optimisation level to -O3 in RelWithDebInfo build for GNU and Clang.
 
-if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU|Clang" AND NOT MSVC)
   foreach (flags IN ITEMS CMAKE_C_FLAGS_RELWITHDEBINFO
     CMAKE_CXX_FLAGS_RELWITHDEBINFO)
 
@@ -29,19 +28,20 @@ if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
   endforeach()
 endif()
 
- # Sets inlining level to /Ob3 in Release and RelWithDebInfo builds for MSVC
- # compilers.
-
 if (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
 
-  # The C++ compiler emits better code than the C compiler (e.g., RVO) hence, we
-  # specify that all source files are C++.
-  add_compile_options(/TP)
+  # MSVC's C++ compiler seems to emit better code than its C counterparty hence,
+  # we specify that all source files are C++.
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:/TP>)
+
+  # Sets inlining level to /Ob3 in Release and RelWithDebInfo builds for MSVC
+  # compilers.
 
   foreach (flags IN ITEMS CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO
     CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO)
 
     string(REGEX REPLACE "/Ob[0-9]" "/Ob3" ${flags} ${${flags}})
+
   endforeach()
 endif()
 

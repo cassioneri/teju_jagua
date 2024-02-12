@@ -38,7 +38,7 @@ struct stats_t {
    */
   std::uint64_t
   mean() const {
-    return sum_ / n_;
+    return (sum_ + n_ / 2) / n_;
   }
 
   /**

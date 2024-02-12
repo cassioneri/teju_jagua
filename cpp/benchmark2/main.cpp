@@ -2,6 +2,7 @@
 #include "amaru/config.h"
 #include "amaru/double.h"
 #include "amaru/float.h"
+#include "cpp/benchmark2/stats.hpp"
 #include "cpp/common/exception.hpp"
 #include "cpp/common/traits.hpp"
 
@@ -15,9 +16,6 @@
 
 namespace {
 
-using namespace amaru;
-using namespace ankerl::nanobench;
-
 auto constexpr str_algorithm = "algorithm";
 auto const     str_amaru     = std::string{"amaru"};
 auto const     str_dragonbox = std::string{"dragonbox"};
@@ -30,6 +28,7 @@ auto constexpr str_csv       = R"DELIM("algorithm";"binary";"decimal";"elapsed";
 
 auto const to_chars_failure = amaru::exception_t{"to_chars failed."};
 
+// TODO (CN) Document.
 template <typename TInt>
 char*
 integer_to_chars(char* first, char* last, TInt const& value) {
@@ -42,6 +41,7 @@ integer_to_chars(char* first, char* last, TInt const& value) {
   throw to_chars_failure;
 }
 
+// TODO (CN) Document.
 template <typename TFields>
 char*
 fields_to_chars(char* first, char* last, TFields const& fields, int base) {
@@ -59,8 +59,11 @@ fields_to_chars(char* first, char* last, TFields const& fields, int base) {
   return integer_to_chars(ptr, last, fields.c.exponent);
 }
 
+namespace nanobench = ankerl::nanobench;
+
+// TODO (CN) Document.
 template <typename T>
-void benchmark(Bench& bench, T const value) {
+void benchmark(nanobench::Bench& bench, T const value) {
 
   using      traits_t = amaru::traits_t<T>;
   using      buffer_t = char[40];
@@ -82,7 +85,7 @@ void benchmark(Bench& bench, T const value) {
     .context(str_binary   , std::data(binary_chars) )
     .context(str_decimal  , std::data(decimal_chars))
     .run("", [&]() {
-      doNotOptimizeAway(traits_t::amaru(value));
+      nanobench::doNotOptimizeAway(traits_t::amaru(value));
   });
 
   bench
@@ -90,62 +93,64 @@ void benchmark(Bench& bench, T const value) {
     .context(str_binary   , std::data(binary_chars) )
     .context(str_decimal  , std::data(decimal_chars))
     .run("", [&]() {
-      doNotOptimizeAway(traits_t::dragonbox_full(value));
+      nanobench::doNotOptimizeAway(traits_t::dragonbox_full(value));
   });
 }
 
-void print_summary(Bench& bench) {
+// TODO (CN) Document.
+void output(nanobench::Bench const& bench, const char* filename) {
 
-  auto results   = bench.results();
-  auto summary   = Bench().unit(bench.unit());
-  auto amaru     = Result{summary.config()};
-  auto dragonbox = Result{summary.config()};
-
-  for (auto const& result : results) {
-
-    using namespace std::chrono;
-    using seconds_t = duration<double, seconds::period>;
-
-    auto const elapsed = duration_cast<nanoseconds>(
-      seconds_t{result.minimum(Result::Measure::elapsed)});
-
-    if (result.context(str_algorithm) == str_amaru)
-      amaru.add(elapsed, 1, {});
-    else
-      dragonbox.add(elapsed, 1, {});
+  // Save detailed results in csv file.
+  {
+    auto out = std::ofstream{filename};
+    render(str_csv, bench, out);
   }
 
-  auto round_nano = [](double const x) {
-    return static_cast<std::uint64_t>(1e12 * x + 0.5) / 1e12;
-  };
+  // Print summary to std::cout.
+  {
+    auto results   = bench.results();
+    auto amaru     = amaru::stats_t{};
+    auto dragonbox = amaru::stats_t{};
 
-  auto round_unit = [](double const x) {
-    return static_cast<std::uint64_t>(1e3 * x + 0.5) / 1e3;
-  };
+    for (auto const& result : results) {
 
-  auto constexpr measure        = Result::Measure::elapsed;
-  auto const     amaru_mean     = amaru.average(measure);
-  auto const     dragonbox_mean = dragonbox.average(measure);
-  auto const     baseline       = amaru_mean;
+      using picoseconds_t = std::chrono::duration<double, std::pico>;
+      using seconds_t     = std::chrono::duration<double, std::ratio<1>>;
 
-  std::cout <<
-    "amaru     (mean)  = " << round_nano(amaru_mean) << '\n' <<
-    //"          (MdAPE) = " << amaru.medianAbsolutePercentError(measure) <<
-    //'\n' <<
-    "          (rel.)  = " << round_unit(amaru_mean / baseline) <<
-    "\n"
-    "dragonbox (mean)  = " << round_nano(dragonbox_mean) << '\n' <<
-    //"          (MdAPE) = " << dragonbox.medianAbsolutePercentError(measure) <<
-    //'\n' <<
-    "          (rel.)  = " << round_unit(dragonbox_mean / baseline) << '\n';
+      auto const measure  = nanobench::Result::Measure::elapsed;
+      auto const elapsed  = seconds_t{result.minimum(measure)};
+      auto const value    = std::uint64_t(picoseconds_t{elapsed}.count());
+
+      if (result.context(str_algorithm) == str_amaru)
+        amaru.update(value);
+      else
+        dragonbox.update(value);
+    }
+
+    auto const     amaru_mean     = amaru.mean();
+    auto const     dragonbox_mean = dragonbox.mean();
+    auto const     baseline       = double(amaru_mean);
+    auto constexpr scale          = 0.001;
+
+    std::cout << std::setprecision(3) << std::fixed <<
+      "(Time in nanoseconds)\n"
+      "\n"
+      "amaru     (mean  ) = " << scale * amaru_mean         << "\n"
+      "          (stddev) = " << scale * amaru.stddev()     << "\n"
+      "          (rel.  ) = " << amaru_mean / baseline      << "\n"
+      "dragonbox (mean  ) = " << scale * dragonbox_mean     << "\n"
+      "          (stddev) = " << scale * dragonbox.stddev() << "\n"
+      "          (rel.  ) = " << dragonbox_mean / baseline  << '\n';
+  }
 }
 
+// TODO (CN) Document.
 template <typename T>
 void
 benchmark_small_integers(const char* filename) {
 
-  auto           out   = std::ofstream{filename};
-  auto           bench = Bench().unit("number").output(nullptr);
+  auto           bench = nanobench::Bench()
+    .unit("number").output(nullptr);
   auto constexpr min   = T{1};
   auto constexpr max   = T{1000};
 
@@ -154,9 +159,7 @@ benchmark_small_integers(const char* filename) {
     ASSERT_NE(value + T{1}, value);
   }
 
-  render(str_csv, bench, out);
-  out.close();
-  print_summary(bench);
+  output(bench, filename);
 }
 
 TEST(float, small_integers) {

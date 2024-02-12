@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <charconv>
 #include <fstream>
+#include <random>
 #include <string>
 
 namespace {
@@ -44,8 +45,8 @@ integer_to_chars(char* first, char* last, TInt const& value) {
 // TODO (CN) Document.
 template <typename TFields>
 char*
-fields_to_chars(char* first, char* last, TFields const& fields, int base) {
-
+fields_to_chars(char* first, char* last, TFields const& fields, int const base)
+{
   auto       ptr  = integer_to_chars(first, last, fields.c.mantissa);
   auto const size = last - ptr;
 
@@ -60,6 +61,10 @@ fields_to_chars(char* first, char* last, TFields const& fields, int base) {
 }
 
 namespace nanobench = ankerl::nanobench;
+
+auto get_bench() {
+  return nanobench::Bench().unit("number").output(nullptr);
+}
 
 // TODO (CN) Document.
 template <typename T>
@@ -98,7 +103,7 @@ void benchmark(nanobench::Bench& bench, T const value) {
 }
 
 // TODO (CN) Document.
-void output(nanobench::Bench const& bench, const char* filename) {
+void output(nanobench::Bench const& bench, const char* const filename) {
 
   // Save detailed results in csv file.
   {
@@ -133,13 +138,13 @@ void output(nanobench::Bench const& bench, const char* filename) {
     auto constexpr scale          = 0.001;
 
     std::cout << std::setprecision(3) << std::fixed <<
-      "(Time in nanoseconds)\n"
       "\n"
-      "amaru     (mean  ) = " << scale * amaru_mean         << "\n"
-      "          (stddev) = " << scale * amaru.stddev()     << "\n"
+      "amaru     (mean  ) = " << scale * amaru_mean         << "ns\n"
+      "          (stddev) = " << scale * amaru.stddev()     << "ns\n"
       "          (rel.  ) = " << amaru_mean / baseline      << "\n"
-      "dragonbox (mean  ) = " << scale * dragonbox_mean     << "\n"
-      "          (stddev) = " << scale * dragonbox.stddev() << "\n"
+      "\n"
+      "dragonbox (mean  ) = " << scale * dragonbox_mean     << "ns\n"
+      "          (stddev) = " << scale * dragonbox.stddev() << "ns\n"
       "          (rel.  ) = " << dragonbox_mean / baseline  << '\n';
   }
 }
@@ -147,10 +152,9 @@ void output(nanobench::Bench const& bench, const char* filename) {
 // TODO (CN) Document.
 template <typename T>
 void
-benchmark_small_integers(const char* filename) {
+benchmark_small_integers(const char* const filename) {
 
-  auto           bench = nanobench::Bench()
-    .unit("number").output(nullptr);
+  auto           bench = get_bench();
   auto constexpr min   = T{1};
   auto constexpr max   = T{1000};
 
@@ -165,9 +169,51 @@ benchmark_small_integers(const char* filename) {
 TEST(float, small_integers) {
   benchmark_small_integers<float>("float_small_integers.csv");
 }
- 
+
 TEST(double, small_integers) {
   benchmark_small_integers<double>("double_small_integers.csv");
+}
+
+template <typename T>
+void
+benchmark_centred(const char* const filename, unsigned n_mantissas) {
+
+  using traits_t = amaru::traits_t<T>;
+  using u1_t     = typename traits_t::u1_t;
+
+  auto bench = get_bench();
+
+  auto constexpr mantissa_max = amaru_pow2(u1_t, traits_t::mantissa_size) - 1;
+  auto           distribution = std::uniform_int_distribution<u1_t>
+    {1, mantissa_max};
+  std::mt19937_64 device;
+
+  auto constexpr exponent_max = amaru_pow2(std::int32_t,
+    traits_t::exponent_size) - 1;
+
+  while (n_mantissas--) {
+
+    auto const mantissa = distribution(device);
+
+    if (mantissa == 0)
+      continue;
+
+    for (std::int32_t exponent = 0; exponent < exponent_max; ++exponent) {
+      auto const ieee  = typename traits_t::fields_t{ exponent, mantissa };
+      auto const value = traits_t::ieee_to_value(ieee);
+      benchmark(bench, value);
+    }
+  }
+
+  output(bench, filename);
+}
+
+TEST(float, centred) {
+  benchmark_centred<float>("float_centred.csv", 100);
+}
+
+TEST(double, centred) {
+  benchmark_centred<double>("double_centred.csv", 100);
 }
 
 } // namespace <anonymous>

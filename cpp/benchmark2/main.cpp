@@ -24,7 +24,7 @@ auto const     str_dragonbox = std::string{"dragonbox"};
 auto constexpr str_binary    = "binary";
 auto constexpr str_decimal   = "decimal";
 auto constexpr str_csv       = R"DELIM("algorithm";"binary";"decimal";"elapsed";"error %";"instructions";"branches";"branch misses";"total"
-{{#result}}{{context(algorithm)}};{{context(binary)}};{{context(decimal)}};{{minimum(elapsed)}};{{medianAbsolutePercentError(minimum)}};{{median(instructions)}};{{median(branchinstructions)}};{{median(branchmisses)}};{{sumProduct(iterations, elapsed)}}
+{{#result}}{{context(algorithm)}};{{context(binary)}};{{context(decimal)}};{{average(elapsed)}};{{medianAbsolutePercentError(elapsed)}};{{median(instructions)}};{{median(branchinstructions)}};{{median(branchmisses)}};{{sumProduct(iterations, elapsed)}}
 {{/result}})DELIM";
 
 auto const to_chars_failure = amaru::exception_t{"to_chars failed."};
@@ -63,7 +63,12 @@ fields_to_chars(char* first, char* last, TFields const& fields, int const base)
 namespace nanobench = ankerl::nanobench;
 
 auto get_bench() {
-  return nanobench::Bench().unit("number").output(nullptr);
+  return nanobench::Bench()
+    .unit("number")
+    .clockResolutionMultiple(1000)
+    .minEpochIterations(16)
+    .epochs(5)
+    .output(nullptr);
 }
 
 // TODO (CN) Document.
@@ -137,15 +142,20 @@ void output(nanobench::Bench const& bench, const char* const filename) {
     auto const     baseline       = double(amaru_mean);
     auto constexpr scale          = 0.001;
 
+    #define AMARU_FIELD(a) std::setw(6) << a
+
     std::cout << std::setprecision(3) << std::fixed <<
       "\n"
-      "amaru     (mean  ) = " << scale * amaru_mean         << "ns\n"
-      "          (stddev) = " << scale * amaru.stddev()     << "ns\n"
-      "          (rel.  ) = " << amaru_mean / baseline      << "\n"
+      "amaru     (mean  ) = " << AMARU_FIELD(scale * amaru_mean        ) << " ns\n"
+      "          (stddev) = " << AMARU_FIELD(scale * amaru.stddev()    ) << " ns\n"
+      "          (rel.  ) = " << AMARU_FIELD(amaru_mean / baseline     ) << "\n"
       "\n"
-      "dragonbox (mean  ) = " << scale * dragonbox_mean     << "ns\n"
-      "          (stddev) = " << scale * dragonbox.stddev() << "ns\n"
-      "          (rel.  ) = " << dragonbox_mean / baseline  << '\n';
+      "dragonbox (mean  ) = " << AMARU_FIELD(scale * dragonbox_mean    ) << " ns\n"
+      "          (stddev) = " << AMARU_FIELD(scale * dragonbox.stddev()) << " ns\n"
+      "          (rel.  ) = " << AMARU_FIELD(dragonbox_mean / baseline ) << "\n"
+      "\n";
+
+      #undef AMARU_FIELD
   }
 }
 
@@ -209,11 +219,11 @@ benchmark_centred(const char* const filename, unsigned n_mantissas) {
 }
 
 TEST(float, centred) {
-  benchmark_centred<float>("float_centred.csv", 100);
+  benchmark_centred<float>("float_centred.csv", 10);
 }
 
 TEST(double, centred) {
-  benchmark_centred<double>("double_centred.csv", 100);
+  benchmark_centred<double>("double_centred.csv", 10);
 }
 
 } // namespace <anonymous>

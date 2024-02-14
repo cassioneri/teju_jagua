@@ -29,12 +29,25 @@ auto constexpr str_csv       = R"DELIM("algorithm";"binary";"decimal";"elapsed";
 
 auto const to_chars_failure = amaru::exception_t{"to_chars failed."};
 
-// TODO (CN) Document.
+/**
+ * @brief Converts an integer into chars.
+ *
+ * Simply delegates to std::to_chars and throws in case of failure. A buffer for
+ * the chars must be provided by the caller.
+ *
+ * @tparam TInt             The type of integer to be converted.
+ *
+ * @param  begin            Pointer to beginning of the buffer.
+ * @param  end              Pointer to one-past-the-end of the buffer.
+ * @param  value            The integer to be converted.
+ *
+ * @returns Pointer to one-past-the-end of characters written.
+ */
 template <typename TInt>
 char*
-integer_to_chars(char* first, char* last, TInt const& value) {
+integer_to_chars(char* const begin, char* const end, TInt const& value) {
 
-  auto result = std::to_chars(first, last, value);
+  auto result = std::to_chars(begin, end, value);
 
   if (result.ec == std::errc{})
     return const_cast<char*>(result.ptr);
@@ -42,13 +55,27 @@ integer_to_chars(char* first, char* last, TInt const& value) {
   throw to_chars_failure;
 }
 
-// TODO (CN) Document.
+/**
+ * @brief Converts fields to chars.
+ *
+ * A buffer for the chars must be provided by the caller.
+ *
+ * @tparam TFields          The type of fields.
+ *
+ * @param  begin            Pointer to beginning of the buffer.
+ * @param  end              Pointer to one-past-the-end of the buffer.
+ * @param  fields           The fields to be converted.
+ * @param  base             The base for the exponent, either 2 or 10.
+ *
+ * @returns Pointer to one-past-the-end of characters written.
+ */
 template <typename TFields>
 char*
-fields_to_chars(char* first, char* last, TFields const& fields, int const base)
+fields_to_chars(char* const begin, char* const end, TFields const& fields,
+  int const base)
 {
-  auto       ptr  = integer_to_chars(first, last, fields.c.mantissa);
-  auto const size = last - ptr;
+  auto       ptr  = integer_to_chars(begin, end, fields.c.mantissa);
+  auto const size = end - ptr;
 
   if (base == 2 && size > 3)
     ptr = std::copy_n("*2^", 3, ptr);
@@ -57,11 +84,16 @@ fields_to_chars(char* first, char* last, TFields const& fields, int const base)
   else
     throw to_chars_failure;
 
-  return integer_to_chars(ptr, last, fields.c.exponent);
+  return integer_to_chars(ptr, end, fields.c.exponent);
 }
 
 namespace nanobench = ankerl::nanobench;
 
+/**
+ * @brief Gets a configured nanobench::Bench object for the benchmark.
+ *
+ * @returns The Bench object.
+ */
 auto get_bench() {
   return nanobench::Bench()
     .unit("number")

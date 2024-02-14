@@ -65,7 +65,7 @@ namespace nanobench = ankerl::nanobench;
 auto get_bench() {
   return nanobench::Bench()
     .unit("number")
-    .clockResolutionMultiple(1000)
+    .clockResolutionMultiple(100)
     .minEpochIterations(16)
     .epochs(5)
     .output(nullptr);
@@ -224,6 +224,42 @@ TEST(float, centred) {
 
 TEST(double, centred) {
   benchmark_centred<double>("double_centred.csv", 10);
+}
+
+template <typename T>
+void
+benchmark_uncentred(const char* const filename) {
+
+  using traits_t = amaru::traits_t<T>;
+  using u1_t     = typename traits_t::u1_t;
+
+  auto bench = get_bench();
+
+  auto constexpr mantissa_max = amaru_pow2(u1_t, traits_t::mantissa_size) - 1;
+  auto           distribution = std::uniform_int_distribution<u1_t>
+    {1, mantissa_max};
+  std::mt19937_64 device;
+
+  auto constexpr exponent_max = amaru_pow2(std::int32_t,
+    traits_t::exponent_size) - 1;
+
+  auto constexpr mantissa = u1_t{0};
+
+  for (std::int32_t exponent = 1; exponent < exponent_max; ++exponent) {
+    auto const ieee  = typename traits_t::fields_t{ exponent, mantissa };
+    auto const value = traits_t::ieee_to_value(ieee);
+    benchmark(bench, value);
+  }
+
+  output(bench, filename);
+}
+
+TEST(float, uncentred) {
+  benchmark_uncentred<float>("float_uncentred.csv");
+}
+
+TEST(double, uncentred) {
+  benchmark_uncentred<double>("double_uncentred.csv");
 }
 
 } // namespace <anonymous>

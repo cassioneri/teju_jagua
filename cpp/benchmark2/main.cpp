@@ -65,8 +65,6 @@ namespace nanobench = ankerl::nanobench;
 auto get_bench() {
   return nanobench::Bench()
     .unit("number")
-    .clockResolutionMultiple(100)
-    .minEpochIterations(16)
     .epochs(5)
     .output(nullptr);
 }

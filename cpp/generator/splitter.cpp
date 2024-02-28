@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+
 #include "cpp/generator/splitter.hpp"
 
 #include <utility>
@@ -33,7 +36,7 @@ splitter_t const&
 splitter_t::data_t::splitter() const {
   return splitter_;
 }
-  
+
 integer_t&
 splitter_t::data_t::value() {
   return value_;

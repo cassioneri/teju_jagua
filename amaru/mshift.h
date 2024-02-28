@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+
 /**
  * @file amaru/mshift.h
  *
@@ -25,11 +28,11 @@ extern "C" {
 
 /**
  * @brief Returns x + y sets a carry flag if the addition has wrapped up.
- * 
+ *
  * @param x                 The value of x.
  * @param y                 The value of y.
  * @param c                 The addess of the carry flag to be set.
- * 
+ *
  * @returns The sum x + y.
  */
 static inline

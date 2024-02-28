@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+
 add_library(amaru STATIC
   generated/ieee32.c
   float.c

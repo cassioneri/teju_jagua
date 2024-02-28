@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+
 /**
  * @file cpp/common/traits.hpp
  *
@@ -8,6 +11,9 @@
 #define AMARU_CPP_COMMON_TRAITS_HPP_
 
 #include "amaru/config.h"
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+
 #include "amaru/double.h"
 #include "amaru/float.h"
 #include "amaru/float128.h"

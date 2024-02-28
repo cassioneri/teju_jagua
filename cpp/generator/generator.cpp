@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+
 #include "amaru/common.h"
 #include "cpp/common/exception.hpp"
 #include "cpp/generator/generator.hpp"

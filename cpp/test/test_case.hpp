@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+
 /**
  * @file cpp/test/test_case.hpp
  *
@@ -18,11 +21,11 @@ namespace test {
 
 /**
  * @brief Test case for a given type.
- * 
+ *
  * It stores a value of type T and the expected fields of its Amaru's
  * decimal representation. Instantiations are provided for float, double and
  * float128_t (if supported).
- * 
+ *
  * \tparam                  The given type.
  */
 template <typename T>
@@ -33,7 +36,7 @@ struct test_case_t {
   /**
    * @brief Constructor from a value and the expected fields of its Amaru's
    * decimal representation.
-   * 
+   *
    * @param value           The given value.
    * @param expected        The expected fields of Amaru's decimal
    *                        representation.
@@ -43,7 +46,7 @@ struct test_case_t {
   /**
    * @brief Constructor from the fields of Amaru's binary representation and the
    * expected fields of its Amaru's decimal representation.
-   * 
+   *
    * @param value           The fields of Amaru's binary representation.
    * @param expected        The expected fields of Amaru's decimal
    *                        representation.
@@ -52,14 +55,14 @@ struct test_case_t {
 
   /**
    * @brief Gets the value.
-   * 
+   *
    * @returns The value.
    */
   T const& value() const;
 
   /**
    * @brief Gets the expected representation.
-   * 
+   *
    * @returns The representation.
    */
   fields_t const& expected() const;
@@ -73,11 +76,11 @@ private:
 
 /**
  * @brief Stream operator for test_case_t<T>.
- * 
+ *
  * @tparam C                The char type.
  * @tparam CT               The char-traits type.
  * @tparam T                The type T.
- * 
+ *
  * @param os                The object that the test case is streamed to.
  * @param test_case         The test case.
  */

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+
 /**
  * @file amaru/amaru.h
  *
@@ -125,7 +128,7 @@ make_fields(int32_t const e, amaru_u1_t const m) {
  * @brief Rotates a given number to the right by a given number of bits.
  *
  * @pre s <= amaru_size.
- * 
+ *
  * @param n                 The given number.
  * @param s                 The given number of bits.
  */

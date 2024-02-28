@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+
 #include "amaru/common.h"
 
 #include <boost/multiprecision/cpp_int.hpp>
@@ -84,7 +87,7 @@ TEST(log, amaru_log10_pow2_residual) {
 
   auto constexpr min = std::int32_t{amaru_log10_pow2_min};
   auto constexpr max = std::int32_t{amaru_log10_pow2_max};
-  
+
   // Sanity check for the test itself.
   ASSERT_LT(max, std::numeric_limits<std::int32_t>::max());
 

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+
 #include "cpp/test/impl.hpp"
 
 // Other macros required by amaru/div10.h and amaru/mshift.h.

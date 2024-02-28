@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+
 #include "amaru/common.h"
 #include "amaru/config.h"
 #include "amaru/double.h"
@@ -25,7 +28,7 @@ using namespace amaru::test;
 
 /**
  * @brief Creates an integer number from the decimal representation (chars).
- * 
+ *
  * @tparam T
  * @tparam T                The type of the number to be generated.
  * @tparam Cs...            The chars of decimal representation of the number.
@@ -47,10 +50,10 @@ struct make_number<T, C, Cs...> {
 
   /**
    * @brief Appends to n the digits C, Cs...
-   * 
+   *
    * For instance, for n = 123 and the pack '4', '5', '6', returns the integer
    * 123456.
-   * 
+   *
    * @param n                 The value of n.
    */
   static T value(T n) {

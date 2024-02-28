@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+
 #include "cpp/test/impl.hpp"
 
 #include <gtest/gtest.h>
@@ -18,7 +21,7 @@ void check(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
 }
 
 using impl_list_t = ::testing::Types<
-  built_in_1_t, built_in_1_small_shift_t, 
+  built_in_1_t, built_in_1_small_shift_t,
   synthetic_1_t, synthetic_1_small_shift_t,
   built_in_2_t,
   synthetic_2_t, synthetic_2_small_shift_t,

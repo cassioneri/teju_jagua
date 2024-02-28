@@ -1,4 +1,7 @@
 {
+  "SPDX-License-Identifier" : "MIT",
+  "SPDX-FileCopyrightText"  : "2024 Cassio Neri <cassio.neri@gmail.com>",
+
   "id"  : "ieee32",
   "size": 32,
 

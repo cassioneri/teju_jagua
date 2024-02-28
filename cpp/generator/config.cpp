@@ -43,13 +43,13 @@ from_json(nlohmann::json const& src, config_t::calculation_t& tgt) {
 
 void
 from_json(nlohmann::json const& src, config_t& tgt) {
-  src.at("id"          ).get_to(tgt.id          );
-  src.at("size"        ).get_to(tgt.size        );
-  src.at("spdx"        ).get_to(tgt.spdx        );
-  src.at("exponent"    ).get_to(tgt.exponent    );
-  src.at("mantissa"    ).get_to(tgt.mantissa    );
-  src.at("storage"     ).get_to(tgt.storage     );
-  src.at("calculation" ).get_to(tgt.calculation );
+  src.at("id"         ).get_to(tgt.id         );
+  src.at("size"       ).get_to(tgt.size       );
+  src.at("spdx"       ).get_to(tgt.spdx       );
+  src.at("exponent"   ).get_to(tgt.exponent   );
+  src.at("mantissa"   ).get_to(tgt.mantissa   );
+  src.at("storage"    ).get_to(tgt.storage    );
+  src.at("calculation").get_to(tgt.calculation);
 }
 
 void

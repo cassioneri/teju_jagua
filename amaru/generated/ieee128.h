@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+
 // This file was generated. DO NOT EDIT IT.
 
 #ifndef AMARU_AMARU_GENERATED_IEEE128_H_

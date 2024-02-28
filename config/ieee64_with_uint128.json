@@ -1,9 +1,13 @@
 {
-  "SPDX-License-Identifier" : "MIT",
-  "SPDX-FileCopyrightText"  : "2024 Cassio Neri <cassio.neri@gmail.com>",
-
   "id"  : "ieee64_with_uint128",
   "size": 64,
+
+  "spdx": {
+    "identifier" : "MIT",
+    "copyright"  : [
+      "2024 Cassio Neri <cassio.neri@gmail.com>"
+    ]
+  },
 
   "exponent": {
     "size"   :    11,

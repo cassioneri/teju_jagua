@@ -12,6 +12,12 @@
 namespace amaru {
 
 void
+from_json(nlohmann::json const& src, config_t::spdx_t& tgt) {
+  src.at("identifier").get_to(tgt.identifier);
+  src.at("copyright" ).get_to(tgt.copyright );
+}
+
+void
 from_json(nlohmann::json const& src, config_t::exponent_t& tgt) {
   src.at("size"   ).get_to(tgt.size   );
   src.at("minimum").get_to(tgt.minimum);
@@ -39,6 +45,7 @@ void
 from_json(nlohmann::json const& src, config_t& tgt) {
   src.at("id"          ).get_to(tgt.id          );
   src.at("size"        ).get_to(tgt.size        );
+  src.at("spdx"        ).get_to(tgt.spdx        );
   src.at("exponent"    ).get_to(tgt.exponent    );
   src.at("mantissa"    ).get_to(tgt.mantissa    );
   src.at("storage"     ).get_to(tgt.storage     );

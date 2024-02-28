@@ -33,6 +33,11 @@ struct config_t {
   // The size of the limb in bits.
   std::uint32_t size;
 
+  struct spdx_t {
+    std::string              identifier;
+    std::vector<std::string> copyright;
+  } spdx;
+
   struct exponent_t {
 
     // Size of exponent in bits.

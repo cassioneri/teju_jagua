@@ -258,6 +258,16 @@ generator_t::size() const {
 }
 
 std::string const&
+generator_t::spdx_identifier() const {
+  return config_.spdx.identifier;
+}
+
+std::vector<std::string> const&
+generator_t::spdx_copyright() const {
+  return config_.spdx.copyright;
+}
+
+std::string const&
 generator_t::prefix() const {
   return prefix_;
 }
@@ -351,13 +361,26 @@ struct generator_t::alpha_delta_maximum_t {
   rational_t maximum;
 };
 
+std::ostream&
+generator_t::generate_license(std::ostream& stream) const {
+
+  stream <<
+    "// SPDX-License-Identifier: " << spdx_identifier() << '\n';
+
+  for (auto const& copyright : spdx_copyright())
+    stream <<
+      "// SPDX-FileCopyrightText: " << copyright << '\n';
+
+  return stream << '\n';
+}
+
 void
 generator_t::generate_dot_h(std::ostream& stream) const {
 
   std::string const include_guard = "AMARU_AMARU_GENERATED_" + to_upper(id()) +
     "_H_";
 
-  stream <<
+  generate_license(stream) <<
     "// This file was generated. DO NOT EDIT IT.\n"
     "\n"
     "#ifndef " << include_guard << "\n"
@@ -385,7 +408,8 @@ generator_t::generate_dot_h(std::ostream& stream) const {
 void
 generator_t::generate_dot_c(std::ostream& stream) const {
 
-  stream << "// This file was generated. DO NOT EDIT IT.\n"
+  generate_license(stream) <<
+    "// This file was generated. DO NOT EDIT IT.\n"
     "\n"
     "#include \"" << dot_h() << "\"\n"
     "\n"

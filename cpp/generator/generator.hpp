@@ -53,6 +53,18 @@ private:
   size() const;
 
   /**
+   * @brief Returns the SPDX identifier.
+   */
+  std::string const&
+  spdx_identifier() const;
+
+  /**
+   * @brief Returns the SPDX identifier.
+   */
+  std::vector<std::string> const&
+  spdx_copyright() const;
+
+  /**
    * @brief Returns the type prefix corresponding to a given size.
    */
   std::string const&
@@ -141,6 +153,16 @@ private:
    */
   std::string const&
   dot_c() const;
+
+  /**
+   * @brief Streams out the license information.
+   *
+   * @param stream          Output stream to receive the content.
+   *
+   * @returns stream
+   */
+  std::ostream&
+  generate_license(std::ostream& stream) const;
 
   /**
    * @brief Streams out the .h file.

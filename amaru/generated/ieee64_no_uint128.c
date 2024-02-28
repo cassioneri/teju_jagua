@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+
 // This file was generated. DO NOT EDIT IT.
 
 #include "ieee64_no_uint128.h"

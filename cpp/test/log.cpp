@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
-#include "amaru/common.h"
+#include "teju/common.h"
 
 #include <boost/multiprecision/cpp_int.hpp>
 
@@ -15,10 +15,10 @@ namespace {
 
 using mp_int_t = boost::multiprecision::cpp_int;
 
-TEST(log, amaru_log10_pow2_forward) {
+TEST(log, teju_log10_pow2_forward) {
 
   // e in [0, max]
-  auto constexpr max = std::int32_t{amaru_log10_pow2_max};
+  auto constexpr max = std::int32_t{teju_log10_pow2_max};
 
   // Loop invariant: 10^f <= 2^e < 10^(f + 1)
 
@@ -35,7 +35,7 @@ TEST(log, amaru_log10_pow2_forward) {
   for (std::int32_t e = 0; e <= max; ++e) {
 
     // Test the real code.
-    ASSERT_EQ(amaru_log10_pow2(e), f) << "Note e = " << e;
+    ASSERT_EQ(teju_log10_pow2(e), f) << "Note e = " << e;
 
     // Restore loop invariant for next iteration.
     pow2 *= 2;
@@ -46,13 +46,13 @@ TEST(log, amaru_log10_pow2_forward) {
   }
 
   auto constexpr e = max + 1;
-  EXPECT_NE(amaru_log10_pow2(e), f) << "Maximum " << max << " isn't sharp.";
+  EXPECT_NE(teju_log10_pow2(e), f) << "Maximum " << max << " isn't sharp.";
 }
 
-TEST(log, amaru_log10_pow2_backward) {
+TEST(log, teju_log10_pow2_backward) {
 
   // e in [min, 0]
-  auto constexpr min = std::int32_t{amaru_log10_pow2_min};
+  auto constexpr min = std::int32_t{teju_log10_pow2_min};
 
   // Loop invariant: 10^f    <= 2^e    < 10^(f + 1)
   //                 10^(-f) >= 2^(-e) > 10^(-f - 1)
@@ -69,7 +69,7 @@ TEST(log, amaru_log10_pow2_backward) {
   // of min.
   for (std::int32_t e = 0; e >= min; --e) {
 
-    ASSERT_EQ(amaru_log10_pow2(e), f) << "Note e = " << e;
+    ASSERT_EQ(teju_log10_pow2(e), f) << "Note e = " << e;
 
     // Restore loop invariant for next iteration.
     pow2 *= 2;
@@ -80,27 +80,27 @@ TEST(log, amaru_log10_pow2_backward) {
   }
 
   auto constexpr e = min - 1;
-  EXPECT_NE(amaru_log10_pow2(e), f) << "Minimum " << min << " isn't sharp.";
+  EXPECT_NE(teju_log10_pow2(e), f) << "Minimum " << min << " isn't sharp.";
 }
 
-TEST(log, amaru_log10_pow2_residual) {
+TEST(log, teju_log10_pow2_residual) {
 
-  auto constexpr min = std::int32_t{amaru_log10_pow2_min};
-  auto constexpr max = std::int32_t{amaru_log10_pow2_max};
+  auto constexpr min = std::int32_t{teju_log10_pow2_min};
+  auto constexpr max = std::int32_t{teju_log10_pow2_max};
 
   // Sanity check for the test itself.
   ASSERT_LT(max, std::numeric_limits<std::int32_t>::max());
 
   for (std::int32_t e = min; e <= max; ++e) {
 
-    auto const f  = amaru_log10_pow2(e);
-    auto const r  = amaru_log10_pow2_residual(e);
+    auto const f  = teju_log10_pow2(e);
+    auto const r  = teju_log10_pow2_residual(e);
 
     // r = e - e0, where e0 is the smallest value such that
-    // amaru_log10_pow2(e0) = f.
+    // teju_log10_pow2(e0) = f.
     auto const e0 = e - static_cast<std::int32_t>(r);
-    auto const f0 = amaru_log10_pow2(e0);
-    auto const f1 = amaru_log10_pow2(e0 - 1);
+    auto const f0 = teju_log10_pow2(e0);
+    auto const f1 = teju_log10_pow2(e0 - 1);
 
     ASSERT_EQ(f0, f) << "Note: e = " << e << ", e0 = " << e0;
     ASSERT_LT(f1, f) << "Note: e = " << e << ", e0 = " << e0;

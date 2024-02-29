@@ -7,15 +7,15 @@
  * Functionalities to draw sample values used in benchmarks.
  */
 
-#ifndef AMARU_CPP_BENCHMARK_SAMPLER_HPP_
-#define AMARU_CPP_BENCHMARK_SAMPLER_HPP_
+#ifndef TEJU_CPP_BENCHMARK_SAMPLER_HPP_
+#define TEJU_CPP_BENCHMARK_SAMPLER_HPP_
 
 #include "cpp/common/traits.hpp"
 
 #include <cstdint>
 #include <random>
 
-namespace amaru {
+namespace teju {
 
 /**
  * @brief Types of population used in benchmarks.
@@ -45,7 +45,7 @@ enum class population_t {
 template <typename T>
 struct mantissa_provider_t {
 
-  using traits_t = amaru::traits_t<T>;
+  using traits_t = teju::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
 
   /**
@@ -85,7 +85,7 @@ private:
   using distribution_t = std::uniform_int_distribution<u1_t>;
 
   static u1_t constexpr mantissa_max_ =
-    amaru_pow2(u1_t, traits_t::mantissa_size) - 1;
+    teju_pow2(u1_t, traits_t::mantissa_size) - 1;
 
   u1_t            n_mantissas_;
   std::mt19937_64 device_;
@@ -107,7 +107,7 @@ private:
 template <typename T, typename P>
 struct generic_sampler_t {
 
-  using traits_t = amaru::traits_t<T>;
+  using traits_t = teju::traits_t<T>;
   using fields_t = typename traits_t::fields_t;
 
   /**
@@ -156,7 +156,7 @@ struct generic_sampler_t {
 
 private:
 
-  static constexpr std::int32_t exponent_max_ = amaru_pow2(std::int32_t,
+  static constexpr std::int32_t exponent_max_ = teju_pow2(std::int32_t,
     traits_t::exponent_size) - 1;
 
   fields_t ieee_;
@@ -237,7 +237,7 @@ private:
 template <typename T>
 struct sampler_t<T, population_t::centred> {
 
-  using traits_t = amaru::traits_t<T>;
+  using traits_t = teju::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
 
   /**
@@ -288,7 +288,7 @@ private:
 template <typename T>
 struct sampler_t<T, population_t::uncentred> {
 
-  using traits_t = amaru::traits_t<T>;
+  using traits_t = teju::traits_t<T>;
   using u1_t   = typename traits_t::u1_t;
 
   /**
@@ -367,7 +367,7 @@ private:
 template <typename T>
 struct sampler_t<T, population_t::mixed> {
 
-  using traits_t = amaru::traits_t<T>;
+  using traits_t = teju::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
 
   /**
@@ -409,6 +409,6 @@ private:
 
 }; // sampler_t<T, population_t::mixed>
 
-} // namespace amaru
+} // namespace teju
 
-#endif // AMARU_CPP_BENCHMARK_SAMPLER_HPP_
+#endif // TEJU_CPP_BENCHMARK_SAMPLER_HPP_

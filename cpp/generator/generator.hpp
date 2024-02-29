@@ -4,11 +4,11 @@
 /**
  * @file cpp/generator/generator.hpp
  *
- * Generator of Amaru's implementations.
+ * Generator of Teju Jagua's implementations.
  */
 
-#ifndef AMARU_CPP_GENERATOR_GENERATOR_HPP_
-#define AMARU_CPP_GENERATOR_GENERATOR_HPP_
+#ifndef TEJU_CPP_GENERATOR_GENERATOR_HPP_
+#define TEJU_CPP_GENERATOR_GENERATOR_HPP_
 
 #include "cpp/generator/config.hpp"
 #include "cpp/generator/multiprecision.hpp"
@@ -16,10 +16,10 @@
 #include <cstdint>
 #include <string>
 
-namespace amaru {
+namespace teju {
 
 /**
- * @brief Generator of Amaru's implementation for a given floating point
+ * @brief Generator of Teju Jagua's implementation for a given floating point
  * number type.
  */
 struct generator_t {
@@ -71,7 +71,7 @@ private:
   prefix() const;
 
   /**
-   * @brief Returns the name of Amaru's conversion function.
+   * @brief Returns the name of Teju Jagua's conversion function.
    */
   std::string const&
   function() const;
@@ -227,6 +227,6 @@ private:
 
 }; // struct generator_t
 
-} // namespace amaru
+} // namespace teju
 
-#endif // AMARU_CPP_GENERATOR_GENERATOR_HPP_
+#endif // TEJU_CPP_GENERATOR_GENERATOR_HPP_

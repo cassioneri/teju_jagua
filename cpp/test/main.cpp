@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
-#include "amaru/common.h"
-#include "amaru/config.h"
-#include "amaru/double.h"
-#include "amaru/float.h"
-#include "amaru/float128.h"
-#include "amaru/literal.h"
+#include "teju/common.h"
+#include "teju/config.h"
+#include "teju/double.h"
+#include "teju/float.h"
+#include "teju/float128.h"
+#include "teju/literal.h"
 #include "cpp/common/traits.hpp"
 #include "cpp/test/test_case.hpp"
 #include "cpp/common/other.hpp"
@@ -23,8 +23,8 @@
 
 namespace {
 
-using namespace amaru;
-using namespace amaru::test;
+using namespace teju;
+using namespace teju::test;
 
 /**
  * @brief Creates an integer number from the decimal representation (chars).
@@ -80,8 +80,8 @@ get_next(T value) {
 }
 
 /**
- * @brief Converts a given value from binary to decimal using Amaru (different
- * methods) and a third part-library and check whether they match.
+ * @brief Converts a given value from binary to decimal using Teju Jagua and a
+ * third part-library and check whether they match.
  *
  * @tparam T                The floating point value type.
  * @param  value            The given value.
@@ -89,12 +89,12 @@ get_next(T value) {
 template <typename T>
 void compare_to_other(T const value) {
 
-  using      traits_t = amaru::traits_t<T>;
-  auto const amaru    = traits_t::amaru(value);
+  using      traits_t = teju::traits_t<T>;
+  auto const teju     = traits_t::teju(value);
   auto const other    = traits_t::dragonbox_full(value);
   auto const fields   = traits_t::value_to_ieee(value);
 
-  EXPECT_EQ(other, amaru) << "IEEE fields: " << fields;
+  EXPECT_EQ(other, teju) << "IEEE fields: " << fields;
 }
 
 // Test results for all possible strictly positive finite float values.
@@ -128,7 +128,7 @@ TYPED_TEST_SUITE_P(typed_tests_t);
 // and double.
 TYPED_TEST_P(typed_tests_t, mantissa_min_all_exponents) {
 
-  using traits_t = amaru::traits_t<TypeParam>;
+  using traits_t = teju::traits_t<TypeParam>;
   using fp_t     = TypeParam;
   using u1_t     = typename traits_t::u1_t;
 
@@ -194,7 +194,7 @@ TEST(double, random_comparison_to_other) {
   }
 }
 
-#if defined(AMARU_HAS_FLOAT128)
+#if defined(TEJU_HAS_FLOAT128)
 
 template <char... Cs>
 uint128_t operator ""_u128() {
@@ -203,11 +203,11 @@ uint128_t operator ""_u128() {
 
 TEST(float128, test_hard_coded_values) {
 
-  using traits_t    = amaru::traits_t<float128_t>;
+  using traits_t    = teju::traits_t<float128_t>;
   using fields_t    = cpp_fields_t<float128_t>;
-  using test_case_t = amaru::test::test_case_t<float128_t>;
+  using test_case_t = teju::test::test_case_t<float128_t>;
 
-  static auto constexpr amaru_size = std::uint32_t{128};
+  static auto constexpr teju_size = std::uint32_t{128};
 
   struct test_data_t {
     float128_t value;
@@ -263,7 +263,7 @@ TEST(float128, test_hard_coded_values) {
   for (std::size_t i = 0; i < std::size(data); ++i) {
     auto const value     = data[i].value;
     auto const test_case = test_case_t{value, data[i].decimal};
-    auto const actual    = traits_t::amaru(test_case.value());
+    auto const actual    = traits_t::teju(test_case.value());
     ASSERT_EQ(test_case.expected(), actual) <<
       "    Note: test case number = " << i;
   }
@@ -271,11 +271,11 @@ TEST(float128, test_hard_coded_values) {
 
 TEST(float128, test_hard_coded_binary_representations) {
 
-  using traits_t    = amaru::traits_t<float128_t>;
+  using traits_t    = teju::traits_t<float128_t>;
   using fields_t    = traits_t::fields_t;
-  using test_case_t = amaru::test::test_case_t<float128_t>;
+  using test_case_t = teju::test::test_case_t<float128_t>;
 
-  static auto constexpr amaru_size = std::uint32_t{128};
+  static auto constexpr teju_size = std::uint32_t{128};
 
   struct test_data_t {
     fields_t binary;
@@ -290,13 +290,13 @@ TEST(float128, test_hard_coded_binary_representations) {
 
   for (std::size_t i = 0; i < std::size(data); ++i) {
     auto const test_case = test_case_t{data[i].binary, data[i].decimal};
-    auto const actual    = traits_t::amaru(test_case.value());
+    auto const actual    = traits_t::teju(test_case.value());
     ASSERT_EQ(test_case.expected(), actual) <<
       "    Note: test case number = " << i;
   }
 }
 
-#endif // defined(AMARU_HAS_FLOAT128)
+#endif // defined(TEJU_HAS_FLOAT128)
 
 /**
  * @brief Returns the floating point number value corresponding to given IEEE
@@ -310,7 +310,7 @@ template <typename T>
 T
 from_ieee(std::uint32_t e, typename traits_t<T>::u1_t m) {
 
-  using      traits_t = amaru::traits_t<T>;
+  using      traits_t = teju::traits_t<T>;
   using      u1_t     = typename traits_t::u1_t;
   u1_t const i        = (u1_t(e) << traits_t::mantissa_size) | m;
 

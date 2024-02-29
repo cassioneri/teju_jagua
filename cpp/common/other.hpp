@@ -4,15 +4,15 @@
 /**
  * @file cpp/common/other.hpp
  *
- * Wrapper around third-party libraries that Amaru is compared against.
+ * Wrapper around third-party libraries that Teju Jagua is compared against.
  */
 
-#ifndef AMARU_CPP_COMMON_OTHER_HPP_
-#define AMARU_CPP_COMMON_OTHER_HPP_
+#ifndef TEJU_CPP_COMMON_OTHER_HPP_
+#define TEJU_CPP_COMMON_OTHER_HPP_
 
 #include <dragonbox/dragonbox.h>
 
-namespace amaru {
+namespace teju {
 
 namespace dragonbox_compact {
 
@@ -50,6 +50,6 @@ to_decimal(double value);
 
 } // namespace dragonbox_full
 
-} // namespace amaru
+} // namespace teju
 
-#endif // AMARU_CPP_COMMON_OTHER_HPP_
+#endif // TEJU_CPP_COMMON_OTHER_HPP_

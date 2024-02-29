@@ -2,21 +2,21 @@
 // SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file amaru/mshift.h
+ * @file teju/mshift.h
  *
  * Multiply-and-shift operations.
  */
 
-#ifndef AMARU_AMARU_MSHIFT_H_
-#define AMARU_AMARU_MSHIFT_H_
+#ifndef TEJU_TEJU_MSHIFT_H_
+#define TEJU_TEJU_MSHIFT_H_
 
-#if !defined(amaru_calculation_mshift) || !defined(amaru_calculation_shift) || \
-  !defined(amaru_u1_t) || !defined(amaru_size)
-  #error "Macros amaru_calculation_mshift, amaru_calculation_shift, amaru_size and amaru_u1_t must be defined prior to inclusion of mshift.h."
+#if !defined(teju_calculation_mshift) || !defined(teju_calculation_shift) || \
+  !defined(teju_u1_t) || !defined(teju_size)
+  #error "Macros teju_calculation_mshift, teju_calculation_shift, teju_size and teju_u1_t must be defined prior to inclusion of mshift.h."
 #endif
 
-#include "amaru/common.h"
-#include "amaru/config.h"
+#include "teju/common.h"
+#include "teju/config.h"
 
 #if defined(_MSC_VER) && !defined(__clang__)
   #include <intrin.h>
@@ -36,16 +36,16 @@ extern "C" {
  * @returns The sum x + y.
  */
 static inline
-amaru_u1_t
-amaru_add_and_carry(amaru_u1_t x, amaru_u1_t y, amaru_u1_t* c) {
+teju_u1_t
+teju_add_and_carry(teju_u1_t x, teju_u1_t y, teju_u1_t* c) {
 
   #if defined(_MSC_VER) && !defined(__clang__)
 
-    #if amaru_size == 16
+    #if teju_size == 16
       *c = _addcarry_u16(0, x, y, &x);
-    #elif amaru_size == 32
+    #elif teju_size == 32
       *c = _addcarry_u32(0, x, y, &x);
-    #elif amaru_size == 64
+    #elif teju_size == 64
       *c = _addcarry_u64(0, x, y, &x);
     #else
       #error "Size not supported by msvc."
@@ -63,7 +63,7 @@ amaru_add_and_carry(amaru_u1_t x, amaru_u1_t y, amaru_u1_t* c) {
 
 /**
  * @brief Returns the quotient q = (r2 * 2^(2 * N) + r1 * 2^N) / 2^s, where
- * N = aramu_size and s = amaru_calculation_shift.
+ * N = aramu_size and s = teju_calculation_shift.
  *
  * @param r2                The value of r2.
  * @param r1                The value of r1.
@@ -71,24 +71,24 @@ amaru_add_and_carry(amaru_u1_t x, amaru_u1_t y, amaru_u1_t* c) {
  * @returns The quotient q.
  */
 static inline
-amaru_u1_t
-amaru_rshift(amaru_u1_t const r2, amaru_u1_t const r1) {
+teju_u1_t
+teju_rshift(teju_u1_t const r2, teju_u1_t const r1) {
 
-  #if amaru_calculation_shift >= 2 * amaru_size
+  #if teju_calculation_shift >= 2 * teju_size
 
-    return r2 >> (amaru_calculation_shift - 2 * amaru_size);
+    return r2 >> (teju_calculation_shift - 2 * teju_size);
 
   #else
 
-    return r2 << (2 * amaru_size - amaru_calculation_shift) |
-      r1 >> (amaru_calculation_shift - amaru_size);
+    return r2 << (2 * teju_size - teju_calculation_shift) |
+      r1 >> (teju_calculation_shift - teju_size);
 
   #endif
 }
 
 /**
  * @brief Returns the quotient q = ((u * 2^N + l) * m) / 2^s, where
- * N = aramu_size and s = amaru_calculation_shift.
+ * N = aramu_size and s = teju_calculation_shift.
  *
  * @param m                 The 1st multiplicand m.
  * @param u                 The 2nd multiplicand upper half u.
@@ -97,27 +97,27 @@ amaru_rshift(amaru_u1_t const r2, amaru_u1_t const r1) {
  * @returns The quotient q.
  */
 static inline
-amaru_u1_t
-amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
+teju_u1_t
+teju_mshift(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
 
   // Let x := 2^N.
 
-  #if amaru_calculation_mshift == amaru_built_in_4
+  #if teju_calculation_mshift == teju_built_in_4
 
-    amaru_u2_t const n = (((amaru_u2_t) u) << amaru_size) | l;
-    return (((amaru_u4_t) n) * m) >> amaru_calculation_shift;
+    teju_u2_t const n = (((teju_u2_t) u) << teju_size) | l;
+    return (((teju_u4_t) n) * m) >> teju_calculation_shift;
 
-  #elif amaru_calculation_mshift == amaru_synthetic_2
+  #elif teju_calculation_mshift == teju_synthetic_2
 
     // (u * x + l) * m = r2 * x^2 + r1 * x + r0,
     //                   with r2, r1, r0 in [0, x[.
 
-    amaru_u2_t const n = (((amaru_u2_t) u) << amaru_size) | l;
-    amaru_u2_t r2;
-    amaru_u2_t const r1 = amaru_multiply(n, m, &r2) >> amaru_size;
-    return amaru_rshift(r2, r1);
+    teju_u2_t const n = (((teju_u2_t) u) << teju_size) | l;
+    teju_u2_t r2;
+    teju_u2_t const r1 = teju_multiply(n, m, &r2) >> teju_size;
+    return teju_rshift(r2, r1);
 
-  #elif amaru_calculation_mshift == amaru_built_in_2
+  #elif teju_calculation_mshift == teju_built_in_2
 
     // (u * x + l) * m = s1 * x + s0,
     //                       with s1 := u * m, s0 := l * m in [0, x^2[,
@@ -125,12 +125,11 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     //                       with s01 := s0 / x, s00 := s0 % x in [0, x[,
     //                 = (s1 + s01) * x + s00.
 
-    amaru_u2_t const s0 = ((amaru_u2_t) l) * m;
-    amaru_u2_t const s1 = ((amaru_u2_t) u) * m;
-    return (s1 + (s0 >> amaru_size)) >>
-      (amaru_calculation_shift - amaru_size);
+    teju_u2_t const s0 = ((teju_u2_t) l) * m;
+    teju_u2_t const s1 = ((teju_u2_t) u) * m;
+    return (s1 + (s0 >> teju_size)) >> (teju_calculation_shift - teju_size);
 
-  #elif amaru_calculation_mshift == amaru_synthetic_1
+  #elif teju_calculation_mshift == teju_synthetic_1
 
     // (u * x + l) * m = s1 * x + s0,
     //                       with s1 := u * m, s0 := l * m in [0, x^2[,
@@ -139,30 +138,30 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     //                            s01 := s0 / x, s00 := s0 % x in [0, x[,
     //                 = s11 * x^2 +(s10 + s01) * x + s00
 
-    amaru_u1_t s01, s11, c;
-    (void) amaru_multiply(l, m, &s01);
-    amaru_u1_t const s10 = amaru_multiply(u, m, &s11);
-    amaru_u1_t const r0  = amaru_add_and_carry(s01, s10, &c);
-    amaru_u1_t const r1  = s11 + c;
-    return amaru_rshift(r1, r0);
+    teju_u1_t s01, s11, c;
+    (void) teju_multiply(l, m, &s01);
+    teju_u1_t const s10 = teju_multiply(u, m, &s11);
+    teju_u1_t const r0  = teju_add_and_carry(s01, s10, &c);
+    teju_u1_t const r1  = s11 + c;
+    return teju_rshift(r1, r0);
 
-  #elif amaru_calculation_mshift == amaru_built_in_1
+  #elif teju_calculation_mshift == teju_built_in_1
 
     // Let y := 2^(N / 2), so that, x = y^2. Then:
     // u := (n3 * y + n2) with n3 := u / y, n2 = u % y in [0, y[,
     // l := (n1 * y + n0) with n1 := l / y, n0 = l % y in [0, y[,
     // m := (m1 * y + m0) with m1 := m / y, m0 = m % y in [0, y[.
 
-    amaru_u1_t const y  = amaru_pow2(amaru_u1_t, amaru_size / 2);
-    amaru_u1_t const n3 = u / y;
-    amaru_u1_t const n2 = u % y;
-    amaru_u1_t const n1 = l / y;
-    amaru_u1_t const n0 = l % y;
-    amaru_u1_t const m1 = m / y;
-    amaru_u1_t const m0 = m % y;
+    teju_u1_t const y  = teju_pow2(teju_u1_t, teju_size / 2);
+    teju_u1_t const n3 = u / y;
+    teju_u1_t const n2 = u % y;
+    teju_u1_t const n1 = l / y;
+    teju_u1_t const n0 = l % y;
+    teju_u1_t const m1 = m / y;
+    teju_u1_t const m0 = m % y;
 
     // result, carry, temporary:
-    amaru_u1_t r1, r0, c, t;
+    teju_u1_t r1, r0, c, t;
 
     // (u * x + l) * m
     //     = ((n3 * y + n2) * y^2 + (n1 * y + n0)) * (m1 * y + m0),
@@ -178,38 +177,38 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
     // order 1:
     r1 += n0 * m1; // This addition doesn't wraparound.
     t   = n1 * m0;
-    r1  = amaru_add_and_carry(r1, t, &c);
+    r1  = teju_add_and_carry(r1, t, &c);
     r1 /= y;
 
     // order 2:
     r1 += n1 * m1 + c * y; // This addition doesn't wraparound.
     t   = n2 * m0;
-    r1  = amaru_add_and_carry(r1, t, &c);
+    r1  = teju_add_and_carry(r1, t, &c);
     r1 /= y;
 
     // order 3:
     r1 += n2 * m1 + c * y; // This addition doesn't wraparound.
     t   = n3 * m0;
-    r1  = amaru_add_and_carry(r1, t, &c);
+    r1  = teju_add_and_carry(r1, t, &c);
     r0  = r1 % y;
     r1 /= y;
 
     // order 4:
     r1 += n3 * m1 + c * y;
 
-    #if amaru_calculation_shift >= 2 * amaru_size
+    #if teju_calculation_shift >= 2 * teju_size
       (void) r0;
-      return r1 >> (amaru_calculation_shift - 2 * amaru_size);
-    #elif amaru_calculation_shift >= 3 * amaru_size / 2
-      return (r1 << (2 * amaru_size - amaru_calculation_shift)) |
-        (r0 >> (amaru_calculation_shift - 3 * amaru_size / 2));
+      return r1 >> (teju_calculation_shift - 2 * teju_size);
+    #elif teju_calculation_shift >= 3 * teju_size / 2
+      return (r1 << (2 * teju_size - teju_calculation_shift)) |
+        (r0 >> (teju_calculation_shift - 3 * teju_size / 2));
     #else
       #error "Unsupported combination of size, shift and mshift calculation."
     #endif
 
   #else
 
-    #error "Invalid definition of macro amaru_calculation_mshift."
+    #error "Invalid definition of macro teju_calculation_mshift."
 
   #endif
 }
@@ -218,4 +217,4 @@ amaru_mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
 }
 #endif
 
-#endif // AMARU_AMARU_MSHIFT_H_
+#endif // TEJU_TEJU_MSHIFT_H_

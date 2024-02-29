@@ -3,17 +3,17 @@
 
 #include "cpp/test/impl.hpp"
 
-// Other macros required by amaru/mshift.h.
-#define amaru_calculation_mshift amaru_built_in_4
-#define amaru_calculation_shift  32
+// Other macros required by teju/mshift.h.
+#define teju_calculation_mshift teju_built_in_4
+#define teju_calculation_shift  32
 
-#include "amaru/mshift.h"
+#include "teju/mshift.h"
 
-using impl_t = amaru::test::built_in_4_t;
+using impl_t = teju::test::built_in_4_t;
 
-int const impl_t::shift = amaru_calculation_shift;
+int const impl_t::shift = teju_calculation_shift;
 
-amaru_u1_t
-impl_t::mshift(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
-  return amaru_mshift(m, u, l);
+teju_u1_t
+impl_t::mshift(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
+  return teju_mshift(m, u, l);
 }

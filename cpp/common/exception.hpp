@@ -4,19 +4,19 @@
 /**
  * @file cpp/common/exception.hpp
  *
- * Exception thrown by Amaru.
+ * Exception thrown by Teju Jagua.
  */
 
-#ifndef AMARU_CPP_COMMON_EXCEPTION_HPP_
-#define AMARU_CPP_COMMON_EXCEPTION_HPP_
+#ifndef TEJU_CPP_COMMON_EXCEPTION_HPP_
+#define TEJU_CPP_COMMON_EXCEPTION_HPP_
 
 #include <cstdio>
 #include <stdexcept>
 
-namespace amaru {
+namespace teju {
 
 /**
- * @brief Amaru's exception.
+ * @brief Jeju Jagua's exception.
  */
 struct exception_t : std::runtime_error {
   using std::runtime_error::runtime_error;
@@ -47,6 +47,6 @@ report_error(const char* const program, const char* const message) {
   std::fprintf(stderr, "%s: error: %s.\n", program, message);
 }
 
-} // namespace amaru
+} // namespace teju
 
-#endif // AMARU_CPP_COMMON_EXCEPTION_HPP_
+#endif // TEJU_CPP_COMMON_EXCEPTION_HPP_

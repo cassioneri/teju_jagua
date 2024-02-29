@@ -5,7 +5,7 @@
 
 #include <utility>
 
-namespace amaru {
+namespace teju {
 
 splitter_t::splitter_t(std::uint32_t size, std::uint32_t parts) :
   size_ {std::move(size) },
@@ -65,7 +65,7 @@ operator<<(std::ostream& os, splitter_t::data_t&& data) {
   integer_t  base     = integer_t{1} << int32_t(k * sub_size);
   integer_t  u;
 
-  os << "amaru_literal" << parts << '(';
+  os << "teju_literal" << parts << '(';
 
   goto skip_comma;
   while (k) {
@@ -85,4 +85,4 @@ operator<<(std::ostream& os, splitter_t::data_t&& data) {
   return os << ')';
 }
 
-} // namespace amaru
+} // namespace teju

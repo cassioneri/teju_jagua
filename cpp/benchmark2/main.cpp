@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
-#include "amaru/common.h"
-#include "amaru/config.h"
-#include "amaru/double.h"
-#include "amaru/float.h"
+#include "teju/common.h"
+#include "teju/config.h"
+#include "teju/double.h"
+#include "teju/float.h"
 #include "cpp/benchmark2/stats.hpp"
 #include "cpp/common/exception.hpp"
 #include "cpp/common/traits.hpp"
@@ -21,7 +21,7 @@
 namespace {
 
 auto constexpr str_algorithm = "algorithm";
-auto const     str_amaru     = std::string{"amaru"};
+auto const     str_teju      = std::string{"teju"};
 auto const     str_dragonbox = std::string{"dragonbox"};
 
 auto constexpr str_binary    = "binary";
@@ -30,7 +30,7 @@ auto constexpr str_csv       = R"DELIM("algorithm";"binary";"decimal";"elapsed";
 {{#result}}{{context(algorithm)}};{{context(binary)}};{{context(decimal)}};{{average(elapsed)}};{{medianAbsolutePercentError(elapsed)}};{{median(instructions)}};{{median(branchinstructions)}};{{median(branchmisses)}};{{sumProduct(iterations, elapsed)}}
 {{/result}})DELIM";
 
-auto const to_chars_failure = amaru::exception_t{"to_chars failed."};
+auto const to_chars_failure = teju::exception_t{"to_chars failed."};
 
 /**
  * @brief Converts an integer into chars.
@@ -108,12 +108,12 @@ auto get_bench() {
 template <typename T>
 void benchmark(nanobench::Bench& bench, T const value) {
 
-  using      traits_t = amaru::traits_t<T>;
+  using      traits_t = teju::traits_t<T>;
   using      buffer_t = char[40];
 
-  auto const ieee    = traits_t::value_to_ieee(value);
-  auto const binary  = traits_t::ieee_to_amaru_binary(ieee);
-  auto const decimal = traits_t::amaru(value);
+  auto const ieee     = traits_t::value_to_ieee(value);
+  auto const binary   = traits_t::ieee_to_teju_binary(ieee);
+  auto const decimal  = traits_t::teju(value);
 
   buffer_t binary_chars{};
   fields_to_chars(std::begin(binary_chars), std::prev(std::end(binary_chars)),
@@ -124,11 +124,11 @@ void benchmark(nanobench::Bench& bench, T const value) {
     decimal, 10);
 
   bench.relative(true)
-    .context(str_algorithm, str_amaru.c_str()       )
+    .context(str_algorithm, str_teju.c_str()        )
     .context(str_binary   , std::data(binary_chars) )
     .context(str_decimal  , std::data(decimal_chars))
     .run("", [&]() {
-      nanobench::doNotOptimizeAway(traits_t::amaru(value));
+      nanobench::doNotOptimizeAway(traits_t::teju(value));
   });
 
   bench
@@ -151,9 +151,9 @@ void output(nanobench::Bench const& bench, const char* const filename) {
 
   // Print summary to std::cout.
   {
-    auto results   = bench.results();
-    auto amaru     = amaru::stats_t{};
-    auto dragonbox = amaru::stats_t{};
+    auto results    = bench.results();
+    auto teju       = teju::stats_t{};
+    auto dragonbox  = teju::stats_t{};
 
     for (auto const& result : results) {
 
@@ -164,31 +164,31 @@ void output(nanobench::Bench const& bench, const char* const filename) {
       auto const elapsed  = seconds_t{result.minimum(measure)};
       auto const value    = std::uint64_t(picoseconds_t{elapsed}.count());
 
-      if (result.context(str_algorithm) == str_amaru)
-        amaru.update(value);
+      if (result.context(str_algorithm) == str_teju)
+        teju.update(value);
       else
         dragonbox.update(value);
     }
 
-    auto const     amaru_mean     = amaru.mean();
-    auto const     dragonbox_mean = dragonbox.mean();
-    auto const     baseline       = double(amaru_mean);
-    auto constexpr scale          = 0.001;
+    auto const     teju_mean       = teju.mean();
+    auto const     dragonbox_mean  = dragonbox.mean();
+    auto const     baseline        = double(teju_mean);
+    auto constexpr scale           = 0.001;
 
-    #define AMARU_FIELD(a) std::setw(6) << a
+    #define TEJU_FIELD(a) std::setw(6) << a
 
     std::cout << std::setprecision(3) << std::fixed <<
       "\n"
-      "amaru     (mean  ) = " << AMARU_FIELD(scale * amaru_mean        ) << " ns\n"
-      "          (stddev) = " << AMARU_FIELD(scale * amaru.stddev()    ) << " ns\n"
-      "          (rel.  ) = " << AMARU_FIELD(amaru_mean / baseline     ) << "\n"
+      "teju      (mean  ) = " << TEJU_FIELD(scale * teju_mean         ) << " ns\n"
+      "          (stddev) = " << TEJU_FIELD(scale * teju.stddev()     ) << " ns\n"
+      "          (rel.  ) = " << TEJU_FIELD(teju_mean / baseline      ) << "\n"
       "\n"
-      "dragonbox (mean  ) = " << AMARU_FIELD(scale * dragonbox_mean    ) << " ns\n"
-      "          (stddev) = " << AMARU_FIELD(scale * dragonbox.stddev()) << " ns\n"
-      "          (rel.  ) = " << AMARU_FIELD(dragonbox_mean / baseline ) << "\n"
+      "dragonbox (mean  ) = " << TEJU_FIELD(scale * dragonbox_mean    ) << " ns\n"
+      "          (stddev) = " << TEJU_FIELD(scale * dragonbox.stddev()) << " ns\n"
+      "          (rel.  ) = " << TEJU_FIELD(dragonbox_mean / baseline ) << "\n"
       "\n";
 
-      #undef AMARU_FIELD
+      #undef TEJU_FIELD
   }
 }
 
@@ -221,18 +221,18 @@ template <typename T>
 void
 benchmark_centred(const char* const filename, unsigned n_mantissas) {
 
-  using traits_t = amaru::traits_t<T>;
+  using traits_t = teju::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
 
   auto bench = get_bench();
 
-  auto constexpr mantissa_max = amaru_pow2(u1_t, traits_t::mantissa_size) - 1;
+  auto constexpr mantissa_max = teju_pow2(u1_t, traits_t::mantissa_size) - 1;
   auto           distribution = std::uniform_int_distribution<u1_t>
     {1, mantissa_max};
   std::mt19937_64 device;
 
-  auto constexpr exponent_max = amaru_pow2(std::int32_t,
-    traits_t::exponent_size) - 1;
+  auto constexpr exponent_max = teju_pow2(std::int32_t, traits_t::exponent_size)
+    - 1;
 
   while (n_mantissas--) {
 
@@ -263,18 +263,18 @@ template <typename T>
 void
 benchmark_uncentred(const char* const filename) {
 
-  using traits_t = amaru::traits_t<T>;
+  using traits_t = teju::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
 
   auto bench = get_bench();
 
-  auto constexpr mantissa_max = amaru_pow2(u1_t, traits_t::mantissa_size) - 1;
+  auto constexpr mantissa_max = teju_pow2(u1_t, traits_t::mantissa_size) - 1;
   auto           distribution = std::uniform_int_distribution<u1_t>
     {1, mantissa_max};
   std::mt19937_64 device;
 
-  auto constexpr exponent_max = amaru_pow2(std::int32_t,
-    traits_t::exponent_size) - 1;
+  auto constexpr exponent_max = teju_pow2(std::int32_t, traits_t::exponent_size)
+    - 1;
 
   auto constexpr mantissa = u1_t{0};
 

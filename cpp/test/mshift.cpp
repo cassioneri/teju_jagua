@@ -7,13 +7,13 @@
 
 namespace {
 
-using namespace amaru::test;
+using namespace teju::test;
 
 template <typename TImpl>
-void check(amaru_u1_t const m, amaru_u1_t const u, amaru_u1_t const l) {
+void check(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
 
-  amaru_u1_t const actual   = TImpl::mshift(m, u, l);
-  amaru_u1_t const expected = (((amaru_u4_t(u) << amaru_size) + l) * m) >>
+  teju_u1_t const actual   = TImpl::mshift(m, u, l);
+  teju_u1_t const expected = (((teju_u4_t(u) << teju_size) + l) * m) >>
     TImpl::shift;
 
   EXPECT_EQ(actual, expected) << "Failed for "
@@ -36,16 +36,16 @@ TYPED_TEST_SUITE(mshift, impl_list_t);
 
 TYPED_TEST(mshift, test_one_billion_values) {
 
-  for (amaru_u1_t m = 0; m < 1000; ++m)
-    for (amaru_u1_t u = 0; u < 1000; ++u)
-      for (amaru_u1_t l = 0; l < 1000 && !this->HasFailure(); ++l)
+  for (teju_u1_t m = 0; m < 1000; ++m)
+    for (teju_u1_t u = 0; u < 1000; ++u)
+      for (teju_u1_t l = 0; l < 1000 && !this->HasFailure(); ++l)
         check<TypeParam>(m, u, l);
 }
 
 TYPED_TEST(mshift, ad_hoc) {
-  amaru_u1_t const m = 0;
-  amaru_u1_t const u = 0;
-  amaru_u1_t const l = 0;
+  teju_u1_t const m = 0;
+  teju_u1_t const u = 0;
+  teju_u1_t const l = 0;
   check<TypeParam>(m, u, l);
 }
 

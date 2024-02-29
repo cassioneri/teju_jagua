@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-namespace amaru {
+namespace teju {
 
 namespace dragonbox_compact {
 
@@ -43,4 +43,4 @@ to_decimal(double const value) {
 
 } // namespace dragonbox_full
 
-} // namespace amaru
+} // namespace teju

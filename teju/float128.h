@@ -2,19 +2,19 @@
 // SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file amaru/float128.h
+ * @file teju/float128.h
  *
- * Amaru and helpers for float128_t values.
+ * Teju Jagua and helpers for float128_t values.
  */
 
-#ifndef AMARU_AMARU_FLOAT128_H_
-#define AMARU_AMARU_FLOAT128_H_
+#ifndef TEJU_TEJU_FLOAT128_H_
+#define TEJU_TEJU_FLOAT128_H_
 
-#include "amaru/config.h"
+#include "teju/config.h"
 
-#if defined(AMARU_HAS_FLOAT128)
+#if defined(TEJU_HAS_FLOAT128)
 
-#include "amaru/generated/ieee128.h"
+#include "teju/generated/ieee128.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,36 +31,37 @@ extern "C" {
  *
   * @returns IEEE-754's binary128 representation of value.
  */
-amaru128_fields_t
-amaru_float128_to_ieee128(float128_t value);
+teju128_fields_t
+teju_float128_to_ieee128(float128_t value);
 
 /**
- * @brief Gets Amaru's binary representation of a given IEEE-754 binary128 one.
+ * @brief Gets Teju Jagua's binary representation of a given IEEE-754 binary128
+ * one.
  *
  * @pre value > 0.
  *
  * @param ieee128           The given IEEE-754 binary128 representation.
  *
- * @returns Amaru's binary representation value.
+ * @returns Teju Jagua's binary representation value.
  */
-amaru128_fields_t
-amaru_ieee128_to_amaru_binary(amaru128_fields_t ieee128);
+teju128_fields_t
+teju_ieee128_to_teju_binary(teju128_fields_t ieee128);
 
 /**
- * @brief Gets Amaru's decimal representation of a float128_t.
+ * @brief Gets Teju Jagua's decimal representation of a float128_t.
  *
  * @pre value > 0.
  *
  * @param value             The given float128_t.
  *
- * @returns Amaru's decimal representation of value.
+ * @returns Teju Jagua's decimal representation of value.
  */
-amaru128_fields_t
-amaru_float128_to_amaru_decimal(float128_t value);
+teju128_fields_t
+teju_float128_to_teju_decimal(float128_t value);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // defined(AMARU_HAS_FLOAT128)
-#endif // AMARU_AMARU_FLOAT128_H_
+#endif // defined(TEJU_HAS_FLOAT128)
+#endif // TEJU_TEJU_FLOAT128_H_

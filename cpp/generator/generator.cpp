@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
-#include "amaru/common.h"
+#include "teju/common.h"
 #include "cpp/common/exception.hpp"
 #include "cpp/generator/generator.hpp"
 #include "cpp/generator/multiprecision.hpp"
@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <fstream>
 
-namespace amaru {
+namespace teju {
 
 //------------------------------------------------------------------------------
 // helpers
@@ -179,11 +179,11 @@ std::string
 get_prefix(std::uint32_t const size) {
   switch (size) {
     case 32:
-      return "amaru32_";
+      return "teju32_";
     case 64:
-      return "amaru64_";
+      return "teju64_";
     case 128:
-      return "amaru128_";
+      return "teju128_";
   }
   throw exception_t{"BUG: Invalid size."};
 }
@@ -210,15 +210,15 @@ to_upper(std::string const& str) {
 //------------------------------------------------------------------------------
 
 generator_t::generator_t(config_t config, std::string directory) :
-  config_      {std::move(config)               },
-  prefix_      {get_prefix(size())              },
-  function_    {"amaru_" + id()                 },
-  mantissa_min_{pow2(mantissa_size())           },
-  mantissa_max_{2 * mantissa_min()              },
-  index_offset_{amaru_log10_pow2(exponent_min())},
-  directory_   {std::move(directory)            },
-  dot_h_       {id() + ".h"                     },
-  dot_c_       {id() + ".c"                     } {
+  config_      {std::move(config)              },
+  prefix_      {get_prefix(size())             },
+  function_    {"teju_" + id()                 },
+  mantissa_min_{pow2(mantissa_size())          },
+  mantissa_max_{2 * mantissa_min()             },
+  index_offset_{teju_log10_pow2(exponent_min())},
+  directory_   {std::move(directory)           },
+  dot_h_       {id() + ".h"                    },
+  dot_c_       {id() + ".c"                    } {
 }
 
 void
@@ -377,7 +377,7 @@ generator_t::generate_license(std::ostream& stream) const {
 void
 generator_t::generate_dot_h(std::ostream& stream) const {
 
-  std::string const include_guard = "AMARU_AMARU_GENERATED_" + to_upper(id()) +
+  std::string const include_guard = "TEJU_TEJU_GENERATED_" + to_upper(id()) +
     "_H_";
 
   generate_license(stream) <<
@@ -389,7 +389,7 @@ generator_t::generate_dot_h(std::ostream& stream) const {
     "#include <stdbool.h>\n"
     "#include <stdint.h>\n"
     "\n"
-    "#include \"amaru/config.h\"\n"
+    "#include \"teju/config.h\"\n"
     "\n"
     "#ifdef __cplusplus\n"
     "extern \"C\" {\n"
@@ -413,7 +413,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "\n"
     "#include \"" << dot_h() << "\"\n"
     "\n"
-    "#include \"amaru/literal.h\"\n"
+    "#include \"teju/literal.h\"\n"
     "\n"
     "#ifdef __cplusplus\n"
     "extern \"C\" {\n"
@@ -463,42 +463,42 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   auto const splitter = splitter_t{size(), storage_split()};
 
   stream <<
-    "#define amaru_size                 " << size()          << "\n"
-    "#define amaru_exponent_minimum     " << exponent_min()  << "\n"
-    "#define amaru_mantissa_size        " << mantissa_size() << "\n"
-    "#define amaru_storage_index_offset " << index_offset()  << "\n";
+    "#define teju_size                 " << size()          << "\n"
+    "#define teju_exponent_minimum     " << exponent_min()  << "\n"
+    "#define teju_mantissa_size        " << mantissa_size() << "\n"
+    "#define teju_storage_index_offset " << index_offset()  << "\n";
 
   if (!calculation_div10().empty())
     stream <<
-    "#define amaru_calculation_div10    amaru_" << calculation_div10() << "\n";
+    "#define teju_calculation_div10    teju_" << calculation_div10() << "\n";
 
   stream <<
-    "#define amaru_calculation_mshift   "
-      "amaru_" << calculation_mshift() << "\n"
-    // Instead of using mshift(m, upper, lower) / 2 in Amaru, shift is
+    "#define teju_calculation_mshift   "
+      "teju_" << calculation_mshift() << "\n"
+    // Instead of using mshift(m, upper, lower) / 2 in Teju Jagua, shift is
     // incremented here and the division by 2 is removed.
-    "#define amaru_calculation_shift    " << shift + 1             << "\n"
-    "#define amaru_minverse5            " << splitter(minv5)       << "\n"
+    "#define teju_calculation_shift    " << shift + 1             << "\n"
+    "#define teju_minverse5            " << splitter(minv5)       << "\n"
     "\n"
-    "#define amaru_function             " << function() << "\n"
-    "#define amaru_fields_t             " << prefix()   << "fields_t\n"
-    "#define amaru_u1_t                 " << prefix()   << "u1_t\n"
+    "#define teju_function             " << function() << "\n"
+    "#define teju_fields_t             " << prefix()   << "fields_t\n"
+    "#define teju_u1_t                 " << prefix()   << "u1_t\n"
     "\n"
     "#if defined(" << prefix() << "u2_t)\n"
-    "  #define amaru_u2_t               " << prefix()   << "u2_t\n"
+    "  #define teju_u2_t               " << prefix()   << "u2_t\n"
     "#endif\n"
     "\n"
     "#if defined(" << prefix() << "u4_t)\n"
-    "  #define amaru_u4_t               " << prefix()   << "u4_t\n"
+    "  #define teju_u4_t               " << prefix()   << "u4_t\n"
     "#endif\n"
     "\n"
     "static struct {\n"
-    "  amaru_u1_t const upper;\n"
-    "  amaru_u1_t const lower;\n"
+    "  teju_u1_t const upper;\n"
+    "  teju_u1_t const lower;\n"
     "} const multipliers[] = {\n";
 
   auto e2 = exponent_min();
-  auto f  = amaru_log10_pow2(e2);
+  auto f  = teju_log10_pow2(e2);
 
   for (auto const& fast_eaf : fast_eafs) {
 
@@ -516,14 +516,14 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   stream << "};\n"
     "\n"
     "static struct {\n"
-    "  amaru_u1_t const multiplier;\n"
-    "  amaru_u1_t const bound;\n"
+    "  teju_u1_t const multiplier;\n"
+    "  teju_u1_t const bound;\n"
     "} const minverse[] = {\n";
 
   auto       multiplier = integer_t{1};
   auto       p5         = integer_t{1};
 
-  // Amaru calls is_multiple_of_pow5(m, f) for
+  // Teju Jagua calls is_multiple_of_pow5(m, f) for
   //
   //   m =  2 * mantissa     - 1
   //   m =  2 * mantissa     + 1
@@ -554,7 +554,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   stream << std::dec <<
     "};\n"
     "\n"
-    "#include \"amaru/amaru.h\"\n"
+    "#include \"teju/teju.h\"\n"
     "\n"
     "#ifdef __cplusplus\n"
     "}\n"
@@ -567,16 +567,16 @@ generator_t::get_maxima() const {
   std::vector<alpha_delta_maximum_t> maxima;
   maxima.reserve(exponent_max() - exponent_min() + 1);
 
-  auto f_done = amaru_log10_pow2(exponent_min()) - 1;
+  auto f_done = teju_log10_pow2(exponent_min()) - 1;
 
   for (auto e = exponent_min(); e <= exponent_max(); ++e) {
 
-    auto const f = amaru_log10_pow2(e);
+    auto const f = teju_log10_pow2(e);
 
     if (f == f_done)
       continue;
 
-    auto const e0 = e - int32_t(amaru_log10_pow2_residual(e)) - f;
+    auto const e0 = e - int32_t(teju_log10_pow2_residual(e)) - f;
 
     alpha_delta_maximum_t x;
     x.alpha   = f >= 0 ? pow2(e0) : pow5(-f );
@@ -624,7 +624,7 @@ generator_t::get_fast_eaf(alpha_delta_maximum_t const& x) const {
   // Making shift >= size, simplifies mshift executed at runtime. Indeed, it
   // ensures that the least significant limb of the product is irrelevant. For
   // this reason, later on, the generator actually outputs shift - size
-  // (still labelling it as 'shift') so that Amaru doesn't need to do it at
+  // (still labelling it as 'shift') so that Teju Jagua doesn't need to do it at
   // runtime.
   auto k   = size();
   auto p2k = pow2(k);
@@ -651,4 +651,4 @@ generator_t::get_fast_eaf(alpha_delta_maximum_t const& x) const {
   throw exception_t{"Cannot find fast EAF."};
 }
 
-} // namespace amaru
+} // namespace teju

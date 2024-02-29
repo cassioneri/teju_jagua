@@ -5,36 +5,36 @@
 
 #include "ieee32.h"
 
-#include "amaru/literal.h"
+#include "teju/literal.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define amaru_size                 32
-#define amaru_exponent_minimum     -149
-#define amaru_mantissa_size        23
-#define amaru_storage_index_offset -45
-#define amaru_calculation_div10    amaru_built_in_2
-#define amaru_calculation_mshift   amaru_built_in_2
-#define amaru_calculation_shift    64
-#define amaru_minverse5            0xcccccccd
+#define teju_size                 32
+#define teju_exponent_minimum     -149
+#define teju_mantissa_size        23
+#define teju_storage_index_offset -45
+#define teju_calculation_div10    teju_built_in_2
+#define teju_calculation_mshift   teju_built_in_2
+#define teju_calculation_shift    64
+#define teju_minverse5            0xcccccccd
 
-#define amaru_function             amaru_ieee32
-#define amaru_fields_t             amaru32_fields_t
-#define amaru_u1_t                 amaru32_u1_t
+#define teju_function             teju_ieee32
+#define teju_fields_t             teju32_fields_t
+#define teju_u1_t                 teju32_u1_t
 
-#if defined(amaru32_u2_t)
-  #define amaru_u2_t               amaru32_u2_t
+#if defined(teju32_u2_t)
+  #define teju_u2_t               teju32_u2_t
 #endif
 
-#if defined(amaru32_u4_t)
-  #define amaru_u4_t               amaru32_u4_t
+#if defined(teju32_u4_t)
+  #define teju_u4_t               teju32_u4_t
 #endif
 
 static struct {
-  amaru_u1_t const upper;
-  amaru_u1_t const lower;
+  teju_u1_t const upper;
+  teju_u1_t const lower;
 } const multipliers[] = {
   { 0xb35dbf82, 0x1ae4f38c }, // -45
   { 0x8f7e32ce, 0x7bea5c70 }, // -44
@@ -116,8 +116,8 @@ static struct {
 };
 
 static struct {
-  amaru_u1_t const multiplier;
-  amaru_u1_t const bound;
+  teju_u1_t const multiplier;
+  teju_u1_t const bound;
 } const minverse[] = {
   { 0x00000001, 0xffffffff },
   { 0xcccccccd, 0x33333333 },
@@ -135,7 +135,7 @@ static struct {
   { 0xf6433fbd, 0x00000003 },
 };
 
-#include "amaru/amaru.h"
+#include "teju/teju.h"
 
 #ifdef __cplusplus
 }

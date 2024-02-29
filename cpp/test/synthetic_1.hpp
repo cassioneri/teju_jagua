@@ -4,22 +4,22 @@
 /**
  * @file cpp/test/synthetic_1.hpp
  *
- * Implementation amaru_multiply used when testing synthetic_1 functions.
+ * Implementation teju_multiply used when testing synthetic_1 functions.
  */
 
-#ifndef AMARU_CPP_TEST_SYNTHETIC_1_HPP_
-#define AMARU_CPP_TEST_SYNTHETIC_1_HPP_
+#ifndef TEJU_CPP_TEST_SYNTHETIC_1_HPP_
+#define TEJU_CPP_TEST_SYNTHETIC_1_HPP_
 
 extern "C" {
 
 static inline
-amaru_u1_t
-amaru_multiply(amaru_u1_t const a, amaru_u1_t const b, amaru_u1_t* upper) {
-  amaru_u2_t const p = amaru_u2_t(a) * amaru_u2_t(b);
-  *upper = amaru_u1_t(p >> amaru_size);
-  return amaru_u1_t(p);
+teju_u1_t
+teju_multiply(teju_u1_t const a, teju_u1_t const b, teju_u1_t* upper) {
+  teju_u2_t const p = teju_u2_t(a) * teju_u2_t(b);
+  *upper = teju_u1_t(p >> teju_size);
+  return teju_u1_t(p);
 }
 
 }
 
-#endif // AMARU_CPP_TEST_SYNTHETIC_1_HPP_
+#endif // TEJU_CPP_TEST_SYNTHETIC_1_HPP_

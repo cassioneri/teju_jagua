@@ -13,12 +13,12 @@
 #include <fstream>
 #include <string>
 
-namespace amaru {
+namespace teju {
 
 void
 report_usage(const char* const prog) noexcept {
   std::fprintf(stderr, "Usage: %s [OPTION]... CONFIG DIR\n"
-    "Generate Amaru source files for the given JSON configuration file "
+    "Generate Teju Jagua source files for the given JSON configuration file "
     "CONFIG. The files are saved in directory DIR.\n",
     prog);
 }
@@ -39,12 +39,12 @@ parse(const char* const filename, const char* const dir) {
   return { std::move(config), std::move(directory) };
 }
 
-} // namespace amaru
+} // namespace teju
 
 int
 main(int const argc, const char* const argv[]) {
 
-  using namespace amaru;
+  using namespace teju;
 
   try {
 

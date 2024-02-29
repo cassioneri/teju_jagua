@@ -7,7 +7,7 @@
 
 namespace {
 
-using namespace amaru::test;
+using namespace teju::test;
 
 using impl_list_t = ::testing::Types<
   built_in_1_t, synthetic_1_t, built_in_2_t
@@ -34,10 +34,10 @@ TYPED_TEST(div10, test_all_values) {
   auto constexpr e  = d - p2 % d;
   static_assert(e < a, "Theorem 4 does not apply.");
 
-  amaru_u1_t constexpr U  = ((a + e - 1) / e) * d - 1;
+  teju_u1_t constexpr U  = ((a + e - 1) / e) * d - 1;
   static_assert(U == 16389, "Invalid calculation of U of Theorem 4.");
 
-  for (amaru_u1_t m = 0; m < U; ++m)
+  for (teju_u1_t m = 0; m < U; ++m)
     ASSERT_EQ(impl_t::div10(m), m / 10) << "Failed for m = " << m;
 }
 

@@ -7,22 +7,22 @@
  * Functionalities to split a large literal into smaller pieces.
  */
 
-#ifndef AMARU_CPP_GENERATOR_SPLITTER_HPP_
-#define AMARU_CPP_GENERATOR_SPLITTER_HPP_
+#ifndef TEJU_CPP_GENERATOR_SPLITTER_HPP_
+#define TEJU_CPP_GENERATOR_SPLITTER_HPP_
 
 #include "cpp/generator/multiprecision.hpp"
 
 #include <cstdint>
 
-namespace amaru {
+namespace teju {
 
 /**
  * @brief Splits a large literal into smaller pieces.
  *
  * Generated sources might need to hardcode large numbers but the platform might
  * lack support for literals of the required size. This class helps splitting
- * such number into smaller pieces which can be given to macros amaru_literal2
- * or amaru_literal4 for the large number to be reconstructed.
+ * such number into smaller pieces which can be given to macros teju_literal2
+ * or teju_literal4 for the large number to be reconstructed.
  *
  * A typical usage looks like the following. Consider a 128-bits unsigned n
  * whose value is 0x0123456789abcdeffedcba9876543210. It can be split into two
@@ -33,7 +33,7 @@ namespace amaru {
  *
  * Which streams:
  *
- *     amaru_literal2(0x0123456789abcdef, 0xfedcba9876543210)
+ *     teju_literal2(0x0123456789abcdef, 0xfedcba9876543210)
  */
 struct splitter_t {
 
@@ -121,6 +121,6 @@ private:
 std::ostream&
 operator<<(std::ostream& os, splitter_t::data_t&& data);
 
-} // namespace amaru
+} // namespace teju
 
-#endif // AMARU_CPP_GENERATOR_SPLITTER_HPP_
+#endif // TEJU_CPP_GENERATOR_SPLITTER_HPP_

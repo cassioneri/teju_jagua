@@ -7,16 +7,16 @@
  * Multi-precision types used by the generator.
  */
 
-#ifndef AMARU_CPP_GENERATOR_MULTIPRECISION_HPP_
-#define AMARU_CPP_GENERATOR_MULTIPRECISION_HPP_
+#ifndef TEJU_CPP_GENERATOR_MULTIPRECISION_HPP_
+#define TEJU_CPP_GENERATOR_MULTIPRECISION_HPP_
 
 #include <boost/multiprecision/cpp_int.hpp>
 
-namespace amaru {
+namespace teju {
 
 using integer_t  = boost::multiprecision::cpp_int;
 using rational_t = boost::multiprecision::cpp_rational;
 
-} // namespace amaru
+} // namespace teju
 
-#endif // AMARU_CPP_GENERATOR_MULTIPRECISION_HPP_
+#endif // TEJU_CPP_GENERATOR_MULTIPRECISION_HPP_

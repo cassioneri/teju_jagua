@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file amaru/config.h
+ * @file teju/config.h
  *
  * Platform configurations, notably, multiplication capabilities.
  */
 
-#ifndef AMARU_AMARU_CONFIG_H_
-#define AMARU_AMARU_CONFIG_H_
+#ifndef TEJU_TEJU_CONFIG_H_
+#define TEJU_TEJU_CONFIG_H_
 
 #include <stdint.h>
 
@@ -16,14 +16,14 @@
   #include <intrin.h>
 #endif
 
-#if defined(AMARU_HAS_UINT128)
+#if defined(TEJU_HAS_UINT128)
   typedef __uint128_t uint128_t;
 #else
   // Cannot support float128_t if uint128_t is not defined.
-  #undef AMARU_HAS_FLOAT128
+  #undef TEJU_HAS_FLOAT128
 #endif
 
-#if defined(AMARU_HAS_FLOAT128)
+#if defined(TEJU_HAS_FLOAT128)
   typedef __float128 float128_t;
 #endif
 
@@ -31,14 +31,14 @@
 // Flags indicating the platform's multiplication capability.
 //------------------------------------------------------------------------------
 
-// The size in bits of the limb is amaru_size. For instance, if amaru_size ==
-// 32, then 1-, 2- and 4-limb integers have size 32, 64 and 128, respectively.
-// Similarly, if amaru_size == 64, then 1-, 2- and 4-limb integers have size 64,
+// The size in bits of the limb is teju_size. For instance, if teju_size == 32,
+// then 1-, 2- and 4-limb integers have size 32, 64 and 128, respectively.
+// Similarly, if teju_size == 64, then 1-, 2- and 4-limb integers have size 64,
 // 128 and 256 respectively. The platform is required to support 1-limb integers
 // but not necessarily 2- and 4-limb integers.
 
-// Macros amaru_calculation_div10 and amaru_calculation_mshift define the
-// algorithm used in amaru_div10 and amaru_mshift, respectively. They are set to
+// Macros teju_calculation_div10 and teju_calculation_mshift define the
+// algorithm used in teju_div10 and teju_mshift, respectively. They are set to
 // one of the values below depending on the platform's capability as explained
 // in their documentation.
 
@@ -51,19 +51,19 @@
  *     uint32_t lower = a * b;
  * \endcode
  */
-#define amaru_built_in_1 0
+#define teju_built_in_1 0
 
 /**
- * @brief The platform implements amaru_multiply() which takes two 1-limb
+ * @brief The platform implements teju_multiply() which takes two 1-limb
  * unsigned integers and returns the lower 1-limb of the 2-limb product. It also
  * takes a third argument of pointer type where the upper 1-limb of the product
  * is stored on exit. For instance, assuming 1-limb is 32-bits:
  * \code{.cpp}
  *     uint32_t a, b, upper;
- *     uint32_t lower = amaru_multiply(a, b, &upper);
+ *     uint32_t lower = teju_multiply(a, b, &upper);
  * \endcode
  */
-#define amaru_synthetic_1 1
+#define teju_synthetic_1 1
 
 /**
  * @brief The platform provides operator * for 2-limb unsigned integers that
@@ -74,19 +74,19 @@
  *     uint64_t lower = a * b;
  * \endcode
  */
-#define amaru_built_in_2  2
+#define teju_built_in_2  2
 
 /**
- * @brief The platform implements amaru_multiply() which takes two 2-limb
+ * @brief The platform implements teju_multiply() which takes two 2-limb
  * unsigned integers and returns the lower 2-limb of the 4-limb product. It also
  * takes a third argument of pointer type where the upper 2-limb of the product
  * is stored on exit. For instance, assuming 1-limb is 32-bits:
  * \code{.cpp}
  *     uint64_t a, b, upper;
- *     uint64_t lower = amaru_multiply(a, b, &upper);
+ *     uint64_t lower = teju_multiply(a, b, &upper);
  * \endcode
  */
-#define amaru_synthetic_2 3
+#define teju_synthetic_2 3
 
 /**
  * @brief The platform provides operator * for 4-limb unsigned integers that
@@ -97,91 +97,91 @@
  *     uint128_t lower = a * b;
  * \endcode
  */
-#define amaru_built_in_4  4
+#define teju_built_in_4  4
 
 //------------------------------------------------------------------------------
 // Limbs
 //------------------------------------------------------------------------------
 
-// Macros amaru<X>_u1_t, where <X> = amaru_size (e.g., amaru32_u1_t for
-// amaru_size = 32), is set to the type of 1-limb unsigned integers, i.e., that
-// whose size is amaru_size. When defined, amaru<X>_u2_t and amaru<X>_u4_t are,
+// Macros teju<X>_u1_t, where <X> = teju_size (e.g., teju32_u1_t for
+// teju_size = 32), is set to the type of 1-limb unsigned integers, i.e., that
+// whose size is teju_size. When defined, teju<X>_u2_t and teju<X>_u4_t are,
 // respectively, set to the types of the 2- and 4-limb unsigned integers.
 
 //----------//
 //  32 bits //
 //----------//
 
-#define amaru32_u1_t uint32_t
-#define amaru32_u2_t uint64_t
+#define teju32_u1_t uint32_t
+#define teju32_u2_t uint64_t
 
-#if defined(AMARU_HAS_UINT128)
+#if defined(TEJU_HAS_UINT128)
 
-  #define amaru32_u4_t          uint128_t
-  #define amaru32_multiply_type amaru_built_in_4
+  #define teju32_u4_t          uint128_t
+  #define teju32_multiply_type teju_built_in_4
 
 #elif defined(_MSC_VER)
 
-  #define amaru32_multiply_type amaru_synthetic_2
+  #define teju32_multiply_type teju_synthetic_2
 
 #endif
 
 typedef struct {
   int32_t      exponent;
-  amaru32_u1_t mantissa;
-} amaru32_fields_t;
+  teju32_u1_t mantissa;
+} teju32_fields_t;
 
 //----------//
 //  64 bits //
 //----------//
 
-#define amaru64_u1_t uint64_t
+#define teju64_u1_t uint64_t
 
-#if defined(AMARU_HAS_UINT128)
+#if defined(TEJU_HAS_UINT128)
 
-  #define amaru64_u2_t          uint128_t
-  #define amaru64_multiply_type amaru_built_in_2
+  #define teju64_u2_t          uint128_t
+  #define teju64_multiply_type teju_built_in_2
 
 #elif defined(_MSC_VER)
 
-  #define amaru64_multiply_type amaru_synthetic_1
+  #define teju64_multiply_type teju_synthetic_1
 
 #endif
 
 typedef struct {
   int32_t      exponent;
-  amaru64_u1_t mantissa;
-} amaru64_fields_t;
+  teju64_u1_t mantissa;
+} teju64_fields_t;
 
 //----------//
 // 128 bits //
 //----------//
 
-#if defined(AMARU_HAS_FLOAT128)
+#if defined(TEJU_HAS_FLOAT128)
 
-  #define amaru128_u1_t          uint128_t
-  #define amaru128_multiply_type amaru_built_in_1
+  #define teju128_u1_t          uint128_t
+  #define teju128_multiply_type teju_built_in_1
 
   typedef struct {
     int32_t       exponent;
-    amaru128_u1_t mantissa;
-  } amaru128_fields_t;
+    teju128_u1_t mantissa;
+  } teju128_fields_t;
 
 #endif
 
 //------------------------------------------------------------------------------
-// amaru_multiply
+// teju_multiply
 //------------------------------------------------------------------------------
 
-// One might want to disabled the provided implementations of amaru_multiply to
+// One might want to disabled the provided implementations of teju_multiply to
 // be able to implement their own (e.g., for testing). For this, it suffices to
-// define macro amaru_do_not_define_amaru_multiply prior to including this file.
+// define macro teju_do_not_define_teju_multiply prior to including this file.
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if defined(_MSC_VER) && !defined(amaru_do_not_define_amaru_multiply)
+#if defined(_MSC_VER) && !defined(teju_do_not_define_teju_multiply)
 
   /**
    * @brief Calculates the 128-bits product of two 64-bits unsigned numbers.
@@ -194,7 +194,7 @@ extern "C" {
    */
   inline static
   uint64_t
-  amaru_multiply(uint64_t const a, uint64_t const b, uint64_t* upper) {
+  teju_multiply(uint64_t const a, uint64_t const b, uint64_t* upper) {
     return _umul128(a, b, upper);
   }
 
@@ -204,4 +204,4 @@ extern "C" {
 }
 #endif
 
-#endif // AMARU_AMARU_CONFIG_H_
+#endif // TEJU_TEJU_CONFIG_H_

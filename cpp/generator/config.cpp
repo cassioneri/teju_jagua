@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
-#include "amaru/common.h"
+#include "teju/common.h"
 #include "cpp/common/exception.hpp"
 #include "cpp/generator/config.hpp"
 
@@ -9,7 +9,7 @@
 #include <iterator>
 #include <iostream>
 
-namespace amaru {
+namespace teju {
 
 void
 from_json(nlohmann::json const& src, config_t::spdx_t& tgt) {
@@ -61,12 +61,12 @@ validate(config_t const& json) {
   require(json.exponent.minimum <= json.exponent.maximum,
     "Constraint violation: exponent.minimum <= exponent.maximum");
 
-  std::int32_t min = std::min(amaru_log10_pow2_min, amaru_log10_075_pow2_min);
+  std::int32_t min = std::min(teju_log10_pow2_min, teju_log10_075_pow2_min);
 
   require(json.exponent.minimum >= min,
     "Constraint violation: json.exponent.minimum >= min");
 
-  std::int32_t max = std::max(amaru_log10_pow2_max, amaru_log10_075_pow2_max);
+  std::int32_t max = std::max(teju_log10_pow2_max, teju_log10_075_pow2_max);
 
   require(json.exponent.maximum <= max,
     "Constraint violation: json.exponent.maximum <= max");
@@ -105,4 +105,4 @@ validate(config_t const& json) {
     "\"synthetic_1\", \"built_in_2\", \"synthetic_2\", \"built_in_4\" }");
 }
 
-} // namespace amaru
+} // namespace teju

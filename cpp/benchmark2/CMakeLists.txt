@@ -6,7 +6,7 @@ add_executable(benchmark2
 )
 
 target_link_libraries(benchmark2 PRIVATE
-  amaru
+  teju
   gtest gtest_main
   nanobench
   other

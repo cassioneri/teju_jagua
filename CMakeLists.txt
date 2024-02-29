@@ -7,11 +7,11 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-project(amaru
+project(teju_jagua
   VERSION 1.0
-  DESCRIPTION "The Incan dragon-like creature which comes from the underworld \
-    to help us efficiently finding decimal representations of floating-point  \
-    numbers."
+  DESCRIPTION "Teju Jagua: the gentle 7-headed beast from Guarani mythology \
+    that comes out of its cave to help us efficiently finding decimal       \
+    representations of floating-point numbers."
   LANGUAGES C CXX
 )
 
@@ -53,24 +53,24 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
 # Tests existence of __uint128_t.
 
-try_compile(AMARU_HAS_UINT128
+try_compile(TEJU_HAS_UINT128
   ${CMAKE_BINARY_DIR}
   ${PROJECT_SOURCE_DIR}/cmake/uint128.c
 )
 
-if (AMARU_HAS_UINT128)
-  add_compile_definitions(AMARU_HAS_UINT128)
+if (TEJU_HAS_UINT128)
+  add_compile_definitions(TEJU_HAS_UINT128)
 endif()
 
 # Tests existence of __float128.
 
-try_compile(AMARU_HAS_FLOAT128
+try_compile(TEJU_HAS_FLOAT128
   ${CMAKE_BINARY_DIR}
   ${PROJECT_SOURCE_DIR}/cmake/float128.c
 )
 
-if (AMARU_HAS_FLOAT128)
-  add_compile_definitions(AMARU_HAS_FLOAT128)
+if (TEJU_HAS_FLOAT128)
+  add_compile_definitions(TEJU_HAS_FLOAT128)
 endif()
 
 set(third_party_dir ${CMAKE_SOURCE_DIR}/third-party)
@@ -78,10 +78,10 @@ set(third_party_dir ${CMAKE_SOURCE_DIR}/third-party)
 include(FetchContent)
 
 #-------------------------------------------------------------------------------
-# amaru
+# teju_jagua
 #-------------------------------------------------------------------------------
 
-add_subdirectory(amaru)
+add_subdirectory(teju)
 add_subdirectory(cpp)
 
 #-------------------------------------------------------------------------------

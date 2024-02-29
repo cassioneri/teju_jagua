@@ -2,20 +2,20 @@
 // SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file amaru/div10.h
+ * @file teju/div10.h
  *
  * Different algorithms for division by 10.
  */
 
-#ifndef AMARU_AMARU_DIV10_H_
-#define AMARU_AMARU_DIV10_H_
+#ifndef TEJU_TEJU_DIV10_H_
+#define TEJU_TEJU_DIV10_H_
 
-#if !defined(amaru_u1_t) || !defined(amaru_calculation_shift) || \
-  !defined(amaru_size)
-  #error "Macros amaru_size and amaru_u1_t must be defined prior to inclusion of div10.h."
+#if !defined(teju_u1_t) || !defined(teju_calculation_shift) || \
+  !defined(teju_size)
+  #error "Macros teju_size and teju_u1_t must be defined prior to inclusion of div10.h."
 #endif
 
-#include "amaru/config.h"
+#include "teju/config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,40 +29,40 @@ extern "C" {
  * @returns m / 10.
  */
 static inline
-amaru_u1_t
-amaru_div10(amaru_u1_t const m) {
+teju_u1_t
+teju_div10(teju_u1_t const m) {
 
   // TODO (CN): Assert that m is in the range of validity.
 
-  #if !defined(amaru_calculation_div10)
+  #if !defined(teju_calculation_div10)
 
     return m / 10;
 
-  #elif amaru_calculation_div10 == amaru_built_in_2
+  #elif teju_calculation_div10 == teju_built_in_2
 
-    amaru_u1_t const inv10 = ((amaru_u1_t) - 1) / 10 + 1;
-    return (((amaru_u2_t) inv10) * m) >> amaru_size;
+    teju_u1_t const inv10 = ((teju_u1_t) - 1) / 10 + 1;
+    return (((teju_u2_t) inv10) * m) >> teju_size;
 
-  #elif amaru_calculation_div10 == amaru_synthetic_1
+  #elif teju_calculation_div10 == teju_synthetic_1
 
-    amaru_u1_t const inv10 = ((amaru_u1_t) - 1) / 10 + 1;
-    amaru_u1_t upper;
-    (void) amaru_multiply(inv10, m, &upper);
+    teju_u1_t const inv10 = ((teju_u1_t) - 1) / 10 + 1;
+    teju_u1_t upper;
+    (void) teju_multiply(inv10, m, &upper);
     return upper;
 
-  #elif amaru_calculation_div10 == amaru_built_in_1
+  #elif teju_calculation_div10 == teju_built_in_1
 
-    amaru_u1_t const p2   = ((amaru_u1_t) 1) << (amaru_size / 2);
-    amaru_u1_t const inv5 = (p2 - 1) / 5;
-    amaru_u1_t const u    = m / p2;
-    amaru_u1_t const l    = m % p2;
+    teju_u1_t const p2   = ((teju_u1_t) 1) << (teju_size / 2);
+    teju_u1_t const inv5 = (p2 - 1) / 5;
+    teju_u1_t const u    = m / p2;
+    teju_u1_t const l    = m % p2;
 
     return (((l * (inv5 + 1)) / p2 + l * inv5 + u * (inv5 + 1)) / p2 +
       u * inv5) / 2;
 
   #else
 
-    #error "Invalid definition of macro amaru_calculation_div10."
+    #error "Invalid definition of macro teju_calculation_div10."
 
   #endif
 
@@ -72,4 +72,4 @@ amaru_div10(amaru_u1_t const m) {
 }
 #endif
 
-#endif // AMARU_AMARU_DIV10_H_
+#endif // TEJU_TEJU_DIV10_H_

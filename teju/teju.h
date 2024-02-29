@@ -2,18 +2,18 @@
 // SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file amaru/amaru.h
+ * @file teju/teju.h
  *
- * The implementation of Amaru and some of its helpers.
+ * The implementation of Teju Jagua and some of its helpers.
  */
 
-#ifndef AMARU_AMARU_AMARU_H_
-#define AMARU_AMARU_AMARU_H_
+#ifndef TEJU_TEJU_TEJU_H_
+#define TEJU_TEJU_TEJU_H_
 
-#include "amaru/common.h"
-#include "amaru/config.h"
-#include "amaru/div10.h"
-#include "amaru/mshift.h"
+#include "teju/common.h"
+#include "teju/config.h"
+#include "teju/div10.h"
+#include "teju/mshift.h"
 
 #if defined(_MSC_VER)
   #include <intrin.h>
@@ -29,14 +29,14 @@ extern "C" {
 /**
  * @brief Checks whether mantissa m is multiple of 2^e.
  *
- * @pre 0 <= e && e <= amaru_mantissa_size.
+ * @pre 0 <= e && e <= teju_mantissa_size.
  *
  * @param m                 The mantissa m.
  * @param e                 The exponent e.
  */
 static inline
 bool
-is_multiple_of_pow2(amaru_u1_t const m, int32_t const e) {
+is_multiple_of_pow2(teju_u1_t const m, int32_t const e) {
   return ((m >> e) << e) == m;
 }
 
@@ -48,8 +48,8 @@ is_multiple_of_pow2(amaru_u1_t const m, int32_t const e) {
  */
 static inline
 bool
-is_small_integer(amaru_u1_t const m, int32_t const e) {
-  return (-amaru_mantissa_size <= e && e <= 0) && is_multiple_of_pow2(m, -e);
+is_small_integer(teju_u1_t const m, int32_t const e) {
+  return (-teju_mantissa_size <= e && e <= 0) && is_multiple_of_pow2(m, -e);
 }
 
 /**
@@ -62,7 +62,7 @@ is_small_integer(amaru_u1_t const m, int32_t const e) {
  */
 static inline
 bool
-is_multiple_of_pow5(amaru_u1_t const m, int32_t const f) {
+is_multiple_of_pow5(teju_u1_t const m, int32_t const f) {
   return m * minverse[f].multiplier <= minverse[f].bound;
 }
 
@@ -75,7 +75,7 @@ is_multiple_of_pow5(amaru_u1_t const m, int32_t const f) {
  */
 static inline
 bool
-is_tie(amaru_u1_t const m, int32_t const f) {
+is_tie(teju_u1_t const m, int32_t const f) {
   return 0 <= f && f < (int32_t) (sizeof(minverse) / sizeof(minverse[0])) &&
     is_multiple_of_pow5(m, f);
 }
@@ -89,12 +89,12 @@ is_tie(amaru_u1_t const m, int32_t const f) {
 static inline
 bool
 is_tie_uncentred(int32_t const f) {
-  return f > 0 && amaru_mantissa_size % 4 == 2;
+  return f > 0 && teju_mantissa_size % 4 == 2;
 }
 
 /**
  * @brief Returns the quotient q = ((u * 2^N + l) * 2^k) / 2^s, where
- * N = aramu_size and s = amaru_calculation_shift.
+ * N = aramu_size and s = teju_calculation_shift.
  *
  * @param k                 The exponent k.
  * @param u                 The upper part of the multiplicand u.
@@ -103,48 +103,48 @@ is_tie_uncentred(int32_t const f) {
  * @returns The value of q.
  */
 static inline
-amaru_u1_t
-mshift_pow2(uint32_t const k, amaru_u1_t const u, amaru_u1_t const l) {
-  int32_t const s = k - (amaru_calculation_shift - amaru_size);
+teju_u1_t
+mshift_pow2(uint32_t const k, teju_u1_t const u, teju_u1_t const l) {
+  int32_t const s = k - (teju_calculation_shift - teju_size);
   if (s <= 0)
     return u >> -s;
-  return (u << s) | (l >> (amaru_size - s));
+  return (u << s) | (l >> (teju_size - s));
 }
 
 /**
- * @brief Creates amaru_fields_t from exponent and mantissa.
+ * @brief Creates teju_fields_t from exponent and mantissa.
  *
  * @param e                 The exponent.
  * @param m                 The mantissa.
  */
 static inline
-amaru_fields_t
-make_fields(int32_t const e, amaru_u1_t const m) {
-  amaru_fields_t const fields = { e, m };
+teju_fields_t
+make_fields(int32_t const e, teju_u1_t const m) {
+  teju_fields_t const fields = { e, m };
   return fields;
 }
 
 /**
  * @brief Rotates a given number to the right by a given number of bits.
  *
- * @pre s <= amaru_size.
+ * @pre s <= teju_size.
  *
  * @param n                 The given number.
  * @param s                 The given number of bits.
  */
 static inline
-amaru_u1_t
-ror(amaru_u1_t const n) {
+teju_u1_t
+ror(teju_u1_t const n) {
   #if defined(_MSC_VER) && !defined(__clang__)
-    #if amaru_size == 32
+    #if teju_size == 32
       return _rotr(n, 1);
-    #elif amaru_size == 64
+    #elif teju_size == 64
       return _rotr64(n, 1);
     #else
       #error "Unsupported size for ror."
     #endif
   #else
-    return (n >> 1) | (n << (amaru_size - 1));
+    return (n >> 1) | (n << (teju_size - 1));
   #endif
 }
 
@@ -158,11 +158,11 @@ ror(amaru_u1_t const n) {
  * @returns The fields of the shortest close decimal representation.
  */
 static inline
-amaru_fields_t
-remove_trailing_zeros(int32_t e, amaru_u1_t m) {
-  amaru_u1_t const minv5 = amaru_minverse5;
-  amaru_u1_t const inv10 = ((amaru_u1_t) - 1) / 10;
-  amaru_u1_t       n     = ror(minv5 * m);
+teju_fields_t
+remove_trailing_zeros(int32_t e, teju_u1_t m) {
+  teju_u1_t const minv5 = teju_minverse5;
+  teju_u1_t const inv10 = ((teju_u1_t) - 1) / 10;
+  teju_u1_t       n     = ror(minv5 * m);
   while (n <= inv10) {
     ++e;
     m = n;
@@ -172,7 +172,7 @@ remove_trailing_zeros(int32_t e, amaru_u1_t m) {
 }
 
 /**
- * @brief Amaru itself.
+ * @brief Teju Jagua itself.
  *
  * Finds the shortest decimal representation of m * 2^e.
  *
@@ -181,30 +181,30 @@ remove_trailing_zeros(int32_t e, amaru_u1_t m) {
  *
  * @returns The fields of the shortest decimal representation.
  */
-amaru_fields_t
-amaru_function(amaru_fields_t const binary) {
+teju_fields_t
+teju_function(teju_fields_t const binary) {
 
-  int32_t    const e = binary.exponent;
-  amaru_u1_t const m = binary.mantissa;
+  int32_t   const e = binary.exponent;
+  teju_u1_t const m = binary.mantissa;
 
   if (is_small_integer(m, e))
     return remove_trailing_zeros(0, m >> -e);
 
-  amaru_u1_t const m_0 = amaru_pow2(amaru_u1_t, amaru_mantissa_size);
-  int32_t    const f   = amaru_log10_pow2(e);
-  uint32_t   const r   = amaru_log10_pow2_residual(e);
-  uint32_t   const i   = f - amaru_storage_index_offset;
-  amaru_u1_t const u   = multipliers[i].upper;
-  amaru_u1_t const l   = multipliers[i].lower;
+  teju_u1_t const m_0 = teju_pow2(teju_u1_t, teju_mantissa_size);
+  int32_t   const f   = teju_log10_pow2(e);
+  uint32_t  const r   = teju_log10_pow2_residual(e);
+  uint32_t  const i   = f - teju_storage_index_offset;
+  teju_u1_t const u   = multipliers[i].upper;
+  teju_u1_t const l   = multipliers[i].lower;
 
-  if (m != m_0 || e == amaru_exponent_minimum) {
+  if (m != m_0 || e == teju_exponent_minimum) {
 
-    amaru_u1_t const m_a = (2 * m - 1) << r;
-    amaru_u1_t const a   = amaru_mshift(m_a, u, l);
-    amaru_u1_t const m_b = (2 * m + 1) << r;
-    amaru_u1_t const b   = amaru_mshift(m_b, u, l);
-    amaru_u1_t const q   = amaru_div10(b);
-    amaru_u1_t const s   = 10 * q;
+    teju_u1_t const m_a = (2 * m - 1) << r;
+    teju_u1_t const a   = teju_mshift(m_a, u, l);
+    teju_u1_t const m_b = (2 * m + 1) << r;
+    teju_u1_t const b   = teju_mshift(m_b, u, l);
+    teju_u1_t const q   = teju_div10(b);
+    teju_u1_t const s   = 10 * q;
 
     if (s >= a) {
       if (s == b) {
@@ -218,9 +218,9 @@ amaru_function(amaru_fields_t const binary) {
     if ((a + b) % 2 == 1)
       return make_fields(f, (a + b) / 2 + 1);
 
-    amaru_u1_t const m_c = (2 * 2 * m) << r;
-    amaru_u1_t const c_2 = amaru_mshift(m_c, u, l);
-    amaru_u1_t const c   = c_2 / 2;
+    teju_u1_t const m_c = (2 * 2 * m) << r;
+    teju_u1_t const c_2 = teju_mshift(m_c, u, l);
+    teju_u1_t const c   = c_2 / 2;
 
     if (c_2 % 2 == 0 || (c % 2 == 0 && is_tie(c_2, -f)))
       return make_fields(f, c);
@@ -228,25 +228,25 @@ amaru_function(amaru_fields_t const binary) {
     return make_fields(f, c + 1);
   }
 
-  amaru_u1_t const m_b = 2 * m_0 + 1;
-  amaru_u1_t const b   = amaru_mshift(m_b << r, u, l);
+  teju_u1_t const m_b = 2 * m_0 + 1;
+  teju_u1_t const b   = teju_mshift(m_b << r, u, l);
 
-  amaru_u1_t const m_a = 4 * m_0 - 1;
-  amaru_u1_t const a   = amaru_mshift(m_a << r, u, l) / 2;
+  teju_u1_t const m_a = 4 * m_0 - 1;
+  teju_u1_t const a   = teju_mshift(m_a << r, u, l) / 2;
 
   if (b > a) {
 
-    amaru_u1_t const q = amaru_div10(b);
-    amaru_u1_t const s = 10 * q;
+    teju_u1_t const q = teju_div10(b);
+    teju_u1_t const s = 10 * q;
 
     if (s > a || (s == a && is_tie_uncentred(f)))
       return remove_trailing_zeros(f + 1, q);
 
-    // m_c = 2 * 2 * m_0 = 2 * 2 * 2^{amaru_mantissa_size}
-    // c_2 = amaru_mshift(m_c << r, upper, lower);
-    uint32_t   const log2_m_c = amaru_mantissa_size + 2;
-    amaru_u1_t const c_2      = mshift_pow2(log2_m_c + r, u, l);
-    amaru_u1_t const c        = c_2 / 2;
+    // m_c = 2 * 2 * m_0 = 2 * 2 * 2^{teju_mantissa_size}
+    // c_2 = teju_mshift(m_c << r, upper, lower);
+    uint32_t  const log2_m_c = teju_mantissa_size + 2;
+    teju_u1_t const c_2      = mshift_pow2(log2_m_c + r, u, l);
+    teju_u1_t const c        = c_2 / 2;
 
     if (c == a && !is_tie_uncentred(f))
       return make_fields(f, c + 1);
@@ -260,9 +260,9 @@ amaru_function(amaru_fields_t const binary) {
   else if (is_tie_uncentred(f))
     return remove_trailing_zeros(f, a);
 
-  amaru_u1_t const m_c = 10 * 2 * 2 * m_0;
-  amaru_u1_t const c_2 = amaru_mshift(m_c << r, u, l);
-  amaru_u1_t const c   = c_2 / 2;
+  teju_u1_t const m_c = 10 * 2 * 2 * m_0;
+  teju_u1_t const c_2 = teju_mshift(m_c << r, u, l);
+  teju_u1_t const c   = c_2 / 2;
 
   if (c_2 % 2 == 0 || (c % 2 == 0 && is_tie(c_2, -f)))
     return make_fields(f - 1, c);
@@ -274,4 +274,4 @@ amaru_function(amaru_fields_t const binary) {
 }
 #endif
 
-#endif // AMARU_AMARU_AMARU_H_
+#endif // TEJU_TEJU_TEJU_H_

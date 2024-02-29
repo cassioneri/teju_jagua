@@ -18,7 +18,7 @@ os          = 'linux'
 compiler    = 'gcc-13.2.1'
 type        = 'double_centred'
 
-algos       = ['amaru', 'dragonbox']
+algos       = ['teju', 'dragonbox']
 metric      = 'elapsed'
 stats       = ['mean', 'std', 'min', 'median', 'max']
 
@@ -29,12 +29,12 @@ results     = pd.read_csv(f'../results/{cpu}_{os}_{compiler}/{type}.csv', sep = 
 algos_data  = pd.Series([results[results['algorithm'] == algo][['binary', metric]].set_index('binary')
     for algo in algos], index = algos)
 
-metric_data = algos_data['amaru'].rename(columns = {metric:'amaru'}).join(algos_data['dragonbox'].rename(columns = {metric:'dragonbox'}))
+metric_data = algos_data['teju'].rename(columns = {metric:'teju'}).join(algos_data['dragonbox'].rename(columns = {metric:'dragonbox'}))
 size        = len(metric_data)
 
-winnings    = metric_data.apply(lambda t : t['amaru'] <  t['dragonbox'], axis = 1)
-draws       = metric_data.apply(lambda t : t['amaru'] == t['dragonbox'], axis = 1)
-losses      = metric_data.apply(lambda t : t['amaru'] >  t['dragonbox'], axis = 1)
+winnings    = metric_data.apply(lambda t : t['teju'] <  t['dragonbox'], axis = 1)
+draws       = metric_data.apply(lambda t : t['teju'] == t['dragonbox'], axis = 1)
+losses      = metric_data.apply(lambda t : t['teju'] >  t['dragonbox'], axis = 1)
 print(f' \
 Winnings = {len(winnings[winnings == True].index) / size:3.1%}\n \
 Draws    = {len(draws   [draws    == True].index) / size:3.1%}\n \
@@ -43,7 +43,7 @@ Losses   = {len(losses  [losses   == True].index) / size:3.1%}\n \
 
 
 stats_data  = pd.DataFrame([[getattr(algos_data[algo][metric], stat)() for stat in stats] for algo in algos], index = algos, columns = stats)
-baseline    = stats_data['mean']['amaru']
+baseline    = stats_data['mean']['teju']
 stats_data['relative'] = [stats_data['mean'][algo] / baseline for algo in algos]
 stats_data.style.format('{:.2e}')
 

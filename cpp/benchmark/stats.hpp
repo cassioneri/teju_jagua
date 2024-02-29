@@ -7,13 +7,13 @@
  * Statistic calculators.
  */
 
-#ifndef AMARU_CPP_BENCHMARK_STATS_HPP_
-#define AMARU_CPP_BENCHMARK_STATS_HPP_
+#ifndef TEJU_CPP_BENCHMARK_STATS_HPP_
+#define TEJU_CPP_BENCHMARK_STATS_HPP_
 
 #include <cmath>
 #include <cstdint>
 
-namespace amaru {
+namespace teju {
 
 /**
  * @brief Online mean and standard deviation calculator.
@@ -62,6 +62,6 @@ private:
   std::uint64_t sum_of_squares_ = 0;
 };
 
-} // namespace amaru
+} // namespace teju
 
-#endif // AMARU_CPP_BENCHMARK_STATS_HPP_
+#endif // TEJU_CPP_BENCHMARK_STATS_HPP_

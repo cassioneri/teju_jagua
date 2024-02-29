@@ -4,23 +4,23 @@
 /**
  * @file cpp/generator/config.hpp
  *
- * Generator of Amaru's implementations.
+ * Generator of Teju Jagua's implementations.
  */
 
-#ifndef AMARU_CPP_GENERATOR_CONFIG_HPP_
-#define AMARU_CPP_GENERATOR_CONFIG_HPP_
+#ifndef TEJU_CPP_GENERATOR_CONFIG_HPP_
+#define TEJU_CPP_GENERATOR_CONFIG_HPP_
 
-#include "amaru/config.h"
+#include "teju/config.h"
 
 #include <nlohmann/json.hpp>
 
 #include <cstdint>
 #include <string>
 
-namespace amaru {
+namespace teju {
 
 /**
- * @brief Configuration of Amaru's implementation.
+ * @brief Configuration of Teju Jagua's implementation.
  */
 struct config_t {
 
@@ -99,6 +99,6 @@ from_json(nlohmann::json const& src, config_t& tgt);
 void
 validate(config_t const& config);
 
-} // namespace amaru
+} // namespace teju
 
-#endif // AMARU_CPP_GENERATOR_CONFIG_HPP_
+#endif // TEJU_CPP_GENERATOR_CONFIG_HPP_

@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file amaru/float.h
+ * @file teju/float.h
  *
- * Amaru and helpers for float values.
+ * Teju Jagua and helpers for float values.
  */
 
-#ifndef AMARU_AMARU_FLOAT_H_
-#define AMARU_AMARU_FLOAT_H_
+#ifndef TEJU_TEJU_FLOAT_H_
+#define TEJU_TEJU_FLOAT_H_
 
-#include "amaru/generated/ieee32.h"
+#include "teju/generated/ieee32.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,35 +27,35 @@ extern "C" {
  *
  * @returns IEEE-754's binary32 representation of value.
  */
-amaru32_fields_t
-amaru_float_to_ieee32(float value);
+teju32_fields_t
+teju_float_to_ieee32(float value);
 
 /**
- * @brief Gets Amaru's binary representation of a given IEEE-754 binary32 one.
+ * @brief Gets teju's binary representation of a given IEEE-754 binary32 one.
  *
  * @pre value > 0.
  *
  * @param ieee32            The given IEEE-754 binary32 representation.
  *
- * @returns Amaru's binary representation value.
+ * @returns Teju Jagua's binary representation value.
  */
-amaru32_fields_t
-amaru_ieee32_to_amaru_binary(amaru32_fields_t ieee32);
+teju32_fields_t
+teju_ieee32_to_teju_binary(teju32_fields_t ieee32);
 
 /**
- * @brief Gets Amaru's decimal representation of a float.
+ * @brief Gets Teju Jagua's decimal representation of a float.
  *
  * @pre value > 0.
  *
  * @param value             The given float.
  *
- * @returns Amaru's decimal representation of value.
+ * @returns Teju Jagua's decimal representation of value.
  */
-amaru32_fields_t
-amaru_float_to_amaru_decimal(float value);
+teju32_fields_t
+teju_float_to_teju_decimal(float value);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // AMARU_AMARU_FLOAT_H_
+#endif // TEJU_TEJU_FLOAT_H_

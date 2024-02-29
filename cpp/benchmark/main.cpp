@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
-#include "amaru/common.h"
-#include "amaru/double.h"
-#include "amaru/float.h"
+#include "teju/common.h"
+#include "teju/double.h"
+#include "teju/float.h"
 #include "cpp/benchmark/sampler.hpp"
 #include "cpp/benchmark/stats.hpp"
 #include "cpp/common/exception.hpp"
@@ -23,7 +23,7 @@
   #include <unistd.h>
 #endif
 
-namespace amaru {
+namespace teju {
 
 template <typename T>
 #if defined(__GNUC__) && !defined(__clang__)
@@ -65,14 +65,14 @@ benchmark(const char* filename, Args... args) {
   auto out = std::ofstream{filename};
 
   out.precision(std::numeric_limits<T>::digits10 + 2);
-  out << "exponent, mantissa, integer, value, amaru, dragonbox\\\\_compact, "
-    "dragonbox\\\\_full\n";
+  out << "exponent, mantissa, integer, value, teju, dragonbox\\\\_compact, "
+    " dragonbox\\\\_full\n";
 
-  using traits_t = amaru::traits_t<T>;
+  using traits_t = teju::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
   auto  sampler  = sampler_t<T, population>{args...};
 
-  stats_t amaru_stats, dragonbox_compact_stats, dragonbox_full_stats;
+  stats_t teju_stats, dragonbox_compact_stats, dragonbox_full_stats;
 
   while (!sampler.empty()) {
 
@@ -82,8 +82,8 @@ benchmark(const char* filename, Args... args) {
     if (value == T{0})
       continue;
 
-    auto const amaru = benchmark(value, &traits_t::amaru);
-    amaru_stats.update(amaru);
+    auto const teju = benchmark(value, &traits_t::teju);
+    teju_stats.update(teju);
 
     auto const dragonbox_compact = benchmark(value,
       &traits_t::dragonbox_compact);
@@ -103,20 +103,20 @@ benchmark(const char* filename, Args... args) {
       fields.mantissa           << ", " <<
       integer                   << ", " <<
       value                     << ", " <<
-      0.001 * amaru             << ", " <<
+      0.001 * teju              << ", " <<
       0.001 * dragonbox_compact << ", " <<
       0.001 * dragonbox_full    << "\n";
   }
 
-  auto const baseline = amaru_stats.mean();
+  auto const baseline = teju_stats.mean();
 
   auto const print = [](const char* m, std::uint64_t const n) {
     std::cout << m << 0.001 * n << '\n';
   };
 
-  print("amaru             (mean)   = ", amaru_stats.mean  ());
-  print("amaru             (stddev) = ", amaru_stats.stddev());
-  print("amaru             (rel.)   = ", 1000 * amaru_stats.mean() / baseline);
+  print("teju              (mean)   = ", teju_stats.mean  ());
+  print("teju              (stddev) = ", teju_stats.stddev());
+  print("teju              (rel.)   = ", 1000 * teju_stats.mean() / baseline);
 
   print("dragonbox_compact (mean)   = ", dragonbox_compact_stats.mean  ());
   print("dragonbox_compact (stddev) = ", dragonbox_compact_stats.stddev());
@@ -157,11 +157,11 @@ report_usage(const char* const prog) noexcept {
     prog);
 }
 
-} // namespace amaru
+} // namespace teju
 
 int main(int argc, char const* const argv[]) {
 
-  using namespace amaru;
+  using namespace teju;
 
   try {
 

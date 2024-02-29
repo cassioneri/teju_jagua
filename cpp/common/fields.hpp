@@ -7,16 +7,16 @@
  * C++ wrapper around the C fields of floating point representation.
  */
 
-#ifndef AMARU_CPP_COMMON_FIELDS_HPP_
-#define AMARU_CPP_COMMON_FIELDS_HPP_
+#ifndef TEJU_CPP_COMMON_FIELDS_HPP_
+#define TEJU_CPP_COMMON_FIELDS_HPP_
 
-#if defined(AMARU_HAS_FLOAT128)
+#if defined(TEJU_HAS_FLOAT128)
   #include <boost/multiprecision/cpp_int.hpp>
 #endif
 
 #include <iostream>
 
-namespace amaru {
+namespace teju {
 
 /**
  * @brief C++ wrapper around the C fields of floating point representation.
@@ -29,22 +29,22 @@ struct cpp_fields_t;
 template <>
 struct cpp_fields_t<float> {
   using streamable_uint_t = std::uint32_t;
-  amaru32_fields_t c;
+  teju32_fields_t c;
 };
 
 template <>
 struct cpp_fields_t<double> {
   using streamable_uint_t = std::uint64_t;
-  amaru64_fields_t c;
+  teju64_fields_t c;
 };
 
-#if defined(AMARU_HAS_FLOAT128)
+#if defined(TEJU_HAS_FLOAT128)
 template <>
 struct cpp_fields_t<float128_t> {
   using streamable_uint_t = boost::multiprecision::uint128_t;
-  amaru128_fields_t c;
+  teju128_fields_t c;
 };
-#endif // defined(AMARU_HAS_FLOAT128)
+#endif // defined(TEJU_HAS_FLOAT128)
 
 /**
  * @brief Equality operator for cpp_fields_t<T>.
@@ -94,6 +94,6 @@ operator <<(std::basic_ostream<C, CT>& os, cpp_fields_t<T> const& fields) {
     "mantissa = " << streamable_uint_t{fields.c.mantissa};
 }
 
-} // namespace amaru
+} // namespace teju
 
-# endif // AMARU_CPP_COMMON_FIELDS_HPP_
+# endif // TEJU_CPP_COMMON_FIELDS_HPP_

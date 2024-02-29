@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file amaru/common.h
+ * @file teju/common.h
  *
- * Common functionalities used by Amaru and elsewhere (e.g., tests).
+ * Common functionalities used by Teju Jagua and elsewhere (e.g., tests).
  */
 
-#ifndef AMARU_AMARU_COMMON_H_
-#define AMARU_AMARU_COMMON_H_
+#ifndef TEJU_TEJU_COMMON_H_
+#define TEJU_TEJU_COMMON_H_
 
 #include <assert.h>
 #include <stdint.h>
@@ -27,7 +27,7 @@ extern "C" {
  *
  * @returns The k least significant bits of n.
  */
-#define amaru_lsb(n, k) ((n) & (((0 * (n) + 1) << (k)) - 1))
+#define teju_lsb(n, k) ((n) & (((0 * (n) + 1) << (k)) - 1))
 
 /**
  * @brief Returns 2^e as a given type.
@@ -39,16 +39,16 @@ extern "C" {
  *
  * @returns 2^e.
  */
-#define amaru_pow2(type, e) (((type) 1) << (e))
+#define teju_pow2(type, e) (((type) 1) << (e))
 
-// Argument bounds of amaru_log10_pow2.
-#define amaru_log10_pow2_min -112815
-#define amaru_log10_pow2_max  112815
+// Argument bounds of teju_log10_pow2.
+#define teju_log10_pow2_min -112815
+#define teju_log10_pow2_max  112815
 
 /**
  * @brief Returns the largest exponent f such that 10^f <= 2^e.
  *
- * @pre amaru_log10_pow2_min <= e && e <= amaru_log10_pow2_max.
+ * @pre teju_log10_pow2_min <= e && e <= teju_log10_pow2_max.
  *
  * @param e                 The exponent e.
  *
@@ -56,7 +56,7 @@ extern "C" {
  */
 static inline
 int32_t
-amaru_log10_pow2(int32_t const e) {
+teju_log10_pow2(int32_t const e) {
   return (((uint64_t) 1292913987) * e) >> 32;
 }
 
@@ -64,7 +64,7 @@ amaru_log10_pow2(int32_t const e) {
  * @brief Returns the residual r = e - e_0, where e_0 is the smallest exponent
  * such that the integer part of log_10(2^e_0) matches that of log_10(2^e).
  *
- * @pre amaru_log10_pow2_min <= e && e <= amaru_log10_pow2_max.
+ * @pre teju_log10_pow2_min <= e && e <= teju_log10_pow2_max.
  *
  * @param e                 The exponent e.
  *
@@ -72,16 +72,16 @@ amaru_log10_pow2(int32_t const e) {
  */
 static inline
 uint32_t
-amaru_log10_pow2_residual(int32_t const e) {
+teju_log10_pow2_residual(int32_t const e) {
   return ((uint32_t) (((uint64_t) 1292913987) * e)) / 1292913987;
 }
 
-// Argument bounds of amaru_log10_075_pow2.
-#define amaru_log10_075_pow2_min -100849
-#define amaru_log10_075_pow2_max  111480
+// Argument bounds of teju_log10_075_pow2.
+#define teju_log10_075_pow2_min -100849
+#define teju_log10_075_pow2_max  111480
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // AMARU_AMARU_COMMON_H_
+#endif // TEJU_TEJU_COMMON_H_

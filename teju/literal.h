@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file amaru/literal.h
+ * @file teju/literal.h
  *
  * Workaround for lack of support for large literals.
  *
@@ -10,18 +10,18 @@
  * of this type. This file provides two macros to workaround this issue.
  */
 
-#ifndef AMARU_AMARU_LITERAL_H_
-#define AMARU_AMARU_LITERAL_H_
+#ifndef TEJU_TEJU_LITERAL_H_
+#define TEJU_TEJU_LITERAL_H_
 
 /**
  * @brief Constructs a number from its two halves.
  *
- * Let N = amaru_size / 2. Given a_1, a_0 in [0, 2^N[, this macro expands to
+ * Let N = teju_size / 2. Given a_1, a_0 in [0, 2^N[, this macro expands to
  * a_1 * 2^N + a_0.
  *
- * For instance, if amaru_size == 128, then:
+ * For instance, if teju_size == 128, then:
  * \code{.cpp}
- *    amaru_literal2(0x0123456789abcdef, 0xfedcba9876543210) ==
+ *    teju_literal2(0x0123456789abcdef, 0xfedcba9876543210) ==
  *         0x0123456789abcdeffedcba9876543210.
  * \endcode
  * (Except that the 128-bits literal on the right side might be ill formed.)
@@ -31,20 +31,20 @@
  *
  * @returns An expression whose value is the constructed number.
  */
-#define amaru_literal2(a1, a0) (                  \
-    ((amaru_u1_t) (a1) << (1 * amaru_size / 2)) | \
-    ((amaru_u1_t) (a0) << (0 * amaru_size / 2))   \
+#define teju_literal2(a1, a0) (                 \
+    ((teju_u1_t) (a1) << (1 * teju_size / 2)) | \
+    ((teju_u1_t) (a0) << (0 * teju_size / 2))   \
   )
 
 /**
  * @brief Constructs a number from its four quarters.
  *
- * Let N = amaru_size / 4. Given a_3, a_2, a_1, a_0 in [0, 2^N[, this macro
- *  expands to a_3 * 2^(6 * N) + a_2 * 2^(4 * N) + a_1 2^N + a_0.
+ * Let N = teju_size / 4. Given a_3, a_2, a_1, a_0 in [0, 2^N[, this macro
+ * expands to a_3 * 2^(6 * N) + a_2 * 2^(4 * N) + a_1 2^N + a_0.
  *
- * For instance, if amaru_size == 128, then:
+ * For instance, if teju_size == 128, then:
  * \code{.cpp}
- *     amaru_literal4(0x01234567, 0x89abcdef, 0xfedcba98, 0x76543210) =
+ *     teju_literal4(0x01234567, 0x89abcdef, 0xfedcba98, 0x76543210) =
  *         0x0123456789abcdeffedcba9876543210.
  * \endcode
  * (Except that the 128-bits literal on the right side might be ill formed.)
@@ -56,11 +56,11 @@
  *
  * @returns An expression whose value is the constructed number.
  */
-#define amaru_literal4(a3, a2, a1, a0) (          \
-    ((amaru_u1_t) (a3) << (3 * amaru_size / 4)) | \
-    ((amaru_u1_t) (a2) << (2 * amaru_size / 4)) | \
-    ((amaru_u1_t) (a1) << (1 * amaru_size / 4)) | \
-    ((amaru_u1_t) (a0) << (0 * amaru_size / 4))   \
+#define teju_literal4(a3, a2, a1, a0) (         \
+    ((teju_u1_t) (a3) << (3 * teju_size / 4)) | \
+    ((teju_u1_t) (a2) << (2 * teju_size / 4)) | \
+    ((teju_u1_t) (a1) << (1 * teju_size / 4)) | \
+    ((teju_u1_t) (a0) << (0 * teju_size / 4))   \
   )
 
-#endif // AMARU_AMARU_LITERAL_H_
+#endif // TEJU_TEJU_LITERAL_H_

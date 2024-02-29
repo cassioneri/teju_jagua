@@ -5,36 +5,36 @@
 
 #include "ieee64_no_uint128.h"
 
-#include "amaru/literal.h"
+#include "teju/literal.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define amaru_size                 64
-#define amaru_exponent_minimum     -1074
-#define amaru_mantissa_size        52
-#define amaru_storage_index_offset -324
-#define amaru_calculation_div10    amaru_synthetic_1
-#define amaru_calculation_mshift   amaru_synthetic_1
-#define amaru_calculation_shift    128
-#define amaru_minverse5            0xcccccccccccccccd
+#define teju_size                 64
+#define teju_exponent_minimum     -1074
+#define teju_mantissa_size        52
+#define teju_storage_index_offset -324
+#define teju_calculation_div10    teju_synthetic_1
+#define teju_calculation_mshift   teju_synthetic_1
+#define teju_calculation_shift    128
+#define teju_minverse5            0xcccccccccccccccd
 
-#define amaru_function             amaru_ieee64_no_uint128
-#define amaru_fields_t             amaru64_fields_t
-#define amaru_u1_t                 amaru64_u1_t
+#define teju_function             teju_ieee64_no_uint128
+#define teju_fields_t             teju64_fields_t
+#define teju_u1_t                 teju64_u1_t
 
-#if defined(amaru64_u2_t)
-  #define amaru_u2_t               amaru64_u2_t
+#if defined(teju64_u2_t)
+  #define teju_u2_t               teju64_u2_t
 #endif
 
-#if defined(amaru64_u4_t)
-  #define amaru_u4_t               amaru64_u4_t
+#if defined(teju64_u4_t)
+  #define teju_u4_t               teju64_u4_t
 #endif
 
 static struct {
-  amaru_u1_t const upper;
-  amaru_u1_t const lower;
+  teju_u1_t const upper;
+  teju_u1_t const lower;
 } const multipliers[] = {
   { 0x9e19db92b4e31ba9, 0x6c07a2c26a8346d2 }, // -324
   { 0xfcf62c1dee382c42, 0x46729e03dd9ed7b6 }, // -323
@@ -656,8 +656,8 @@ static struct {
 };
 
 static struct {
-  amaru_u1_t const multiplier;
-  amaru_u1_t const bound;
+  teju_u1_t const multiplier;
+  teju_u1_t const bound;
 } const minverse[] = {
   { 0x0000000000000001, 0xffffffffffffffff },
   { 0xcccccccccccccccd, 0x3333333333333333 },
@@ -688,7 +688,7 @@ static struct {
   { 0x01c445d3a8cc9189, 0x000000000000000c },
 };
 
-#include "amaru/amaru.h"
+#include "teju/teju.h"
 
 #ifdef __cplusplus
 }

@@ -209,11 +209,11 @@ benchmark_small_integers(const char* const filename) {
   output(bench, filename);
 }
 
-TEST(small_integers, float) {
+TEST(float, small_integers) {
   benchmark_small_integers<float>("float_small_integers.csv");
 }
 
-TEST(small_integers, double) {
+TEST(double, small_integers) {
   benchmark_small_integers<double>("double_small_integers.csv");
 }
 
@@ -251,11 +251,11 @@ benchmark_centred(const char* const filename, unsigned n_mantissas) {
   output(bench, filename);
 }
 
-TEST(centred, float) {
+TEST(float, centred) {
   benchmark_centred<float>("float_centred.csv", 10);
 }
 
-TEST(centred, double) {
+TEST(double, centred) {
   benchmark_centred<double>("double_centred.csv", 10);
 }
 
@@ -287,11 +287,11 @@ benchmark_uncentred(const char* const filename) {
   output(bench, filename);
 }
 
-TEST(uncentred, float) {
+TEST(float, uncentred) {
   benchmark_uncentred<float>("float_uncentred.csv");
 }
 
-TEST(uncentred, double) {
+TEST(double, uncentred) {
   benchmark_uncentred<double>("double_uncentred.csv");
 }
 

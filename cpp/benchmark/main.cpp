@@ -5,7 +5,7 @@
 #include "teju/config.h"
 #include "teju/double.h"
 #include "teju/float.h"
-#include "cpp/benchmark2/stats.hpp"
+#include "cpp/benchmark/stats.hpp"
 #include "cpp/common/exception.hpp"
 #include "cpp/common/traits.hpp"
 

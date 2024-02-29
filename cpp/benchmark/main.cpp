@@ -195,26 +195,29 @@ void output(nanobench::Bench const& bench, const char* const filename) {
 // TODO (CN) Document.
 template <typename T>
 void
-benchmark_small_integers(const char* const filename) {
+benchmark_integers(const char* const filename) {
 
-  auto           bench = get_bench();
-  auto constexpr min   = T{1};
-  auto constexpr max   = T{1000};
+  auto bench = get_bench();
 
-  for (T value = min; value < max; ++value) {
-    benchmark(bench, value);
-    ASSERT_NE(value + T{1}, value);
-  }
+  auto test  = [&](T const min, T const max) {
+    for (T value = min; value < max; ++value)
+      benchmark(bench, value);
+  };
+
+  auto const max = std::pow(T{2}, teju::traits_t<T>::mantissa_size + 1);
+
+  test(T{1}, T{5000});
+  test(max - T{5000}, max);
 
   output(bench, filename);
 }
 
-TEST(float, small_integers) {
-  benchmark_small_integers<float>("float_small_integers.csv");
+TEST(float, integers) {
+  benchmark_integers<float>("float_integers.csv");
 }
 
-TEST(double, small_integers) {
-  benchmark_small_integers<double>("double_small_integers.csv");
+TEST(double, integers) {
+  benchmark_integers<double>("double_integers.csv");
 }
 
 template <typename T>

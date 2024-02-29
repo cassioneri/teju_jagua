@@ -144,27 +144,29 @@ TYPED_TEST_P(typed_tests_t, mantissa_min_all_exponents) {
   }
 }
 
-TYPED_TEST_P(typed_tests_t, small_integers) {
+TYPED_TEST_P(typed_tests_t, integers) {
 
   using fp_t = TypeParam;
 
-  // Let [1, M<T>[ be the interval of T-values for which the optimisation for
-  // small integers applies. The tested range is [1, min(M<T>, M<float>)[.
+  auto test = [this](fp_t const min, fp_t const max) {
+    for (fp_t value = min; value < max && !this->HasFailure(); ++value) {
+      compare_to_other(value);
+      ASSERT_NE(value + 1.0, value);
+    }
+  };
 
-  auto constexpr min = fp_t{1};
-  auto constexpr exp = std::min(traits_t<fp_t>::mantissa_size,
-    traits_t<float>::mantissa_size);
-  auto const     max = std::pow(fp_t{2.0}, exp + 1);
+  auto const max = std::pow(fp_t{2}, traits_t<fp_t>::mantissa_size + 1);
 
-  for (fp_t value = min; value < max && !this->HasFailure(); ++value) {
-    compare_to_other(value);
-    ASSERT_NE(value + 1.0, value);
-  }
+  // Tests first 10,000,000 small integers.
+  test(fp_t{1}, fp_t{10000000});
+
+  // Tests last 10,000,000 small integers.
+  test(max - fp_t{10000000}, max);
 }
 
 REGISTER_TYPED_TEST_SUITE_P(typed_tests_t,
   mantissa_min_all_exponents,
-  small_integers
+  integers
 );
 
 using fp_types_t = ::testing::Types<float, double>;

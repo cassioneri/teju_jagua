@@ -11,9 +11,6 @@
 #define TEJU_CPP_COMMON_TRAITS_HPP_
 
 #include "teju/config.h"
-// SPDX-License-Identifier: MIT
-// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
-
 #include "teju/double.h"
 #include "teju/float.h"
 #include "teju/float128.h"

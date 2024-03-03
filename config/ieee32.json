@@ -3,8 +3,8 @@
   "size": 32,
 
   "spdx": {
-    "identifier" : "MIT",
-    "copyright"  : [
+    "identifier": "MIT",
+    "copyright" : [
       "2024 Cassio Neri <cassio.neri@gmail.com>"
     ]
   },

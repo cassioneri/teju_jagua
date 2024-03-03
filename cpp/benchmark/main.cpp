@@ -104,9 +104,18 @@ auto get_bench() {
     .output(nullptr);
 }
 
-// TODO (CN) Document.
+/**
+ * @brief Benchmarks conversion of a given floating-point number value to its
+ * decimal representation.
+ *
+ * @tparam T                The floating-point number type of value.
+ *
+ * @param  bench            The instance of the benchmark object.
+ * @param  value            The given floating-point number value.
+ */
 template <typename T>
-void benchmark(nanobench::Bench& bench, T const value) {
+void
+benchmark(nanobench::Bench& bench, T const value) {
 
   using      traits_t = teju::traits_t<T>;
   using      buffer_t = char[40];
@@ -140,8 +149,15 @@ void benchmark(nanobench::Bench& bench, T const value) {
   });
 }
 
-// TODO (CN) Document.
-void output(nanobench::Bench const& bench, const char* const filename) {
+/**
+ * @brief Streams out detailed benchmarks results to a given file and a summary
+ * to std::cout.
+ *
+ * @param  bench            The instance of the benchmark object.
+ * @param  filename         The name of the output file.
+ */
+void
+output(nanobench::Bench const& bench, const char* const filename) {
 
   // Save detailed results in csv file.
   {
@@ -192,7 +208,18 @@ void output(nanobench::Bench const& bench, const char* const filename) {
   }
 }
 
-// TODO (CN) Document.
+/**
+ * @brief Benchmarks conversion of integral floating-point numbers values to
+ * their decimal representations. Streams out detailed benchmarks results to a
+ * given file and a summary to std::cout.
+ *
+ * The set of values comprises the smallest and largest 5,000 integral values (a
+ * total of 10,000 values) which Teju Jagua treats as special cases.
+ *
+ * @tparam T                The floating-point number type of values.
+ *
+ * @param  filename         The name of the output file.
+ */
 template <typename T>
 void
 benchmark_integers(const char* const filename) {
@@ -220,6 +247,17 @@ TEST(double, integers) {
   benchmark_integers<double>("double_integers.csv");
 }
 
+/**
+ * @brief Benchmarks conversion of centred floating-point numbers values to
+ * their decimal representations. Streams out detailed benchmarks results to a
+ * given file and a summary to std::cout.
+ *
+ * The set of values comprises a given number of randomly selected mantissas
+ * for all possible binary exponents.
+ *
+ * @param  filename         The name of the output file.
+ * @param  n_mantissas      The number of mantissas to be draw.
+ */
 template <typename T>
 void
 benchmark_centred(const char* const filename, unsigned n_mantissas) {
@@ -262,6 +300,15 @@ TEST(double, centred) {
   benchmark_centred<double>("double_centred.csv", 10);
 }
 
+/**
+ * @brief Benchmarks conversion of uncentred floating-point numbers values to
+ * their decimal representations. Streams out detailed benchmarks results to a
+ * given file and a summary to std::cout.
+ *
+ * The set of values comprises all uncentred values.
+ *
+ * @param  filename         The name of the output file.
+ */
 template <typename T>
 void
 benchmark_uncentred(const char* const filename) {

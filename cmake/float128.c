@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * \brief Tests existence of __float128.
+ * \brief Checks existence of __float128.
  */
 
 typedef __float128 float128_t;

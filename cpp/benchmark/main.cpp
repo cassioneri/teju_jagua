@@ -136,7 +136,7 @@ void benchmark(nanobench::Bench& bench, T const value) {
     .context(str_binary   , std::data(binary_chars) )
     .context(str_decimal  , std::data(decimal_chars))
     .run("", [&]() {
-      nanobench::doNotOptimizeAway(traits_t::dragonbox_full(value));
+      nanobench::doNotOptimizeAway(traits_t::dragonbox(value));
   });
 }
 

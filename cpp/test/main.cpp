@@ -91,7 +91,7 @@ void compare_to_other(T const value) {
 
   using      traits_t = teju::traits_t<T>;
   auto const teju     = traits_t::teju(value);
-  auto const other    = traits_t::dragonbox_full(value);
+  auto const other    = traits_t::dragonbox(value);
   auto const fields   = traits_t::value_to_ieee(value);
 
   EXPECT_EQ(other, teju) << "IEEE fields: " << fields;

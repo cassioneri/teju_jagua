@@ -130,15 +130,8 @@ struct traits_t<float> {
 
   static
   fields_t
-  dragonbox_compact(float const value) {
-    auto const fields = teju::dragonbox_compact::to_decimal(value);
-    return fields_t{std::int32_t{fields.exponent}, u1_t{fields.significand}};
-  }
-
-  static
-  fields_t
-  dragonbox_full(float const value) {
-    auto const fields = teju::dragonbox_full::to_decimal(value);
+  dragonbox(float const value) {
+    auto const fields = teju::dragonbox::to_decimal(value);
     return fields_t{std::int32_t{fields.exponent}, u1_t{fields.significand}};
   }
 
@@ -182,15 +175,8 @@ struct traits_t<double> {
 
   static
   fields_t
-  dragonbox_compact(double const value) {
-    auto const fields = teju::dragonbox_compact::to_decimal(value);
-    return fields_t{std::int32_t{fields.exponent}, u1_t{fields.significand}};
-  }
-
-  static
-  fields_t
-  dragonbox_full(double const value) {
-    auto const fields = teju::dragonbox_full::to_decimal(value);
+  dragonbox(double const value) {
+    auto const fields = teju::dragonbox::to_decimal(value);
     return fields_t{std::int32_t{fields.exponent}, u1_t{fields.significand}};
   }
 

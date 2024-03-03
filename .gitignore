@@ -4,3 +4,6 @@ third-party/
 # Folders created by IDEs:
 .vs/
 .vscode/
+
+# Jupyter notebooks check_points
+python/.ipynb_checkpoints/

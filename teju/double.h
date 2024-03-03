@@ -10,7 +10,7 @@
 #ifndef TEJU_TEJU_DOUBLE_H_
 #define TEJU_TEJU_DOUBLE_H_
 
-#if defined(TEJU_HAS_UINT128)
+#if defined(teju_has_uint128)
   #include "teju/generated/ieee64_with_uint128.h"
 #else
   #include "teju/generated/ieee64_no_uint128.h"

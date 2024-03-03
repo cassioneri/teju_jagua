@@ -10,7 +10,7 @@
 #ifndef TEJU_CPP_COMMON_FIELDS_HPP_
 #define TEJU_CPP_COMMON_FIELDS_HPP_
 
-#if defined(TEJU_HAS_FLOAT128)
+#if defined(teju_has_float128)
   #include <boost/multiprecision/cpp_int.hpp>
 #endif
 
@@ -38,13 +38,13 @@ struct cpp_fields_t<double> {
   teju64_fields_t c;
 };
 
-#if defined(TEJU_HAS_FLOAT128)
+#if defined(teju_has_float128)
 template <>
 struct cpp_fields_t<float128_t> {
   using streamable_uint_t = boost::multiprecision::uint128_t;
   teju128_fields_t c;
 };
-#endif // defined(TEJU_HAS_FLOAT128)
+#endif // defined(teju_has_float128)
 
 /**
  * @brief Equality operator for cpp_fields_t<T>.

@@ -53,7 +53,7 @@ teju64_fields_t
 teju_double_to_teju_decimal(double const value) {
   teju64_fields_t ieee64      = teju_double_to_ieee64(value);
   teju64_fields_t teju_binary = teju_ieee64_to_teju_binary(ieee64);
-  #if defined(TEJU_HAS_UINT128)
+  #if defined(teju_has_uint128)
     return teju_ieee64_with_uint128(teju_binary);
   #else
     return teju_ieee64_no_uint128(teju_binary);

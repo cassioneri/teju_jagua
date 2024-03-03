@@ -179,7 +179,7 @@ struct traits_t<double> {
 
 }; // traits_t<double>
 
-#if defined(TEJU_HAS_FLOAT128)
+#if defined(teju_has_float128)
 
 // Specialisation of traits_t for float128.
 template <>
@@ -222,7 +222,7 @@ struct traits_t<float128_t> {
 
 }; // traits_t<float128_t>
 
-#endif // defined(TEJU_HAS_FLOAT128)
+#endif // defined(teju_has_float128)
 
 } // namespace teju
 

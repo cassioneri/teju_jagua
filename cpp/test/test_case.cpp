@@ -95,7 +95,7 @@ struct test_case_t<float>;
 template
 struct test_case_t<double>;
 
-#if defined(TEJU_HAS_FLOAT128)
+#if defined(teju_has_float128)
 template
 struct test_case_t<float128_t>;
 #endif

@@ -53,24 +53,24 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
 # Tests existence of __uint128_t.
 
-try_compile(TEJU_HAS_UINT128
+try_compile(teju_has_uint128
   ${CMAKE_BINARY_DIR}
   ${PROJECT_SOURCE_DIR}/cmake/uint128.c
 )
 
-if (TEJU_HAS_UINT128)
-  add_compile_definitions(TEJU_HAS_UINT128)
+if (teju_has_uint128)
+  add_compile_definitions(teju_has_uint128)
 endif()
 
 # Tests existence of __float128.
 
-try_compile(TEJU_HAS_FLOAT128
+try_compile(teju_has_float128
   ${CMAKE_BINARY_DIR}
   ${PROJECT_SOURCE_DIR}/cmake/float128.c
 )
 
-if (TEJU_HAS_FLOAT128)
-  add_compile_definitions(TEJU_HAS_FLOAT128)
+if (teju_has_float128)
+  add_compile_definitions(teju_has_float128)
 endif()
 
 set(third_party_dir ${CMAKE_SOURCE_DIR}/third-party)

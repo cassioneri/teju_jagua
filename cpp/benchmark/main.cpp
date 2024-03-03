@@ -191,20 +191,20 @@ output(nanobench::Bench const& bench, const char* const filename) {
     auto const     baseline        = double(teju_mean);
     auto constexpr scale           = 0.001;
 
-    #define TEJU_FIELD(a) std::setw(6) << a
+    #define teju_field(a) std::setw(6) << a
 
     std::cout << std::setprecision(3) << std::fixed <<
       "\n"
-      "teju      (mean  ) = " << TEJU_FIELD(scale * teju_mean         ) << " ns\n"
-      "          (stddev) = " << TEJU_FIELD(scale * teju.stddev()     ) << " ns\n"
-      "          (rel.  ) = " << TEJU_FIELD(teju_mean / baseline      ) << "\n"
+      "teju      (mean  ) = " << teju_field(scale * teju_mean         ) << " ns\n"
+      "          (stddev) = " << teju_field(scale * teju.stddev()     ) << " ns\n"
+      "          (rel.  ) = " << teju_field(teju_mean / baseline      ) << "\n"
       "\n"
-      "dragonbox (mean  ) = " << TEJU_FIELD(scale * dragonbox_mean    ) << " ns\n"
-      "          (stddev) = " << TEJU_FIELD(scale * dragonbox.stddev()) << " ns\n"
-      "          (rel.  ) = " << TEJU_FIELD(dragonbox_mean / baseline ) << "\n"
+      "dragonbox (mean  ) = " << teju_field(scale * dragonbox_mean    ) << " ns\n"
+      "          (stddev) = " << teju_field(scale * dragonbox.stddev()) << " ns\n"
+      "          (rel.  ) = " << teju_field(dragonbox_mean / baseline ) << "\n"
       "\n";
 
-      #undef TEJU_FIELD
+      #undef teju_field
   }
 }
 

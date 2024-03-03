@@ -12,7 +12,7 @@
 
 #include "teju/config.h"
 
-#if defined(TEJU_HAS_FLOAT128)
+#if defined(teju_has_float128)
 
 #include "teju/generated/ieee128.h"
 
@@ -63,5 +63,5 @@ teju_float128_to_teju_decimal(float128_t value);
 }
 #endif
 
-#endif // defined(TEJU_HAS_FLOAT128)
+#endif // defined(teju_has_float128)
 #endif // TEJU_TEJU_FLOAT128_H_

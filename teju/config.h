@@ -16,14 +16,14 @@
   #include <intrin.h>
 #endif
 
-#if defined(TEJU_HAS_UINT128)
+#if defined(teju_has_uint128)
   typedef __uint128_t uint128_t;
 #else
   // Cannot support float128_t if uint128_t is not defined.
-  #undef TEJU_HAS_FLOAT128
+  #undef teju_has_float128
 #endif
 
-#if defined(TEJU_HAS_FLOAT128)
+#if defined(teju_has_float128)
   typedef __float128 float128_t;
 #endif
 
@@ -115,7 +115,7 @@
 #define teju32_u1_t uint32_t
 #define teju32_u2_t uint64_t
 
-#if defined(TEJU_HAS_UINT128)
+#if defined(teju_has_uint128)
 
   #define teju32_u4_t          uint128_t
   #define teju32_multiply_type teju_built_in_4
@@ -137,7 +137,7 @@ typedef struct {
 
 #define teju64_u1_t uint64_t
 
-#if defined(TEJU_HAS_UINT128)
+#if defined(teju_has_uint128)
 
   #define teju64_u2_t          uint128_t
   #define teju64_multiply_type teju_built_in_2
@@ -157,7 +157,7 @@ typedef struct {
 // 128 bits //
 //----------//
 
-#if defined(TEJU_HAS_FLOAT128)
+#if defined(teju_has_float128)
 
   #define teju128_u1_t          uint128_t
   #define teju128_multiply_type teju_built_in_1

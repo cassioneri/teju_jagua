@@ -196,7 +196,7 @@ TEST(double, random_comparison_to_other) {
   }
 }
 
-#if defined(TEJU_HAS_FLOAT128)
+#if defined(teju_has_float128)
 
 template <char... Cs>
 uint128_t operator ""_u128() {
@@ -298,7 +298,7 @@ TEST(float128, test_hard_coded_binary_representations) {
   }
 }
 
-#endif // defined(TEJU_HAS_FLOAT128)
+#endif // defined(teju_has_float128)
 
 /**
  * @brief Returns the floating point number value corresponding to given IEEE

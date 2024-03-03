@@ -7,7 +7,7 @@ add_library(teju STATIC
   double.c
 )
 
-if (TEJU_HAS_UINT128)
+if (teju_has_uint128)
   target_sources(teju PUBLIC
     generated/ieee64_with_uint128.c
   )
@@ -17,7 +17,7 @@ else()
   )
 endif()
 
-if (TEJU_HAS_FLOAT128)
+if (teju_has_float128)
   target_sources(teju PUBLIC
     generated/ieee128.c
     float128.c

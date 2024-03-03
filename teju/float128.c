@@ -3,7 +3,7 @@
 
 #include "teju/config.h"
 
-#if defined(TEJU_HAS_FLOAT128)
+#if defined(teju_has_float128)
 
 #include "teju/common.h"
 #include "teju/float128.h"
@@ -64,4 +64,4 @@ teju_float128_to_teju_decimal(float128_t const value) {
 }
 #endif
 
-# endif // defined(TEJU_HAS_FLOAT128)
+# endif // defined(teju_has_float128)

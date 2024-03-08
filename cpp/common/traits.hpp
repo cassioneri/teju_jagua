@@ -17,7 +17,7 @@
 #include "teju/ieee754.h"
 
 #include "cpp/common/fields.hpp"
-#include "cpp/common/other.hpp"
+#include "cpp/common/dragonbox.hpp"
 
 namespace teju {
 

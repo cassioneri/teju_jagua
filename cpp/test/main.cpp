@@ -9,7 +9,7 @@
 #include "teju/literal.h"
 #include "cpp/common/traits.hpp"
 #include "cpp/test/test_case.hpp"
-#include "cpp/common/other.hpp"
+#include "cpp/common/dragonbox.hpp"
 
 #include <gtest/gtest.h>
 

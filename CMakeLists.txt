@@ -90,10 +90,9 @@ add_subdirectory(cpp)
 
 FetchContent_Declare(
   dragonbox
-  GIT_REPOSITORY https://github.com/jk-jeon/dragonbox.git
-  GIT_TAG        1.1.3
-  GIT_SHALLOW    TRUE
-  SOURCE_DIR     ${third_party_dir}/dragonbox
+  URL https://github.com/jk-jeon/dragonbox/archive/refs/tags/1.1.3.tar.gz
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+  SOURCE_DIR ${third_party_dir}/dragonbox
 )
 
 set(DRAGONBOX_INSTALL_TO_CHARS off)
@@ -105,10 +104,9 @@ FetchContent_MakeAvailable(dragonbox)
 
 FetchContent_Declare(
   googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG        release-1.12.1
-  GIT_SHALLOW    TRUE
-  SOURCE_DIR     ${third_party_dir}/googletest
+  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.tar.gz
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+  SOURCE_DIR ${third_party_dir}/googletest
 )
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -120,14 +118,11 @@ FetchContent_MakeAvailable(googletest)
 
 FetchContent_Declare(
   json
-  GIT_REPOSITORY https://github.com/nlohmann/json.git
-  GIT_TAG        v3.11.3
-  GIT_SHALLOW    TRUE
-  SOURCE_DIR     ${third_party_dir}/json
+  URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+  SOURCE_DIR ${third_party_dir}/json
 )
 
-set(BOOST_MP_STANDALONE on)
-set(BUILD_TESTING off)
 FetchContent_MakeAvailable(json)
 
 #-------------------------------------------------------------------------------
@@ -136,9 +131,8 @@ FetchContent_MakeAvailable(json)
 
 FetchContent_Declare(
   multiprecision
-  GIT_REPOSITORY https://github.com/boostorg/multiprecision.git
-  GIT_TAG        Boost_1_80_0
-  GIT_SHALLOW    TRUE
+  URL https://github.com/boostorg/multiprecision/archive/refs/tags/Boost_1_84_0.tar.gz
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
   SOURCE_DIR     ${third_party_dir}/multiprecision
 )
 
@@ -152,9 +146,9 @@ FetchContent_MakeAvailable(multiprecision)
 
 FetchContent_Declare(
   nanobench
-  GIT_REPOSITORY https://github.com/martinus/nanobench.git
-  GIT_TAG        v4.3.11
-  GIT_SHALLOW    TRUE
-  SOURCE_DIR     ${third_party_dir}/nanobench
+  URL https://github.com/martinus/nanobench/archive/refs/tags/v4.3.11.tar.gz
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+  SOURCE_DIR ${third_party_dir}/nanobench
 )
+
 FetchContent_MakeAvailable(nanobench)

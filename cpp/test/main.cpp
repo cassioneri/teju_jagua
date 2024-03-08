@@ -106,8 +106,8 @@ TEST(float, exhaustive_comparison_to_other) {
   while (std::isfinite(value) && !HasFailure()) {
 
     auto const ieee = traits_t<float>::value_to_ieee(value);
-    if (ieee.c.exponent != exponent) {
-      exponent = ieee.c.exponent;
+    if (ieee.exponent != exponent) {
+      exponent = ieee.exponent;
       std::cerr << "Exponent: " << exponent << std::endl;
     }
 

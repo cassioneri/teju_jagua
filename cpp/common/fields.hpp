@@ -27,22 +27,19 @@ template <typename T>
 struct cpp_fields_t;
 
 template <>
-struct cpp_fields_t<float> {
+struct cpp_fields_t<float> : teju32_fields_t {
   using streamable_uint_t = std::uint32_t;
-  teju32_fields_t c;
 };
 
 template <>
-struct cpp_fields_t<double> {
+struct cpp_fields_t<double> : teju64_fields_t {
   using streamable_uint_t = std::uint64_t;
-  teju64_fields_t c;
 };
 
 #if defined(teju_has_float128)
 template <>
-struct cpp_fields_t<float128_t> {
+struct cpp_fields_t<float128_t> : teju128_fields_t {
   using streamable_uint_t = boost::multiprecision::uint128_t;
-  teju128_fields_t c;
 };
 #endif // defined(teju_has_float128)
 
@@ -56,8 +53,7 @@ struct cpp_fields_t<float128_t> {
  */
 template <typename T>
 bool operator==(cpp_fields_t<T> const& left, cpp_fields_t<T> const& right) {
-  return left.c.exponent == right.c.exponent &&
-    left.c.mantissa == right.c.mantissa;
+  return left.exponent == right.exponent && left.mantissa == right.mantissa;
 }
 
 /**
@@ -90,8 +86,8 @@ operator <<(std::basic_ostream<C, CT>& os, cpp_fields_t<T> const& fields) {
   using streamable_uint_t = typename cpp_fields_t<T>::streamable_uint_t;
 
   return os <<
-    "exponent = " << fields.c.exponent                    << ", "
-    "mantissa = " << streamable_uint_t{fields.c.mantissa};
+    "exponent = " << fields.exponent                    << ", "
+    "mantissa = " << streamable_uint_t{fields.mantissa};
 }
 
 } // namespace teju

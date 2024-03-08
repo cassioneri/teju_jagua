@@ -77,10 +77,10 @@ namespace detail {
     using traits_t = teju::traits_t<T>;
     using u1_t     = typename traits_t::u1_t;
 
-    static_assert(sizeof(T) == sizeof(ieee.c.mantissa), "Incompatible types");
+    static_assert(sizeof(T) == sizeof(ieee.mantissa), "Incompatible types");
 
-    auto const exponent = static_cast<u1_t>(ieee.c.exponent);
-    auto const bits     = (exponent << mantissa_size) | ieee.c.mantissa;
+    auto const exponent = static_cast<u1_t>(ieee.exponent);
+    auto const bits     = (exponent << mantissa_size) | ieee.mantissa;
 
     T value;
     std::memcpy(&value, &bits, sizeof(value));
@@ -116,7 +116,7 @@ struct traits_t<float> {
   static
   fields_t
   ieee_to_binary(fields_t ieee32) {
-    return fields_t{teju_ieee32_to_binary(ieee32.c)};
+    return fields_t{teju_ieee32_to_binary(ieee32)};
   }
 
   static
@@ -161,7 +161,7 @@ struct traits_t<double> {
   static
   fields_t
   ieee_to_binary(fields_t ieee64) {
-    return fields_t{teju_ieee64_to_binary(ieee64.c)};
+    return fields_t{teju_ieee64_to_binary(ieee64)};
   }
 
   static
@@ -208,7 +208,7 @@ struct traits_t<float128_t> {
   static
   fields_t
   ieee_to_binary(fields_t ieee128) {
-    return fields_t{teju_ieee128_to_binary(ieee128.c)};
+    return fields_t{teju_ieee128_to_binary(ieee128)};
   }
 
   static

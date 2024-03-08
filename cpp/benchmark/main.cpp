@@ -77,7 +77,7 @@ char*
 fields_to_chars(char* const begin, char* const end, TFields const& fields,
   int const base)
 {
-  auto       ptr  = integer_to_chars(begin, end, fields.c.mantissa);
+  auto       ptr  = integer_to_chars(begin, end, fields.mantissa);
   auto const size = end - ptr;
 
   if (base == 2 && size > 3)
@@ -87,7 +87,7 @@ fields_to_chars(char* const begin, char* const end, TFields const& fields,
   else
     throw to_chars_failure;
 
-  return integer_to_chars(ptr, end, fields.c.exponent);
+  return integer_to_chars(ptr, end, fields.exponent);
 }
 
 namespace nanobench = ankerl::nanobench;

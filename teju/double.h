@@ -45,7 +45,7 @@ teju_double_to_ieee64(double value);
  * @returns Teju Jagua's binary representation value.
  */
 teju64_fields_t
-teju_ieee64_to_teju_binary(teju64_fields_t ieee64);
+teju_ieee64_to_binary(teju64_fields_t ieee64);
 
 /**
  * @brief Gets Teju Jagua's decimal representation of a double.
@@ -57,7 +57,7 @@ teju_ieee64_to_teju_binary(teju64_fields_t ieee64);
  * @returns Teju Jagua's decimal representation of value.
  */
 teju64_fields_t
-teju_double_to_teju_decimal(double value);
+teju_double_to_decimal(double value);
 
 #ifdef __cplusplus
 }

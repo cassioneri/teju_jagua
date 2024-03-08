@@ -35,7 +35,7 @@ teju_float_to_ieee32(float const value) {
 }
 
 teju32_fields_t
-teju_ieee32_to_teju_binary(teju32_fields_t ieee32) {
+teju_ieee32_to_binary(teju32_fields_t ieee32) {
 
   int32_t  e = ieee32.exponent + exponent_min;
   uint32_t m = ieee32.mantissa;
@@ -50,9 +50,9 @@ teju_ieee32_to_teju_binary(teju32_fields_t ieee32) {
 }
 
 teju32_fields_t
-teju_float_to_teju_decimal(float const value) {
+teju_float_to_decimal(float const value) {
   teju32_fields_t ieee32      = teju_float_to_ieee32(value);
-  teju32_fields_t teju_binary = teju_ieee32_to_teju_binary(ieee32);
+  teju32_fields_t teju_binary = teju_ieee32_to_binary(ieee32);
   return teju_ieee32(teju_binary);
 }
 

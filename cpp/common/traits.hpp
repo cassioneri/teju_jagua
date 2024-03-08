@@ -115,14 +115,14 @@ struct traits_t<float> {
 
   static
   fields_t
-  ieee_to_teju_binary(fields_t ieee32) {
-    return fields_t{teju_ieee32_to_teju_binary(ieee32.c)};
+  ieee_to_binary(fields_t ieee32) {
+    return fields_t{teju_ieee32_to_binary(ieee32.c)};
   }
 
   static
   fields_t
   teju(float const value) {
-    return fields_t{teju_float_to_teju_decimal(value)};
+    return fields_t{teju_float_to_decimal(value)};
   }
 
   static
@@ -160,14 +160,14 @@ struct traits_t<double> {
 
   static
   fields_t
-  ieee_to_teju_binary(fields_t ieee64) {
-    return fields_t{teju_ieee64_to_teju_binary(ieee64.c)};
+  ieee_to_binary(fields_t ieee64) {
+    return fields_t{teju_ieee64_to_binary(ieee64.c)};
   }
 
   static
   fields_t
   teju(double const value) {
-    return fields_t{teju_double_to_teju_decimal(value)};
+    return fields_t{teju_double_to_decimal(value)};
   }
 
   static
@@ -207,14 +207,14 @@ struct traits_t<float128_t> {
 
   static
   fields_t
-  ieee_to_teju_binary(fields_t ieee128) {
-    return fields_t{teju_ieee128_to_teju_binary(ieee128.c)};
+  ieee_to_binary(fields_t ieee128) {
+    return fields_t{teju_ieee128_to_binary(ieee128.c)};
   }
 
   static
   fields_t
   teju(float128_t const value) {
-    return {teju_float128_to_teju_decimal(value)};
+    return {teju_float128_to_decimal(value)};
   }
 
   // TODO (CN): Perhaps we could use Ryu for float128_t but at the moment

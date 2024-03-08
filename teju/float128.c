@@ -39,9 +39,9 @@ teju_float128_to_ieee128(float128_t const value) {
 }
 
 teju128_fields_t
-teju_ieee128_to_teju_binary(teju128_fields_t ieee128) {
+teju_ieee128_to_binary(teju128_fields_t ieee128) {
 
-  int32_t  e = ieee128.exponent + exponent_min;
+  int32_t   e = ieee128.exponent + exponent_min;
   uint128_t m = ieee128.mantissa;
 
   if (ieee128.exponent != 0) {
@@ -54,9 +54,9 @@ teju_ieee128_to_teju_binary(teju128_fields_t ieee128) {
 }
 
 teju128_fields_t
-teju_float128_to_teju_decimal(float128_t const value) {
+teju_float128_to_decimal(float128_t const value) {
   teju128_fields_t ieee128     = teju_float128_to_ieee128(value);
-  teju128_fields_t teju_binary = teju_ieee128_to_teju_binary(ieee128);
+  teju128_fields_t teju_binary = teju_ieee128_to_binary(ieee128);
   return teju_ieee128(teju_binary);
 }
 

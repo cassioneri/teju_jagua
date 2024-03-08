@@ -121,7 +121,7 @@ benchmark(nanobench::Bench& bench, T const value) {
   using      buffer_t = char[40];
 
   auto const ieee     = traits_t::value_to_ieee(value);
-  auto const binary   = traits_t::ieee_to_teju_binary(ieee);
+  auto const binary   = traits_t::ieee_to_binary(ieee);
   auto const decimal  = traits_t::teju(value);
 
   buffer_t binary_chars{};

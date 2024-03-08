@@ -45,7 +45,7 @@ teju_float128_to_ieee128(float128_t value);
  * @returns Teju Jagua's binary representation value.
  */
 teju128_fields_t
-teju_ieee128_to_teju_binary(teju128_fields_t ieee128);
+teju_ieee128_to_binary(teju128_fields_t ieee128);
 
 /**
  * @brief Gets Teju Jagua's decimal representation of a float128_t.
@@ -57,7 +57,7 @@ teju_ieee128_to_teju_binary(teju128_fields_t ieee128);
  * @returns Teju Jagua's decimal representation of value.
  */
 teju128_fields_t
-teju_float128_to_teju_decimal(float128_t value);
+teju_float128_to_decimal(float128_t value);
 
 #ifdef __cplusplus
 }

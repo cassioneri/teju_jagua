@@ -40,7 +40,7 @@ teju_float_to_ieee32(float value);
  * @returns Teju Jagua's binary representation value.
  */
 teju32_fields_t
-teju_ieee32_to_teju_binary(teju32_fields_t ieee32);
+teju_ieee32_to_binary(teju32_fields_t ieee32);
 
 /**
  * @brief Gets Teju Jagua's decimal representation of a float.
@@ -52,7 +52,7 @@ teju_ieee32_to_teju_binary(teju32_fields_t ieee32);
  * @returns Teju Jagua's decimal representation of value.
  */
 teju32_fields_t
-teju_float_to_teju_decimal(float value);
+teju_float_to_decimal(float value);
 
 #ifdef __cplusplus
 }

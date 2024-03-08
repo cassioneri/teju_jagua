@@ -35,7 +35,7 @@ teju_double_to_ieee64(double const value) {
 }
 
 teju64_fields_t
-teju_ieee64_to_teju_binary(teju64_fields_t const ieee64) {
+teju_ieee64_to_binary(teju64_fields_t const ieee64) {
 
   int32_t  e = ieee64.exponent + exponent_min;
   uint64_t m = ieee64.mantissa;
@@ -50,9 +50,9 @@ teju_ieee64_to_teju_binary(teju64_fields_t const ieee64) {
 }
 
 teju64_fields_t
-teju_double_to_teju_decimal(double const value) {
+teju_double_to_decimal(double const value) {
   teju64_fields_t ieee64      = teju_double_to_ieee64(value);
-  teju64_fields_t teju_binary = teju_ieee64_to_teju_binary(ieee64);
+  teju64_fields_t teju_binary = teju_ieee64_to_binary(ieee64);
   #if defined(teju_has_uint128)
     return teju_ieee64_with_uint128(teju_binary);
   #else

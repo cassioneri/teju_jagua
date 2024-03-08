@@ -7,7 +7,7 @@ add_executable(benchmark
 
 target_link_libraries(benchmark PRIVATE
   teju
-  gtest gtest_main
+  gtest_main
   nanobench
   other
 )

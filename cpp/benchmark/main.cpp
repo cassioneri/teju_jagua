@@ -186,10 +186,10 @@ output(nanobench::Bench const& bench, const char* const filename) {
         dragonbox.update(value);
     }
 
-    auto const     teju_mean       = teju.mean();
-    auto const     dragonbox_mean  = dragonbox.mean();
-    auto const     baseline        = double(teju_mean);
-    auto constexpr scale           = 0.001;
+    auto const     teju_mean      = teju.mean();
+    auto const     dragonbox_mean = dragonbox.mean();
+    auto const     baseline       = double(teju_mean);
+    auto constexpr scale          = 0.001;
 
     #define teju_field(a) std::setw(6) << a
 

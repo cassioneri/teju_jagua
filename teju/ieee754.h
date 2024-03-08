@@ -18,20 +18,20 @@
 
 enum {
 
-   teju_ieee754_binary16_exponent_size  =   5,
-   teju_ieee754_binary16_mantissa_size  =  10,
+  teju_ieee754_binary16_exponent_size  =   5,
+  teju_ieee754_binary16_mantissa_size  =  10,
 
-   teju_ieee754_binary32_exponent_size  =   8,
-   teju_ieee754_binary32_mantissa_size  =  23,
+  teju_ieee754_binary32_exponent_size  =   8,
+  teju_ieee754_binary32_mantissa_size  =  23,
 
-   teju_ieee754_binary64_exponent_size  =  11,
-   teju_ieee754_binary64_mantissa_size  =  52,
+  teju_ieee754_binary64_exponent_size  =  11,
+  teju_ieee754_binary64_mantissa_size  =  52,
 
-   teju_ieee754_binary128_exponent_size =  15,
-   teju_ieee754_binary128_mantissa_size = 112,
+  teju_ieee754_binary128_exponent_size =  15,
+  teju_ieee754_binary128_mantissa_size = 112,
 
-   teju_ieee754_binary256_exponent_size =  19,
-   teju_ieee754_binary256_mantissa_size = 236,
+  teju_ieee754_binary256_exponent_size =  19,
+  teju_ieee754_binary256_mantissa_size = 236,
 };
 
 #define teju_min_binary_exponent_from_ieee754(exponent_size, mantissa_size) \

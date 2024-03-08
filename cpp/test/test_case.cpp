@@ -4,6 +4,7 @@
 #include "cpp/common/exception.hpp"
 #include "cpp/common/traits.hpp"
 #include "cpp/test/test_case.hpp"
+#include "teju/common.h"
 
 #include <type_traits>
 
@@ -21,12 +22,8 @@ namespace {
 
     auto const exponent_size = traits_t::exponent_size;
     auto const mantissa_size = traits_t::mantissa_size;
-
-    auto const exponent_min  =
-      teju_min_binary_exponent_from_ieee754(exponent_size, mantissa_size);
-
-    auto const exponent_max  =
-      teju_max_binary_exponent_from_ieee754(exponent_size, mantissa_size);
+    auto const exponent_min  = traits_t::exponent_min;
+    auto const exponent_max  = traits_t::exponent_max;
 
     require(teju_binary.exponent >= exponent_min,
       "Exponent provided to Teju Jagua binary representation is too low.");

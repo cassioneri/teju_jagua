@@ -87,19 +87,42 @@ namespace detail {
     return value;
   }
 
+  /**
+   * @brief Converts IEEE-754 parameters to Teju Jagua's.
+   *
+   * \tparam exponent_size_ IEEE-754's exponent size.
+   * \tparam mantissa_size_ IEEE-754's mantissa size.
+   * \tparam exponent_min_  IEEE-754's exponent minimum.
+   * \tparam exponent_max_  IEEE-754's exponent maximum.
+   */
+  template <
+    std::int32_t exponent_size_,
+    std::int32_t mantissa_size_,
+    std::int32_t exponent_min_,
+    std::int32_t exponent_max_
+  >
+  struct teju_from_ieee754_t {
+
+    static auto constexpr exponent_size = std::uint32_t{exponent_size_};
+    static auto constexpr mantissa_size = std::uint32_t{mantissa_size_};
+    static auto constexpr exponent_min  = exponent_min_ - mantissa_size_;
+    static auto constexpr exponent_max  = exponent_max_ - mantissa_size_;
+
+  };
+
 } // namespace detail
 
 // Specialisation of traits_t for float.
 template <>
-struct traits_t<float> {
+struct traits_t<float> : detail::teju_from_ieee754_t<
+  teju_ieee754_binary32_exponent_size,
+  teju_ieee754_binary32_mantissa_size,
+  teju_ieee754_binary32_exponent_min,
+  teju_ieee754_binary32_exponent_max
+  > {
 
   using u1_t     = teju32_u1_t;
   using fields_t = cpp_fields_t<float>;
-
-  static auto constexpr exponent_size =
-    std::uint32_t{teju_ieee754_binary32_exponent_size};
-  static auto constexpr mantissa_size =
-    std::uint32_t{teju_ieee754_binary32_mantissa_size};
 
   static
   fields_t
@@ -136,15 +159,15 @@ struct traits_t<float> {
 
 // Specialisation of traits_t for float.
 template <>
-struct traits_t<double> {
+struct traits_t<double> : detail::teju_from_ieee754_t<
+  teju_ieee754_binary64_exponent_size,
+  teju_ieee754_binary64_mantissa_size,
+  teju_ieee754_binary64_exponent_min,
+  teju_ieee754_binary64_exponent_max
+  > {
 
   using u1_t     = teju64_u1_t;
   using fields_t = cpp_fields_t<double>;
-
-  static auto constexpr exponent_size =
-    std::uint32_t{teju_ieee754_binary64_exponent_size};
-  static auto constexpr mantissa_size =
-    std::uint32_t{teju_ieee754_binary64_mantissa_size};
 
   static
   fields_t
@@ -183,15 +206,14 @@ struct traits_t<double> {
 
 // Specialisation of traits_t for float128.
 template <>
-struct traits_t<float128_t> {
+struct traits_t<float128_t> : detail::teju_from_ieee754_t<
+  teju_ieee754_binary128_exponent_size,
+  teju_ieee754_binary128_mantissa_size,
+  teju_ieee754_binary128_exponent_min,
+  teju_ieee754_binary128_exponent_max> {
 
   using u1_t     = teju128_u1_t;
   using fields_t = cpp_fields_t<float128_t>;
-
-  static auto constexpr exponent_size =
-    std::uint32_t{teju_ieee754_binary128_exponent_size};
-  static auto constexpr mantissa_size =
-    std::uint32_t{teju_ieee754_binary128_mantissa_size};
 
   static
   fields_t

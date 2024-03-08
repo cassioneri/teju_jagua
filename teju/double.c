@@ -13,11 +13,11 @@
 extern "C" {
 #endif
 
+// Conversion from IEEE-754's parameters to Teju Jagua's.
 enum {
   exponent_size = teju_ieee754_binary64_exponent_size,
   mantissa_size = teju_ieee754_binary64_mantissa_size,
-  exponent_min  = teju_min_binary_exponent_from_ieee754(exponent_size,
-    mantissa_size)
+  exponent_min  = teju_ieee754_binary64_exponent_min - mantissa_size,
 };
 
 teju64_fields_t

@@ -18,6 +18,10 @@
 #include <random>
 #include <string>
 
+#if defined(__unix__)
+  #include <unistd.h>
+#endif
+
 namespace {
 
 auto constexpr str_algorithm = "algorithm";
@@ -346,3 +350,63 @@ TEST(double, uncentred) {
 }
 
 } // namespace <anonymous>
+
+// On Linux, the following should help to reduce the variance of benchmark
+// results.
+//
+// 1) Disable CPU frequency scaling:
+//
+//   $ sudo cpupower frequency-set --governor performance
+//
+// 2) Pin the execution to one particular CPU and disable the sibling CPU.
+//
+//   For instance, if you choose to pin the execution to cpu2, then run:
+//
+//     $ cat /sys/devices/system/cpu/cpu2/topology/thread_siblings_list
+//
+//   Now, suppose the output is:
+//
+//     2,6
+//
+//   This means that we need to disable cpu6:
+//
+//     $ sudo /bin/bash -c "echo 0 > /sys/devices/system/cpu/cpu6/online"
+//
+//   Finally run the benchmark with the command line
+//
+//     $ benchmark [GTEST_OPTIONS]... 2
+//
+//   If more than one CPU is provided, then the last one will be used.
+
+int main(int argc, char* argv[]) {
+
+  testing::InitGoogleTest(&argc, argv);
+
+  #if defined(__unix__)
+
+    if (argc > 1) {
+
+      std::cout << "PID = " << getpid() << '\n';
+
+      auto const cpu = std::strtoul(argv[argc - 1], nullptr, 10);
+
+      if (cpu >= CPU_SETSIZE) {
+        std::fprintf(stderr, "Invalid CPU\n");
+        std::exit(-1);
+      }
+
+      cpu_set_t cpu_set;
+      CPU_ZERO(&cpu_set);
+      CPU_SET((int) cpu, &cpu_set);
+
+      if (sched_setaffinity(0, sizeof(cpu_set_t), &cpu_set) == -1) {
+        std::fprintf(stderr, "Can't run on CPU %d\n", (int) cpu);
+        std::exit(-1);
+      }
+
+    }
+
+  #endif
+
+  return RUN_ALL_TESTS();
+}

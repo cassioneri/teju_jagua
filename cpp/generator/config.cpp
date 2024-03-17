@@ -56,7 +56,7 @@ void
 validate(config_t const& json) {
 
   require(json.size == 32 || json.size == 64 || json.size == 128,
-    "Constraint violation: size in { 32, 64 }");
+    "Constraint violation: size in { 32, 64, 128 }");
 
   require(json.exponent.minimum <= json.exponent.maximum,
     "Constraint violation: exponent.minimum <= exponent.maximum");

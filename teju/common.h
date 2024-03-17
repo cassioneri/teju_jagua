@@ -76,10 +76,6 @@ teju_log10_pow2_residual(int32_t const e) {
   return ((uint32_t) (((uint64_t) 1292913987) * e)) / 1292913987;
 }
 
-// Argument bounds of teju_log10_075_pow2.
-#define teju_log10_075_pow2_min -100849
-#define teju_log10_075_pow2_max  111480
-
 #ifdef __cplusplus
 }
 #endif

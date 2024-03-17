@@ -61,12 +61,12 @@ validate(config_t const& json) {
   require(json.exponent.minimum <= json.exponent.maximum,
     "Constraint violation: exponent.minimum <= exponent.maximum");
 
-  std::int32_t min = std::min(teju_log10_pow2_min, teju_log10_075_pow2_min);
+  std::int32_t min = teju_log10_pow2_min;
 
   require(json.exponent.minimum >= min,
     "Constraint violation: json.exponent.minimum >= min");
 
-  std::int32_t max = std::max(teju_log10_pow2_max, teju_log10_075_pow2_max);
+  std::int32_t max = teju_log10_pow2_max;
 
   require(json.exponent.maximum <= max,
     "Constraint violation: json.exponent.maximum <= max");

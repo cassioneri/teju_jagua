@@ -26,8 +26,10 @@ report_usage(const char* const prog) noexcept {
 generator_t
 parse(const char* const filename, const char* const dir) {
 
-  std::ifstream file(filename);
-  auto const data = nlohmann::json::parse(file);
+  std::ifstream file{filename};
+  require(file.is_open(), "Cannot open input file");
+
+  auto const data = nlohmann::json::parse(file, nullptr, true, true);
 
   auto config = data.get<config_t>();
   validate(config);

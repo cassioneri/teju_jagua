@@ -109,6 +109,19 @@
 // respectively, set to the types of the 2- and 4-limb unsigned integers.
 
 //----------//
+//  16 bits //
+//----------//
+
+#define teju16_u1_t uint16_t
+#define teju16_u2_t uint32_t
+#define teju16_u4_t uint64_t
+
+typedef struct {
+  int32_t     exponent;
+  teju16_u1_t mantissa;
+} teju16_fields_t;
+
+//----------//
 //  32 bits //
 //----------//
 

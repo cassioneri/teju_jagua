@@ -1,0 +1,30 @@
+{
+  "id"  : "ieee16",
+  "size": 16,
+
+  "spdx": {
+    "identifier": "MIT",
+    "copyright" : [
+      "2024 Cassio Neri <cassio.neri@gmail.com>"
+    ]
+  },
+
+  "exponent": {
+    "size"   :   5,
+    "minimum": -24,
+    "maximum":   5
+  },
+
+  "mantissa": {
+    "size": 10
+  },
+
+  "storage": {
+    "split": 1
+  },
+
+  "calculation": {
+    "div10" : "built_in_2",
+    "mshift": "built_in_4"
+  }
+}

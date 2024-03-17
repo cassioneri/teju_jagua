@@ -55,8 +55,9 @@ from_json(nlohmann::json const& src, config_t& tgt) {
 void
 validate(config_t const& json) {
 
-  require(json.size == 32 || json.size == 64 || json.size == 128,
-    "Constraint violation: size in { 32, 64, 128 }");
+  require(json.size == 16 || json.size == 32 || json.size == 64 ||
+    json.size == 128,
+    "Constraint violation: size in { 16, 32, 64, 128 }");
 
   require(json.exponent.minimum <= json.exponent.maximum,
     "Constraint violation: exponent.minimum <= exponent.maximum");

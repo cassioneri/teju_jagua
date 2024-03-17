@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
 
 add_library(teju STATIC
+  generated/ieee16.c
   generated/ieee32.c
   float.c
   double.c

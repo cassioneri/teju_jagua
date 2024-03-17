@@ -178,6 +178,8 @@ get_maximum_2(integer_t const& alpha_2,
 std::string
 get_prefix(std::uint32_t const size) {
   switch (size) {
+    case 16:
+      return "teju16_";
     case 32:
       return "teju32_";
     case 64:
@@ -185,7 +187,7 @@ get_prefix(std::uint32_t const size) {
     case 128:
       return "teju128_";
   }
-  throw exception_t{"BUG: Invalid size."};
+  throw exception_t{"BUG: Unrecognised size."};
 }
 
 /**

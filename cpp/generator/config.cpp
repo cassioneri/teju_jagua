@@ -98,9 +98,9 @@ validate(config_t const& json) {
 
   auto const i_mshift = std::distance(std::cbegin(multiply_types),
     std::find(std::cbegin(multiply_types), std::cend(multiply_types),
-    json.calculation.div10));
+    json.calculation.mshift));
 
-  require(i_mshift <= 4,
+  require(0 < i_mshift && i_mshift <= 5,
     "Constraint violation: calculation.mshift in { \"built_in_1\", "
     "\"synthetic_1\", \"built_in_2\", \"synthetic_2\", \"built_in_4\" }");
 }

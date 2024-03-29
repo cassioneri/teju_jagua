@@ -5,5 +5,6 @@ third-party/
 .vs/
 .vscode/
 
-# Jupyter notebooks check_points
+# Jupyter notebooks
 python/.ipynb_checkpoints/
+python/*.ipynb

@@ -13,7 +13,7 @@
 #     name: python3
 # ---
 
-cpu         = 'i7-10510U'
+cpu         = 'amd-ryzen-7-1800X'
 os          = 'linux'
 compiler    = 'gcc-13.2.1'
 type        = 'double_centred'
@@ -24,6 +24,7 @@ stats       = ['mean', 'std', 'min', 'median', 'max']
 
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.io as pio
 
 results     = pd.read_csv(f'../results/{cpu}_{os}_{compiler}/{type}.csv', sep = ';')
 algos_data  = pd.Series([results[results['algorithm'] == algo][['binary', metric]].set_index('binary')
@@ -51,7 +52,7 @@ stats_data.style.format('{:.2e}')
 histograms = [go.Histogram(x = algos_data[algo][metric] / 1.0e-9, name = algo, histnorm = 'percent') for algo in algos]
 figure     = go.Figure(data = histograms)
 
-figure.update_layout(title = 'Histograms', height = 600, yaxis_title = '%', xaxis_title = 'time (ns)')
+figure.update_layout(title = 'Histograms', template = 'plotly_dark', height = 600, yaxis_title = '%', xaxis_title = 'time (ns)')
 
 figure.update_xaxes(autorangeoptions_clipmin = 6, autorangeoptions_clipmax = 11, dtick = 0.25)
 

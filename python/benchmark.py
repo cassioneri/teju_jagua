@@ -16,9 +16,10 @@
 cpu         = 'amd-ryzen-7-1800X'
 os          = 'linux'
 compiler    = 'gcc-13.2.1'
-type        = 'double_centred'
+type        = 'float_integers'
 
-algos       = ['teju', 'dragonbox']
+algos       = ['teju', 'dragonbox', 'ryu']
+# Choose from 'elapsed', 'error %', 'instructions', 'branches', 'branch misses', 'total'
 metric      = 'elapsed'
 stats       = ['mean', 'std', 'min', 'median', 'max']
 
@@ -30,17 +31,25 @@ results     = pd.read_csv(f'../results/{cpu}_{os}_{compiler}/{type}.csv', sep = 
 algos_data  = pd.Series([results[results['algorithm'] == algo][['binary', metric]].set_index('binary')
     for algo in algos], index = algos)
 
-metric_data = algos_data['teju'].rename(columns = {metric:'teju'}).join(algos_data['dragonbox'].rename(columns = {metric:'dragonbox'}))
-size        = len(metric_data)
+metric_data = algos_data['teju'].rename(columns = {metric:'teju'     })
+for algo in algos:
+    if algo == 'teju':
+        continue
+    metric_data = metric_data.join(algos_data[algo].rename(columns = {metric:algo}))
+size = len(metric_data)
 
-winnings    = metric_data.apply(lambda t : t['teju'] <  t['dragonbox'], axis = 1)
-draws       = metric_data.apply(lambda t : t['teju'] == t['dragonbox'], axis = 1)
-losses      = metric_data.apply(lambda t : t['teju'] >  t['dragonbox'], axis = 1)
-print(f' \
-Winnings = {len(winnings[winnings == True].index) / size:3.1%}\n \
-Draws    = {len(draws   [draws    == True].index) / size:3.1%}\n \
-Losses   = {len(losses  [losses   == True].index) / size:3.1%}\n \
-')
+for algo in algos:
+    if algo == 'teju':
+        continue
+    
+    winnings    = metric_data.apply(lambda t : t['teju'] <  t['ryu'], axis = 1)
+    draws       = metric_data.apply(lambda t : t['teju'] == t['ryu'], axis = 1)
+    losses      = metric_data.apply(lambda t : t['teju'] >  t['ryu'], axis = 1)
+    print(f'Comparison against {algo}\n\
+    Winnings = {len(winnings[winnings == True].index) / size:3.1%}\n\
+    Draws    = {len(draws   [draws    == True].index) / size:3.1%}\n\
+    Losses   = {len(losses  [losses   == True].index) / size:3.1%}\n\
+    ')
 
 
 stats_data  = pd.DataFrame([[getattr(algos_data[algo][metric], stat)() for stat in stats] for algo in algos], index = algos, columns = stats)
@@ -54,6 +63,9 @@ figure     = go.Figure(data = histograms)
 
 figure.update_layout(title = 'Histograms', template = 'plotly_dark', height = 600, yaxis_title = '%', xaxis_title = 'time (ns)')
 
-figure.update_xaxes(autorangeoptions_clipmin = 6, autorangeoptions_clipmax = 11, dtick = 0.25)
+figure.update_xaxes(autorangeoptions_clipmin = 2, autorangeoptions_clipmax = 16, dtick = 0.5)
 
 figure.show()
+# -
+
+

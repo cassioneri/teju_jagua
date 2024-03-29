@@ -27,9 +27,12 @@ namespace {
 auto constexpr str_algorithm = "algorithm";
 auto const     str_teju      = std::string{"teju"};
 auto const     str_dragonbox = std::string{"dragonbox"};
+auto const     str_ryu       = std::string{"ryu"};
 
 auto constexpr str_binary    = "binary";
 auto constexpr str_decimal   = "decimal";
+
+// https://nanobench.ankerl.com/reference.html#render-mustache-like-templates
 auto constexpr str_csv       = R"DELIM("algorithm";"binary";"decimal";"elapsed";"error %";"instructions";"branches";"branch misses";"total"
 {{#result}}{{context(algorithm)}};{{context(binary)}};{{context(decimal)}};{{average(elapsed)}};{{medianAbsolutePercentError(elapsed)}};{{median(instructions)}};{{median(branchinstructions)}};{{median(branchmisses)}};{{sumProduct(iterations, elapsed)}}
 {{/result}})DELIM";
@@ -150,6 +153,14 @@ benchmark(nanobench::Bench& bench, T const value) {
     .context(str_decimal  , std::data(decimal_chars))
     .run("", [&]() {
       nanobench::doNotOptimizeAway(traits_t::dragonbox(value));
+  });
+
+  bench
+    .context(str_algorithm, str_ryu.c_str()         )
+    .context(str_binary   , std::data(binary_chars) )
+    .context(str_decimal  , std::data(decimal_chars))
+    .run("", [&]() {
+      nanobench::doNotOptimizeAway(traits_t::ryu(value));
   });
 }
 

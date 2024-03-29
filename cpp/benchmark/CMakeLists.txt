@@ -9,5 +9,5 @@ target_link_libraries(benchmark PRIVATE
   teju
   gtest
   nanobench
-  other
+  others
 )

@@ -18,6 +18,7 @@
 
 #include "cpp/common/fields.hpp"
 #include "cpp/common/dragonbox.hpp"
+#include "cpp/common/ryu.hpp"
 
 namespace teju {
 
@@ -155,6 +156,12 @@ struct traits_t<float> : detail::teju_from_ieee754_t<
     return fields_t{std::int32_t{fields.exponent}, u1_t{fields.significand}};
   }
 
+  static
+  fields_t
+  ryu(float const value) {
+    return fields_t{ryu_float_to_decimal(value)};
+  }
+
 }; // traits_t<float>
 
 // Specialisation of traits_t for float.
@@ -198,6 +205,12 @@ struct traits_t<double> : detail::teju_from_ieee754_t<
   dragonbox(double const value) {
     auto const fields = teju::dragonbox::to_decimal(value);
     return fields_t{std::int32_t{fields.exponent}, u1_t{fields.significand}};
+  }
+
+  static
+  fields_t
+  ryu(double const value) {
+    return fields_t{ryu_double_to_decimal(value)};
   }
 
 }; // traits_t<double>

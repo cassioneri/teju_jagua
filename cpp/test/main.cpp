@@ -87,18 +87,20 @@ get_next(T value) {
  * @param  value            The given value.
  */
 template <typename T>
-void compare_to_other(T const value) {
+void compare_to_others(T const value) {
 
-  using      traits_t = teju::traits_t<T>;
-  auto const teju     = traits_t::teju(value);
-  auto const other    = traits_t::dragonbox(value);
-  auto const fields   = traits_t::value_to_ieee(value);
+  using      traits_t  = teju::traits_t<T>;
+  auto const teju      = traits_t::teju(value);
+  auto const ryu       = traits_t::ryu(value);
+  auto const dragonbox = traits_t::dragonbox(value);
+  auto const fields    = traits_t::value_to_ieee(value);
 
-  EXPECT_EQ(other, teju) << "IEEE fields: " << fields;
+  EXPECT_EQ(ryu      , teju) << "IEEE fields: " << fields;
+  EXPECT_EQ(dragonbox, teju) << "IEEE fields: " << fields;
 }
 
 // Test results for all possible strictly positive finite float values.
-TEST(float, exhaustive_comparison_to_other) {
+TEST(float, exhaustive_comparison_to_others) {
 
   auto value    = std::numeric_limits<float>::denorm_min();
   auto exponent = std::numeric_limits<std::int32_t>::min();
@@ -111,7 +113,7 @@ TEST(float, exhaustive_comparison_to_other) {
       std::cerr << "Exponent: " << exponent << std::endl;
     }
 
-    compare_to_other(value);
+    compare_to_others(value);
 
     value = get_next(value);
   }
@@ -140,7 +142,7 @@ TYPED_TEST_P(typed_tests_t, mantissa_min_all_exponents) {
     auto const bits = u1_t{exponent} << traits_t::mantissa_size;
     fp_t value;
     std::memcpy(&value, &bits, sizeof(bits));
-    compare_to_other(value);
+    compare_to_others(value);
   }
 }
 
@@ -150,7 +152,7 @@ TYPED_TEST_P(typed_tests_t, integers) {
 
   auto test = [this](fp_t const min, fp_t const max) {
     for (fp_t value = min; value < max && !this->HasFailure(); ++value) {
-      compare_to_other(value);
+      compare_to_others(value);
       ASSERT_NE(value + 1.0, value);
     }
   };
@@ -192,7 +194,7 @@ TEST(double, random_comparison_to_other) {
     auto const i = dist(rd);
     double value;
     std::memcpy(&value, &i, sizeof(i));
-    compare_to_other(value);
+    compare_to_others(value);
   }
 }
 
@@ -325,13 +327,13 @@ from_ieee(std::uint32_t e, typename traits_t<T>::u1_t m) {
 // Adhoc test for a given floating point number value.
 TEST(ad_hoc, value) {
   auto const value = 1.0f;
-  compare_to_other(value);
+  compare_to_others(value);
 }
 
 // Adhoc test for given field values.
 TEST(ad_hoc, fields) {
   auto const value = from_ieee<float>(127, 0); // = 1.0f
-  compare_to_other(value);
+  compare_to_others(value);
 }
 
 } // namespace <anonymous>

@@ -152,3 +152,16 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(nanobench)
+
+#-------------------------------------------------------------------------------
+# ryu
+#-------------------------------------------------------------------------------
+
+FetchContent_Declare(
+  ryu
+  URL https://github.com/cassioneri/ryu-non-official/archive/refs/tags/v1.0.0.tar.gz
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+  SOURCE_DIR ${third_party_dir}/ryu
+)
+
+FetchContent_MakeAvailable(ryu)

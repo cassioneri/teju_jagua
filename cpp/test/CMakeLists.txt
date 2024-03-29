@@ -27,5 +27,5 @@ target_link_libraries(test
   teju
   boost_multiprecision
   gtest_main
-  other
+  others
 )

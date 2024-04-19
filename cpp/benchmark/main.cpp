@@ -185,6 +185,7 @@ output(nanobench::Bench const& bench, const char* const filename) {
     auto results    = bench.results();
     auto teju       = teju::stats_t{};
     auto dragonbox  = teju::stats_t{};
+    auto ryu        = teju::stats_t{};
 
     for (auto const& result : results) {
 
@@ -197,12 +198,15 @@ output(nanobench::Bench const& bench, const char* const filename) {
 
       if (result.context(str_algorithm) == str_teju)
         teju.update(value);
-      else
+      else if (result.context(str_algorithm) == str_dragonbox)
         dragonbox.update(value);
+      else
+        ryu.update(value);
     }
 
     auto const     teju_mean      = teju.mean();
     auto const     dragonbox_mean = dragonbox.mean();
+    auto const     ryu_mean       = ryu.mean();
     auto const     baseline       = double(teju_mean);
     auto constexpr scale          = 0.001;
 
@@ -217,6 +221,10 @@ output(nanobench::Bench const& bench, const char* const filename) {
       "dragonbox (mean  ) = " << teju_field(scale * dragonbox_mean    ) << " ns\n"
       "          (stddev) = " << teju_field(scale * dragonbox.stddev()) << " ns\n"
       "          (rel.  ) = " << teju_field(dragonbox_mean / baseline ) << "\n"
+      "\n"
+      "ryu       (mean  ) = " << teju_field(scale * ryu_mean          ) << " ns\n"
+      "          (stddev) = " << teju_field(scale * ryu.stddev()      ) << " ns\n"
+      "          (rel.  ) = " << teju_field(ryu_mean / baseline       ) << "\n"
       "\n";
 
       #undef teju_field

@@ -31,7 +31,7 @@ results     = pd.read_csv(f'../results/{cpu}_{os}_{compiler}/{type}.csv', sep = 
 algos_data  = pd.Series([results[results['algorithm'] == algo][['binary', metric]].set_index('binary')
     for algo in algos], index = algos)
 
-metric_data = algos_data['teju'].rename(columns = {metric:'teju'     })
+metric_data = algos_data['teju'].rename(columns = {metric:'teju'})
 for algo in algos:
     if algo == 'teju':
         continue
@@ -42,9 +42,9 @@ for algo in algos:
     if algo == 'teju':
         continue
     
-    winnings    = metric_data.apply(lambda t : t['teju'] <  t['ryu'], axis = 1)
-    draws       = metric_data.apply(lambda t : t['teju'] == t['ryu'], axis = 1)
-    losses      = metric_data.apply(lambda t : t['teju'] >  t['ryu'], axis = 1)
+    winnings    = metric_data.apply(lambda t : t['teju'] <  t[algo], axis = 1)
+    draws       = metric_data.apply(lambda t : t['teju'] == t[algo], axis = 1)
+    losses      = metric_data.apply(lambda t : t['teju'] >  t[algo], axis = 1)
     print(f'Comparison against {algo}\n\
     Winnings = {len(winnings[winnings == True].index) / size:3.1%}\n\
     Draws    = {len(draws   [draws    == True].index) / size:3.1%}\n\

@@ -125,30 +125,6 @@ make_fields(int32_t const e, teju_u1_t const m) {
 }
 
 /**
- * @brief Rotates a given number to the right by a given number of bits.
- *
- * @pre s <= teju_size.
- *
- * @param n                 The given number.
- * @param s                 The given number of bits.
- */
-static inline
-teju_u1_t
-ror(teju_u1_t const n) {
-  #if defined(_MSC_VER) && !defined(__clang__)
-    #if teju_size == 32
-      return _rotr(n, 1);
-    #elif teju_size == 64
-      return _rotr64(n, 1);
-    #else
-      #error "Unsupported size for ror."
-    #endif
-  #else
-    return (n >> 1) | (n << (teju_size - 1));
-  #endif
-}
-
-/**
  * @brief Shortens the decimal representation m\cdot 10^e\f by removing trailing
  * zeros of m and increasing e.
  *
@@ -160,15 +136,10 @@ ror(teju_u1_t const n) {
 static inline
 teju_fields_t
 remove_trailing_zeros(int32_t e, teju_u1_t m) {
-  teju_u1_t const minv5 = teju_minverse5;
-  teju_u1_t const inv10 = ((teju_u1_t) - 1) / 10;
-  teju_u1_t       n     = ror(minv5 * m);
-  while (n <= inv10) {
-    ++e;
-    m = n;
-    n = ror(minv5 * m);
-  }
-  return make_fields(e, m);
+  teju_u1_t const q = teju_div10(m);
+  if ((uint32_t) m != 10 * ((uint32_t) q))
+    return make_fields(e, m);
+  return remove_trailing_zeros(e + 1, q);
 }
 
 /**

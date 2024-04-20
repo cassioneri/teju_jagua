@@ -24,6 +24,10 @@
 
 namespace {
 
+auto constexpr run_teju      = true;
+auto constexpr run_dragonbox = false;
+auto constexpr run_ryu       = false;
+
 auto constexpr str_algorithm = "algorithm";
 auto const     str_teju      = std::string{"teju"};
 auto const     str_dragonbox = std::string{"dragonbox"};
@@ -139,29 +143,32 @@ benchmark(nanobench::Bench& bench, T const value) {
   fields_to_chars(std::begin(decimal_chars), std::prev(std::end(decimal_chars)),
     decimal, 10);
 
-  bench.relative(true)
-    .context(str_algorithm, str_teju.c_str()        )
-    .context(str_binary   , std::data(binary_chars) )
-    .context(str_decimal  , std::data(decimal_chars))
-    .run("", [&]() {
-      nanobench::doNotOptimizeAway(traits_t::teju(value));
-  });
+  if constexpr (run_teju)
+    bench.relative(true)
+      .context(str_algorithm, str_teju.c_str()        )
+      .context(str_binary   , std::data(binary_chars) )
+      .context(str_decimal  , std::data(decimal_chars))
+      .run("", [&]() {
+        nanobench::doNotOptimizeAway(traits_t::teju(value));
+    });
 
-  bench
-    .context(str_algorithm, str_dragonbox.c_str()   )
-    .context(str_binary   , std::data(binary_chars) )
-    .context(str_decimal  , std::data(decimal_chars))
-    .run("", [&]() {
-      nanobench::doNotOptimizeAway(traits_t::dragonbox(value));
-  });
+  if constexpr (run_dragonbox)
+    bench
+      .context(str_algorithm, str_dragonbox.c_str()   )
+      .context(str_binary   , std::data(binary_chars) )
+      .context(str_decimal  , std::data(decimal_chars))
+      .run("", [&]() {
+        nanobench::doNotOptimizeAway(traits_t::dragonbox(value));
+    });
 
-  bench
-    .context(str_algorithm, str_ryu.c_str()         )
-    .context(str_binary   , std::data(binary_chars) )
-    .context(str_decimal  , std::data(decimal_chars))
-    .run("", [&]() {
-      nanobench::doNotOptimizeAway(traits_t::ryu(value));
-  });
+  if constexpr (run_ryu)
+    bench
+      .context(str_algorithm, str_ryu.c_str()         )
+      .context(str_binary   , std::data(binary_chars) )
+      .context(str_decimal  , std::data(decimal_chars))
+      .run("", [&]() {
+        nanobench::doNotOptimizeAway(traits_t::ryu(value));
+    });
 }
 
 /**
@@ -196,36 +203,49 @@ output(nanobench::Bench const& bench, const char* const filename) {
       auto const elapsed  = seconds_t{result.minimum(measure)};
       auto const value    = std::uint64_t(picoseconds_t{elapsed}.count());
 
-      if (result.context(str_algorithm) == str_teju)
+      if (run_teju && result.context(str_algorithm) == str_teju)
         teju.update(value);
-      else if (result.context(str_algorithm) == str_dragonbox)
+      else if (run_dragonbox && result.context(str_algorithm) == str_dragonbox)
         dragonbox.update(value);
-      else
+      else if (run_ryu &&  result.context(str_algorithm) == str_ryu)
         ryu.update(value);
     }
 
-    auto const     teju_mean      = teju.mean();
-    auto const     dragonbox_mean = dragonbox.mean();
-    auto const     ryu_mean       = ryu.mean();
+    auto const     teju_mean      = run_teju      ? teju.mean()      : 1;
+    auto const     dragonbox_mean = run_dragonbox ? dragonbox.mean() : 1;
+    auto const     ryu_mean       = run_ryu       ? ryu.mean()       : 1;
     auto const     baseline       = double(teju_mean);
     auto constexpr scale          = 0.001;
 
     #define teju_field(a) std::setw(6) << a
 
-    std::cout << std::setprecision(3) << std::fixed <<
-      "\n"
-      "teju      (mean  ) = " << teju_field(scale * teju_mean         ) << " ns\n"
-      "          (stddev) = " << teju_field(scale * teju.stddev()     ) << " ns\n"
-      "          (rel.  ) = " << teju_field(teju_mean / baseline      ) << "\n"
-      "\n"
-      "dragonbox (mean  ) = " << teju_field(scale * dragonbox_mean    ) << " ns\n"
-      "          (stddev) = " << teju_field(scale * dragonbox.stddev()) << " ns\n"
-      "          (rel.  ) = " << teju_field(dragonbox_mean / baseline ) << "\n"
-      "\n"
-      "ryu       (mean  ) = " << teju_field(scale * ryu_mean          ) << " ns\n"
-      "          (stddev) = " << teju_field(scale * ryu.stddev()      ) << " ns\n"
-      "          (rel.  ) = " << teju_field(ryu_mean / baseline       ) << "\n"
-      "\n";
+    if constexpr (run_teju)
+      std::cout << std::setprecision(3) << std::fixed <<
+        "\n"
+        "teju      (mean  ) = " << teju_field(scale * teju_mean         ) <<
+        " ns\n"
+        "          (stddev) = " << teju_field(scale * teju.stddev()     ) <<
+        " ns\n"
+        "          (rel.  ) = " << teju_field(teju_mean / baseline      ) <<
+        "\n\n";
+
+    if constexpr (run_dragonbox)
+      std::cout << std::setprecision(3) << std::fixed <<
+        "dragonbox (mean  ) = " << teju_field(scale * dragonbox_mean    ) <<
+        " ns\n"
+        "          (stddev) = " << teju_field(scale * dragonbox.stddev()) <<
+        " ns\n"
+        "          (rel.  ) = " << teju_field(dragonbox_mean / baseline ) <<
+        "\n\n";
+
+    if constexpr (run_ryu)
+      std::cout << std::setprecision(3) << std::fixed <<
+        "ryu       (mean  ) = " << teju_field(scale * ryu_mean          ) <<
+        " ns\n"
+        "          (stddev) = " << teju_field(scale * ryu.stddev()      ) <<
+        " ns\n"
+        "          (rel.  ) = " << teju_field(ryu_mean / baseline       ) <<
+        "\n\n";
 
       #undef teju_field
   }

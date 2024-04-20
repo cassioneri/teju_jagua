@@ -16,7 +16,7 @@
 cpu         = 'amd-ryzen-7-1800X'
 os          = 'linux'
 compiler    = 'gcc-13.2.1'
-type        = 'float_integers'
+population  = 'double_integers'
 
 algos       = ['teju', 'dragonbox', 'ryu']
 # Choose from 'elapsed', 'error %', 'instructions', 'branches', 'branch misses', 'total'
@@ -27,7 +27,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
 
-results     = pd.read_csv(f'../results/{cpu}_{os}_{compiler}/{type}.csv', sep = ';')
+results     = pd.read_csv(f'../results/{cpu}_{os}_{compiler}/{population}.csv', sep = ';')
 algos_data  = pd.Series([results[results['algorithm'] == algo][['binary', metric]].set_index('binary')
     for algo in algos], index = algos)
 

@@ -480,7 +480,6 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     // Instead of using mshift(m, upper, lower) / 2 in Teju Jagua, shift is
     // incremented here and the division by 2 is removed.
     "#define teju_calculation_shift    " << shift + 1             << "\n"
-    "#define teju_minverse5            " << splitter(minv5)       << "\n"
     "\n"
     "#define teju_function             " << function() << "\n"
     "#define teju_fields_t             " << prefix()   << "fields_t\n"
@@ -539,10 +538,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   // which yields 2^{exponent - f} * 5^{-f} < 10. Therefore,
   // 200 * mantissa_max is a conservative bound, i.e., if
   // 5^f > 200 * mantissa_max >= m, then is_multiple_of_pow5(m, f) == false;
-  //
-  // Also ensure that at least entries up to f = 1 are generated for
-  // remove_trailing_zeros.
-  for (std::int32_t f = 0; f < 1 || p5 <= 200 * mantissa_max(); ++f) {
+  for (std::int32_t f = 0; p5 <= 200 * mantissa_max(); ++f) {
 
     auto bound = p2size / p5 - (f == 0);
 

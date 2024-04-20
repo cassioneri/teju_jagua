@@ -18,7 +18,6 @@ extern "C" {
 #define teju_calculation_div10    teju_built_in_1
 #define teju_calculation_mshift   teju_built_in_1
 #define teju_calculation_shift    256
-#define teju_minverse5            teju_literal2(0xcccccccccccccccc, 0xcccccccccccccccd)
 
 #define teju_function             teju_ieee128
 #define teju_fields_t             teju128_fields_t

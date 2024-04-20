@@ -55,7 +55,7 @@ for algo in algos:
 stats_data  = pd.DataFrame([[getattr(algos_data[algo][metric], stat)() for stat in stats] for algo in algos], index = algos, columns = stats)
 baseline    = stats_data['mean']['teju']
 stats_data['relative'] = [stats_data['mean'][algo] / baseline for algo in algos]
-stats_data.style.format('{:.2e}')
+stats_data.style.format('{:.3e}')
 
 # +
 histograms = [go.Histogram(x = algos_data[algo][metric] / 1.0e-9, name = algo, histnorm = 'percent') for algo in algos]
@@ -63,7 +63,7 @@ figure     = go.Figure(data = histograms)
 
 figure.update_layout(title = 'Histograms', template = 'plotly_dark', height = 600, yaxis_title = '%', xaxis_title = 'time (ns)')
 
-figure.update_xaxes(autorangeoptions_clipmin = 2, autorangeoptions_clipmax = 16, dtick = 0.5)
+figure.update_xaxes(autorangeoptions_clipmin = 5, autorangeoptions_clipmax = 20, dtick = 0.5)
 
 figure.show()
 # -

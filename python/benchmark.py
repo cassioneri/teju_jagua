@@ -31,6 +31,9 @@ results     = pd.read_csv(f'../results/{cpu}_{os}_{compiler}/{population}.csv', 
 algos_data  = pd.Series([results[results['algorithm'] == algo][['binary', metric]].set_index('binary')
     for algo in algos], index = algos)
 
+# Remove algos we don't have data for
+algos = [algo for algo in algos if len(algos_data[algo]) != 0]
+
 metric_data = algos_data['teju'].rename(columns = {metric:'teju'})
 for algo in algos:
     if algo == 'teju':

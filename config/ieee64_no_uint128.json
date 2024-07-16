@@ -1,13 +1,13 @@
-// SPDX-License-Identifier: MIT
-// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+// SPDX-License-Identifier: APACHE-2.0
+// SPDX-FileCopyrightText: 2021-2024 Cassio Neri <cassio.neri@gmail.com>
 {
   "id"  : "ieee64_no_uint128",
   "size": 64,
 
   "spdx": {
-    "identifier": "MIT",
+    "identifier": "APACHE-2.0",
     "copyright" : [
-      "2024 Cassio Neri <cassio.neri@gmail.com>"
+      "2021-2024 Cassio Neri <cassio.neri@gmail.com>"
     ]
   },
 

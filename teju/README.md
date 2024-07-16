@@ -1,7 +1,8 @@
 # Teju Jagua
 
-The gentle 7-headed beast from Guarani mythology that comes out of its cave to
-help us efficiently finding decimal representations of floating-point numbers.
+The gentle 7-headed beast from the Guarani mythology that comes out of its cave
+to help us efficiently finding decimal representations of floating-point
+numbers.
 
 ## Build
 

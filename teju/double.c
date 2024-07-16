@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: MIT
-// SPDX-FileCopyrightText: 2024 Cassio Neri <cassio.neri@gmail.com>
+// SPDX-License-Identifier: APACHE-2.0
+// SPDX-FileCopyrightText: 2021-2024 Cassio Neri <cassio.neri@gmail.com>
 
 #include "teju/common.h"
 #include "teju/double.h"

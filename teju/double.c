@@ -45,7 +45,7 @@ teju_ieee64_to_binary(teju64_fields_t const ieee64) {
     m += teju_pow2(uint64_t, mantissa_size);
   }
 
-  teju64_fields_t teju_binary = { e, m };
+  teju64_fields_t teju_binary = { m, e };
   return teju_binary;
 }
 

@@ -49,7 +49,7 @@ teju_ieee128_to_binary(teju128_fields_t ieee128) {
     m += teju_pow2(uint128_t, mantissa_size);
   }
 
-  teju128_fields_t teju_binary = { e, m };
+  teju128_fields_t teju_binary = { m, e };
   return teju_binary;
 }
 

@@ -95,13 +95,13 @@ is_tie_uncentred(int32_t const f) {
 /**
  * @brief Creates teju_fields_t from exponent and mantissa.
  *
- * @param e                 The exponent.
  * @param m                 The mantissa.
+ * @param e                 The exponent.
  */
 static inline
 teju_fields_t
-make_fields(int32_t const e, teju_u1_t const m) {
-  teju_fields_t const fields = { e, m };
+make_fields(teju_u1_t const m, int32_t const e) {
+  teju_fields_t const fields = { m, e };
   return fields;
 }
 
@@ -119,7 +119,7 @@ teju_fields_t
 remove_trailing_zeros(teju_u1_t const m, int32_t const e) {
   teju_u1_t const q = teju_div10(m);
   if ((uint32_t) m != 10 * ((uint32_t) q))
-    return make_fields(e, m);
+    return make_fields(m, e);
   return remove_trailing_zeros(q, e + 1);
 }
 
@@ -168,16 +168,16 @@ teju_function(teju_fields_t const binary) {
     }
 
     if ((a + b) % 2 == 1)
-      return make_fields(f, (a + b) / 2 + 1);
+      return make_fields((a + b) / 2 + 1, f);
 
     teju_u1_t const m_c = (2 * 2 * m) << r;
     teju_u1_t const c_2 = teju_mshift(m_c, u, l);
     teju_u1_t const c   = c_2 / 2;
 
     if (c_2 % 2 == 0 || (c % 2 == 0 && is_tie(c_2, -f)))
-      return make_fields(f, c);
+      return make_fields(c, f);
 
-    return make_fields(f, c + 1);
+    return make_fields(c + 1, f);
   }
 
   teju_u1_t const m_b = 2 * m_0 + 1;
@@ -201,12 +201,12 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const c        = c_2 / 2;
 
     if (c == a && !is_tie_uncentred(f))
-      return make_fields(f, c + 1);
+      return make_fields(c + 1, f);
 
     if (c_2 % 2 == 0 || (c % 2 == 0 && is_tie(c_2, -f)))
-      return make_fields(f, c);
+      return make_fields(c, f);
 
-    return make_fields(f, c + 1);
+    return make_fields(c + 1, f);
   }
 
   else if (is_tie_uncentred(f))
@@ -217,9 +217,9 @@ teju_function(teju_fields_t const binary) {
   teju_u1_t const c   = c_2 / 2;
 
   if (c_2 % 2 == 0 || (c % 2 == 0 && is_tie(c_2, -f)))
-    return make_fields(f - 1, c);
+    return make_fields(c, f - 1);
 
-  return make_fields(f - 1, c + 1);
+  return make_fields(c + 1, f - 1);
 }
 
 #ifdef __cplusplus

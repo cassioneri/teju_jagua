@@ -326,7 +326,7 @@ benchmark_centred(const char* const filename, unsigned n_mantissas) {
       continue;
 
     for (std::int32_t exponent = 0; exponent < exponent_max; ++exponent) {
-      auto const ieee  = typename traits_t::fields_t{ exponent, mantissa };
+      auto const ieee  = typename traits_t::fields_t{ mantissa, exponent };
       auto const value = traits_t::ieee_to_value(ieee);
       benchmark(bench, value);
     }
@@ -372,7 +372,7 @@ benchmark_uncentred(const char* const filename) {
   auto constexpr mantissa = u1_t{0};
 
   for (std::int32_t exponent = 1; exponent < exponent_max; ++exponent) {
-    auto const ieee  = typename traits_t::fields_t{ exponent, mantissa };
+    auto const ieee  = typename traits_t::fields_t{ mantissa, exponent };
     auto const value = traits_t::ieee_to_value(ieee);
     benchmark(bench, value);
   }

@@ -153,7 +153,7 @@ struct traits_t<float> : detail::teju_from_ieee754_t<
   fields_t
   dragonbox(float const value) {
     auto const fields = teju::dragonbox::to_decimal(value);
-    return fields_t{std::int32_t{fields.exponent}, u1_t{fields.significand}};
+    return fields_t{u1_t{fields.significand}, std::int32_t{fields.exponent}};
   }
 
   static
@@ -204,7 +204,7 @@ struct traits_t<double> : detail::teju_from_ieee754_t<
   fields_t
   dragonbox(double const value) {
     auto const fields = teju::dragonbox::to_decimal(value);
-    return fields_t{std::int32_t{fields.exponent}, u1_t{fields.significand}};
+    return fields_t{u1_t{fields.significand}, std::int32_t{fields.exponent}};
   }
 
   static

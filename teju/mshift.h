@@ -213,6 +213,25 @@ teju_mshift(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
   #endif
 }
 
+/**
+ * @brief Returns the quotient q = ((u * 2^N + l) * 2^k) / 2^s, where
+ * N = aramu_size and s = teju_calculation_shift.
+ *
+ * @param k                 The exponent k.
+ * @param u                 The upper part of the multiplicand u.
+ * @param l                 The lower part of the multiplicand l.
+ *
+ * @returns The value of q.
+ */
+static inline
+teju_u1_t
+mshift_pow2(uint32_t const k, teju_u1_t const u, teju_u1_t const l) {
+  int32_t const s = k - (teju_calculation_shift - teju_size);
+  if (s <= 0)
+    return u >> -s;
+  return (u << s) | (l >> (teju_size - s));
+}
+
 #ifdef __cplusplus
 }
 #endif

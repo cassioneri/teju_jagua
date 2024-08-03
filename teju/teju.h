@@ -109,18 +109,18 @@ make_fields(int32_t const e, teju_u1_t const m) {
  * @brief Shortens the decimal representation m\cdot 10^e\f by removing trailing
  * zeros of m and increasing e.
  *
- * @param e                 The exponent e.
  * @param m                 The mantissa m.
+ * @param e                 The exponent e.
  *
  * @returns The fields of the shortest close decimal representation.
  */
 static inline
 teju_fields_t
-remove_trailing_zeros(int32_t e, teju_u1_t m) {
+remove_trailing_zeros(teju_u1_t const m, int32_t const e) {
   teju_u1_t const q = teju_div10(m);
   if ((uint32_t) m != 10 * ((uint32_t) q))
     return make_fields(e, m);
-  return remove_trailing_zeros(e + 1, q);
+  return remove_trailing_zeros(q, e + 1);
 }
 
 /**
@@ -140,7 +140,7 @@ teju_function(teju_fields_t const binary) {
   teju_u1_t const m = binary.mantissa;
 
   if (is_small_integer(m, e))
-    return remove_trailing_zeros(0, m >> -e);
+    return remove_trailing_zeros(m >> -e, 0);
 
   teju_u1_t const m_0 = teju_pow2(teju_u1_t, teju_mantissa_size);
   int32_t   const f   = teju_log10_pow2(e);
@@ -161,10 +161,10 @@ teju_function(teju_fields_t const binary) {
     if (s >= a) {
       if (s == b) {
         if (m % 2 == 0 || !is_tie(m_b, f))
-          return remove_trailing_zeros(f + 1, q);
+          return remove_trailing_zeros(q, f + 1);
       }
       else if (s > a || (m % 2 == 0 && is_tie(m_a, f)))
-        return remove_trailing_zeros(f + 1, q);
+        return remove_trailing_zeros(q, f + 1);
     }
 
     if ((a + b) % 2 == 1)
@@ -192,7 +192,7 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const s = 10 * q;
 
     if (s > a || (s == a && is_tie_uncentred(f)))
-      return remove_trailing_zeros(f + 1, q);
+      return remove_trailing_zeros(q, f + 1);
 
     // m_c = 2 * 2 * m_0 = 2 * 2 * 2^{teju_mantissa_size}
     // c_2 = teju_mshift(m_c << r, upper, lower);
@@ -210,7 +210,7 @@ teju_function(teju_fields_t const binary) {
   }
 
   else if (is_tie_uncentred(f))
-    return remove_trailing_zeros(f, a);
+    return remove_trailing_zeros(a, f);
 
   teju_u1_t const m_c = 10 * 2 * 2 * m_0;
   teju_u1_t const c_2 = teju_mshift(m_c << r, u, l);

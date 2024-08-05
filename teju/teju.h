@@ -116,11 +116,14 @@ make_fields(teju_u1_t const m, int32_t const e) {
  */
 static inline
 teju_fields_t
-remove_trailing_zeros(teju_u1_t const m, int32_t const e) {
-  teju_u1_t const q = teju_div10(m);
-  if ((uint32_t) m != 10 * ((uint32_t) q))
-    return make_fields(m, e);
-  return remove_trailing_zeros(q, e + 1);
+remove_trailing_zeros(teju_u1_t m, int32_t e) {
+  while (true) {
+    teju_u1_t const q = teju_div10(m);
+    if (m != 10 * q)
+      return make_fields(m, e);
+    ++e;
+    m = q;
+  }
 }
 
 /**

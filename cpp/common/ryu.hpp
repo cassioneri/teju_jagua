@@ -14,6 +14,10 @@
 
 #include <ryu/ryu.h>
 
+#if !defined(_MSC_VER)
+extern "C" {
+#endif
+
 typedef struct floating_decimal_32 {
   uint32_t mantissa;
   int32_t exponent;
@@ -26,5 +30,9 @@ typedef struct floating_decimal_64 {
 
 floating_decimal_32 ryu_float_to_decimal(float f);
 floating_decimal_64 ryu_double_to_decimal(double f);
+
+#if !defined(_MSC_VER)
+} // extern "C"
+#endif
 
 #endif // TEJU_CPP_COMMON_RYU_HPP_

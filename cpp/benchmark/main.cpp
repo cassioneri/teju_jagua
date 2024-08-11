@@ -274,7 +274,7 @@ benchmark_integers(const char* const filename) {
       benchmark(bench, value);
   };
 
-  auto const max = std::pow(T{2}, teju::traits_t<T>::mantissa_size + 1);
+  auto const max = std::pow(T{2}, T{teju::traits_t<T>::mantissa_size + 1});
 
   test(T{1}, T{5000});
   test(max - T{5000}, max);

@@ -20,7 +20,6 @@ namespace {
     using traits_t           = teju::traits_t<T>;
     using u1_t               = typename traits_t::u1_t;
 
-    auto const exponent_size = traits_t::exponent_size;
     auto const mantissa_size = traits_t::mantissa_size;
     auto const exponent_min  = traits_t::exponent_min;
     auto const exponent_max  = traits_t::exponent_max;

@@ -157,7 +157,7 @@ TYPED_TEST_P(typed_tests_t, integers) {
     }
   };
 
-  auto const max = std::pow(fp_t{2}, traits_t<fp_t>::mantissa_size + 1);
+  auto const max = std::pow(fp_t{2}, fp_t{traits_t<fp_t>::mantissa_size + 1});
 
   // Tests first 10,000,000 small integers.
   test(fp_t{1}, fp_t{10000000});

@@ -12,15 +12,19 @@
 
 #include "teju/config.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <ryu/ryu.h>
 
-teju32_fields_t ryu_float_to_decimal(float f);
-teju64_fields_t ryu_double_to_decimal(double d);
+typedef struct floating_decimal_32 {
+  uint32_t mantissa;
+  int32_t exponent;
+} floating_decimal_32;
 
-#ifdef __cplusplus
-}
-#endif
+typedef struct floating_decimal_64 {
+  uint64_t mantissa;
+  int32_t exponent;
+} floating_decimal_64;
+
+floating_decimal_32 ryu_float_to_decimal(float f);
+floating_decimal_64 ryu_double_to_decimal(double f);
 
 #endif // TEJU_CPP_COMMON_RYU_HPP_

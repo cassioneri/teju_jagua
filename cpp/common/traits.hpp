@@ -159,7 +159,8 @@ struct traits_t<float> : detail::teju_from_ieee754_t<
   static
   fields_t
   ryu(float const value) {
-    return fields_t{ryu_float_to_decimal(value)};
+    auto const fields = ryu_float_to_decimal(value);
+    return fields_t{fields.mantissa, fields.exponent};
   }
 
 }; // traits_t<float>
@@ -210,9 +211,9 @@ struct traits_t<double> : detail::teju_from_ieee754_t<
   static
   fields_t
   ryu(double const value) {
-    return fields_t{ryu_double_to_decimal(value)};
-  }
-
+      auto const fields = ryu_double_to_decimal(value);
+      return fields_t{ fields.mantissa, fields.exponent };
+    }
 }; // traits_t<double>
 
 #if defined(teju_has_float128)

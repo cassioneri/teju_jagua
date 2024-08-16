@@ -67,7 +67,7 @@ is_multiple_of_pow5(teju_u1_t const m, int32_t const f) {
 }
 
 /**
- * @brief Checks whether m, for m in { m_a, m_b, c_ 2 }, yields a tie.
+ * @brief Checks whether m, for m in { m_a, m_b, c_2 }, yields a tie.
  *
  * @param m                 The number m.
  * @param f                 The exponent f (for m == m_a and m == m_b) or

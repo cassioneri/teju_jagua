@@ -53,7 +53,11 @@ teju32_fields_t
 teju_float_to_decimal(float const value) {
   teju32_fields_t ieee32      = teju_float_to_ieee32(value);
   teju32_fields_t teju_binary = teju_ieee32_to_binary(ieee32);
-  return teju_ieee32(teju_binary);
+  #if defined(teju_has_uint128)
+    return teju_ieee32_with_uint128(teju_binary);
+  #else
+    return teju_ieee32_no_uint128(teju_binary);
+  #endif
 }
 
 #ifdef __cplusplus

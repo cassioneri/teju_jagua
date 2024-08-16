@@ -3,8 +3,8 @@
 
 // This file was generated. DO NOT EDIT IT.
 
-#ifndef TEJU_TEJU_GENERATED_IEEE32_H_
-#define TEJU_TEJU_GENERATED_IEEE32_H_
+#ifndef TEJU_TEJU_GENERATED_IEEE32_NO_UINT128_H_
+#define TEJU_TEJU_GENERATED_IEEE32_NO_UINT128_H_
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -16,10 +16,10 @@ extern "C" {
 #endif
 
 teju32_fields_t
-teju_ieee32(teju32_fields_t binary);
+teju_ieee32_no_uint128(teju32_fields_t binary);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // TEJU_TEJU_GENERATED_IEEE32_H_
+#endif // TEJU_TEJU_GENERATED_IEEE32_NO_UINT128_H_

@@ -3,7 +3,7 @@
 
 // This file was generated. DO NOT EDIT IT.
 
-#include "ieee32.h"
+#include "ieee32_with_uint128.h"
 
 #include "teju/literal.h"
 
@@ -16,10 +16,10 @@ extern "C" {
 #define teju_mantissa_size        23
 #define teju_storage_index_offset -45
 #define teju_calculation_div10    teju_built_in_2
-#define teju_calculation_mshift   teju_built_in_2
+#define teju_calculation_mshift   teju_built_in_4
 #define teju_calculation_shift    64
 
-#define teju_function             teju_ieee32
+#define teju_function             teju_ieee32_with_uint128
 #define teju_fields_t             teju32_fields_t
 #define teju_u1_t                 teju32_u1_t
 

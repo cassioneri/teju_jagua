@@ -3,17 +3,18 @@
 
 add_library(teju STATIC
   generated/ieee16.c
-  generated/ieee32.c
   float.c
   double.c
 )
 
 if (teju_has_uint128)
   target_sources(teju PUBLIC
+    generated/ieee32_with_uint128.c
     generated/ieee64_with_uint128.c
   )
 else()
   target_sources(teju PUBLIC
+    generated/ieee32_no_uint128.c
     generated/ieee64_no_uint128.c
   )
 endif()

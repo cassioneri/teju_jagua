@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2024 Cassio Neri <cassio.neri@gmail.com>
 {
-  "id"  : "ieee32",
+  "id"  : "ieee32_with_uint128",
   "size": 32,
 
   "spdx": {
@@ -27,6 +27,6 @@
 
   "calculation": {
     "div10" : "built_in_2",
-    "mshift": "built_in_2"
+    "mshift": "built_in_4"
   }
 }

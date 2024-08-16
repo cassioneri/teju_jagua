@@ -20,16 +20,24 @@ cmake_policy(SET CMP0076 NEW)
 set(CMAKE_C_STANDARD   99)
 set(CMAKE_CXX_STANDARD 17)
 
-# Sets optimisation level to -O3 in RelWithDebInfo build for GNU and Clang.
+# Specifics for gcc and clang (not clang-cl.)
 
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU|Clang" AND NOT MSVC)
   foreach (flags IN ITEMS CMAKE_C_FLAGS_RELWITHDEBINFO
     CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-
+    # Sets optimisation level to -O3 in RelWithDebInfo build for gcc ang clang.
     string(REPLACE "-O2" "-O3" ${flags} ${${flags}})
-
   endforeach()
 endif()
+
+# Specifics for clang-cl.
+
+if (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_SIMULATE_ID STREQUAL "MSVC")
+  # Ignore unused command line arguments
+  add_compile_options("-Wno-unused-command-line-argument")
+endif()
+
+# Specifics for msvc.
 
 if (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
 

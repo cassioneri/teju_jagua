@@ -14,7 +14,7 @@
 
 #include <ryu/ryu.h>
 
-#if !defined(_MSC_VER)
+#if defined(__GNUC__) || defined(__clang__)
 extern "C" {
 #endif
 
@@ -31,7 +31,7 @@ typedef struct floating_decimal_64 {
 floating_decimal_32 ryu_float_to_decimal(float f);
 floating_decimal_64 ryu_double_to_decimal(double f);
 
-#if !defined(_MSC_VER)
+#if defined(__GNUC__) || defined(__clang__)
 } // extern "C"
 #endif
 

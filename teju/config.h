@@ -16,6 +16,10 @@
   #include <intrin.h>
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(teju_has_uint128)
   typedef __uint128_t uint128_t;
 #else
@@ -189,10 +193,6 @@ typedef struct {
 // One might want to disabled the provided implementations of teju_multiply to
 // be able to implement their own (e.g., for testing). For this, it suffices to
 // define macro teju_do_not_define_teju_multiply prior to including this file.
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #if defined(_MSC_VER) && !defined(teju_do_not_define_teju_multiply)
 

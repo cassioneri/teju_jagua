@@ -63,7 +63,7 @@ teju_add_and_carry(teju_u1_t x, teju_u1_t y, teju_u1_t* c) {
 
 /**
  * @brief Returns the quotient q = (r2 * 2^(2 * N) + r1 * 2^N) / 2^s, where
- * N = aramu_size and s = teju_calculation_shift.
+ * N = teju_size and s = teju_calculation_shift.
  *
  * @param r2                The value of r2.
  * @param r1                The value of r1.
@@ -88,7 +88,7 @@ teju_rshift(teju_u1_t const r2, teju_u1_t const r1) {
 
 /**
  * @brief Returns the quotient q = ((u * 2^N + l) * m) / 2^s, where
- * N = aramu_size and s = teju_calculation_shift.
+ * N = teju_size and s = teju_calculation_shift.
  *
  * @param m                 The 1st multiplicand m.
  * @param u                 The 2nd multiplicand upper half u.
@@ -215,7 +215,7 @@ teju_mshift(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
 
 /**
  * @brief Returns the quotient q = ((u * 2^N + l) * 2^k) / 2^s, where
- * N = aramu_size and s = teju_calculation_shift.
+ * N = teju_size_size and s = teju_calculation_shift.
  *
  * @param k                 The exponent k.
  * @param u                 The upper part of the multiplicand u.

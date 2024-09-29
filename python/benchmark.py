@@ -1,22 +1,23 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:light
+#     formats: py:light
 #     text_representation:
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.4
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
 
-cpu         = 'amd-ryzen-7-1800X'
+cpu         = 'intel-i7-10510U' #'amd-ryzen-7-1800X'
 os          = 'linux'
 compiler    = 'gcc-13.2.1'
 population  = 'double_integers'
+theme       = 'light' # dark 
 
 algos       = ['teju', 'dragonbox', 'ryu']
 # Choose from 'elapsed', 'error %', 'instructions', 'branches', 'branch misses', 'total'
@@ -64,11 +65,17 @@ stats_data.style.format('{:.3e}')
 histograms = [go.Histogram(x = algos_data[algo][metric] / 1.0e-9, name = algo, histnorm = 'percent') for algo in algos]
 figure     = go.Figure(data = histograms)
 
-figure.update_layout(title = 'Histograms', template = 'plotly_dark', height = 600, yaxis_title = '%', xaxis_title = 'time (ns)')
+if theme == 'dark':
+    figure.update_layout(title = 'Histograms', template = 'plotly_dark', height = 600, yaxis_title = '%', xaxis_title = 'time (ns)')
+else:
+    figure.update_layout(title = 'Histograms', height = 600, yaxis_title = '%', xaxis_title = 'time (ns)')
 
-figure.update_xaxes(autorangeoptions_clipmin = 5, autorangeoptions_clipmax = 20, dtick = 0.5)
+figure.update_xaxes(autorangeoptions_clipmin = 2, autorangeoptions_clipmax = 12, dtick = 0.5)
+#figure.update_xaxes(autorangeoptions_clipmin = 5, autorangeoptions_clipmax = 20, dtick = 0.5)
 
 figure.show()
 # -
+
+
 
 

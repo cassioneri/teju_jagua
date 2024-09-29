@@ -15,7 +15,7 @@ The parameters are provided as entities (*e.g.*, macros) that must be defined be
 Even the function name, `teju_function`, is a macro to ensure that there are different symbols for different floating-point types.
 
 Their definitions are created by an external program, the _generator_, written in C++ in `cpp/generator`.
-The generated files include `teju/teju.h`.
+The generated files `#include` `teju/teju.h`.
 For the most common IEEE-754 types the generated files are checked in `teju/generated`.
 The input for the generator is a config JSON file describing the floating-point type and details of the platform/implementation.
 Again, for the most common IEEE-754 types, config files are checked in `config`.
@@ -31,8 +31,8 @@ No implementation for step 3 is provided (yet).
 An academic paper will be written to provide proof of correctness.
 
 This work has been presented at [C++ Now 2024](https://www.youtube.com/watch?v=w0WrRdW7eqg),
-[C++ on Sea 2024](https://cpponsea.uk/2024/session/a-new-dragon-in-the-den-fast-conversion-from-floating-point-numbers)
-and will be presented at [CppCon 2024](https://cppcon2024.sched.com/event/1gZgo/a-new-dragon-in-the-den-fast-conversion-from-floating-point-numbers)
+[C++ on Sea 2024](https://www.youtube.com/watch?v=cEDo44i9imU)
+and [CppCon 2024](https://cppcon2024.sched.com/event/1gZgo/a-new-dragon-in-the-den-fast-conversion-from-floating-point-numbers)
 
 ## Table of Contents
 

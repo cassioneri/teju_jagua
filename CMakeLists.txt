@@ -59,6 +59,17 @@ endif()
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
+# Tests existence of _Float16.
+
+try_compile(teju_has_float16
+  ${CMAKE_BINARY_DIR}
+  ${PROJECT_SOURCE_DIR}/cmake/float16.c
+)
+
+if (teju_has_float16)
+  add_compile_definitions(teju_has_float16)
+endif()
+
 # Tests existence of __uint128_t.
 
 try_compile(teju_has_uint128

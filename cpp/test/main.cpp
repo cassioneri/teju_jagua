@@ -198,6 +198,110 @@ TEST(double, random_comparison_to_other) {
   }
 }
 
+#if defined(teju_has_float16)
+
+TEST(float16, test_hard_coded_values) {
+
+  using traits_t    = teju::traits_t<float16_t>;
+  using fields_t    = cpp_fields_t<float16_t>;
+  using test_case_t = teju::test::test_case_t<float16_t>;
+
+  static auto constexpr teju_size = std::uint32_t{16};
+
+  struct test_data_t {
+    float16_t value;
+    fields_t  decimal;
+    int       line;
+  };
+
+  test_data_t data[] = {
+
+    // -------------------------------------------------------------------------
+    // Integer values
+    // -------------------------------------------------------------------------
+
+    //     value  mantissa  exponent
+    {     1.0f16,        1,        0, __LINE__ },
+    {     2.0f16,        2,        0, __LINE__ },
+    {     3.0f16,        3,        0, __LINE__ },
+    {     4.0f16,        4,        0, __LINE__ },
+    {     5.0f16,        5,        0, __LINE__ },
+    {     6.0f16,        6,        0, __LINE__ },
+    {     7.0f16,        7,        0, __LINE__ },
+    {     8.0f16,        8,        0, __LINE__ },
+    {     9.0f16,        9,        0, __LINE__ },
+    {    10.0f16,        1,        1, __LINE__ },
+    {    11.0f16,       11,        0, __LINE__ },
+    {    20.0f16,        2,        1, __LINE__ },
+    {   100.0f16,        1,        2, __LINE__ },
+    {  1000.0f16,        1,        3, __LINE__ },
+    { 10000.0f16,        1,        4, __LINE__ },
+
+    // 1037 * 2^4 : s == b = 1660, b is a tie, m is odd  => take closest
+    { 16592.0f16,     1659,        1, __LINE__ },
+    // 1038 * 2^4 : s == a = 1660, a is a tie, m is even => take s.
+    { 16608.0f16,      166,        2, __LINE__ },
+
+    { 65504.0f16,      655,        2, __LINE__ },
+
+    // -------------------------------------------------------------------------
+    // Perfectly represented fractional values
+    // -------------------------------------------------------------------------
+
+    //     value  mantissa  exponent
+    {  0.5000f16,        5,       -1, __LINE__ },
+    {  0.2500f16,       25,       -2, __LINE__ },
+    {  0.1250f16,      125,       -3, __LINE__ },
+    {  0.7500f16,       75,       -2, __LINE__ },
+
+    // -------------------------------------------------------------------------
+    // Others
+    // -------------------------------------------------------------------------
+
+    //     value  mantissa  exponent
+    {  0.3000f16,        3,      -1, __LINE__ },
+  };
+
+  for (std::size_t i = 0; i < std::size(data); ++i) {
+    auto const value     = data[i].value;
+    auto const test_case = test_case_t{value, data[i].decimal};
+    auto const actual    = traits_t::teju(test_case.value());
+    ASSERT_EQ(test_case.expected(), actual) <<
+      "    Note: test case line = " << data[i].line;
+  }
+}
+
+#if 0
+TEST(float16, test_hard_coded_binary_representations) {
+
+  using traits_t    = teju::traits_t<float128_t>;
+  using fields_t    = traits_t::fields_t;
+  using test_case_t = teju::test::test_case_t<float128_t>;
+
+  static auto constexpr teju_size = std::uint32_t{128};
+
+  struct test_data_t {
+    fields_t binary;
+    fields_t decimal;
+  };
+
+  test_data_t data[] = {
+    // Binary                                                Decimal
+    //                                mantissa  exponent                                     mantissa, exponent
+    {{ 6230756230241792923652294673694720_u128,     -114 }, { 2999999999999999888977697537484346_u128,      -34 }},
+  };
+
+  for (std::size_t i = 0; i < std::size(data); ++i) {
+    auto const test_case = test_case_t{data[i].binary, data[i].decimal};
+    auto const actual    = traits_t::teju(test_case.value());
+    ASSERT_EQ(test_case.expected(), actual) <<
+      "    Note: test case number = " << i;
+  }
+}
+#endif
+
+#endif // defined(teju_has_float16)
+
 #if defined(teju_has_float128)
 
 template <char... Cs>

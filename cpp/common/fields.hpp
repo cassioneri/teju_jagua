@@ -26,6 +26,13 @@ namespace teju {
 template <typename T>
 struct cpp_fields_t;
 
+#if defined(teju_has_float16)
+template <>
+struct cpp_fields_t<float16_t> : teju16_fields_t {
+  using streamable_uint_t = std::uint16_t;
+};
+#endif // defined(teju_has_float16)
+
 template <>
 struct cpp_fields_t<float> : teju32_fields_t {
   using streamable_uint_t = std::uint32_t;

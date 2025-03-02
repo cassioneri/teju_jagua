@@ -27,6 +27,10 @@ extern "C" {
   #undef teju_has_float128
 #endif
 
+#if defined(teju_has_float16)
+  typedef _Float16 float16_t;
+#endif
+
 #if defined(teju_has_float128)
   typedef __float128 float128_t;
 #endif

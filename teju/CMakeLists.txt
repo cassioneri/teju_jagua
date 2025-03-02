@@ -19,6 +19,13 @@ else()
   )
 endif()
 
+if (teju_has_float16)
+  target_sources(teju PUBLIC
+    generated/ieee16.c
+    float16.c
+  )
+endif()
+
 if (teju_has_float128)
   target_sources(teju PUBLIC
     generated/ieee128.c

@@ -14,6 +14,7 @@
 #include "teju/double.h"
 #include "teju/float.h"
 #include "teju/float128.h"
+#include "teju/float16.h"
 #include "teju/ieee754.h"
 
 #include "cpp/common/fields.hpp"
@@ -112,6 +113,51 @@ namespace detail {
   };
 
 } // namespace detail
+
+#if defined(teju_has_float16)
+
+// Specialisation of traits_t for float16_t.
+template <>
+struct traits_t<float16_t> : detail::teju_from_ieee754_t<
+  teju_ieee754_binary16_exponent_size,
+  teju_ieee754_binary16_mantissa_size,
+  teju_ieee754_binary16_exponent_min,
+  teju_ieee754_binary16_exponent_max
+  > {
+
+  using u1_t     = teju16_u1_t;
+  using fields_t = cpp_fields_t<float16_t>;
+
+  static
+  fields_t
+  value_to_ieee(float16_t const value) {
+    return fields_t{teju_float16_to_ieee16(value)};
+  }
+
+  static
+  float16_t
+  ieee_to_value(fields_t ieee) {
+    return detail::ieee_to_value<float16_t, mantissa_size>(ieee);
+  }
+
+  static
+  fields_t
+  ieee_to_binary(fields_t ieee16) {
+    return fields_t{teju_ieee16_to_binary(ieee16)};
+  }
+
+  static
+  fields_t
+  teju(float16_t const value) {
+    return fields_t{teju_float16_to_decimal(value)};
+  }
+
+  // TODO (CN): Perhaps we could use Ryu for float16_t but at the moment
+  // testing and benchmarking against other libraries is not supported.
+
+}; // traits_t<float16_t>
+
+#endif // defined(teju_has_float16)
 
 // Specialisation of traits_t for float.
 template <>

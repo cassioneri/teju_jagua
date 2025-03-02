@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: APACHE-2.0
-// SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Cassio Neri <cassio.neri@gmail.com>
 
 /**
  * @file teju/teju.h
@@ -63,7 +63,7 @@ is_small_integer(teju_u1_t const m, int32_t const e) {
 static inline
 bool
 is_multiple_of_pow5(teju_u1_t const m, int32_t const f) {
-  return m * minverse[f].multiplier <= minverse[f].bound;
+  return ((teju_u1_t) (m * minverse[f].multiplier)) <= minverse[f].bound;
 }
 
 /**

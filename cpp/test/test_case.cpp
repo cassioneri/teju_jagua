@@ -83,6 +83,11 @@ typename test_case_t<T>::fields_t const& test_case_t<T>::expected() const {
   return expected_;
 }
 
+#if defined(teju_has_float16)
+template
+struct test_case_t<float16_t>;
+#endif
+
 template
 struct test_case_t<float>;
 

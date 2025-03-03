@@ -206,8 +206,6 @@ TEST(float16, test_hard_coded_values) {
   using fields_t    = cpp_fields_t<float16_t>;
   using test_case_t = teju::test::test_case_t<float16_t>;
 
-  static auto constexpr teju_size = std::uint32_t{16};
-
   struct test_data_t {
     float16_t value;
     fields_t  decimal;
@@ -220,46 +218,46 @@ TEST(float16, test_hard_coded_values) {
     // Integer values
     // -------------------------------------------------------------------------
 
-    //     value  mantissa  exponent
-    {     1.0f16,        1,        0, __LINE__ },
-    {     2.0f16,        2,        0, __LINE__ },
-    {     3.0f16,        3,        0, __LINE__ },
-    {     4.0f16,        4,        0, __LINE__ },
-    {     5.0f16,        5,        0, __LINE__ },
-    {     6.0f16,        6,        0, __LINE__ },
-    {     7.0f16,        7,        0, __LINE__ },
-    {     8.0f16,        8,        0, __LINE__ },
-    {     9.0f16,        9,        0, __LINE__ },
-    {    10.0f16,        1,        1, __LINE__ },
-    {    11.0f16,       11,        0, __LINE__ },
-    {    20.0f16,        2,        1, __LINE__ },
-    {   100.0f16,        1,        2, __LINE__ },
-    {  1000.0f16,        1,        3, __LINE__ },
-    { 10000.0f16,        1,        4, __LINE__ },
+    //     value, { mantissa, exponent }, line
+    {     1.0f16, {        1,        0 }, __LINE__ },
+    {     2.0f16, {        2,        0 }, __LINE__ },
+    {     3.0f16, {        3,        0 }, __LINE__ },
+    {     4.0f16, {        4,        0 }, __LINE__ },
+    {     5.0f16, {        5,        0 }, __LINE__ },
+    {     6.0f16, {        6,        0 }, __LINE__ },
+    {     7.0f16, {        7,        0 }, __LINE__ },
+    {     8.0f16, {        8,        0 }, __LINE__ },
+    {     9.0f16, {        9,        0 }, __LINE__ },
+    {    10.0f16, {        1,        1 }, __LINE__ },
+    {    11.0f16, {       11,        0 }, __LINE__ },
+    {    20.0f16, {        2,        1 }, __LINE__ },
+    {   100.0f16, {        1,        2 }, __LINE__ },
+    {  1000.0f16, {        1,        3 }, __LINE__ },
+    { 10000.0f16, {        1,        4 }, __LINE__ },
 
     // 1037 * 2^4 : s == b = 1660, b is a tie, m is odd  => take closest
-    { 16592.0f16,     1659,        1, __LINE__ },
+    { 16592.0f16, {     1659,        1 }, __LINE__ },
     // 1038 * 2^4 : s == a = 1660, a is a tie, m is even => take s.
-    { 16608.0f16,      166,        2, __LINE__ },
+    { 16608.0f16, {      166,        2 }, __LINE__ },
 
-    { 65504.0f16,      655,        2, __LINE__ },
+    { 65504.0f16, {      655,        2 }, __LINE__ },
 
     // -------------------------------------------------------------------------
     // Perfectly represented fractional values
     // -------------------------------------------------------------------------
 
-    //     value  mantissa  exponent
-    {  0.5000f16,        5,       -1, __LINE__ },
-    {  0.2500f16,       25,       -2, __LINE__ },
-    {  0.1250f16,      125,       -3, __LINE__ },
-    {  0.7500f16,       75,       -2, __LINE__ },
+    //     value, { mantissa, exponent }, line
+    {  0.5000f16, {        5,       -1 }, __LINE__ },
+    {  0.2500f16, {       25,       -2 }, __LINE__ },
+    {  0.1250f16, {      125,       -3 }, __LINE__ },
+    {  0.7500f16, {       75,       -2 }, __LINE__ },
 
     // -------------------------------------------------------------------------
     // Others
     // -------------------------------------------------------------------------
 
-    //     value  mantissa  exponent
-    {  0.3000f16,        3,      -1, __LINE__ },
+    //     value, { mantissa, exponent }, line
+    {  0.3000f16, {        3,       -1 }, __LINE__ },
   };
 
   for (std::size_t i = 0; i < std::size(data); ++i) {

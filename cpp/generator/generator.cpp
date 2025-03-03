@@ -232,14 +232,6 @@ generator_t::generate() const {
 
   std::cout << "Generation started.\n";
 
-  // Overflow check 1:
-  require(2 * mantissa_max() + 1 < p2size,
-    "The limb is not large enough for calculations to not overflow.");
-
-  // Overflow check 2:
-  require(20 * mantissa_min() < p2size,
-    "The limb is not large enough for calculations to not overflow.");
-
   std::cout << "  Generating \"" << dot_h() << "\".\n";
   generate_dot_h(dot_h_stream);
 

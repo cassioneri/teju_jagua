@@ -92,9 +92,11 @@ if (teju_has_float128)
   add_compile_definitions(teju_has_float128)
 endif()
 
-set(third_party_dir ${CMAKE_SOURCE_DIR}/third-party)
+# Checks the size of unsigned
 
-include(FetchContent)
+include(CheckTypeSize)
+check_type_size(unsigned teju_sizeof_unsigned)
+add_compile_definitions(teju_sizeof_unsigned=${teju_sizeof_unsigned})
 
 #-------------------------------------------------------------------------------
 # teju_jagua
@@ -102,6 +104,9 @@ include(FetchContent)
 
 add_subdirectory(teju)
 add_subdirectory(cpp)
+
+set(third_party_dir ${CMAKE_SOURCE_DIR}/third-party)
+include(FetchContent)
 
 #-------------------------------------------------------------------------------
 # dragonbox

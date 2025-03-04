@@ -136,11 +136,11 @@ teju_calc_t ror(teju_calc_t m) {
  */
 static inline
 teju_fields_t
-remove_trailing_zeros(teju_calc_t m, int32_t e) {
-  teju_calc_t const multiplier = minverse[1].multiplier;
-  teju_calc_t const bound = minverse[1].bound / 2u;
+remove_trailing_zeros(teju_u1_t m, int32_t e) {
+  teju_u1_t const multiplier = minverse[1].multiplier;
+  teju_u1_t const bound = minverse[1].bound / 2u;
   while (true) {
-    teju_calc_t const q = ror(m * multiplier);
+    teju_u1_t const q = ror(m * multiplier);
     if (q >= bound)
       return make_fields(m, e);
     ++e;

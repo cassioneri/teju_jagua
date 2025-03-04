@@ -175,7 +175,7 @@ teju_function(teju_fields_t const binary) {
     teju_calc_t const m_a = (2 * m - 1) << r;
     teju_u1_t   const a   = teju_mshift(m_a, u, l);
     teju_calc_t const m_b = (2 * m + 1) << r;
-    teju_u1_t   const b   = teju_mshift(m_b, u, l); //
+    teju_u1_t   const b   = teju_mshift(m_b, u, l);
     teju_u1_t   const q   = teju_div10(b);
     teju_u1_t   const s   = 10 * q;
 
@@ -191,7 +191,7 @@ teju_function(teju_fields_t const binary) {
     if ((a + b) % 2 == 1)
       return make_fields((a + b) / 2 + 1, f);
 
-    teju_calc_t const m_c = (2 * 2 * m) << r;
+    teju_calc_t const m_c = 4 * m << r;
     teju_u1_t   const c_2 = teju_mshift(m_c, u, l);
     teju_u1_t   const c   = c_2 / 2;
 
@@ -201,11 +201,10 @@ teju_function(teju_fields_t const binary) {
     return make_fields(c + 1, f);
   }
 
-  teju_calc_t const m_b = 2 * m_0 + 1;
-  teju_u1_t   const b   = teju_mshift(m_b << r, u, l);
-
-  teju_calc_t const m_a = 4 * m_0 - 1;
-  teju_u1_t   const a   = teju_mshift(m_a << r, u, l) / 2;
+  teju_calc_t const m_b = (2 * m_0 + 1) << r;
+  teju_u1_t   const b   = teju_mshift(m_b, u, l);
+  teju_calc_t const m_a = (4 * m_0 - 1) << r;
+  teju_u1_t   const a   = teju_mshift(m_a, u, l) / 2;
 
   if (b > a) {
 
@@ -215,10 +214,10 @@ teju_function(teju_fields_t const binary) {
     if (s > a || (s == a && is_tie_uncentred(f)))
       return remove_trailing_zeros(q, f + 1);
 
-    // m_c = 2 * 2 * m_0 = 2 * 2 * 2^{teju_mantissa_size}
-    // c_2 = teju_mshift(m_c << r, upper, lower);
-    uint32_t  const log2_m_c = teju_mantissa_size + 2;
-    teju_u1_t const c_2      = mshift_pow2(log2_m_c + r, u, l);
+    // m_c = 4 * m_0 * 2^r = 2^{teju_mantissa_size + 2 + r}
+    // c_2 = teju_mshift(m_c, upper, lower);
+    uint32_t  const log2_m_c = teju_mantissa_size + 2 + r;
+    teju_u1_t const c_2      = mshift_pow2(log2_m_c, u, l);
     teju_u1_t const c        = c_2 / 2;
 
     if (c == a && !is_tie_uncentred(f))
@@ -233,8 +232,8 @@ teju_function(teju_fields_t const binary) {
   else if (is_tie_uncentred(f))
     return remove_trailing_zeros(a, f);
 
-  teju_calc_t const m_c = 10 * 2 * 2 * m_0;
-  teju_u1_t   const c_2 = teju_mshift(m_c << r, u, l);
+  teju_calc_t const m_c = 40 * m_0 << r;
+  teju_u1_t   const c_2 = teju_mshift(m_c, u, l);
   teju_u1_t   const c   = c_2 / 2;
 
   if (c_2 % 2 == 0 || (c % 2 == 0 && is_tie(c_2, -f)))

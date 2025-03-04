@@ -98,7 +98,7 @@ teju_rshift(teju_u1_t const r2, teju_u1_t const r1) {
  */
 static inline
 teju_u1_t
-teju_mshift(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
+teju_mshift(teju_calc_t const m, teju_u1_t const u, teju_u1_t const l) {
 
   // Let x := 2^N.
 

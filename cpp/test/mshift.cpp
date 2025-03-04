@@ -10,7 +10,7 @@ namespace {
 using namespace teju::test;
 
 template <typename TImpl>
-void check(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
+void check(teju_calc_t const m, teju_u1_t const u, teju_u1_t const l) {
 
   teju_u1_t const actual   = TImpl::mshift(m, u, l);
   teju_u1_t const expected = (((teju_u4_t(u) << teju_size) + l) * m) >>
@@ -36,9 +36,9 @@ TYPED_TEST_SUITE(mshift, impl_list_t);
 
 TYPED_TEST(mshift, test_one_billion_values) {
 
-  for (teju_u1_t m = 0; m < 1000; ++m)
-    for (teju_u1_t u = 0; u < 1000; ++u)
-      for (teju_u1_t l = 0; l < 1000 && !this->HasFailure(); ++l)
+  for (teju_calc_t m = 0; m < 1000; ++m)
+    for (teju_calc_t u = 0; u < 1000; ++u)
+      for (teju_calc_t l = 0; l < 1000 && !this->HasFailure(); ++l)
         check<TypeParam>(m, u, l);
 }
 

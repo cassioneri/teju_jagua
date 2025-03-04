@@ -14,6 +14,6 @@ using impl_t = teju::test::built_in_4_t;
 int const impl_t::shift = teju_calculation_shift;
 
 teju_u1_t
-impl_t::mshift(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
+impl_t::mshift(teju_calc_t const m, teju_u1_t const u, teju_u1_t const l) {
   return teju_mshift(m, u, l);
 }

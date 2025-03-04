@@ -14,10 +14,11 @@
 #include <cstdint>
 
 // Common macros required by teju/div10.h and teju/mshift.h.
-#define teju_size 16
-#define teju_u1_t std::uint16_t
-#define teju_u2_t std::uint32_t
-#define teju_u4_t std::uint64_t
+#define teju_size   16
+#define teju_u1_t   std::uint16_t
+#define teju_u2_t   std::uint32_t
+#define teju_u4_t   std::uint64_t
+#define teju_calc_t std::uint32_t
 
 namespace teju {
 namespace test {

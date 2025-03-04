@@ -46,7 +46,7 @@ extern "C" {
  */
 static inline
 bool
-is_multiple_of_pow2(teju_calc_t const m, int32_t const e) {
+is_multiple_of_pow2(teju_u1_t const m, int32_t const e) {
   return ((m >> e) << e) == m;
 }
 
@@ -58,7 +58,7 @@ is_multiple_of_pow2(teju_calc_t const m, int32_t const e) {
  */
 static inline
 bool
-is_small_integer(teju_calc_t const m, int32_t const e) {
+is_small_integer(teju_u1_t const m, int32_t const e) {
   return (-teju_mantissa_size <= e && e <= 0) && is_multiple_of_pow2(m, -e);
 }
 
@@ -110,7 +110,7 @@ is_tie_uncentred(int32_t const f) {
  */
 static inline
 teju_fields_t
-make_fields(teju_calc_t const m, int32_t const e) {
+make_fields(teju_u1_t const m, int32_t const e) {
   teju_fields_t const fields = { m, e };
   return fields;
 }
@@ -121,7 +121,7 @@ make_fields(teju_calc_t const m, int32_t const e) {
  * @param m                 The number.
  */
 static inline
-teju_calc_t ror(teju_calc_t m) {
+teju_u1_t ror(teju_u1_t m) {
   return m << (teju_size - 1) | m >> 1;
 }
 
@@ -167,21 +167,21 @@ teju_function(teju_fields_t const binary) {
   if (is_small_integer(m, e))
     return remove_trailing_zeros(m >> -e, 0);
 
-  teju_calc_t const m_0 = teju_pow2(teju_calc_t, teju_mantissa_size);
-  int32_t   const f     = teju_log10_pow2(e);
-  uint32_t  const r     = teju_log10_pow2_residual(e);
-  uint32_t  const i     = f - teju_storage_index_offset;
-  teju_calc_t const u   = multipliers[i].upper;
-  teju_calc_t const l   = multipliers[i].lower;
+  teju_u1_t const m_0 = teju_pow2(teju_u1_t, teju_mantissa_size);
+  int32_t   const f   = teju_log10_pow2(e);
+  uint32_t  const r   = teju_log10_pow2_residual(e);
+  uint32_t  const i   = f - teju_storage_index_offset;
+  teju_u1_t const u   = multipliers[i].upper;
+  teju_u1_t const l   = multipliers[i].lower;
 
   if (m != m_0 || e == teju_exponent_minimum) {
 
     teju_calc_t const m_a = (2 * m - 1) << r;
-    teju_calc_t const a   = teju_mshift(m_a, u, l);
+    teju_u1_t   const a   = teju_mshift(m_a, u, l);
     teju_calc_t const m_b = (2 * m + 1) << r;
-    teju_calc_t const b   = teju_mshift(m_b, u, l);
-    teju_calc_t const q   = teju_div10(b);
-    teju_calc_t const s   = 10 * q;
+    teju_u1_t   const b   = teju_mshift(m_b, u, l); //
+    teju_u1_t   const q   = teju_div10(b);
+    teju_u1_t   const s   = 10 * q;
 
     if (s >= a) {
       if (s == b) {
@@ -196,8 +196,8 @@ teju_function(teju_fields_t const binary) {
       return make_fields((a + b) / 2 + 1, f);
 
     teju_calc_t const m_c = (2 * 2 * m) << r;
-    teju_calc_t const c_2 = teju_mshift(m_c, u, l);
-    teju_calc_t const c   = c_2 / 2;
+    teju_u1_t   const c_2 = teju_mshift(m_c, u, l);
+    teju_u1_t   const c   = c_2 / 2;
 
     if (c_2 % 2 == 0 || (c % 2 == 0 && is_tie(c_2, -f)))
       return make_fields(c, f);
@@ -206,24 +206,24 @@ teju_function(teju_fields_t const binary) {
   }
 
   teju_calc_t const m_b = 2 * m_0 + 1;
-  teju_calc_t const b   = teju_mshift(m_b << r, u, l);
+  teju_u1_t   const b   = teju_mshift(m_b << r, u, l);
 
   teju_calc_t const m_a = 4 * m_0 - 1;
-  teju_calc_t const a   = teju_mshift(m_a << r, u, l) / 2;
+  teju_u1_t   const a   = teju_mshift(m_a << r, u, l) / 2;
 
   if (b > a) {
 
-    teju_calc_t const q = teju_div10(b);
-    teju_calc_t const s = 10 * q;
+    teju_u1_t const q = teju_div10(b);
+    teju_u1_t const s = 10 * q;
 
     if (s > a || (s == a && is_tie_uncentred(f)))
       return remove_trailing_zeros(q, f + 1);
 
     // m_c = 2 * 2 * m_0 = 2 * 2 * 2^{teju_mantissa_size}
     // c_2 = teju_mshift(m_c << r, upper, lower);
-    uint32_t    const log2_m_c = teju_mantissa_size + 2;
-    teju_calc_t const c_2      = mshift_pow2(log2_m_c + r, u, l);
-    teju_calc_t const c        = c_2 / 2;
+    uint32_t  const log2_m_c = teju_mantissa_size + 2;
+    teju_u1_t const c_2      = mshift_pow2(log2_m_c + r, u, l);
+    teju_u1_t const c        = c_2 / 2;
 
     if (c == a && !is_tie_uncentred(f))
       return make_fields(c + 1, f);
@@ -246,8 +246,8 @@ teju_function(teju_fields_t const binary) {
   }
 
   teju_calc_t const m_c = 10 * 2 * 2 * m_0;
-  teju_calc_t const c_2 = teju_mshift(m_c << r, u, l);
-  teju_calc_t const c   = c_2 / 2;
+  teju_u1_t   const c_2 = teju_mshift(m_c << r, u, l);
+  teju_u1_t   const c   = c_2 / 2;
 
   if (c_2 % 2 == 0 || (c % 2 == 0 && is_tie(c_2, -f)))
     return make_fields(c, f - 1);

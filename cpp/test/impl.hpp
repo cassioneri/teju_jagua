@@ -45,7 +45,7 @@ struct built_in_1_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
 
 };
 
@@ -62,7 +62,7 @@ struct built_in_1_small_shift_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
 
 };
 
@@ -88,7 +88,7 @@ struct synthetic_1_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
 
 };
 
@@ -105,7 +105,7 @@ struct synthetic_1_small_shift_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
 
 };
 
@@ -131,7 +131,7 @@ struct built_in_2_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
 
 };
 
@@ -148,7 +148,7 @@ struct synthetic_2_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
 
 };
 
@@ -165,7 +165,7 @@ struct synthetic_2_small_shift_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
 
 };
 
@@ -182,7 +182,7 @@ struct built_in_4_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
 
 };
 

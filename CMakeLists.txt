@@ -92,12 +92,6 @@ if (teju_has_float128)
   add_compile_definitions(teju_has_float128)
 endif()
 
-# Checks the size of unsigned
-
-include(CheckTypeSize)
-check_type_size(unsigned teju_sizeof_unsigned)
-add_compile_definitions(teju_sizeof_unsigned=${teju_sizeof_unsigned})
-
 #-------------------------------------------------------------------------------
 # teju_jagua
 #-------------------------------------------------------------------------------

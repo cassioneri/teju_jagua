@@ -306,6 +306,11 @@ generator_t::index_offset() const {
   return index_offset_;
 }
 
+bool
+generator_t::calculation_promote() const {
+  return config_.calculation.promote;
+}
+
 std::string const&
 generator_t::calculation_div10() const {
   return config_.calculation.div10;
@@ -457,10 +462,11 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   auto const splitter = splitter_t{size(), storage_split()};
 
   stream <<
-    "#define teju_size                 " << size()          << "\n"
-    "#define teju_exponent_minimum     " << exponent_min()  << "\n"
-    "#define teju_mantissa_size        " << mantissa_size() << "\n"
-    "#define teju_storage_index_offset " << index_offset()  << "\n";
+    "#define teju_size                 " << size()                << "\n"
+    "#define teju_exponent_minimum     " << exponent_min()        << "\n"
+    "#define teju_mantissa_size        " << mantissa_size()       << "\n"
+    "#define teju_storage_index_offset " << index_offset()        << "\n"
+    "#define teju_promote              " << calculation_promote() << "\n";
 
   if (!calculation_div10().empty())
     stream <<

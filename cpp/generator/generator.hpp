@@ -125,6 +125,12 @@ private:
   index_offset() const;
 
   /**
+   * @brief Returns the promote flag.
+   */
+  bool
+  calculation_promote() const;
+
+  /**
    * @brief Returns the calculation method for div10.
    */
   std::string const&

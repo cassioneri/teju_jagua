@@ -26,7 +26,8 @@
   },
 
   "calculation": {
-    "div10" : "built_in_2",
-    "mshift": "built_in_4"
+    "promote": true,
+    "div10"  : "built_in_2",
+    "mshift" : "built_in_4"
   }
 }

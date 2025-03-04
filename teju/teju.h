@@ -10,14 +10,10 @@
 #ifndef TEJU_TEJU_TEJU_H_
 #define TEJU_TEJU_TEJU_H_
 
-#include <limits.h>
-
-#if teju_sizeof_unsigned * CHAR_BIT > teju_size
-  typedef unsigned teju_calc_t;
-  #define teju_calc_size (teju_sizeof_unsigned * CHAR_BIT)
+#if teju_promote
+  typedef teju_u2_t teju_calc_t;
 #else
   typedef teju_u1_t teju_calc_t;
-  #define teju_calc_size teju_size
 #endif
 
 #include "teju/common.h"
@@ -236,14 +232,6 @@ teju_function(teju_fields_t const binary) {
 
   else if (is_tie_uncentred(f))
     return remove_trailing_zeros(a, f);
-
-  // Checks that calculation of c_2 cannot overflow.
-  {
-    // m_c << r can go up to (40 * 2^mantissa_size) << 3, ie, it can have up to
-    // bits(40) + mantissa_size + 3 = 6 + mantissa_size + 3 bits.
-    int can_overflow[teju_calc_size >= teju_mantissa_size + 9 ? 1 : -1];
-    (void) can_overflow;
-  }
 
   teju_calc_t const m_c = 10 * 2 * 2 * m_0;
   teju_u1_t   const c_2 = teju_mshift(m_c << r, u, l);

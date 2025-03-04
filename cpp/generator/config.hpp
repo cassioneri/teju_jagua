@@ -69,6 +69,10 @@ struct config_t {
 
   struct calculation_t {
 
+    // Determines if the calculations of m_a, m_b and m_c must be performed on
+    // 2-limb integers.
+    bool promote = false;
+
     // Defines the platform support for multiplication to be used by
     // div10(). It can be "", "built_in_1", "synthetic_1" or "built_in_2".
     std::string div10;

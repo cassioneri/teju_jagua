@@ -465,22 +465,21 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   auto const splitter = splitter_t{size(), storage_split()};
 
   stream <<
-    "#define teju_size                 " << size()               << "\n"
+    "#define teju_size                 " << size()               << "u\n"
     "#define teju_exponent_minimum     " << exponent_min()       << "\n"
-    "#define teju_mantissa_size        " << mantissa_size()      << "\n"
+    "#define teju_mantissa_size        " << mantissa_size()      << "u\n"
     "#define teju_storage_index_offset " << index_offset()       << "\n"
-    "#define teju_calculation_refine   " << calculation_refine() << "\n";
+    "#define teju_calculation_refine   " << calculation_refine() << "u\n";
 
   if (!calculation_div10().empty())
     stream <<
     "#define teju_calculation_div10    teju_" << calculation_div10() << "\n";
 
   stream <<
-    "#define teju_calculation_mshift   "
-      "teju_" << calculation_mshift() << "\n"
+    "#define teju_calculation_mshift   teju_" << calculation_mshift() << "\n"
     // Instead of using mshift(m, upper, lower) / 2 in Teju Jagua, shift is
     // incremented here and the division by 2 is removed.
-    "#define teju_calculation_shift    " << shift + 1             << "\n"
+    "#define teju_calculation_shift    " << shift + 1             << "u\n"
     "\n"
     "#define teju_function             " << function() << "\n"
     "#define teju_fields_t             " << prefix()   << "fields_t\n"

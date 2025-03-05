@@ -37,7 +37,7 @@ from_json(nlohmann::json const& src, config_t::storage_t& tgt) {
 void
 from_json(nlohmann::json const& src, config_t::calculation_t& tgt) {
   if (src.contains("refine"))
-    src["promote"].get_to(tgt.refine);
+    src["refine"].get_to(tgt.refine);
   if (src.contains("div10"))
     src["div10"].get_to(tgt.div10);
   src.at("mshift").get_to(tgt.mshift);

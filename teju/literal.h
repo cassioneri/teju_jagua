@@ -31,9 +31,9 @@
  *
  * @returns An expression whose value is the constructed number.
  */
-#define teju_literal2(a1, a0) (                 \
-    ((teju_u1_t) (a1) << (1 * teju_size / 2)) | \
-    ((teju_u1_t) (a0) << (0 * teju_size / 2))   \
+#define teju_literal2(a1, a0) (                   \
+    ((teju_u1_t) (a1) << (1u * teju_size / 2u)) | \
+    ((teju_u1_t) (a0) << (0u * teju_size / 2u))   \
   )
 
 /**
@@ -57,10 +57,10 @@
  * @returns An expression whose value is the constructed number.
  */
 #define teju_literal4(a3, a2, a1, a0) (         \
-    ((teju_u1_t) (a3) << (3 * teju_size / 4)) | \
-    ((teju_u1_t) (a2) << (2 * teju_size / 4)) | \
-    ((teju_u1_t) (a1) << (1 * teju_size / 4)) | \
-    ((teju_u1_t) (a0) << (0 * teju_size / 4))   \
+    ((teju_u1_t) (a3) << (3u * teju_size / 4u)) | \
+    ((teju_u1_t) (a2) << (2u * teju_size / 4u)) | \
+    ((teju_u1_t) (a1) << (1u * teju_size / 4u)) | \
+    ((teju_u1_t) (a0) << (0u * teju_size / 4u))   \
   )
 
 #endif // TEJU_TEJU_LITERAL_H_

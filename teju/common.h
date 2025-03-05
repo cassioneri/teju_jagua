@@ -27,7 +27,7 @@ extern "C" {
  *
  * @returns The k least significant bits of n.
  */
-#define teju_lsb(n, k) ((n) & (((0 * (n) + 1) << (k)) - 1))
+#define teju_lsb(n, k) ((n) & (((0u * (n) + 1u) << (k)) - 1u))
 
 /**
  * @brief Returns 2^e as a given type.
@@ -39,7 +39,7 @@ extern "C" {
  *
  * @returns 2^e.
  */
-#define teju_pow2(type, e) (((type) 1) << (e))
+#define teju_pow2(type, e) (((type) 1u) << (e))
 
 // Argument bounds of teju_log10_pow2.
 #define teju_log10_pow2_min -112815
@@ -57,7 +57,7 @@ extern "C" {
 static inline
 int32_t
 teju_log10_pow2(int32_t const e) {
-  return (((uint64_t) 1292913987) * e) >> 32;
+  return (((uint64_t) 1292913987u) * e) >> 32u;
 }
 
 /**
@@ -73,7 +73,7 @@ teju_log10_pow2(int32_t const e) {
 static inline
 uint32_t
 teju_log10_pow2_residual(int32_t const e) {
-  return ((uint32_t) (((uint64_t) 1292913987) * e)) / 1292913987;
+  return ((uint32_t) (((uint64_t) 1292913987u) * e)) / 1292913987u;
 }
 
 #ifdef __cplusplus

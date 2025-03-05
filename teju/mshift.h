@@ -41,11 +41,11 @@ teju_add_and_carry(teju_u1_t x, teju_u1_t y, teju_u1_t* c) {
 
   #if defined(_MSC_VER) && !defined(__clang__)
 
-    #if teju_size == 16
+    #if teju_size == 16u
       *c = _addcarry_u16(0, x, y, &x);
-    #elif teju_size == 32
+    #elif teju_size == 32u
       *c = _addcarry_u32(0, x, y, &x);
-    #elif teju_size == 64
+    #elif teju_size == 64u
       *c = _addcarry_u64(0, x, y, &x);
     #else
       #error "Size not supported by msvc."
@@ -74,13 +74,13 @@ static inline
 teju_u1_t
 teju_rshift(teju_u1_t const r2, teju_u1_t const r1) {
 
-  #if teju_calculation_shift >= 2 * teju_size
+  #if teju_calculation_shift >= 2u * teju_size
 
-    return r2 >> (teju_calculation_shift - 2 * teju_size);
+    return r2 >> (teju_calculation_shift - 2u * teju_size);
 
   #else
 
-    return r2 << (2 * teju_size - teju_calculation_shift) |
+    return r2 << (2u * teju_size - teju_calculation_shift) |
       r1 >> (teju_calculation_shift - teju_size);
 
   #endif
@@ -152,7 +152,7 @@ teju_mshift(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
     // l := (n1 * y + n0) with n1 := l / y, n0 = l % y in [0, y[,
     // m := (m1 * y + m0) with m1 := m / y, m0 = m % y in [0, y[.
 
-    teju_u1_t const y  = teju_pow2(teju_u1_t, teju_size / 2);
+    teju_u1_t const y  = teju_pow2(teju_u1_t, teju_size / 2u);
     teju_u1_t const n3 = u / y;
     teju_u1_t const n2 = u % y;
     teju_u1_t const n1 = l / y;
@@ -196,12 +196,12 @@ teju_mshift(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
     // order 4:
     r1 += n3 * m1 + c * y;
 
-    #if teju_calculation_shift >= 2 * teju_size
+    #if teju_calculation_shift >= 2u * teju_size
       (void) r0;
-      return r1 >> (teju_calculation_shift - 2 * teju_size);
-    #elif teju_calculation_shift >= 3 * teju_size / 2
-      return (r1 << (2 * teju_size - teju_calculation_shift)) |
-        (r0 >> (teju_calculation_shift - 3 * teju_size / 2));
+      return r1 >> (teju_calculation_shift - 2u * teju_size);
+    #elif teju_calculation_shift >= 3u * teju_size / 2u
+      return (r1 << (2u * teju_size - teju_calculation_shift)) |
+        (r0 >> (teju_calculation_shift - 3u * teju_size / 2u));
     #else
       #error "Unsupported combination of size, shift and mshift calculation."
     #endif

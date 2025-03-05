@@ -59,7 +59,7 @@ extern "C" {
  *     uint32_t lower = a * b;
  * \endcode
  */
-#define teju_built_in_1 1
+#define teju_built_in_1 1u
 
 /**
  * @brief The platform implements teju_multiply() which takes two 1-limb
@@ -71,7 +71,7 @@ extern "C" {
  *     uint32_t lower = teju_multiply(a, b, &upper);
  * \endcode
  */
-#define teju_synthetic_1 2
+#define teju_synthetic_1 2u
 
 /**
  * @brief The platform provides operator * for 2-limb unsigned integers that
@@ -82,7 +82,7 @@ extern "C" {
  *     uint64_t lower = a * b;
  * \endcode
  */
-#define teju_built_in_2  3
+#define teju_built_in_2  3u
 
 /**
  * @brief The platform implements teju_multiply() which takes two 2-limb
@@ -94,7 +94,7 @@ extern "C" {
  *     uint64_t lower = teju_multiply(a, b, &upper);
  * \endcode
  */
-#define teju_synthetic_2 5
+#define teju_synthetic_2 4u
 
 /**
  * @brief The platform provides operator * for 4-limb unsigned integers that
@@ -105,7 +105,7 @@ extern "C" {
  *     uint128_t lower = a * b;
  * \endcode
  */
-#define teju_built_in_4  5
+#define teju_built_in_4  5u
 
 //------------------------------------------------------------------------------
 // Limbs

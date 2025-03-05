@@ -10,11 +10,13 @@
 #ifndef TEJU_TEJU_TEJU_H_
 #define TEJU_TEJU_TEJU_H_
 
-#if teju_promote
-  typedef teju_u2_t teju_calc_t;
-#else
-  typedef teju_u1_t teju_calc_t;
-#endif
+#define teju_static_assert(c, msg) \
+do {                               \
+  const int _ = (c) ? 1 : -1;      \
+  int                              \
+  static_assert_failed[_];         \
+  (void) static_assert_failed;     \
+} while(false)
 
 #include "teju/common.h"
 #include "teju/config.h"
@@ -27,6 +29,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,7 +71,7 @@ is_small_integer(teju_u1_t const m, int32_t const e) {
  */
 static inline
 bool
-is_multiple_of_pow5(teju_calc_t const m, int32_t const f) {
+is_multiple_of_pow5(teju_u1_t const m, int32_t const f) {
   return ((teju_u1_t) (m * minverse[f].multiplier)) <= minverse[f].bound;
 }
 
@@ -81,7 +84,7 @@ is_multiple_of_pow5(teju_calc_t const m, int32_t const f) {
  */
 static inline
 bool
-is_tie(teju_calc_t const m, int32_t const f) {
+is_tie(teju_u1_t const m, int32_t const f) {
   return 0 <= f && f < (int32_t) (sizeof(minverse) / sizeof(minverse[0])) &&
     is_multiple_of_pow5(m, f);
 }
@@ -158,7 +161,7 @@ teju_fields_t
 teju_function(teju_fields_t const binary) {
 
   int32_t     const e = binary.exponent;
-  teju_calc_t const m = binary.mantissa;
+  teju_u1_t const m = binary.mantissa;
 
   if (is_small_integer(m, e))
     return remove_trailing_zeros(m >> -e, 0);
@@ -172,12 +175,17 @@ teju_function(teju_fields_t const binary) {
 
   if (m != m_0 || e == teju_exponent_minimum) {
 
-    teju_calc_t const m_a = (2 * m - 1) << r;
-    teju_u1_t   const a   = teju_mshift(m_a, u, l);
-    teju_calc_t const m_b = (2 * m + 1) << r;
-    teju_u1_t   const b   = teju_mshift(m_b, u, l);
-    teju_u1_t   const q   = teju_div10(b);
-    teju_u1_t   const s   = 10 * q;
+    // Calculations of m_a, m_b and m_c are safe in the centred case if
+    // teju_size can hold m_ c = 4 * m << r.
+    bool const is_safe_centred = teju_mantissa_size + 6 <= teju_size;
+    teju_static_assert(is_safe_centred, "Calculations might overflow.");
+
+    teju_u1_t const m_a = (2 * m - 1) << r;
+    teju_u1_t const a   = teju_mshift(m_a, u, l);
+    teju_u1_t const m_b = (2 * m + 1) << r;
+    teju_u1_t const b   = teju_mshift(m_b, u, l);
+    teju_u1_t const q   = teju_div10(b);
+    teju_u1_t const s   = 10 * q;
 
     if (s >= a) {
       if (s == b) {
@@ -191,9 +199,9 @@ teju_function(teju_fields_t const binary) {
     if ((a + b) % 2 == 1)
       return make_fields((a + b) / 2 + 1, f);
 
-    teju_calc_t const m_c = 4 * m << r;
-    teju_u1_t   const c_2 = teju_mshift(m_c, u, l);
-    teju_u1_t   const c   = c_2 / 2;
+    teju_u1_t const m_c = 4 * m << r;
+    teju_u1_t const c_2 = teju_mshift(m_c, u, l);
+    teju_u1_t const c   = c_2 / 2;
 
     if (c_2 % 2 == 0 || (c % 2 == 0 && is_tie(c_2, -f)))
       return make_fields(c, f);
@@ -201,12 +209,20 @@ teju_function(teju_fields_t const binary) {
     return make_fields(c + 1, f);
   }
 
-  teju_calc_t const m_b = (2 * m_0 + 1) << r;
-  teju_u1_t   const b   = teju_mshift(m_b, u, l);
-  teju_calc_t const m_a = (4 * m_0 - 1) << r;
-  teju_u1_t   const a   = teju_mshift(m_a, u, l) / 2;
+  // Calculations of m_a and m_b are safe in the uncentred case:
+  bool const is_safe_uncentred = teju_mantissa_size + 6 <= teju_size;
+  teju_static_assert(is_safe_uncentred, "Calculations might overflow.");
 
-  if (b > a) {
+  teju_u1_t const m_a = (4 * m_0 - 1) << r;
+  teju_u1_t const a   = teju_mshift(m_a, u, l) / 2;
+  teju_u1_t const m_b = (2 * m_0 + 1) << r;
+  teju_u1_t const b   = teju_mshift(m_b, u, l);
+
+#if !defined(teju_calculation_refine)
+#define teju_calculation_refine 1
+#endif
+
+  if (!teju_calculation_refine || b > a) {
 
     teju_u1_t const q = teju_div10(b);
     teju_u1_t const s = 10 * q;
@@ -232,14 +248,20 @@ teju_function(teju_fields_t const binary) {
   else if (is_tie_uncentred(f))
     return remove_trailing_zeros(a, f);
 
-  teju_calc_t const m_c = 40 * m_0 << r;
-  teju_u1_t   const c_2 = teju_mshift(m_c, u, l);
-  teju_u1_t   const c   = c_2 / 2;
+  // Calculation of m_c is safe in the refined uncentred case:
+  bool const is_safe_uncentred_refined = !teju_calculation_refine ||
+    teju_mantissa_size + 9 <= teju_size;
+  teju_static_assert(is_safe_uncentred_refined, "Calculations might overflow.");
+
+  teju_u1_t const m_c = 40 * m_0 << r;
+  teju_u1_t const c_2 = teju_mshift(m_c, u, l);
+  teju_u1_t const c   = c_2 / 2;
 
   if (c_2 % 2 == 0 || (c % 2 == 0 && is_tie(c_2, -f)))
     return make_fields(c, f - 1);
 
   return make_fields(c + 1, f - 1);
+
 }
 
 #ifdef __cplusplus

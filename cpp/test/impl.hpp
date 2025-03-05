@@ -18,7 +18,6 @@
 #define teju_u1_t   std::uint16_t
 #define teju_u2_t   std::uint32_t
 #define teju_u4_t   std::uint64_t
-#define teju_calc_t std::uint32_t
 
 namespace teju {
 namespace test {
@@ -45,7 +44,7 @@ struct built_in_1_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
 
 };
 
@@ -62,7 +61,7 @@ struct built_in_1_small_shift_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
 
 };
 
@@ -88,7 +87,7 @@ struct synthetic_1_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
 
 };
 
@@ -105,7 +104,7 @@ struct synthetic_1_small_shift_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
 
 };
 
@@ -131,7 +130,7 @@ struct built_in_2_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
 
 };
 
@@ -148,7 +147,7 @@ struct synthetic_2_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
 
 };
 
@@ -165,7 +164,7 @@ struct synthetic_2_small_shift_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
 
 };
 
@@ -182,7 +181,7 @@ struct built_in_4_t {
    * @param l               Forwarded to teju_mshift.
    */
   static teju_u1_t
-  mshift(teju_calc_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
 
 };
 

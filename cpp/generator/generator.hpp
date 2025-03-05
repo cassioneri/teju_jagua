@@ -125,10 +125,10 @@ private:
   index_offset() const;
 
   /**
-   * @brief Returns the promote flag.
+   * @brief Returns the refine flag.
    */
   bool
-  calculation_promote() const;
+  calculation_refine() const;
 
   /**
    * @brief Returns the calculation method for div10.
@@ -190,7 +190,7 @@ private:
   struct alpha_delta_maximum_t;
 
   /**
-   * @brief Gets the maxima of all primary problems. (See get_maximum_primary.)
+   * @brief Gets the maxima of all primary problems. (See get_maximum.)
    *
    * It returns a vector v of size exponent_max() - exponent_min() + 1 such that
    * v[i] contains the maximum of the primary problem corresponding to exponent

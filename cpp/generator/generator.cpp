@@ -307,8 +307,8 @@ generator_t::index_offset() const {
 }
 
 bool
-generator_t::calculation_promote() const {
-  return config_.calculation.promote;
+generator_t::calculation_refine() const {
+  return config_.calculation.refine;
 }
 
 std::string const&
@@ -456,17 +456,20 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     fast_eafs[i] = fast_eaf_t{q + 1, shift};
   }
 
+  // TODO (CN): the value of calculation_refine() should be calculated here,
+  // instead of being read from config.
+
   auto const p2size   = pow2(size());
   auto const mask     = p2size - 1;
   auto const minv5    = minverse5(size());
   auto const splitter = splitter_t{size(), storage_split()};
 
   stream <<
-    "#define teju_size                 " << size()                << "\n"
-    "#define teju_exponent_minimum     " << exponent_min()        << "\n"
-    "#define teju_mantissa_size        " << mantissa_size()       << "\n"
-    "#define teju_storage_index_offset " << index_offset()        << "\n"
-    "#define teju_promote              " << calculation_promote() << "\n";
+    "#define teju_size                 " << size()               << "\n"
+    "#define teju_exponent_minimum     " << exponent_min()       << "\n"
+    "#define teju_mantissa_size        " << mantissa_size()      << "\n"
+    "#define teju_storage_index_offset " << index_offset()       << "\n"
+    "#define teju_calculation_refine   " << calculation_refine() << "\n";
 
   if (!calculation_div10().empty())
     stream <<

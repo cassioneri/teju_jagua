@@ -62,11 +62,11 @@ is_small_integer(teju_u1_t const m, int32_t const e) {
 }
 
 /**
- * @brief Checks whether mantissa m is multiple of 5^f.
+ * @brief Checks whether m is multiple of 5^f.
  *
  * @pre minverse[f] is well defined.
  *
- * @param m                 The mantissa m.
+ * @param m                 The number m.
  * @param f                 The exponent f.
  */
 static inline

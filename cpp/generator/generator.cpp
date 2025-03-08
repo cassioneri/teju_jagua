@@ -456,8 +456,26 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     fast_eafs[i] = fast_eaf_t{q + 1, shift};
   }
 
-  // TODO (CN): the value of calculation_refine() should be calculated here,
-  // instead of being read from config.
+  // Check whether the uncentred case is always sorted, that is, a < b for all
+  // exponents.
+  auto const m_a = 4 * mantissa_min() - 1;
+  auto const m_b = 2 * mantissa_min() + 1;
+  bool sorted = true;
+  {
+    auto e2 = exponent_min();
+    auto f  = teju_log10_pow2(e2);
+    for (auto const& fast_eaf :fast_eafs) {
+      // Recall that, at this point, shift == 2 * size() - 1, which is 1 less
+      // than it should be and it's only later (below) that it's adjusted.
+      auto const a = m_a * fast_eaf.U >> (shift + 2);
+      auto const b = m_b * fast_eaf.U >> (shift + 1);
+      if (b <= a) {
+        sorted = false;
+        break;
+      }
+      ++f;
+    }
+  }
 
   auto const p2size   = pow2(size());
   auto const mask     = p2size - 1;
@@ -465,11 +483,11 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   auto const splitter = splitter_t{size(), storage_split()};
 
   stream <<
-    "#define teju_size                 " << size()               << "u\n"
-    "#define teju_exponent_minimum     " << exponent_min()       << "\n"
-    "#define teju_mantissa_size        " << mantissa_size()      << "u\n"
-    "#define teju_storage_index_offset " << index_offset()       << "\n"
-    "#define teju_calculation_sorted   " << calculation_sorted() << "u\n";
+    "#define teju_size                 " << size()          << "u\n"
+    "#define teju_exponent_minimum     " << exponent_min()  << "\n"
+    "#define teju_mantissa_size        " << mantissa_size() << "u\n"
+    "#define teju_storage_index_offset " << index_offset()  << "\n"
+    "#define teju_calculation_sorted   " << sorted          << "u\n";
 
   if (!calculation_div10().empty())
     stream <<

@@ -306,11 +306,6 @@ generator_t::index_offset() const {
   return index_offset_;
 }
 
-bool
-generator_t::calculation_sorted() const {
-  return config_.calculation.sorted;
-}
-
 std::string const&
 generator_t::calculation_div10() const {
   return config_.calculation.div10;

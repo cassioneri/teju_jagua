@@ -125,12 +125,6 @@ private:
   index_offset() const;
 
   /**
-   * @brief Returns the sorted flag.
-   */
-  bool
-  calculation_sorted() const;
-
-  /**
    * @brief Returns the calculation method for div10.
    */
   std::string const&

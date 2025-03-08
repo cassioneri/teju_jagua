@@ -36,8 +36,6 @@ from_json(nlohmann::json const& src, config_t::storage_t& tgt) {
 
 void
 from_json(nlohmann::json const& src, config_t::calculation_t& tgt) {
-  if (src.contains("sorted"))
-    src["sorted"].get_to(tgt.sorted);
   if (src.contains("div10"))
     src["div10"].get_to(tgt.div10);
   src.at("mshift").get_to(tgt.mshift);

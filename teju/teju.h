@@ -90,15 +90,15 @@ is_tie(teju_u1_t const m, int32_t const f) {
 }
 
 /**
- * @brief Checks whether the mantissa of an uncentred value (whose decimal
- * exponent is f) yields a tie.
+ * @brief Checks whether m_a for the uncentred value yields a tie.
  *
+ * @param m                 The number m_a.
  * @param f                 The exponent f.
  */
 static inline
 bool
-is_tie_uncentred(int32_t const f) {
-  return f > 0 && teju_mantissa_size % 4u == 2u;
+is_tie_uncentred(teju_u1_t const m_a, int32_t const f) {
+  return f >= 0 && m_a % 5 == 0 && is_multiple_of_pow5(m_a, f);
 }
 
 /**
@@ -224,7 +224,7 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const q = teju_div10(b);
     teju_u1_t const s = 10u * q;
 
-    if (s > a || (s == a && is_tie_uncentred(f)))
+    if (s > a || (s == a && is_tie_uncentred(m_a, f)))
       return remove_trailing_zeros(q, f + 1);
 
     // m_c = 4 * m_0 * 2^r = 2^{teju_mantissa_size + 2 + r}
@@ -233,7 +233,7 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const c_2      = mshift_pow2(log2_m_c, u, l);
     teju_u1_t const c        = c_2 / 2u;
 
-    if (c == a && !is_tie_uncentred(f))
+    if (c == a && !is_tie_uncentred(m_a, f))
       return make_fields(c + 1u, f);
 
     if (c_2 % 2u == 0 || (c % 2u == 0 && is_tie(c_2, -f)))
@@ -242,7 +242,7 @@ teju_function(teju_fields_t const binary) {
     return make_fields(c + 1u, f);
   }
 
-  else if (is_tie_uncentred(f))
+  else if (is_tie_uncentred(m_a, f))
     return remove_trailing_zeros(a, f);
 
   // Calculation of m_c is safe in the refined uncentred case if

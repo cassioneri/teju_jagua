@@ -42,7 +42,7 @@ teju_ieee32_to_binary(teju32_fields_t ieee32) {
 
   if (ieee32.exponent != 0) {
     e -= 1;
-    m += teju_pow2(uint64_t, mantissa_size);
+    m += teju_pow2(uint32_t, mantissa_size);
   }
 
   teju32_fields_t teju_binary = { m, e };

@@ -125,10 +125,10 @@ private:
   index_offset() const;
 
   /**
-   * @brief Returns the refine flag.
+   * @brief Returns the sorted flag.
    */
   bool
-  calculation_refine() const;
+  calculation_sorted() const;
 
   /**
    * @brief Returns the calculation method for div10.

@@ -219,7 +219,7 @@ teju_function(teju_fields_t const binary) {
   teju_u1_t const m_b = (2u * m_0 + 1u) << r;
   teju_u1_t const b   = teju_mshift(m_b, u, l);
 
-  if (!teju_calculation_refine || b > a) {
+  if (teju_calculation_sorted || a < b) {
 
     teju_u1_t const q = teju_div10(b);
     teju_u1_t const s = 10u * q;
@@ -247,7 +247,7 @@ teju_function(teju_fields_t const binary) {
 
   // Calculation of m_c is safe in the refined uncentred case if
   // teju_u1_t can represent m_c = (40 * m_0 - 1) << r.
-  bool const is_safe_uncentred_refined = !teju_calculation_refine ||
+  bool const is_safe_uncentred_refined = teju_calculation_sorted ||
     teju_mantissa_size + 9 <= teju_size;
   teju_static_assert(is_safe_uncentred_refined, "Calculations might overflow.");
 

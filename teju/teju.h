@@ -98,7 +98,7 @@ is_tie(teju_u1_t const m, int32_t const f) {
 static inline
 bool
 is_tie_uncentred(teju_u1_t const m_a, int32_t const f) {
-  return f >= 0 && m_a % 5 == 0 && is_multiple_of_pow5(m_a, f);
+  return 0 <= f && m_a % 5 == 0 && is_multiple_of_pow5(m_a, f);
 }
 
 /**
@@ -160,7 +160,7 @@ remove_trailing_zeros(teju_u1_t m, int32_t e) {
 teju_fields_t
 teju_function(teju_fields_t const binary) {
 
-  int32_t     const e = binary.exponent;
+  int32_t   const e = binary.exponent;
   teju_u1_t const m = binary.mantissa;
 
   if (is_small_integer(m, e))
@@ -245,10 +245,11 @@ teju_function(teju_fields_t const binary) {
   else if (is_tie_uncentred(m_a, f))
     return remove_trailing_zeros(a, f);
 
-  // Calculation of m_c is safe in the refined uncentred case if
-  // teju_u1_t can represent m_c = (40 * m_0 - 1) << r.
+  // Calculation of m_c is safe in the refined uncentred case if the execution
+  // never gets here (teju_calculation_sorted == true) or teju_u1_t can
+  // represent m_c = 40u * m_0 << r.
   bool const is_safe_uncentred_refined = teju_calculation_sorted ||
-    teju_mantissa_size + 9 <= teju_size;
+    teju_mantissa_size + 9u <= teju_size;
   teju_static_assert(is_safe_uncentred_refined, "Calculations might overflow.");
 
   teju_u1_t const m_c = 40u * m_0 << r;

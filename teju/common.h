@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Gets the k least significant bits of n (i.e., e % 2^k.)
+ * @brief Gets the k least significant bits of n (i.e., n % 2^k.)
  *
  * @pre k < sizeof(n) * CHAR_BIT.
  *

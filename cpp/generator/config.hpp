@@ -40,9 +40,6 @@ struct config_t {
 
   struct exponent_t {
 
-    // Size of exponent in bits.
-    std::uint32_t size;
-
     // Minimum binary exponent.
     std::int32_t minimum;
 

@@ -19,7 +19,6 @@ from_json(nlohmann::json const& src, config_t::spdx_t& tgt) {
 
 void
 from_json(nlohmann::json const& src, config_t::exponent_t& tgt) {
-  src.at("size"   ).get_to(tgt.size   );
   src.at("minimum").get_to(tgt.minimum);
   src.at("maximum").get_to(tgt.maximum);
 }
@@ -71,14 +70,6 @@ validate(config_t const& json) {
 
   require(json.exponent.maximum <= max,
     "Constraint violation: json.exponent.maximum <= max");
-
-  auto const p2size = std::uint64_t{1} << json.exponent.size;
-  require(json.exponent.maximum - json.exponent.minimum < p2size,
-    "Constraint violation: "
-    "exponent.maximum - exponent.minimum <= 2^{exponent.size}");
-
-  require(std::uint64_t{json.exponent.size} + json.mantissa.size <= json.size,
-    "Constraint violation: exponent.size + mantissa.size <= size");
 
   require(json.storage.split == 1 || json.storage.split == 2 ||
     json.storage.split == 4,

@@ -12,7 +12,6 @@
   },
 
   "exponent": {
-    "size"   :    11,
     "minimum": -1074,
     "maximum":   971
   },

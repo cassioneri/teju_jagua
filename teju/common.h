@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Gets the k least significant bits of n (i.e., n % 2^k.)
+ * @brief Returns the k least significant bits of n (i.e. n % 2^k.)
  *
  * @pre k < sizeof(n) * CHAR_BIT.
  *
@@ -39,7 +39,7 @@ extern "C" {
  *
  * @returns 2^e.
  */
-#define teju_pow2(type, e) (((type) 1u) << (e))
+#define teju_pow2(type, e) ((type) ((type) 1u) << (e))
 
 // Argument bounds of teju_log10_pow2.
 #define teju_log10_pow2_min -112815

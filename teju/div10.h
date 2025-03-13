@@ -53,7 +53,7 @@ teju_div10(teju_u1_t const m) {
   #elif teju_calculation_div10 == teju_built_in_1
 
     teju_u1_t const p2   = ((teju_u1_t) 1) << (teju_size / 2u);
-    teju_u1_t const inv5 = (p2 - 1) / 5u;
+    teju_u1_t const inv5 = (p2 - 1u) / 5u;
     teju_u1_t const u    = m / p2;
     teju_u1_t const l    = m % p2;
 

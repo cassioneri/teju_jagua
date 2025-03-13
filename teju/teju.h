@@ -50,7 +50,7 @@ is_multiple_of_pow2(teju_u1_t const m, int32_t const e) {
 }
 
 /**
- * @brief Checks whether the number m * 2^e is a small integer.
+ * @brief Checks whether the number m * 2^e is a "small" integer.
  *
  * @param m                 The mantissa m.
  * @param e                 The exponent e.

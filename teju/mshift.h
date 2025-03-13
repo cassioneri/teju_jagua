@@ -27,11 +27,11 @@ extern "C" {
 #endif
 
 /**
- * @brief Returns x + y sets a carry flag if the addition has wrapped up.
+ * @brief Returns x + y and sets a carry flag if the addition has wrapped up.
  *
  * @param x                 The value of x.
  * @param y                 The value of y.
- * @param c                 The addess of the carry flag to be set.
+ * @param c                 The address of the carry flag to be set.
  *
  * @returns The sum x + y.
  */

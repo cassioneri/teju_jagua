@@ -24,9 +24,17 @@ namespace teju {
 
 namespace detail {
 
+  /**
+   * @brief Gets the value represented by a given binary field representation.
+   *
+   * @tparam T              The floating-point type.
+   * @param  binary         The given binary field representation.
+   *
+   * @returns The value represented by a given binary field representation.
+   */
   template <typename T>
   T
-  to_value(binary_t<T> const binary);
+  to_value(binary_t<T> binary);
 
 } // namespace detail
 
@@ -37,34 +45,37 @@ namespace detail {
  * are supposed to be called in C which doesn't support overloading and
  * templates. This class serves to wrap C functions (and data) referring to
  * specific types into a generic interface. For instance,
- * teju_from_double_to_decimal is wrapped by traits_t<double>::teju, making
- * easier to call it in generic tests. Specialisations of traits_t are provided
- * for float and double and, if supported float128_t. They contain the following
- * members.
+ * teju_double_to_decimal is wrapped by traits_t<double>::teju, making easier to
+ * call it in generic tests. Specialisations are provided for float, double and
+ * some other floating-point types. For float and double they contain the all
+ * the following members. (Other types might not implement them all.)
  *
  * Types:
  *
  * @li u1_t               The 1-limb unsigned integer type.
- * @li fields_t           Fields type storing exponent and mantissa.
- * @li streamable_float_t A type constructible from the one of interest that is
- *                        streamable.
- * @li streamable_uint_t  A type constructible from u1_t that is streamable.
+ * @li decimal_t          Type of decimal field representation.
+ * @li binary_t           Type of binary field representation.
  *
  * Static data:
  *
- * @li exponent_size Exponent size in bits.
  * @li mantissa_size Mantissa size in bits.
+ * @li exponent_min  Minimum exponent of the binary representation.
+ * @li exponent_max  Maximum exponent of the binary representation.
  *
  * Static functions:
  *
- * @li fields_t to_ieee(T value)
- *   Returns IEEE-754's representation of value.
- * @li fields_t teju(T value)
- *   Returns Teju Jagua's decimal fields of value.
- * @li fields_t other(T value)
- *   Returns the third-party library's binary fields of value.
+ * @li binary_t to_binary(T value)
+ *   Returns the binary field representation of value.
+ * @li binary_t to_value(binary_t binary)
+ *   Returns the value corresponding to the given binary field representation.
+ * @li decimal_t teju(T value)
+ *   Returns the decimal field representation obtained by Teju Jagua.
+ * @li decimal_t dragonbox(T value)
+ *   Returns the decimal field representation obtained by Dragonbox.
+ * @li decimal_t ryu(T value)
+ *   Returns the decimal field representation obtained by Ryu.
  *
- * @tparam T                The type of interest.
+ * @tparam T                The floating-point type.
  */
 template <typename T>
 struct traits_t;

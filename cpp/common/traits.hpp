@@ -65,12 +65,17 @@ struct traits_t;
 namespace detail {
 
   /**
-   * @brief Returns the IEEE-754 floating point value corresponding to the
-   * given mantissa and exponent.
+   * @brief Returns the IEEE-754 floating-point value corresponding to the
+   * given IEEE-754 field representation.
    *
-   * \tparam T              The floating point number type.
-   * \tparam mantissa_size  The number of bits in the mantissa.
-   * \tparam U              An unsigned integer type of the same size as T.
+   * Recall that in the IEEE-754 field representation, for normal numbers the
+   * most significant 1-bit is implied and not stored.
+   *
+   * @tparam T              The floating point number type.
+   * @tparam mantissa_size  The number of bits in the mantissa.
+   * @tparam U              An unsigned integer type of the same size as T.
+   *
+   * @param  ieee           The IEEE-754 field representation.
    */
   template <typename T, std::uint32_t mantissa_size>
   T

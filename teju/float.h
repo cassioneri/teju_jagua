@@ -21,39 +21,25 @@ extern "C" {
 #endif
 
 /**
- * @brief Gets IEEE-754's binary32 representation of a float.
+ * @brief Gets the binary representation of a given value.
  *
- * See https://en.wikipedia.org/wiki/Single-precision_floating-point_format
+ * @pre isfinite(value) && value > 0.
  *
- * @pre value > 0.
+ * @param value             The given value.
  *
- * @param value             The given float.
- *
- * @returns IEEE-754's binary32 representation of value.
+ * @returns The binary representation of the given value.
  */
 teju32_fields_t
-teju_float_to_ieee32(float value);
+teju_float_to_binary(float value);
 
 /**
- * @brief Gets teju's binary representation of a given IEEE-754 binary32 one.
+ * @brief Gets the decimal representation of a given value.
  *
- * @pre value > 0.
+ * @pre isfinite(value) && value > 0.
  *
- * @param ieee32            The given IEEE-754 binary32 representation.
+ * @param value             The given value.
  *
- * @returns Teju Jagua's binary representation value.
- */
-teju32_fields_t
-teju_ieee32_to_binary(teju32_fields_t ieee32);
-
-/**
- * @brief Gets Teju Jagua's decimal representation of a float.
- *
- * @pre value > 0.
- *
- * @param value             The given float.
- *
- * @returns Teju Jagua's decimal representation of value.
+ * @returns The decimal representation of the given value.
  */
 teju32_fields_t
 teju_float_to_decimal(float value);

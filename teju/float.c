@@ -3,7 +3,6 @@
 
 #include "teju/common.h"
 #include "teju/float.h"
-#include "teju/ieee754.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -13,50 +12,40 @@
 extern "C" {
 #endif
 
-// Conversion from IEEE-754's parameters to Teju Jagua's.
-enum {
-  exponent_size = teju_ieee754_binary32_exponent_size,
-  mantissa_size = teju_ieee754_binary32_mantissa_size,
-  exponent_min  = teju_ieee754_binary32_exponent_min - mantissa_size + 1,
-};
-
 teju32_fields_t
-teju_float_to_ieee32(float const value) {
+teju_float_to_binary(float const value) {
 
-  uint32_t bits;
+  typedef teju32_fields_t teju_fields_t;
+  typedef teju32_u1_t     teju_u1_t;
+
+  uint32_t const mantissa_size =  24u;
+  int32_t  const exponent_min  = -149;
+
+  teju_u1_t bits;
   memcpy(&bits, &value, sizeof(value));
 
-  teju32_fields_t binary;
-  binary.mantissa = teju_lsb(bits, mantissa_size - 1u);
+  teju_u1_t mantissa = teju_lsb(bits, mantissa_size - 1u);
   bits >>= (mantissa_size - 1u);
-  binary.exponent = (int32_t) teju_lsb(bits, exponent_size);
 
+  int32_t exponent = (int32_t) bits;
+
+  if (exponent != 0) {
+    exponent -= 1;
+    mantissa += teju_pow2(teju_u1_t, mantissa_size - 1u);
+  }
+
+  exponent += exponent_min;
+  teju32_fields_t binary = {mantissa, exponent};
   return binary;
 }
 
 teju32_fields_t
-teju_ieee32_to_binary(teju32_fields_t ieee32) {
-
-  int32_t  e = ieee32.exponent + exponent_min;
-  uint32_t m = ieee32.mantissa;
-
-  if (ieee32.exponent != 0) {
-    e -= 1;
-    m += teju_pow2(uint32_t, mantissa_size - 1u);
-  }
-
-  teju32_fields_t teju_binary = { m, e };
-  return teju_binary;
-}
-
-teju32_fields_t
 teju_float_to_decimal(float const value) {
-  teju32_fields_t ieee32      = teju_float_to_ieee32(value);
-  teju32_fields_t teju_binary = teju_ieee32_to_binary(ieee32);
+  teju32_fields_t binary = teju_float_to_binary(value);
   #if defined(teju_has_uint128)
-    return teju_ieee32_with_uint128(teju_binary);
+    return teju_ieee32_with_uint128(binary);
   #else
-    return teju_ieee32_no_uint128(teju_binary);
+    return teju_ieee32_no_uint128(binary);
   #endif
 }
 

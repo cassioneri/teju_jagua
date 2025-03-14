@@ -15,13 +15,20 @@
 #include "teju/float.h"
 #include "teju/float128.h"
 #include "teju/float16.h"
-#include "teju/ieee754.h"
 
 #include "cpp/common/fields.hpp"
 #include "cpp/common/dragonbox.hpp"
 #include "cpp/common/ryu.hpp"
 
 namespace teju {
+
+namespace detail {
+
+  template <typename T>
+  T
+  to_value(binary_t<T> const binary);
+
+} // namespace detail
 
 /**
  * @brief Traits for floating point number types.
@@ -62,103 +69,33 @@ namespace teju {
 template <typename T>
 struct traits_t;
 
-namespace detail {
-
-  /**
-   * @brief Returns the IEEE-754 floating-point value corresponding to the
-   * given IEEE-754 field representation.
-   *
-   * Recall that in the IEEE-754 field representation, for normal numbers the
-   * most significant 1-bit is implied and not stored.
-   *
-   * @tparam T              The floating point number type.
-   * @tparam mantissa_size  The number of bits in the mantissa.
-   * @tparam U              An unsigned integer type of the same size as T.
-   *
-   * @param  ieee           The IEEE-754 field representation.
-   */
-  template <typename T, std::uint32_t mantissa_size>
-  T
-  ieee_to_value(typename teju::traits_t<T>::fields_t ieee) {
-
-    using traits_t = teju::traits_t<T>;
-    using u1_t     = typename traits_t::u1_t;
-
-    static_assert(sizeof(T) == sizeof(ieee.mantissa), "Incompatible types");
-
-    auto const exponent = static_cast<u1_t>(ieee.exponent);
-    auto const bits     = (exponent << (mantissa_size - 1)) | ieee.mantissa;
-
-    T value;
-    std::memcpy(&value, &bits, sizeof(value));
-    return value;
-  }
-
-  /**
-   * @brief Converts IEEE-754 parameters to Teju Jagua's.
-   *
-   * \tparam exponent_size_ IEEE-754's exponent size.
-   * \tparam mantissa_size_ IEEE-754's mantissa size.
-   * \tparam exponent_min_  IEEE-754's exponent minimum.
-   * \tparam exponent_max_  IEEE-754's exponent maximum.
-   */
-  template <
-    std::int32_t exponent_size_,
-    std::int32_t mantissa_size_,
-    std::int32_t exponent_min_,
-    std::int32_t exponent_max_
-  >
-  struct teju_from_ieee754_t {
-
-    static auto constexpr exponent_size = std::uint32_t{exponent_size_};
-    static auto constexpr mantissa_size = std::uint32_t{mantissa_size_};
-    static auto constexpr exponent_min  = exponent_min_ - mantissa_size_ + 1;
-    static auto constexpr exponent_max  = exponent_max_ - mantissa_size_ + 1;
-
-  };
-
-} // namespace detail
-
 #if defined(teju_has_float16)
 
 // Specialisation of traits_t for float16_t.
 template <>
-struct traits_t<float16_t> : detail::teju_from_ieee754_t<
-  teju_ieee754_binary16_exponent_size,
-  teju_ieee754_binary16_mantissa_size,
-  teju_ieee754_binary16_exponent_min,
-  teju_ieee754_binary16_exponent_max
-  > {
+struct traits_t<float16_t> {
 
-  using u1_t     = teju16_u1_t;
-  using fields_t = cpp_fields_t<float16_t>;
+  using u1_t      = teju16_u1_t;
+  using decimal_t = teju::decimal_t<float16_t>;
+  using binary_t  = teju::binary_t<float16_t>;
+
+  static auto constexpr mantissa_size =  11u;
+  static auto constexpr exponent_min  = -24;
+  static auto constexpr exponent_max  =   5;
 
   static
-  fields_t
-  value_to_ieee(float16_t const value) {
-    return fields_t{teju_float16_to_ieee16(value)};
+  binary_t
+  to_binary(float16_t const value) {
+    auto const binary = teju_float16_to_binary(value);
+    return {binary.mantissa, binary.exponent};
   }
 
   static
-  float16_t
-  ieee_to_value(fields_t ieee) {
-    return detail::ieee_to_value<float16_t, mantissa_size>(ieee);
-  }
-
-  static
-  fields_t
-  ieee_to_binary(fields_t ieee16) {
-    return fields_t{teju_ieee16_to_binary(ieee16)};
-  }
-
-  static
-  fields_t
+  decimal_t
   teju(float16_t const value) {
-    return fields_t{teju_float16_to_decimal(value)};
+    auto const decimal = teju_float16_to_decimal(value);
+    return {decimal.mantissa, decimal.exponent};
   }
-
-  // TODO (CN): Perhaps we could use Ryu for float16_t but at the moment
-  // testing and benchmarking against other libraries is not supported.
 
 }; // traits_t<float16_t>
 
@@ -166,104 +103,96 @@ struct traits_t<float16_t> : detail::teju_from_ieee754_t<
 
 // Specialisation of traits_t for float.
 template <>
-struct traits_t<float> : detail::teju_from_ieee754_t<
-  teju_ieee754_binary32_exponent_size,
-  teju_ieee754_binary32_mantissa_size,
-  teju_ieee754_binary32_exponent_min,
-  teju_ieee754_binary32_exponent_max
-  > {
+struct traits_t<float> {
 
-  using u1_t     = teju32_u1_t;
-  using fields_t = cpp_fields_t<float>;
+  using u1_t      = teju32_u1_t;
+  using decimal_t = teju::decimal_t<float>;
+  using binary_t  = teju::binary_t<float>;
+
+  static auto constexpr mantissa_size =  24u;
+  static auto constexpr exponent_min = -149;
+  static auto constexpr exponent_max =  104;
 
   static
-  fields_t
-  value_to_ieee(float const value) {
-    return fields_t{teju_float_to_ieee32(value)};
+  binary_t
+  to_binary(float const value) {
+    auto const binary = teju_float_to_binary(value);
+    return binary_t{ binary.mantissa, binary.exponent };
   }
 
   static
   float
-  ieee_to_value(fields_t ieee) {
-    return detail::ieee_to_value<float, mantissa_size>(ieee);
+  to_value(binary_t const binary) {
+    return detail::to_value(binary);
   }
 
   static
-  fields_t
-  ieee_to_binary(fields_t ieee32) {
-    return fields_t{teju_ieee32_to_binary(ieee32)};
-  }
-
-  static
-  fields_t
+  decimal_t
   teju(float const value) {
-    return fields_t{teju_float_to_decimal(value)};
+    auto const decimal = teju_float_to_decimal(value);
+    return {decimal.mantissa, decimal.exponent};
   }
 
   static
-  fields_t
+  decimal_t
   dragonbox(float const value) {
-    auto const fields = teju::dragonbox::to_decimal(value);
-    return fields_t{u1_t{fields.significand}, std::int32_t{fields.exponent}};
+    auto const decimal = teju::dragonbox::to_decimal(value);
+    return {u1_t{decimal.significand}, std::int32_t{decimal.exponent}};
   }
 
   static
-  fields_t
+  decimal_t
   ryu(float const value) {
-    auto const fields = ryu_float_to_decimal(value);
-    return fields_t{fields.mantissa, fields.exponent};
+    auto const decimal = ryu_float_to_decimal(value);
+    return {decimal.mantissa, decimal.exponent};
   }
 
 }; // traits_t<float>
 
 // Specialisation of traits_t for float.
 template <>
-struct traits_t<double> : detail::teju_from_ieee754_t<
-  teju_ieee754_binary64_exponent_size,
-  teju_ieee754_binary64_mantissa_size,
-  teju_ieee754_binary64_exponent_min,
-  teju_ieee754_binary64_exponent_max
-  > {
+struct traits_t<double> {
 
-  using u1_t     = teju64_u1_t;
-  using fields_t = cpp_fields_t<double>;
+  using u1_t      = teju64_u1_t;
+  using decimal_t = teju::decimal_t<double>;
+  using binary_t  = teju::binary_t<double>;
+
+  static auto constexpr mantissa_size =  53u;
+  static auto constexpr exponent_min = -1074;
+  static auto constexpr exponent_max =   971;
 
   static
-  fields_t
-  value_to_ieee(double const value) {
-    return fields_t{teju_double_to_ieee64(value)};
+  binary_t
+  to_binary(double const value) {
+    auto const binary = teju_double_to_binary(value);
+    return binary_t{ binary.mantissa, binary.exponent };
   }
 
   static
   double
-  ieee_to_value(fields_t ieee) {
-    return detail::ieee_to_value<double, mantissa_size>(ieee);
+  to_value(binary_t const binary) {
+    return detail::to_value(binary);
   }
 
   static
-  fields_t
-  ieee_to_binary(fields_t ieee64) {
-    return fields_t{teju_ieee64_to_binary(ieee64)};
-  }
-
-  static
-  fields_t
+  decimal_t
   teju(double const value) {
-    return fields_t{teju_double_to_decimal(value)};
+    auto const decimal = teju_double_to_decimal(value);
+    return {decimal.mantissa, decimal.exponent};
   }
 
   static
-  fields_t
+  decimal_t
   dragonbox(double const value) {
-    auto const fields = teju::dragonbox::to_decimal(value);
-    return fields_t{u1_t{fields.significand}, std::int32_t{fields.exponent}};
+    auto const decimal = teju::dragonbox::to_decimal(value);
+    return {u1_t{decimal.significand}, std::int32_t{decimal.exponent}};
   }
 
   static
-  fields_t
+  decimal_t
   ryu(double const value) {
-      auto const fields = ryu_double_to_decimal(value);
-      return fields_t{ fields.mantissa, fields.exponent };
+      auto const decimal = ryu_double_to_decimal(value);
+      return {decimal.mantissa, decimal.exponent};
     }
 }; // traits_t<double>
 
@@ -271,41 +200,29 @@ struct traits_t<double> : detail::teju_from_ieee754_t<
 
 // Specialisation of traits_t for float128.
 template <>
-struct traits_t<float128_t> : detail::teju_from_ieee754_t<
-  teju_ieee754_binary128_exponent_size,
-  teju_ieee754_binary128_mantissa_size,
-  teju_ieee754_binary128_exponent_min,
-  teju_ieee754_binary128_exponent_max> {
+struct traits_t<float128_t> {
 
-  using u1_t     = teju128_u1_t;
-  using fields_t = cpp_fields_t<float128_t>;
+  using u1_t      = teju128_u1_t;
+  using decimal_t = teju::decimal_t<float128_t>;
+  using binary_t  = teju::binary_t<float128_t>;
+
+  static auto constexpr mantissa_size =    113u;
+  static auto constexpr exponent_min  = -16494;
+  static auto constexpr exponent_max  =  16271;
 
   static
-  fields_t
-  value_to_ieee(float128_t const value) {
-    return fields_t{teju_float128_to_ieee128(value)};
+  binary_t
+  to_binary(float128_t const value) {
+    auto const binary = teju_float128_to_binary(value);
+    return binary_t{ binary.mantissa, binary.exponent };
   }
 
   static
-  float128_t
-  ieee_to_value(fields_t ieee) {
-    return detail::ieee_to_value<float128_t, mantissa_size>(ieee);
-  }
-
-  static
-  fields_t
-  ieee_to_binary(fields_t ieee128) {
-    return fields_t{teju_ieee128_to_binary(ieee128)};
-  }
-
-  static
-  fields_t
+  decimal_t
   teju(float128_t const value) {
-    return {teju_float128_to_decimal(value)};
+    auto const decimal = teju_float128_to_decimal(value);
+    return {decimal.mantissa, decimal.exponent};
   }
-
-  // TODO (CN): Perhaps we could use Ryu for float128_t but at the moment
-  // testing and benchmarking against other libraries is not supported.
 
 }; // traits_t<float128_t>
 

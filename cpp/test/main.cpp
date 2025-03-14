@@ -17,9 +17,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
-#include <iomanip>
 #include <random>
-#include <type_traits>
 
 namespace {
 
@@ -27,11 +25,11 @@ using namespace teju;
 using namespace teju::test;
 
 /**
- * @brief Creates an integer number from the decimal representation (chars).
+ * @brief Creates an integer number from chars.
  *
  * @tparam T
  * @tparam T                The type of the number to be generated.
- * @tparam Cs...            The chars of decimal representation of the number.
+ * @tparam Cs...            The chars.
  */
 template <typename T, char... Cs>
 struct make_number;
@@ -51,8 +49,7 @@ struct make_number<T, C, Cs...> {
   /**
    * @brief Appends to n the digits C, Cs...
    *
-   * For instance, for n = 123 and the pack '4', '5', '6', returns the integer
-   * 123456.
+   * For instance, for n = 123 and the pack '4', '5', '6', it returns 123456.
    *
    * @param n                 The value of n.
    */
@@ -64,7 +61,7 @@ struct make_number<T, C, Cs...> {
 /**
  * @brief Gets the next value of type T following a given one.
  *
- * @pre value >= 0.
+  * @pre std::isfinite(value) && value > 0.
  *
  * @tparam T                The floating point value type.
  * @param  value            The given value.
@@ -83,20 +80,22 @@ get_next(T value) {
  * @brief Converts a given value from binary to decimal using Teju Jagua and a
  * third part-library and check whether they match.
  *
- * @tparam T                The floating point value type.
+ * @tparam T                The floating-point value type.
  * @param  value            The given value.
  */
 template <typename T>
 void compare_to_others(T const value) {
 
   using      traits_t  = teju::traits_t<T>;
+
   auto const teju      = traits_t::teju(value);
   auto const ryu       = traits_t::ryu(value);
   auto const dragonbox = traits_t::dragonbox(value);
-  auto const fields    = traits_t::value_to_ieee(value);
 
-  EXPECT_EQ(ryu      , teju) << "IEEE fields: " << fields;
-  EXPECT_EQ(dragonbox, teju) << "IEEE fields: " << fields;
+  auto const binary    = traits_t::to_binary(value);
+
+  EXPECT_EQ(ryu      , teju) << "Value = " << binary << " ~= " << value << '.';
+  EXPECT_EQ(dragonbox, teju) << "Value = " << binary << " ~= " << value << '.';
 }
 
 // Test results for all possible strictly positive finite float values.
@@ -107,14 +106,13 @@ TEST(float, exhaustive_comparison_to_others) {
 
   while (std::isfinite(value) && !HasFailure()) {
 
-    auto const ieee = traits_t<float>::value_to_ieee(value);
-    if (ieee.exponent != exponent) {
-      exponent = ieee.exponent;
+    auto const binary = traits_t<float>::to_binary(value);
+    if (binary.exponent != exponent) {
+      exponent = binary.exponent;
       std::cerr << "Exponent: " << exponent << std::endl;
     }
 
     compare_to_others(value);
-
     value = get_next(value);
   }
 }
@@ -130,16 +128,14 @@ TYPED_TEST_SUITE_P(typed_tests_t);
 // and double.
 TYPED_TEST_P(typed_tests_t, mantissa_min_all_exponents) {
 
-  using traits_t = teju::traits_t<TypeParam>;
   using fp_t     = TypeParam;
+  using traits_t = teju::traits_t<fp_t>;
   using u1_t     = typename traits_t::u1_t;
 
-  auto const exponent_max = (std::uint32_t{1} << traits_t::exponent_size) - 1;
+  for (std::uint32_t exponent = traits_t::exponent_min; !this->HasFailure() &&
+    exponent <= traits_t::exponent_max; ++exponent) {
 
-  for (std::uint32_t exponent = 1; !this->HasFailure() &&
-    exponent < exponent_max; ++exponent) {
-
-    auto const bits = u1_t{exponent} << (traits_t::mantissa_size - 1);
+    auto const bits = teju_pow2(u1_t, traits_t::mantissa_size - 1);
     fp_t value;
     std::memcpy(&value, &bits, sizeof(bits));
     compare_to_others(value);
@@ -209,12 +205,12 @@ TEST(double, random_comparison_to_other) {
 TEST(float16, test_hard_coded_values) {
 
   using traits_t    = teju::traits_t<float16_t>;
-  using fields_t    = cpp_fields_t<float16_t>;
+  using decimal_t   = teju::decimal_t<float16_t>;
   using test_case_t = teju::test::test_case_t<float16_t>;
 
   struct test_data_t {
     float16_t value;
-    fields_t  decimal;
+    decimal_t decimal;
     int       line;
   };
 
@@ -275,35 +271,6 @@ TEST(float16, test_hard_coded_values) {
   }
 }
 
-#if 0
-TEST(float16, test_hard_coded_binary_representations) {
-
-  using traits_t    = teju::traits_t<float128_t>;
-  using fields_t    = traits_t::fields_t;
-  using test_case_t = teju::test::test_case_t<float128_t>;
-
-  static auto constexpr teju_size = std::uint32_t{128};
-
-  struct test_data_t {
-    fields_t binary;
-    fields_t decimal;
-  };
-
-  test_data_t data[] = {
-    // Binary                                                Decimal
-    //                                mantissa  exponent                                     mantissa, exponent
-    {{ 6230756230241792923652294673694720_u128,     -114 }, { 2999999999999999888977697537484346_u128,      -34 }},
-  };
-
-  for (std::size_t i = 0; i < std::size(data); ++i) {
-    auto const test_case = test_case_t{data[i].binary, data[i].decimal};
-    auto const actual    = traits_t::teju(test_case.value());
-    ASSERT_EQ(test_case.expected(), actual) <<
-      "    Note: test case number = " << i;
-  }
-}
-#endif
-
 #endif // defined(teju_has_float16)
 
 #if defined(teju_has_float128)
@@ -316,14 +283,14 @@ uint128_t operator ""_u128() {
 TEST(float128, test_hard_coded_values) {
 
   using traits_t    = teju::traits_t<float128_t>;
-  using fields_t    = cpp_fields_t<float128_t>;
+  using decimal_t    = teju::decimal_t<float128_t>;
   using test_case_t = teju::test::test_case_t<float128_t>;
 
   static auto constexpr teju_size = std::uint32_t{128};
 
   struct test_data_t {
     float128_t value;
-    fields_t   decimal;
+    decimal_t  decimal;
   };
 
   test_data_t data[] = {
@@ -381,44 +348,11 @@ TEST(float128, test_hard_coded_values) {
   }
 }
 
-TEST(float128, test_hard_coded_binary_representations) {
-
-  using traits_t    = teju::traits_t<float128_t>;
-  using fields_t    = traits_t::fields_t;
-  using test_case_t = teju::test::test_case_t<float128_t>;
-
-  static auto constexpr teju_size = std::uint32_t{128};
-
-  struct test_data_t {
-    fields_t binary;
-    fields_t decimal;
-  };
-
-  test_data_t data[] = {
-    // Binary                                                Decimal
-    //                                mantissa  exponent                                     mantissa, exponent
-    {{ 6230756230241792923652294673694720_u128,     -114 }, { 2999999999999999888977697537484346_u128,      -34 }},
-  };
-
-  for (std::size_t i = 0; i < std::size(data); ++i) {
-    auto const test_case = test_case_t{data[i].binary, data[i].decimal};
-    auto const actual    = traits_t::teju(test_case.value());
-    ASSERT_EQ(test_case.expected(), actual) <<
-      "    Note: test case number = " << i;
-  }
-}
-
 #endif // defined(teju_has_float128)
 
-// Adhoc test for a given floating point number value.
+// Adhoc test for a given floating-point number value.
 TEST(ad_hoc, value) {
   auto const value = 1.0f;
-  compare_to_others(value);
-}
-
-// Adhoc test for given field values.
-TEST(ad_hoc, fields) {
-  auto const value = traits_t<float>::ieee_to_value({ 127, 0 }); // = 1.0f
   compare_to_others(value);
 }
 

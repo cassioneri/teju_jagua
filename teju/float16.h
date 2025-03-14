@@ -21,40 +21,25 @@ extern "C" {
 #endif
 
 /**
- * @brief Gets IEEE-754's binary16 representation of a float16_t.
+ * @brief Gets the binary representation of a given value.
  *
- * See https://en.wikipedia.org/wiki/Half-precision_floating-point_format
+ * @pre isfinite(value) && value > 0.
  *
- * @pre value > 0.
+ * @param value             The given value.
  *
- * @param value             The given float16_t.
- *
-  * @returns IEEE-754's binary16 representation of value.
+ * @returns The binary representation of the given value.
  */
 teju16_fields_t
-teju_float16_to_ieee16(float16_t value);
+teju_float16_to_binary(float16_t value);
 
 /**
- * @brief Gets Teju Jagua's binary representation of a given IEEE-754 binary16
- * one.
+ * @brief Gets the decimal representation of a given value.
  *
- * @pre value > 0.
+ * @pre isfinite(value) && value > 0.
  *
- * @param ieee16            The given IEEE-754 binary16 representation.
+ * @param value             The given value.
  *
- * @returns Teju Jagua's binary representation value.
- */
-teju16_fields_t
-teju_ieee16_to_binary(teju16_fields_t ieee16);
-
-/**
- * @brief Gets Teju Jagua's decimal representation of a float16_t.
- *
- * @pre value > 0.
- *
- * @param value             The given float16_t.
- *
- * @returns Teju Jagua's decimal representation of value.
+ * @returns The decimal representation of the given value.
  */
 teju16_fields_t
 teju_float16_to_decimal(float16_t value);

@@ -21,40 +21,25 @@ extern "C" {
 #endif
 
 /**
- * @brief Gets IEEE-754's binary64 representation of a double.
+ * @brief Gets the binary representation of a given value.
  *
- * See https://en.wikipedia.org/wiki/Double-precision_floating-point_format
+ * @pre isfinite(value) && value > 0.
  *
- * @pre value > 0.
+ * @param value             The given value.
  *
- * @param value             The given double.
- *
-  * @returns IEEE-754's binary64 representation of value.
+ * @returns The binary representation of the given value.
  */
 teju64_fields_t
-teju_double_to_ieee64(double value);
+teju_double_to_binary(double value);
 
 /**
- * @brief Gets Teju Jagua's binary representation of a given IEEE-754 binary64
- * one.
+ * @brief Gets the decimal representation of a given value.
  *
- * @pre value > 0.
+ * @pre isfinite(value) && value > 0.
  *
- * @param ieee64            The given IEEE-754 binary64 representation.
+ * @param value             The given value.
  *
- * @returns Teju Jagua's binary representation value.
- */
-teju64_fields_t
-teju_ieee64_to_binary(teju64_fields_t ieee64);
-
-/**
- * @brief Gets Teju Jagua's decimal representation of a double.
- *
- * @pre value > 0.
- *
- * @param value             The given double.
- *
- * @returns Teju Jagua's decimal representation of value.
+ * @returns The decimal representation of the given value.
  */
 teju64_fields_t
 teju_double_to_decimal(double value);

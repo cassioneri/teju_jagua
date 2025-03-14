@@ -3,6 +3,7 @@
 
 add_library(others OBJECT
   dragonbox.cpp
+  traits.cpp
 )
 
 target_include_directories(others PUBLIC

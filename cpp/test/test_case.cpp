@@ -11,66 +11,10 @@
 namespace teju {
 namespace test {
 
-namespace {
-
-  template <typename T>
-  T
-  teju_binary_to_value(cpp_fields_t<T> teju_binary) {
-
-    using traits_t           = teju::traits_t<T>;
-    using u1_t               = typename traits_t::u1_t;
-
-    auto const mantissa_size = traits_t::mantissa_size;
-    auto const exponent_min  = traits_t::exponent_min;
-    auto const exponent_max  = traits_t::exponent_max;
-
-    require(teju_binary.exponent >= exponent_min,
-      "Exponent provided to Teju Jagua binary representation is too low.");
-
-    require(teju_binary.exponent <= exponent_max,
-      "Exponent provided to Teju Jagua binary representation is too high.");
-
-    auto exponent_ieee =
-      static_cast<u1_t>(teju_binary.exponent - exponent_min);
-
-    auto const mantissa_bound = teju_pow2(u1_t, mantissa_size - 1);
-    auto const subnormal      = exponent_ieee == 0;
-
-    u1_t mantissa_ieee = 0;
-    if (subnormal) {
-      require(teju_binary.mantissa < mantissa_bound,
-        "Mantissa provided to Teju Jagua binary representation is too high."
-        "(Note: subnormal case.)");
-      mantissa_ieee = teju_binary.mantissa;
-    }
-    else {
-      require(teju_binary.mantissa >= mantissa_bound,
-        "Mantissa provided to Teju Jagua binary representation is too low.");
-      require(teju_binary.mantissa < 2 * mantissa_bound,
-        "Mantissa provided to Teju Jagua binary representation is too high.");
-      ++exponent_ieee;
-      mantissa_ieee = teju_binary.mantissa - mantissa_bound;
-    }
-
-    auto const bits = (exponent_ieee << (mantissa_size - 1)) | mantissa_ieee;
-
-    T value;
-    std::memcpy(&value, &bits, sizeof(value));
-    return value;
-  }
-
-} // namespace <anonymous>
-
 template <typename T>
-test_case_t<T>::test_case_t(T value, fields_t const& expected) :
+test_case_t<T>::test_case_t(T value, decimal_t<T> const& expected) :
   value_   {value   },
   expected_{expected} {
-}
-
-template <typename T>
-test_case_t<T>::test_case_t(fields_t const& teju_binary,
-  fields_t const& expected) :
-  test_case_t{teju_binary_to_value<T>(teju_binary), expected} {
 }
 
 template <typename T>
@@ -79,7 +23,7 @@ T const& test_case_t<T>::value() const {
 }
 
 template <typename T>
-typename test_case_t<T>::fields_t const& test_case_t<T>::expected() const {
+decimal_t<T> const& test_case_t<T>::expected() const {
   return expected_;
 }
 

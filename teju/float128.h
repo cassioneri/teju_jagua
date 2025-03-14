@@ -21,40 +21,25 @@ extern "C" {
 #endif
 
 /**
- * @brief Gets IEEE-754's binary128 representation of a float128_t.
+ * @brief Gets the binary representation of a given value.
  *
- * See https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format
+ * @pre isfinite(value) && value > 0.
  *
- * @pre value > 0.
+ * @param value             The given value.
  *
- * @param value             The given float128_t.
- *
-  * @returns IEEE-754's binary128 representation of value.
+ * @returns The binary representation of the given value.
  */
 teju128_fields_t
-teju_float128_to_ieee128(float128_t value);
+teju_float128_to_binary(float128_t value);
 
 /**
- * @brief Gets Teju Jagua's binary representation of a given IEEE-754 binary128
- * one.
+ * @brief Gets the decimal representation of a given value.
  *
- * @pre value > 0.
+ * @pre isfinite(value) && value > 0.
  *
- * @param ieee128           The given IEEE-754 binary128 representation.
+ * @param value             The given value.
  *
- * @returns Teju Jagua's binary representation value.
- */
-teju128_fields_t
-teju_ieee128_to_binary(teju128_fields_t ieee128);
-
-/**
- * @brief Gets Teju Jagua's decimal representation of a float128_t.
- *
- * @pre value > 0.
- *
- * @param value             The given float128_t.
- *
- * @returns Teju Jagua's decimal representation of value.
+ * @returns The decimal representation of the given value.
  */
 teju128_fields_t
 teju_float128_to_decimal(float128_t value);

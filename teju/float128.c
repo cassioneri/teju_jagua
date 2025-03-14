@@ -7,7 +7,6 @@
 
 #include "teju/common.h"
 #include "teju/float128.h"
-#include "teju/ieee754.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -17,47 +16,37 @@
 extern "C" {
 #endif
 
-// Conversion from IEEE-754's parameters to Teju Jagua's.
-enum {
-  exponent_size = teju_ieee754_binary128_exponent_size,
-  mantissa_size = teju_ieee754_binary128_mantissa_size,
-  exponent_min  = teju_ieee754_binary128_exponent_min - mantissa_size + 1,
-};
-
 teju128_fields_t
-teju_float128_to_ieee128(float128_t const value) {
+teju_float128_to_binary(float128_t const value) {
 
-  uint128_t bits;
+  typedef teju128_fields_t teju_fields_t;
+  typedef teju128_u1_t     teju_u1_t;
+
+  uint32_t const mantissa_size =    113u;
+  int32_t  const exponent_min  = -16494;
+
+  teju_u1_t bits;
   memcpy(&bits, &value, sizeof(value));
 
-  teju128_fields_t binary;
-  binary.mantissa = teju_lsb(bits, mantissa_size - 1u);
+  teju_u1_t mantissa = teju_lsb(bits, mantissa_size - 1u);
   bits >>= (mantissa_size - 1u);
-  binary.exponent = (int32_t) teju_lsb(bits, exponent_size);
 
+  int32_t exponent = (int32_t) bits;
+
+  if (exponent != 0) {
+    exponent -= 1;
+    mantissa += teju_pow2(teju_u1_t, mantissa_size - 1u);
+  }
+
+  exponent += exponent_min;
+  teju128_fields_t binary = {mantissa, exponent};
   return binary;
 }
 
 teju128_fields_t
-teju_ieee128_to_binary(teju128_fields_t ieee128) {
-
-  int32_t   e = ieee128.exponent + exponent_min;
-  uint128_t m = ieee128.mantissa;
-
-  if (ieee128.exponent != 0) {
-    e -= 1;
-    m += teju_pow2(uint128_t, mantissa_size - 1u);
-  }
-
-  teju128_fields_t teju_binary = { m, e };
-  return teju_binary;
-}
-
-teju128_fields_t
 teju_float128_to_decimal(float128_t const value) {
-  teju128_fields_t ieee128     = teju_float128_to_ieee128(value);
-  teju128_fields_t teju_binary = teju_ieee128_to_binary(ieee128);
-  return teju_ieee128(teju_binary);
+  teju128_fields_t binary = teju_float128_to_binary(value);
+  return teju_ieee128(binary);
 }
 
 #ifdef __cplusplus

@@ -131,8 +131,7 @@ benchmark(nanobench::Bench& bench, T const value) {
   using      traits_t = teju::traits_t<T>;
   using      buffer_t = char[40];
 
-  auto const ieee     = traits_t::value_to_ieee(value);
-  auto const binary   = traits_t::ieee_to_binary(ieee);
+  auto const binary   = traits_t::to_binary(value);
   auto const decimal  = traits_t::teju(value);
 
   buffer_t binary_chars{};
@@ -290,6 +289,23 @@ TEST(double, integers) {
   benchmark_integers<double>("double_integers.csv");
 }
 
+template <typename T>
+void bench_all_exponents(nanobench::Bench& bench,
+  typename teju::traits_t<T>::u1_t const mantissa) {
+
+  using traits_t = teju::traits_t<T>;
+
+  auto constexpr exponent_min = traits_t::exponent_min;
+  auto constexpr exponent_max = traits_t::exponent_max;
+
+  for (std::int32_t exponent = exponent_min; exponent <= exponent_max;
+    ++exponent) {
+    auto const binary = teju::binary_t<T>{mantissa, exponent};
+    auto const value  = traits_t::to_value(binary);
+    benchmark(bench, value);
+  }
+}
+
 /**
  * @brief Benchmarks conversion of centred floating-point numbers values to
  * their decimal representations. Streams out detailed benchmarks results to a
@@ -305,31 +321,24 @@ template <typename T>
 void
 benchmark_centred(const char* const filename, unsigned n_mantissas) {
 
-  using traits_t = teju::traits_t<T>;
-  using u1_t     = typename traits_t::u1_t;
+  using traits_t  = teju::traits_t<T>;
+  using u1_t      = typename traits_t::u1_t;
 
   auto bench = get_bench();
 
-  auto constexpr mantissa_max = teju_pow2(u1_t, traits_t::mantissa_size - 1) - 1;
-  auto           distribution = std::uniform_int_distribution<u1_t>
-    {1, mantissa_max};
-  std::mt19937_64 device;
+  auto constexpr mantissa_min = teju_pow2(u1_t, traits_t::mantissa_size - 1);
+  auto constexpr mantissa_max = 2 * mantissa_min - 1;
 
-  auto constexpr exponent_max = teju_pow2(std::int32_t, traits_t::exponent_size)
-    - 1;
+  using distribution_t = std::uniform_int_distribution<u1_t>;
+  auto  distribution   = distribution_t{mantissa_min, mantissa_max};
+  auto  device         = std::mt19937_64{};
+
+  auto constexpr exponent_min = traits_t::exponent_min;
+  auto constexpr exponent_max = traits_t::exponent_max;
 
   while (n_mantissas--) {
-
     auto const mantissa = distribution(device);
-
-    if (mantissa == 0)
-      continue;
-
-    for (std::int32_t exponent = 0; exponent < exponent_max; ++exponent) {
-      auto const ieee  = typename traits_t::fields_t{ mantissa, exponent };
-      auto const value = traits_t::ieee_to_value(ieee);
-      benchmark(bench, value);
-    }
+    bench_all_exponents<T>(bench, mantissa);
   }
 
   output(bench, filename);
@@ -361,22 +370,8 @@ benchmark_uncentred(const char* const filename) {
 
   auto bench = get_bench();
 
-  auto constexpr mantissa_max = teju_pow2(u1_t, traits_t::mantissa_size - 1) - 1;
-  auto           distribution = std::uniform_int_distribution<u1_t>
-    {1, mantissa_max};
-  std::mt19937_64 device;
-
-  auto constexpr exponent_max = teju_pow2(std::int32_t, traits_t::exponent_size)
-    - 1;
-
-  auto constexpr mantissa = u1_t{0};
-
-  for (std::int32_t exponent = 1; exponent < exponent_max; ++exponent) {
-    auto const ieee  = typename traits_t::fields_t{ mantissa, exponent };
-    auto const value = traits_t::ieee_to_value(ieee);
-    benchmark(bench, value);
-  }
-
+  auto constexpr mantissa = teju_pow2(u1_t, traits_t::mantissa_size - 1);
+  bench_all_exponents<T>(bench, mantissa);
   output(bench, filename);
 }
 

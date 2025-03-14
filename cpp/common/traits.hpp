@@ -87,7 +87,7 @@ namespace detail {
     static_assert(sizeof(T) == sizeof(ieee.mantissa), "Incompatible types");
 
     auto const exponent = static_cast<u1_t>(ieee.exponent);
-    auto const bits     = (exponent << mantissa_size) | ieee.mantissa;
+    auto const bits     = (exponent << (mantissa_size - 1)) | ieee.mantissa;
 
     T value;
     std::memcpy(&value, &bits, sizeof(value));
@@ -112,8 +112,8 @@ namespace detail {
 
     static auto constexpr exponent_size = std::uint32_t{exponent_size_};
     static auto constexpr mantissa_size = std::uint32_t{mantissa_size_};
-    static auto constexpr exponent_min  = exponent_min_ - mantissa_size_;
-    static auto constexpr exponent_max  = exponent_max_ - mantissa_size_;
+    static auto constexpr exponent_min  = exponent_min_ - mantissa_size_ + 1;
+    static auto constexpr exponent_max  = exponent_max_ - mantissa_size_ + 1;
 
   };
 

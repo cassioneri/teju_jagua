@@ -274,7 +274,7 @@ benchmark_integers(const char* const filename) {
       benchmark(bench, value);
   };
 
-  auto const max = std::pow(T{2}, T{teju::traits_t<T>::mantissa_size + 1});
+  auto const max = std::pow(T{2}, T{teju::traits_t<T>::mantissa_size});
 
   test(T{1}, T{5000});
   test(max - T{5000}, max);
@@ -310,7 +310,7 @@ benchmark_centred(const char* const filename, unsigned n_mantissas) {
 
   auto bench = get_bench();
 
-  auto constexpr mantissa_max = teju_pow2(u1_t, traits_t::mantissa_size) - 1;
+  auto constexpr mantissa_max = teju_pow2(u1_t, traits_t::mantissa_size - 1) - 1;
   auto           distribution = std::uniform_int_distribution<u1_t>
     {1, mantissa_max};
   std::mt19937_64 device;
@@ -361,7 +361,7 @@ benchmark_uncentred(const char* const filename) {
 
   auto bench = get_bench();
 
-  auto constexpr mantissa_max = teju_pow2(u1_t, traits_t::mantissa_size) - 1;
+  auto constexpr mantissa_max = teju_pow2(u1_t, traits_t::mantissa_size - 1) - 1;
   auto           distribution = std::uniform_int_distribution<u1_t>
     {1, mantissa_max};
   std::mt19937_64 device;

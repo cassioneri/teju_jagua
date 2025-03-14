@@ -17,7 +17,7 @@ extern "C" {
 enum {
   exponent_size = teju_ieee754_binary32_exponent_size,
   mantissa_size = teju_ieee754_binary32_mantissa_size,
-  exponent_min  = teju_ieee754_binary32_exponent_min - mantissa_size,
+  exponent_min  = teju_ieee754_binary32_exponent_min - mantissa_size + 1,
 };
 
 teju32_fields_t
@@ -27,8 +27,8 @@ teju_float_to_ieee32(float const value) {
   memcpy(&bits, &value, sizeof(value));
 
   teju32_fields_t binary;
-  binary.mantissa = teju_lsb(bits, mantissa_size);
-  bits >>= mantissa_size;
+  binary.mantissa = teju_lsb(bits, mantissa_size - 1u);
+  bits >>= (mantissa_size - 1u);
   binary.exponent = (int32_t) teju_lsb(bits, exponent_size);
 
   return binary;
@@ -42,7 +42,7 @@ teju_ieee32_to_binary(teju32_fields_t ieee32) {
 
   if (ieee32.exponent != 0) {
     e -= 1;
-    m += teju_pow2(uint32_t, mantissa_size);
+    m += teju_pow2(uint32_t, mantissa_size - 1u);
   }
 
   teju32_fields_t teju_binary = { m, e };

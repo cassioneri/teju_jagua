@@ -139,7 +139,7 @@ TYPED_TEST_P(typed_tests_t, mantissa_min_all_exponents) {
   for (std::uint32_t exponent = 1; !this->HasFailure() &&
     exponent < exponent_max; ++exponent) {
 
-    auto const bits = u1_t{exponent} << traits_t::mantissa_size;
+    auto const bits = u1_t{exponent} << (traits_t::mantissa_size - 1);
     fp_t value;
     std::memcpy(&value, &bits, sizeof(bits));
     compare_to_others(value);
@@ -157,13 +157,19 @@ TYPED_TEST_P(typed_tests_t, integers) {
     }
   };
 
-  auto const max = std::pow(fp_t{2}, fp_t{traits_t<fp_t>::mantissa_size + 1});
+  auto const max   = std::pow(fp_t{2}, fp_t{traits_t<fp_t>::mantissa_size - 1});
+  auto const limit = fp_t{10'000'000};
 
-  // Tests first 10,000,000 small integers.
-  test(fp_t{1}, fp_t{10000000});
-
-  // Tests last 10,000,000 small integers.
-  test(max - fp_t{10000000}, max);
+  if (max <= limit) {
+    // Tests all small integers.
+    test(fp_t{1}, max);
+  }
+  else {
+    // Tests first small integers.
+    test(fp_t{1}, limit);
+    // Tests last  small integers.
+    test(std::max(limit, max - limit), max);
+  }
 }
 
 REGISTER_TYPED_TEST_SUITE_P(typed_tests_t,
@@ -404,28 +410,6 @@ TEST(float128, test_hard_coded_binary_representations) {
 
 #endif // defined(teju_has_float128)
 
-/**
- * @brief Returns the floating point number value corresponding to given IEEE
- * fields.
- *
- * @tparam T                The floating point value type.
- * @param  e                The given exponent field.
- * @param  m                The given mantissa field.
- */
-template <typename T>
-T
-from_ieee(std::uint32_t e, typename traits_t<T>::u1_t m) {
-
-  using      traits_t = teju::traits_t<T>;
-  using      u1_t     = typename traits_t::u1_t;
-  u1_t const i        = (u1_t(e) << traits_t::mantissa_size) | m;
-
-  T value;
-  std::memcpy(&value, &i, sizeof(i));
-
-  return value;
-}
-
 // Adhoc test for a given floating point number value.
 TEST(ad_hoc, value) {
   auto const value = 1.0f;
@@ -434,7 +418,7 @@ TEST(ad_hoc, value) {
 
 // Adhoc test for given field values.
 TEST(ad_hoc, fields) {
-  auto const value = from_ieee<float>(127, 0); // = 1.0f
+  auto const value = traits_t<float>::ieee_to_value({ 127, 0 }); // = 1.0f
   compare_to_others(value);
 }
 

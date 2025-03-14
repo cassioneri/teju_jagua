@@ -215,7 +215,7 @@ generator_t::generator_t(config_t config, std::string directory) :
   config_      {std::move(config)              },
   prefix_      {get_prefix(size())             },
   function_    {"teju_" + id()                 },
-  mantissa_min_{pow2(mantissa_size())          },
+  mantissa_min_{pow2(mantissa_size() - 1u)     },
   mantissa_max_{2 * mantissa_min()             },
   index_offset_{teju_log10_pow2(exponent_min())},
   directory_   {std::move(directory)           },

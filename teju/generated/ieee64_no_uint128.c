@@ -13,7 +13,7 @@ extern "C" {
 
 #define teju_size                 64u
 #define teju_exponent_minimum     -1074
-#define teju_mantissa_size        52u
+#define teju_mantissa_size        53u
 #define teju_storage_index_offset -324
 #define teju_calculation_sorted   0u
 #define teju_calculation_div10    teju_synthetic_1

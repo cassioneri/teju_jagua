@@ -33,7 +33,7 @@ namespace {
     auto exponent_ieee =
       static_cast<u1_t>(teju_binary.exponent - exponent_min);
 
-    auto const mantissa_bound = teju_pow2(u1_t, mantissa_size);
+    auto const mantissa_bound = teju_pow2(u1_t, mantissa_size - 1);
     auto const subnormal      = exponent_ieee == 0;
 
     u1_t mantissa_ieee = 0;
@@ -52,7 +52,7 @@ namespace {
       mantissa_ieee = teju_binary.mantissa - mantissa_bound;
     }
 
-    auto const bits = (exponent_ieee << mantissa_size) | mantissa_ieee;
+    auto const bits = (exponent_ieee << (mantissa_size - 1)) | mantissa_ieee;
 
     T value;
     std::memcpy(&value, &bits, sizeof(value));

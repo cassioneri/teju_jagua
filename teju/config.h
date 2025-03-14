@@ -54,10 +54,10 @@ extern "C" {
  * @brief The platform provides operator * for 1-limb unsigned integers that
  * yields the lower 1-limb of the 2-limb product. For instance, assuming 1-limb
  * is 32-bits:
- * \code{.cpp}
+ * @code{.cpp}
  *     uint32_t a, b;
  *     uint32_t lower = a * b;
- * \endcode
+ * @endcode
  */
 #define teju_built_in_1 1u
 
@@ -66,10 +66,10 @@ extern "C" {
  * unsigned integers and returns the lower 1-limb of the 2-limb product. It also
  * takes a third argument of pointer type where the upper 1-limb of the product
  * is stored on exit. For instance, assuming 1-limb is 32-bits:
- * \code{.cpp}
+ * @code{.cpp}
  *     uint32_t a, b, upper;
  *     uint32_t lower = teju_multiply(a, b, &upper);
- * \endcode
+ * @endcode
  */
 #define teju_synthetic_1 2u
 
@@ -77,10 +77,10 @@ extern "C" {
  * @brief The platform provides operator * for 2-limb unsigned integers that
  * yields the lower 2-limb of the 4-limb product. For instance, assuming 1-limb
  * is 32-bits:
- * \code{.cpp}
+ * @code{.cpp}
  *     uint64_t a, b;
  *     uint64_t lower = a * b;
- * \endcode
+ * @endcode
  */
 #define teju_built_in_2  3u
 
@@ -89,10 +89,10 @@ extern "C" {
  * unsigned integers and returns the lower 2-limb of the 4-limb product. It also
  * takes a third argument of pointer type where the upper 2-limb of the product
  * is stored on exit. For instance, assuming 1-limb is 32-bits:
- * \code{.cpp}
+ * @code{.cpp}
  *     uint64_t a, b, upper;
  *     uint64_t lower = teju_multiply(a, b, &upper);
- * \endcode
+ * @endcode
  */
 #define teju_synthetic_2 4u
 
@@ -100,10 +100,10 @@ extern "C" {
  * @brief The platform provides operator * for 4-limb unsigned integers that
  * yields the lower 4-limb of the 8-limb product. For instance, assuming 1-limb
  * is 32-bits, gcc and clang support the following:
- * \code{.cpp}
+ * @code{.cpp}
  *     uint128_t a, b;
  *     uint128_t lower = a * b;
- * \endcode
+ * @endcode
  */
 #define teju_built_in_4  5u
 

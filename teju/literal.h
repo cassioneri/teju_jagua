@@ -20,10 +20,10 @@
  * a_1 * 2^N + a_0.
  *
  * For instance, if teju_size == 128, then:
- * \code{.cpp}
+ * @code{.cpp}
  *    teju_literal2(0x0123456789abcdef, 0xfedcba9876543210) ==
  *         0x0123456789abcdeffedcba9876543210.
- * \endcode
+ * @endcode
  * (Except that the 128-bits literal on the right side might be ill formed.)
  *
  * @param a1                The 1st (upper) half a_1.
@@ -43,10 +43,10 @@
  * expands to a_3 * 2^(6 * N) + a_2 * 2^(4 * N) + a_1 2^N + a_0.
  *
  * For instance, if teju_size == 128, then:
- * \code{.cpp}
+ * @code{.cpp}
  *     teju_literal4(0x01234567, 0x89abcdef, 0xfedcba98, 0x76543210) =
  *         0x0123456789abcdeffedcba9876543210.
- * \endcode
+ * @endcode
  * (Except that the 128-bits literal on the right side might be ill formed.)
  *
  * @param a3                The 3rd (highest) quarter a_3.

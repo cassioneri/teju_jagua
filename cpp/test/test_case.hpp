@@ -26,7 +26,7 @@ namespace test {
  * decimal representation. Instantiations are provided for float, double and
  * float128_t (if supported).
  *
- * \tparam                  The given type.
+ * @tparam                  The given type.
  */
 template <typename T>
 struct test_case_t {

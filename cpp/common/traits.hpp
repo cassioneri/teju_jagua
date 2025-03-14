@@ -44,27 +44,27 @@ namespace detail {
  *
  * Types:
  *
- * \li u1_t               The 1-limb unsigned integer type.
- * \li fields_t           Fields type storing exponent and mantissa.
- * \li streamable_float_t A type constructible from the one of interest that is
+ * @li u1_t               The 1-limb unsigned integer type.
+ * @li fields_t           Fields type storing exponent and mantissa.
+ * @li streamable_float_t A type constructible from the one of interest that is
  *                        streamable.
- * \li streamable_uint_t  A type constructible from u1_t that is streamable.
+ * @li streamable_uint_t  A type constructible from u1_t that is streamable.
  *
  * Static data:
  *
- * \li exponent_size Exponent size in bits.
- * \li mantissa_size Mantissa size in bits.
+ * @li exponent_size Exponent size in bits.
+ * @li mantissa_size Mantissa size in bits.
  *
  * Static functions:
  *
- * \li fields_t to_ieee(T value)
+ * @li fields_t to_ieee(T value)
  *   Returns IEEE-754's representation of value.
- * \li fields_t teju(T value)
+ * @li fields_t teju(T value)
  *   Returns Teju Jagua's decimal fields of value.
- * \li fields_t other(T value)
+ * @li fields_t other(T value)
  *   Returns the third-party library's binary fields of value.
  *
- * \tparam T                The type of interest.
+ * @tparam T                The type of interest.
  */
 template <typename T>
 struct traits_t;

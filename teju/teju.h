@@ -38,10 +38,12 @@ extern "C" {
 /**
  * @brief Checks whether mantissa m is multiple of 2^e.
  *
+ * @param  m                The mantissa m.
+ * @param  e                The exponent e.
+ *
  * @pre 0 <= e && e < teju_mantissa_size.
  *
- * @param m                 The mantissa m.
- * @param e                 The exponent e.
+ * @returns true if m is multiple of 2^e and false, otherwise.
  */
 static inline
 bool
@@ -52,8 +54,10 @@ is_multiple_of_pow2(teju_u1_t const m, int32_t const e) {
 /**
  * @brief Checks whether the number m * 2^e is a "small" integer.
  *
- * @param m                 The mantissa m.
- * @param e                 The exponent e.
+ * @param  m                The mantissa m.
+ * @param  e                The exponent e.
+ *
+ * @returns true if m * 2^e is a "small" integer and false, otherwise.
  */
 static inline
 bool
@@ -64,10 +68,12 @@ is_small_integer(teju_u1_t const m, int32_t const e) {
 /**
  * @brief Checks whether m is multiple of 5^f.
  *
+ * @param  m                The number m.
+ * @param  f                The exponent f.
+ *
  * @pre minverse[f] is well defined.
  *
- * @param m                 The number m.
- * @param f                 The exponent f.
+ * @returns true if m is multiple of 5^f and false, otherwise.
  */
 static inline
 bool
@@ -78,9 +84,11 @@ is_multiple_of_pow5(teju_u1_t const m, int32_t const f) {
 /**
  * @brief Checks whether m, for m in { m_a, m_b, c_2 }, yields a tie.
  *
- * @param m                 The number m.
- * @param f                 The exponent f (for m == m_a and m == m_b) or
+ * @param  m                The number m.
+ * @param  f                The exponent f (for m == m_a and m == m_b) or
  *                          its negation -f for (m == c_2).
+ *
+ * @returns true if m yields a tie and false, otherwise.
  */
 static inline
 bool
@@ -92,8 +100,10 @@ is_tie(teju_u1_t const m, int32_t const f) {
 /**
  * @brief Checks whether m_a for the uncentred value yields a tie.
  *
- * @param m                 The number m_a.
- * @param f                 The exponent f.
+ * @param  m                The number m_a.
+ * @param  f                The exponent f.
+ *
+ * @returns true if m_a yields a tie and false, otherwise.
  */
 static inline
 bool
@@ -102,10 +112,12 @@ is_tie_uncentred(teju_u1_t const m_a, int32_t const f) {
 }
 
 /**
- * @brief Creates teju_fields_t from exponent and mantissa.
+ * @brief Creates a teju_fields_t from exponent and mantissa.
  *
- * @param m                 The mantissa.
- * @param e                 The exponent.
+ * @param  m                The mantissa.
+ * @param  e                The exponent.
+ *
+ * @returns The teju_fields_t object.
  */
 static inline
 teju_fields_t
@@ -115,9 +127,11 @@ make_fields(teju_u1_t const m, int32_t const e) {
 }
 
 /**
- * @brief Rotates bits of a given number 1 position to the right.
+ * @brief Rotates the bits of a given number 1 position to the right.
  *
- * @param m                 The number.
+ * @param  m                The given number.
+ *
+ * @returns The value of m after the rotation.
  */
 static inline
 teju_u1_t ror(teju_u1_t m) {
@@ -126,10 +140,10 @@ teju_u1_t ror(teju_u1_t m) {
 
 /**
  * @brief Shortens the decimal representation m\cdot 10^e\f by removing trailing
- * zeros of m and increasing e.
+ *        zeros of m and increasing e.
  *
- * @param m                 The mantissa m.
- * @param e                 The exponent e.
+ * @param  m                The mantissa m.
+ * @param  e                The exponent e.
  *
  * @returns The fields of the shortest close decimal representation.
  */
@@ -152,8 +166,8 @@ remove_trailing_zeros(teju_u1_t m, int32_t e) {
  *
  * Finds the shortest decimal representation of m * 2^e.
  *
- * @param e                 The exponent e.
- * @param m                 The mantissa m.
+ * @param  e                The exponent e.
+ * @param  m                The mantissa m.
  *
  * @returns The fields of the shortest decimal representation.
  */
@@ -166,13 +180,13 @@ teju_function(teju_fields_t const binary) {
   if (is_small_integer(m, e))
     return remove_trailing_zeros(m >> -e, 0);
 
-  teju_u1_t const m_0 = teju_pow2(teju_u1_t, teju_mantissa_size - 1u);
   int32_t   const f   = teju_log10_pow2(e);
   uint32_t  const r   = teju_log10_pow2_residual(e);
   uint32_t  const i   = f - teju_storage_index_offset;
   teju_u1_t const u   = multipliers[i].upper;
   teju_u1_t const l   = multipliers[i].lower;
 
+  teju_u1_t const m_0 = teju_pow2(teju_u1_t, teju_mantissa_size - 1u);
   if (m != m_0 || e == teju_exponent_minimum) {
 
     // Calculations of m_a, m_b and m_c are safe in the centred case if

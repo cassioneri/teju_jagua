@@ -6,8 +6,6 @@
 #include "cpp/test/test_case.hpp"
 #include "teju/common.h"
 
-#include <type_traits>
-
 namespace teju {
 namespace test {
 

@@ -23,9 +23,9 @@ extern "C" {
 /**
  * @brief Gets the binary representation of a given value.
  *
- * @pre isfinite(value) && value > 0.
+ * @param  value            The given value.
  *
- * @param value             The given value.
+ * @pre isfinite(value) && value > 0.
  *
  * @returns The binary representation of the given value.
  */
@@ -35,9 +35,9 @@ teju_float_to_binary(float value);
 /**
  * @brief Gets the decimal representation of a given value.
  *
- * @pre isfinite(value) && value > 0.
+ * @param  value            The given value.
  *
- * @param value             The given value.
+ * @pre isfinite(value) && value > 0.
  *
  * @returns The decimal representation of the given value.
  */

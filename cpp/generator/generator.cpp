@@ -28,6 +28,10 @@ pow2(std::uint32_t const n) {
 
 /**
  * @brief Returns 5^n.
+ *
+ * @param  n                The exponent n.
+ *
+ * @returns 5^n.
  */
 integer_t
 pow5(std::uint32_t const n) {
@@ -38,16 +42,20 @@ pow5(std::uint32_t const n) {
 }
 
 /**
- * @brief Returns the inverse of 5 modulo 2^s.
+ * @brief Returns the inverse of 5 modulo 2^k.
+ *
+ * @param  k                The exponent k.
+ *
+ * @returns The inverse of 5 modulo 2^k
  */
 integer_t
-minverse5(std::uint32_t s) {
-  auto const n    = pow2(s) + 2;
+minverse5(std::uint32_t k) {
+  auto const n    = pow2(k) + 2;
   auto const mask = n - 3; // pow2(s) - 1
   auto m = integer_t{1};
-  while (s > 1) {
+  while (k > 1) {
     m  = (m * (n - ((5 * m) & mask))) & mask;
-    s /= 2;
+    k /= 2;
   }
   return m;
 }
@@ -57,9 +65,11 @@ minverse5(std::uint32_t s) {
  *
  *     phi_1(m) := m / (delta_1 - alpha_1 * m % delta_1).
  *
- * @param alpha_1           Parameter alpha_1.
- * @param delta_1           Parameter delta_1.
- * @param m                 Variable m.
+ * @param  alpha_1          Parameter alpha_1.
+ * @param  delta_1          Parameter delta_1.
+ * @param  m                Variable m.
+ *
+ * @returns The value of phi_1(m).
  */
 rational_t
 phi_1(integer_t const& alpha_1, integer_t const& delta_1,
@@ -72,9 +82,11 @@ phi_1(integer_t const& alpha_1, integer_t const& delta_1,
  *
  *     phi_2(m) := m / (1 + (alpha_2 * m - 1) % delta_2).
  *
- * @param alpha_2           Parameter alpha_2.
- * @param delta_2           Parameter delta_2.
- * @param m                 Variable m.
+ * @param  alpha_2          Parameter alpha_2.
+ * @param  delta_2          Parameter delta_2.
+ * @param  m                Variable m.
+ *
+ * @returns The value of phi_2(m).
  */
 rational_t
 phi_2(integer_t const& alpha_2, integer_t const& delta_2,
@@ -84,14 +96,16 @@ phi_2(integer_t const& alpha_2, integer_t const& delta_2,
 
 /**
  * @brief Given alpha_1, delta_1, a_1 and b_1, this function calculates the
- * maximiser of phi_1(m) over [a_1, b_1[.
+ *        maximiser of phi_1(m) over [a_1, b_1[.
+ *
+ * @param  alpha_1          Parameter alpha_1.
+ * @param  delta_1          Parameter delta_1.
+ * @param  a_1              Lower bound a_1.
+ * @param  b_1              Upper bound b_1.
  *
  * @pre 0 <= alpha_1 && alpha_1 < delta_1 && a_1 < b_1.
  *
- * @param alpha_1           Parameter alpha_1.
- * @param delta_1           Parameter delta_1.
- * @param a_1               Lower bound a_1.
- * @param b_1               Upper bound b_1.
+ * @returns The maximiser of phi_1(m) over [a_1, b_1[
  */
 rational_t
 get_maximum_1(integer_t const& alpha_1, integer_t const& delta_1,
@@ -101,12 +115,14 @@ get_maximum_1(integer_t const& alpha_1, integer_t const& delta_1,
  * @brief Given alpha, delta, a_2 and b_2, this function calculates the
  * maximiser of phi_2(m) over [a_2, b_2[.
  *
+ * @param  alpha_2          Parameter alpha_1.
+ * @param  delta_2          Parameter delta_1.
+ * @param  a_2              Lower bound a_2.
+ * @param  b_2              Upper bound b_2.
+ *
  * @pre 0 < alpha_2 && 0 < delta_2 && 1 <= a_2 && a_2 < b_2.
  *
- * @param alpha_2           Parameter alpha_1.
- * @param delta_2           Parameter delta_1.
- * @param a_2               Lower bound a_2.
- * @param b_2               Upper bound b_2.
+ * @returns The maximiser of phi_2(m) over [a_2, b_2[.
  */
 rational_t
 get_maximum_2(integer_t const& alpha_2, integer_t const& delta_2,
@@ -171,7 +187,7 @@ get_maximum_2(integer_t const& alpha_2,
 /**
  * @brief Returns the type prefix corresponding to a given size.
  *
- * @param size              The size.
+ * @param  size             The size.
  *
  * @returns The type prefix corresponding to a given size.
  */
@@ -193,7 +209,7 @@ get_prefix(std::uint32_t const size) {
 /**
  * @brief Converts a given string to upper case letters.
  *
- * @param str                The given string
+ * @param  str              The given string
  *
  * @returns The upper case string.
  */
@@ -347,7 +363,7 @@ struct generator_t::fast_eaf_t {
 
 /**
  * @brief Stores alpha, delta (usually pow2(e) and pow2(f)) and the maximum of
- * m / (delta - alpha * m % delta) for m in the set of mantissas.
+ *        m / (delta - alpha * m % delta) for m in the set of mantissas.
  */
 struct generator_t::alpha_delta_maximum_t {
   integer_t  alpha;

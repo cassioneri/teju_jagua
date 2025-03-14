@@ -24,7 +24,7 @@ extern "C" {
 /**
  * @brief Gets the quotient of the division by 10.
  *
- * @param m The dividend.
+ * @param  m                The dividend.
  *
  * @returns m / 10.
  */

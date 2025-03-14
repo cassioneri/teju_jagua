@@ -40,27 +40,35 @@ struct splitter_t {
   /**
    * @brief Constructor.
    *
-   * @param size              The limb size to be split.
-   * @param parts             Number of parts that the limbs must be split into.
+   * @param  size           The limb size to be split.
+   * @param  parts          Number of parts that the limbs must be split into.
    */
   splitter_t(std::uint32_t size, std::uint32_t parts);
 
   struct data_t;
 
   /**
-   * @brief Returns an object which, when streamed out, splits value.
+   * @brief Returns an object which, when streamed out, splits a given value.
+   *
+   * @param  value          The given value.
+   *
+   * @returns An object which, when streamed out, splits value.
    */
   data_t
   operator()(integer_t value) const;
 
   /**
    * @brief Gets the size.
+   *
+   * @returns The size.
    */
   std::uint32_t
   size() const;
 
   /**
    * @brief Gets the number of parts.
+   *
+   * @returns The number of parts.
    */
   std::uint32_t
   parts() const;
@@ -80,8 +88,8 @@ struct splitter_t::data_t {
   /**
    * @brief Constructor.
    *
-   * @param splitter          The splitter that created *this.
-   * @param value             The value to be split.
+   * @param  splitter       The splitter that created *this.
+   * @param  value          The value to be split.
    */
   data_t(splitter_t splitter, integer_t value);
 
@@ -93,12 +101,16 @@ struct splitter_t::data_t {
 
   /**
    * @brief Gets the value.
+   *
+   * @returns The value.
    */
   integer_t&
   value();
 
   /**
    * @brief Gets the value.
+   *
+   * @returns The value.
    */
   integer_t const&
   value() const;
@@ -115,8 +127,10 @@ private:
  * At the time of construction, data received a splitter and a number n. This
  * stream operator uses splitter's fields to configure the splitting of n.
  *
- * @param os                  The object to be streamed to.
- * @param data                The splitter_t::data_t object.
+ * @param  os               The object to be streamed to.
+ * @param  data             The splitter_t::data_t object.
+ *
+ * @returns os.
  */
 std::ostream&
 operator<<(std::ostream& os, splitter_t::data_t&& data);

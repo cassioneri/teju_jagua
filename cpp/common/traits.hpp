@@ -4,7 +4,7 @@
 /**
  * @file cpp/common/traits.hpp
  *
- * Traits for floating point number types.
+ * Traits for floating-point number types.
  */
 
 #ifndef TEJU_CPP_COMMON_TRAITS_HPP_
@@ -39,7 +39,7 @@ namespace detail {
 } // namespace detail
 
 /**
- * @brief Traits for floating point number types.
+ * @brief Traits for floating-point number types.
  *
  * Teju Jagua (and possibly other third-party libraries with the same purpose)
  * are supposed to be called in C which doesn't support overloading and
@@ -52,15 +52,15 @@ namespace detail {
  *
  * Types:
  *
- * @li u1_t               The 1-limb unsigned integer type.
- * @li decimal_t          Type of decimal field representation.
- * @li binary_t           Type of binary field representation.
+ * @li u1_t                 The 1-limb unsigned integer type.
+ * @li decimal_t            Type of decimal field representation.
+ * @li binary_t             Type of binary field representation.
  *
  * Static data:
  *
- * @li mantissa_size Mantissa size in bits.
- * @li exponent_min  Minimum exponent of the binary representation.
- * @li exponent_max  Maximum exponent of the binary representation.
+ * @li mantissa_size        Mantissa size in bits.
+ * @li exponent_min         Minimum exponent of the binary representation.
+ * @li exponent_max         Maximum exponent of the binary representation.
  *
  * Static functions:
  *

@@ -26,27 +26,27 @@ namespace test {
  * decimal representation. Instantiations are provided for float, double and
  * float128_t (if supported).
  *
- * @tparam                  The given type.
+ * @tparam T                The given type.
  */
 template <typename T>
 struct test_case_t {
 
   /**
    * @brief Constructor from a value and the expected fields of its Teju Jagua's
-   * decimal representation.
+   *        decimal representation.
    *
-   * @param value           The given value.
-   * @param expected        The expected fields of Teju Jagua's decimal
+   * @param  value          The given value.
+   * @param  expected       The expected fields of Teju Jagua's decimal
    *                        representation.
    */
   explicit test_case_t(T value, decimal_t<T> const& expected);
 
   /**
    * @brief Constructor from the fields of Teju Jagua's binary representation
-   * and the expected fields of its Teju Jagua's decimal representation.
+   *        and the expected fields of its Teju Jagua's decimal representation.
    *
-   * @param value           The fields of Teju Jagua's binary representation.
-   * @param expected        The expected fields of Teju Jagua's decimal
+   * @param  value          The fields of Teju Jagua's binary representation.
+   * @param  expected       The expected fields of Teju Jagua's decimal
    *                        representation.
    */
   explicit test_case_t(decimal_t<T> const& teju_binary,
@@ -57,14 +57,16 @@ struct test_case_t {
    *
    * @returns The value.
    */
-  T const& value() const;
+  T const&
+  value() const;
 
   /**
    * @brief Gets the expected representation.
    *
    * @returns The representation.
    */
-  decimal_t<T> const& expected() const;
+  decimal_t<T> const&
+  expected() const;
 
 private:
 
@@ -82,11 +84,12 @@ private:
  *
  * @param os                The object that the test case is streamed to.
  * @param test_case         The test case.
+ *
+ * @return os.
  */
 template <typename C, typename CT, typename T>
 std::basic_ostream<C, CT>&
-operator <<(std::basic_ostream<C, CT>& os, test_case_t<T> const& test_case);
-//  {
+operator <<(std::basic_ostream<C, CT>& os, test_case_t<T> const& test_case) {
 
 //   using traits_t          = teju::traits_t<T>;
 //   using fields_t          = typename test_case_t<T>::fields_t;
@@ -100,7 +103,8 @@ operator <<(std::basic_ostream<C, CT>& os, test_case_t<T> const& test_case);
 //   return os << test_case.expected() << "\n"
 //     "    [value = " << streamable_uint_t{teju_binary.c.mantissa} << " * 2^(" <<
 //     teju_binary.c.exponent << ")]";
-// }
+  return os;
+}
 
 } // namespace test
 } // namespace teju

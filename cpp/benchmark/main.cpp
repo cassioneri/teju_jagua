@@ -252,8 +252,8 @@ output(nanobench::Bench const& bench, const char* const filename) {
 
 /**
  * @brief Benchmarks conversion of integral floating-point numbers values to
- * their decimal representations. Streams out detailed benchmarks results to a
- * given file and a summary to std::cout.
+ *        their decimal representations. Streams out detailed benchmarks results
+ *        to a given file and a summary to std::cout.
  *
  * The set of values comprises the smallest and largest 5,000 integral values (a
  * total of 10,000 values) which Teju Jagua treats as special cases.
@@ -308,8 +308,8 @@ void bench_all_exponents(nanobench::Bench& bench,
 
 /**
  * @brief Benchmarks conversion of centred floating-point numbers values to
- * their decimal representations. Streams out detailed benchmarks results to a
- * given file and a summary to std::cout.
+ *        their decimal representations. Streams out detailed benchmarks results
+ *        to a given file and a summary to std::cout.
  *
  * The set of values comprises a given number of randomly selected mantissas
  * for all possible binary exponents.
@@ -354,8 +354,8 @@ TEST(double, centred) {
 
 /**
  * @brief Benchmarks conversion of uncentred floating-point numbers values to
- * their decimal representations. Streams out detailed benchmarks results to a
- * given file and a summary to std::cout.
+ *        their decimal representations. Streams out detailed benchmarks results
+ *        to a given file and a summary to std::cout.
  *
  * The set of values comprises all uncentred values.
  *

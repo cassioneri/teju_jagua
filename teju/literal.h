@@ -26,8 +26,8 @@
  * @endcode
  * (Except that the 128-bits literal on the right side might be ill formed.)
  *
- * @param a1                The 1st (upper) half a_1.
- * @param a0                The 0th (lower) half a_0.
+ * @param  a1               The 1st (upper) half a_1.
+ * @param  a0               The 0th (lower) half a_0.
  *
  * @returns An expression whose value is the constructed number.
  */
@@ -49,10 +49,10 @@
  * @endcode
  * (Except that the 128-bits literal on the right side might be ill formed.)
  *
- * @param a3                The 3rd (highest) quarter a_3.
- * @param a2                The 2nd quarter a_2.
- * @param a1                The 1st quarter a_1.
- * @param a0                The 0th (lowest) quarter a_0.
+ * @param  a3               The 3rd (highest) quarter a_3.
+ * @param  a2               The 2nd quarter a_2.
+ * @param  a1               The 1st quarter a_1.
+ * @param  a0               The 0th (lowest) quarter a_0.
  *
  * @returns An expression whose value is the constructed number.
  */

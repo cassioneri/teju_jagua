@@ -4,7 +4,7 @@
 /**
  * @file cpp/common/fields.hpp
  *
- * C++ wrapper around the C fields of floating point representation.
+ * C++ wrapper around the C fields of floating-point representation.
  */
 
 #ifndef TEJU_CPP_COMMON_FIELDS_HPP_
@@ -19,7 +19,7 @@
 namespace teju {
 
 /**
- * @brief C++ wrapper around the C fields of floating point representation.
+ * @brief C++ wrapper around the C fields of floating-point representation.
  *
  * Instantiations are provided for float, double and float128_t (if supported).
  */
@@ -65,8 +65,8 @@ using decimal_t = fields_t<T, 10>;
  *
  * @tparam T                The type T.
  *
- * @param left              The left operand.
- * @param right             The right operand.
+ * @param  left             The left operand.
+ * @param  right            The right operand.
  */
 template <typename T, unsigned base>
 bool operator==(fields_t<T, base> const& left, fields_t<T, base> const& right) {
@@ -78,8 +78,8 @@ bool operator==(fields_t<T, base> const& left, fields_t<T, base> const& right) {
  *
  * @tparam T                The type T.
  *
- * @param left              The left operand.
- * @param right             The right operand.
+ * @param  left             The left operand.
+ * @param  right            The right operand.
  */
 template <typename T, unsigned base>
 bool operator!=(fields_t<T, base> const& left, fields_t<T, base> const& right) {
@@ -93,8 +93,8 @@ bool operator!=(fields_t<T, base> const& left, fields_t<T, base> const& right) {
  * @tparam CT               The char-traits type.
  * @tparam T                The type T.
  *
- * @param os                The object that fields are streamed to.
- * @param fields            The fields.
+ * @param  os               The object that fields are streamed to.
+ * @param  fields           The fields.
  */
 template <typename C, typename CT, typename T, unsigned base>
 std::basic_ostream<C, CT>&

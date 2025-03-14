@@ -27,7 +27,6 @@ using namespace teju::test;
 /**
  * @brief Creates an integer number from chars.
  *
- * @tparam T
  * @tparam T                The type of the number to be generated.
  * @tparam Cs...            The chars.
  */
@@ -37,7 +36,17 @@ struct make_number;
 // Specialisation when the pack of chars is empty.
 template <typename T>
 struct make_number<T> {
-  static T value(T n) {
+
+  /**
+   * @brief Returns n.
+   *
+   * @param  n              The value of n.
+   *
+   * @returns n.
+   */
+  static
+  T
+  value(T n) {
     return n;
   }
 };
@@ -47,13 +56,17 @@ template <typename T, char C, char... Cs>
 struct make_number<T, C, Cs...> {
 
   /**
-   * @brief Appends to n the digits C, Cs...
+   * @brief Appends chars to n.
    *
    * For instance, for n = 123 and the pack '4', '5', '6', it returns 123456.
    *
-   * @param n                 The value of n.
+   * @param  n              The value of n.
+   *
+   * @returns The number n appended with the given chars.
    */
-  static T value(T n) {
+  static
+  T
+  value(T n) {
     return make_number<T, Cs...>::value(10 * n + (C - '0'));
   }
 };
@@ -61,10 +74,12 @@ struct make_number<T, C, Cs...> {
 /**
  * @brief Gets the next value of type T following a given one.
  *
-  * @pre std::isfinite(value) && value > 0.
- *
- * @tparam T                The floating point value type.
+ * @tparam T                The floating-point value type.
  * @param  value            The given value.
+ *
+ * @pre std::isfinite(value) && value > 0.
+ *
+ * @returns The next value.
  */
 template <typename T>
 T
@@ -78,7 +93,7 @@ get_next(T value) {
 
 /**
  * @brief Converts a given value from binary to decimal using Teju Jagua and a
- * third part-library and check whether they match.
+ *        third part-library and check whether they match.
  *
  * @tparam T                The floating-point value type.
  * @param  value            The given value.
@@ -124,7 +139,7 @@ class typed_tests_t : public testing::Test {
 TYPED_TEST_SUITE_P(typed_tests_t);
 
 // Test results for the minimum mantissa and all exponents. This test is
-// parameterized on the floating point number type and is instantiated for float
+// parameterized on the floating-point number type and is instantiated for float
 // and double.
 TYPED_TEST_P(typed_tests_t, mantissa_min_all_exponents) {
 
@@ -283,7 +298,7 @@ uint128_t operator ""_u128() {
 TEST(float128, test_hard_coded_values) {
 
   using traits_t    = teju::traits_t<float128_t>;
-  using decimal_t    = teju::decimal_t<float128_t>;
+  using decimal_t   = teju::decimal_t<float128_t>;
   using test_case_t = teju::test::test_case_t<float128_t>;
 
   static auto constexpr teju_size = std::uint32_t{128};
@@ -291,6 +306,7 @@ TEST(float128, test_hard_coded_values) {
   struct test_data_t {
     float128_t value;
     decimal_t  decimal;
+    int        line;
   };
 
   test_data_t data[] = {
@@ -299,44 +315,45 @@ TEST(float128, test_hard_coded_values) {
     // Integer values
     // -------------------------------------------------------------------------
 
-    //             value                                mantissa  exponent
-    {          1.0000000,                                      1,        0 },
-    {          2.0000000,                                      2,        0 },
-    {          3.0000000,                                      3,        0 },
-    {          4.0000000,                                      4,        0 },
-    {          5.0000000,                                      5,        0 },
-    {          6.0000000,                                      6,        0 },
-    {          7.0000000,                                      7,        0 },
-    {          8.0000000,                                      8,        0 },
-    {          9.0000000,                                      9,        0 },
-    {         10.0000000,                                      1,        1 },
-    {         11.0000000,                                     11,        0 },
-    {         20.0000000,                                      2,        1 },
-    {        100.0000000,                                      1,        2 },
-    {       1000.0000000,                                      1,        3 },
-    {      10000.0000000,                                      1,        4 },
-    {     100000.0000000,                                      1,        5 },
-    {    1000000.0000000,                                      1,        6 },
-    {   10000000.0000000,                                      1,        7 },
-    {  100000000.0000000,                                      1,        8 },
-    { 1000000000.0000000,                                      1,        9 },
+    //             value, {                                mantissa  exponent }, line
+    {          1.0000000, {                                       1,        0 }, __LINE__ },
+    {          2.0000000, {                                       2,        0 }, __LINE__ },
+    {          3.0000000, {                                       3,        0 }, __LINE__ },
+    {          4.0000000, {                                       4,        0 }, __LINE__ },
+    {          5.0000000, {                                       5,        0 }, __LINE__ },
+    {          6.0000000, {                                       6,        0 }, __LINE__ },
+    {          7.0000000, {                                       7,        0 }, __LINE__ },
+    {          8.0000000, {                                       8,        0 }, __LINE__ },
+    {          9.0000000, {                                       9,        0 }, __LINE__ },
+    {         10.0000000, {                                       1,        1 }, __LINE__ },
+    {         11.0000000, {                                      11,        0 }, __LINE__ },
+    {         20.0000000, {                                       2,        1 }, __LINE__ },
+    {        100.0000000, {                                       1,        2 }, __LINE__ },
+    {       1000.0000000, {                                       1,        3 }, __LINE__ },
+    {      10000.0000000, {                                       1,        4 }, __LINE__ },
+    {     100000.0000000, {                                       1,        5 }, __LINE__ },
+    {    1000000.0000000, {                                       1,        6 }, __LINE__ },
+    {   10000000.0000000, {                                       1,        7 }, __LINE__ },
+    {  100000000.0000000, {                                       1,        8 }, __LINE__ },
+    { 1000000000.0000000, {                                       1,        9 }, __LINE__ },
 
     // -------------------------------------------------------------------------
     // Perfectly represented fractional values
     // -------------------------------------------------------------------------
 
-    //             value                                mantissa  exponent
-    {          0.5000000,                                      5,       -1 },
-    {          0.2500000,                                     25,       -2 },
-    {          0.1250000,                                    125,       -3 },
-    {          0.7500000,                                     75,       -2 },
+    //             value  {                                mantissa, exponent }, line
+    {          0.5000000, {                                       5,       -1 }, __LINE__ },
+    {          0.2500000, {                                      25,       -2 }, __LINE__ },
+    {          0.1250000, {                                     125,       -3 }, __LINE__ },
+    {          0.7500000, {                                      75,       -2 }, __LINE__ },
 
     // -------------------------------------------------------------------------
     // Others
     // -------------------------------------------------------------------------
 
-    //             value                                 mantissa  exponent
-    {          0.3000000, 2999999999999999888977697537484346_u128,      -34 },
+    //             value  {                                mantissa, exponent },     int       line;
+
+    {          0.3000000, { 2999999999999999888977697537484346_u128,      -34 }, __LINE__ },
   };
 
   for (std::size_t i = 0; i < std::size(data); ++i) {
@@ -344,7 +361,7 @@ TEST(float128, test_hard_coded_values) {
     auto const test_case = test_case_t{value, data[i].decimal};
     auto const actual    = traits_t::teju(test_case.value());
     ASSERT_EQ(test_case.expected(), actual) <<
-      "    Note: test case number = " << i;
+      "    Note: test case line = " << data[i].line;
   }
 }
 

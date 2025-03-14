@@ -20,10 +20,10 @@ extern "C" {
 /**
  * @brief Returns the k least significant bits of n (i.e. n % 2^k.)
  *
- * @pre k < sizeof(n) * CHAR_BIT.
+ * @param  n                The value of n.
+ * @param  k                The value of k.
  *
- * @param n                 The value of n.
- * @param k                 The value of k.
+ * @pre k < sizeof(n) * CHAR_BIT.
  *
  * @returns The k least significant bits of n.
  */
@@ -32,10 +32,10 @@ extern "C" {
 /**
  * @brief Returns 2^e as a given type.
  *
- * @pre e < sizeof(type) * CHAR_BIT.
+ * @param  type             The type.
+ * @param  n                The exponent e.
  *
- * @param type              The type.
- * @param n                 The exponent e.
+ * @pre e < sizeof(type) * CHAR_BIT.
  *
  * @returns 2^e.
  */
@@ -48,9 +48,9 @@ extern "C" {
 /**
  * @brief Returns the largest exponent f such that 10^f <= 2^e.
  *
- * @pre teju_log10_pow2_min <= e && e <= teju_log10_pow2_max.
+ * @param  e                 The exponent e.
  *
- * @param e                 The exponent e.
+ * @pre teju_log10_pow2_min <= e && e <= teju_log10_pow2_max.
  *
  * @returns The exponent f.
  */
@@ -64,9 +64,9 @@ teju_log10_pow2(int32_t const e) {
  * @brief Returns the residual r = e - e_0, where e_0 is the smallest exponent
  * such that the integer part of log_10(2^e_0) matches that of log_10(2^e).
  *
- * @pre teju_log10_pow2_min <= e && e <= teju_log10_pow2_max.
+ * @param  e                The exponent e.
  *
- * @param e                 The exponent e.
+ * @pre teju_log10_pow2_min <= e && e <= teju_log10_pow2_max.
  *
  * @returns The residual r.
  */

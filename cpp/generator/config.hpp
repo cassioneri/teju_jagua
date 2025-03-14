@@ -24,7 +24,7 @@ namespace teju {
  */
 struct config_t {
 
-  // An identifier for the floating point number type (e.g., "ieee32" or
+  // An identifier for the floating-point number type (e.g., "ieee32" or
   // "ieee64".) This is used in C/C++ identifiers and, accordingly, the set
   // of accepted characters is defined by the C and C++ standards. In
   // particular, it must not contain spaces -- "long double" is forbidden.

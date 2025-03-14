@@ -25,7 +25,7 @@ struct stats_t {
   /**
    * @brief Updates mean and standard deviation given a new sample value.
    *
-   * @param x The new sample value.
+   * @param  x              The new sample value.
    */
   void
   update(std::uint64_t const x) {

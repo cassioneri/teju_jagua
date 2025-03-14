@@ -19,7 +19,7 @@
 namespace teju {
 
 /**
- * @brief Generator of Teju Jagua's implementation for a given floating point
+ * @brief Generator of Teju Jagua's implementation for a given floating-point
  * number type.
  */
 struct generator_t {
@@ -27,8 +27,8 @@ struct generator_t {
   /**
    * @brief Constructor.
    *
-   * @param info            The information on the floating point number type.
-   * @param directory       The directory where generated files are saved.
+   * @param  info           The information on the floating-point number type.
+   * @param  directory      The directory where generated files are saved.
    */
   generator_t(config_t config, std::string directory);
 
@@ -41,7 +41,7 @@ struct generator_t {
 private:
 
   /**
-   * @brief Returns the identifier for the floating point number type.
+   * @brief Returns the identifier for the floating-point number type.
    */
   std::string const&
   id() const;
@@ -97,7 +97,7 @@ private:
   /**
    * @brief Returns the normal (inclusive) minimal mantissa.
    *
-   * Mantissas for normal floating point numbers are elements of the interval
+   * Mantissas for normal floating-point numbers are elements of the interval
    * [normal_mantissa_min(), normal_mantissa_max()[.
    */
   integer_t const&
@@ -106,7 +106,7 @@ private:
   /**
    * @brief Returns the normal (exclusive) maximal mantissa.
    *
-   * Mantissas for normal floating point numbers are elements of the interval
+   * Mantissas for normal floating-point numbers are elements of the interval
    * [normal_mantissa_min(), normal_mantissa_max()[.
    */
   integer_t const&
@@ -157,7 +157,7 @@ private:
   /**
    * @brief Streams out the license information.
    *
-   * @param stream          Output stream to receive the content.
+   * @param  stream         Output stream to receive the content.
    *
    * @returns stream
    */
@@ -167,7 +167,7 @@ private:
   /**
    * @brief Streams out the .h file.
    *
-   * @param stream          Output stream to receive the content.
+   * @param  stream         Output stream to receive the content.
    */
   void
   generate_dot_h(std::ostream& stream) const;
@@ -175,7 +175,7 @@ private:
   /**
    * @brief Streams out the .c file.
    *
-   * @param stream          Output stream to receive the content.
+   * @param  stream         Output stream to receive the content.
    */
   void
   generate_dot_c(std::ostream& stream) const;
@@ -199,17 +199,24 @@ private:
    * @brief Given alpha and delta, this function calculates the maximiser of
    * phi(m) over the relevant set of mantissas.
    *
+   * @param  alpha          Parameter alpha.
+   * @param  delta          Parameter delta.
+   * @param  start_at_1     True if the set of relevant mantissas start at 1, or
+   *                        false if it starts at mantissa_min().
+   *
    * @pre 0 <= alpha && 0 < delta.
+   *
+   * @returns The maximiser of phi(m) over the relevant set of mantissas.
    */
   rational_t
   get_maximum(integer_t alpha, integer_t const& delta, bool start_at_1) const;
 
   /**
    * @brief Get the EAF f(m) = alpha * m / delta which works on an interval of
-   * relevant mantissas. This fast EAF is associated to maximisation of phi(m)
-   * over the set of mantissas.
+   *        relevant mantissas. This fast EAF is associated to maximisation of
+   *        phi(m) over the set of mantissas.
    *
-   * @param x               The container of alpha, beta and the solution of
+   * @param  x              The container of alpha, beta and the solution of
    *                        the primary maximisation problem.
    */
   fast_eaf_t

@@ -10,14 +10,6 @@
 #ifndef TEJU_TEJU_TEJU_H_
 #define TEJU_TEJU_TEJU_H_
 
-#define teju_static_assert(c, msg) \
-do {                               \
-  const int _ = (c) ? 1 : -1;      \
-  int                              \
-  static_assert_failed[_];         \
-  (void) static_assert_failed;     \
-} while(false)
-
 #include "teju/common.h"
 #include "teju/config.h"
 #include "teju/div10.h"
@@ -27,6 +19,7 @@ do {                               \
   #include <intrin.h>
 #endif
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -48,6 +41,7 @@ extern "C" {
 static inline
 bool
 is_multiple_of_pow2(teju_u1_t const m, int32_t const e) {
+  assert(0 <= e && e < teju_mantissa_size);
   return ((m >> e) << e) == m;
 }
 
@@ -71,13 +65,14 @@ is_small_integer(teju_u1_t const m, int32_t const e) {
  * @param  m                The number m.
  * @param  f                The exponent f.
  *
- * @pre minverse[f] is well defined.
+ * @pre f < sizeof(minverse) / sizeof(minverse[0])
  *
  * @returns true if m is multiple of 5^f and false, otherwise.
  */
 static inline
 bool
 is_multiple_of_pow5(teju_u1_t const m, int32_t const f) {
+  assert(f < (int32_t) (sizeof(minverse) / sizeof(minverse[0])));
   return ((teju_u1_t) (1u * m * minverse[f].multiplier)) <= minverse[f].bound;
 }
 

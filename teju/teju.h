@@ -78,7 +78,7 @@ is_small_integer(teju_u1_t const m, int32_t const e) {
 static inline
 bool
 is_multiple_of_pow5(teju_u1_t const m, int32_t const f) {
-  return ((teju_u1_t) (m * minverse[f].multiplier)) <= minverse[f].bound;
+  return ((teju_u1_t) (1u * m * minverse[f].multiplier)) <= minverse[f].bound;
 }
 
 /**
@@ -108,7 +108,7 @@ is_tie(teju_u1_t const m, int32_t const f) {
 static inline
 bool
 is_tie_uncentred(teju_u1_t const m_a, int32_t const f) {
-  return 0 <= f && m_a % 5 == 0 && is_multiple_of_pow5(m_a, f);
+  return 0 <= f && m_a % 5u == 0u && is_multiple_of_pow5(m_a, f);
 }
 
 /**
@@ -153,7 +153,7 @@ remove_trailing_zeros(teju_u1_t m, int32_t e) {
   teju_u1_t const multiplier = minverse[1].multiplier;
   teju_u1_t const bound = minverse[1].bound / 2u;
   while (true) {
-    teju_u1_t const q = ror(m * multiplier);
+    teju_u1_t const q = ror(1u * m * multiplier);
     if (q >= bound)
       return make_fields(m, e);
     ++e;
@@ -191,7 +191,7 @@ teju_function(teju_fields_t const binary) {
 
     // Calculations of m_a, m_b and m_c are safe in the centred case if
     // teju_u1_t can hold m_c = 4u * m << r.
-    bool const is_safe_centred = teju_mantissa_size + 5 <= teju_size;
+    bool const is_safe_centred = teju_mantissa_size + 5u <= teju_size;
     teju_static_assert(is_safe_centred, "Calculations might overflow.");
 
     teju_u1_t const m_a = (2u * m - 1u) << r;
@@ -274,7 +274,6 @@ teju_function(teju_fields_t const binary) {
     return make_fields(c, f - 1);
 
   return make_fields(c + 1u, f - 1);
-
 }
 
 #ifdef __cplusplus

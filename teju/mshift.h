@@ -104,8 +104,8 @@ teju_mshift(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
 
   #if teju_calculation_mshift == teju_built_in_4
 
-    teju_u2_t const n = (((teju_u2_t) u) << teju_size) | l;
-    return (((teju_u4_t) n) * m) >> teju_calculation_shift;
+    teju_u4_t const n = (((teju_u2_t) u) << teju_size) | l;
+    return 1u * n * m >> teju_calculation_shift;
 
   #elif teju_calculation_mshift == teju_synthetic_2
 
@@ -125,8 +125,8 @@ teju_mshift(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
     //                       with s01 := s0 / x, s00 := s0 % x in [0, x[,
     //                 = (s1 + s01) * x + s00.
 
-    teju_u2_t const s0 = ((teju_u2_t) l) * m;
-    teju_u2_t const s1 = ((teju_u2_t) u) * m;
+    teju_u2_t const s0 = 1u * ((teju_u2_t) l) * m;
+    teju_u2_t const s1 = 1u * ((teju_u2_t) u) * m;
     return (s1 + (s0 >> teju_size)) >> (teju_calculation_shift - teju_size);
 
   #elif teju_calculation_mshift == teju_synthetic_1
@@ -171,30 +171,30 @@ teju_mshift(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
     //       (n0 * m0)
 
     // order 0:
-    t  = n0 * m0;
+    t   = 1u * n0 * m0;
     r1  = t / y;
 
     // order 1:
-    r1 += n0 * m1; // This addition doesn't wraparound.
-    t   = n1 * m0;
+    r1 += 1u * n0 * m1; // This addition doesn't wraparound.
+    t   = 1u * n1 * m0;
     r1  = teju_add_and_carry(r1, t, &c);
     r1 /= y;
 
     // order 2:
-    r1 += n1 * m1 + c * y; // This addition doesn't wraparound.
-    t   = n2 * m0;
+    r1 += 1u * n1 * m1 + 1u * c * y; // This addition doesn't wraparound.
+    t   = 1u * n2 * m0;
     r1  = teju_add_and_carry(r1, t, &c);
     r1 /= y;
 
     // order 3:
-    r1 += n2 * m1 + c * y; // This addition doesn't wraparound.
-    t   = n3 * m0;
+    r1 += 1u * n2 * m1 + 1u * c * y; // This addition doesn't wraparound.
+    t   = 1u * n3 * m0;
     r1  = teju_add_and_carry(r1, t, &c);
     r0  = r1 % y;
     r1 /= y;
 
     // order 4:
-    r1 += n3 * m1 + c * y;
+    r1 += 1u * n3 * m1 + 1u * c * y;
 
     #if teju_calculation_shift >= 2u * teju_size
       (void) r0;

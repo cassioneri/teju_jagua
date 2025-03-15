@@ -40,8 +40,8 @@ teju_div10(teju_u1_t const m) {
 
   #elif teju_calculation_div10 == teju_built_in_2
 
-    teju_u1_t const inv10 = ((teju_u1_t) -1) / 10u + 1u;
-    return (((teju_u2_t) inv10) * m) >> teju_size;
+    teju_u2_t const inv10 = ((teju_u1_t) -1) / 10u + 1u;
+    return (1u * inv10 * m) >> teju_size;
 
   #elif teju_calculation_div10 == teju_synthetic_1
 
@@ -57,8 +57,8 @@ teju_div10(teju_u1_t const m) {
     teju_u1_t const u    = m / p2;
     teju_u1_t const l    = m % p2;
 
-    return (((l * (inv5 + 1)) / p2 + l * inv5 + u * (inv5 + 1)) / p2 +
-      u * inv5) / 2u;
+    return ((((inv5 + 1u) * l) / p2 + (inv5 + 0u) * l + (inv5 + 1u) * u) / p2 +
+      (inv5 + 0u) * u) / 2u;
 
   #else
 

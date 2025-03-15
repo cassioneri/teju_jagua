@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: APACHE-2.0
+// SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
+{
+  "id"  : "x86_extended",
+  "size": 128,
+
+  "spdx": {
+    "identifier": "APACHE-2.0",
+    "copyright" : [
+      "2021-2025 Cassio Neri <cassio.neri@gmail.com>"
+    ]
+  },
+
+  "exponent": {
+    "minimum": -16445,
+    "maximum":  16321
+  },
+
+  "mantissa": {
+    "size": 64
+  },
+
+  "storage": {
+    "split": 2
+  },
+
+  "calculation": {
+    "mshift": "built_in_1"
+  }
+}

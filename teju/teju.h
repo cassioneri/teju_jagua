@@ -60,20 +60,20 @@ is_small_integer(teju_u1_t const m, int32_t const e) {
 }
 
 /**
- * @brief Checks whether m is multiple of 5^f.
+ * @brief Checks whether n is multiple of 5^f.
  *
- * @param  m                The number m.
+ * @param  n                The number n.
  * @param  f                The exponent f.
  *
  * @pre f < sizeof(minverse) / sizeof(minverse[0])
  *
- * @returns true if m is multiple of 5^f and false, otherwise.
+ * @returns true if n is multiple of 5^f and false, otherwise.
  */
 static inline
 bool
-is_multiple_of_pow5(teju_u1_t const m, int32_t const f) {
+is_multiple_of_pow5(teju_u1_t const n, int32_t const f) {
   assert(f < (int32_t) (sizeof(minverse) / sizeof(minverse[0])));
-  return ((teju_u1_t) (1u * m * minverse[f].multiplier)) <= minverse[f].bound;
+  return ((teju_u1_t) (1u * n * minverse[f].multiplier)) <= minverse[f].bound;
 }
 
 /**

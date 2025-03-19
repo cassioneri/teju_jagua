@@ -44,7 +44,7 @@ require(bool const condition, const char* const message) {
 static inline
 void
 report_error(const char* const program, const char* const message) {
-  std::fprintf(stderr, "%s: error: %s.\n", program, message);
+  std::fprintf(stderr, "%s: error: %s\n", program, message);
 }
 
 } // namespace teju

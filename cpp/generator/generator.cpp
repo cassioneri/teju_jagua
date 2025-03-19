@@ -20,6 +20,10 @@ namespace {
 
 /**
  * @brief Returns 2^n.
+ *
+ * @param  n                The exponent n.
+ *
+ * @returns 2^n.
  */
 integer_t
 pow2(std::uint32_t const n) {
@@ -63,35 +67,35 @@ minverse5(std::uint32_t k) {
 /**
  * @brief The objective function of the primary maximisation problem:
  *
- *     phi_1(m) := m / (delta_1 - alpha_1 * m % delta_1).
+ *     phi_1(n) := n / (delta_1 - alpha_1 * n % delta_1).
  *
  * @param  alpha_1          Parameter alpha_1.
  * @param  delta_1          Parameter delta_1.
- * @param  m                Variable m.
+ * @param  n                Variable n.
  *
- * @returns The value of phi_1(m).
+ * @returns The value of phi_1(n).
  */
 rational_t
 phi_1(integer_t const& alpha_1, integer_t const& delta_1,
-  integer_t const& m) {
-  return {m, delta_1 - alpha_1 * m % delta_1};
+  integer_t const& n) {
+  return {n, delta_1 - alpha_1 * n % delta_1};
 }
 
 /**
  * @brief The objective function of the secondary maximisation problem:
  *
- *     phi_2(m) := m / (1 + (alpha_2 * m - 1) % delta_2).
+ *     phi_2(n) := n / (1 + (alpha_2 * n - 1) % delta_2).
  *
  * @param  alpha_2          Parameter alpha_2.
  * @param  delta_2          Parameter delta_2.
- * @param  m                Variable m.
+ * @param  n                Variable n.
  *
- * @returns The value of phi_2(m).
+ * @returns The value of phi_2(n).
  */
 rational_t
 phi_2(integer_t const& alpha_2, integer_t const& delta_2,
-  integer_t const& m) {
-  return {m, 1 + (alpha_2 * m - 1) % delta_2};
+  integer_t const& n) {
+  return {n, 1 + (alpha_2 * n - 1) % delta_2};
 }
 
 /**

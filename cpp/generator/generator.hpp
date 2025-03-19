@@ -95,19 +95,13 @@ private:
   mantissa_size() const;
 
   /**
-   * @brief Returns the normal (inclusive) minimal mantissa.
-   *
-   * Mantissas for normal floating-point numbers are elements of the interval
-   * [normal_mantissa_min(), normal_mantissa_max()[.
+   * @brief Returns the normal minimal mantissa.
    */
   integer_t const&
   mantissa_min() const;
 
   /**
-   * @brief Returns the normal (exclusive) maximal mantissa.
-   *
-   * Mantissas for normal floating-point numbers are elements of the interval
-   * [normal_mantissa_min(), normal_mantissa_max()[.
+   * @brief Returns the normal maximal mantissa.
    */
   integer_t const&
   mantissa_max() const;

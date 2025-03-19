@@ -9937,6 +9937,7 @@ static struct {
   { teju_literal2(0xf9d229a89de13e57, 0x8f6e403baa978af1), teju_literal2(0x0000000000000000, 0x7ec3daf941806506) },
   { teju_literal2(0x31f6d521b92d0c77, 0xe97c733f221e4efd), teju_literal2(0x0000000000000000, 0x195a5efea6b34767) },
   { teju_literal2(0xa397c439f1d5cf4b, 0x2eb27d7306d2dc99), teju_literal2(0x0000000000000000, 0x051212ffbaf0a7e1) },
+  { teju_literal2(0xed84c0d863912975, 0x6fbd4c4a34909285), teju_literal2(0x0000000000000000, 0x01039d66589687f9) },
 };
 
 #include "teju/teju.h"

@@ -553,24 +553,28 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "  teju_u1_t const bound;\n"
     "} const minverse[] = {\n";
 
-  auto       multiplier = integer_t{1};
-  auto       p5         = integer_t{1};
+  auto multiplier = integer_t{1};
+  auto p5         = integer_t{1};
 
-  // Teju Jagua calls is_multiple_of_pow5(m, f) for
+  // Let M = mantissa_max(). Teju Jagua might call is_multiple_of_pow5(n, f) for
+  // the following values of  n:
   //
-  //   m =  2 * mantissa     - 1
-  //   m =  2 * mantissa     + 1
-  //   m =  4 * mantissa_min - 1
-  //   m =  4 * mantissa_min * 2^{exponent - f} * 5^{-f}
-  //     =  2 * mantissa_max * 2^{exponent - f} * 5^{-f}
-  //   m = 40 * mantissa_min * 2^{exponent - f} * 5^{-f}
-  //     = 20 * mantissa_max * 2^{exponent - f} * 5^{-f}
+  //   Centred case:
+  //     m_a = (( 2 * m - 1) << r)                      <= ( 2 * M - 1) * 8;
+  //     m_b = (( 2 * m + 1) << r)                      <= ( 2 * M + 1) * 8;
+  //     c_2 = (( 4 * m    ) << r) * 2^(e_0 - 1) / 10^f <  ( 4 * M    ) * 8.
   //
-  // where 2^{exponent} < 10^{f + 1}. Hence, 2^{exponent - f} < 5^f * 10
-  // which yields 2^{exponent - f} * 5^{-f} < 10. Therefore,
-  // 200 * mantissa_max is a conservative bound, i.e., if
-  // 5^f > 200 * mantissa_max >= m, then is_multiple_of_pow5(m, f) == false;
-  for (std::int32_t f = 0; p5 <= 200 * mantissa_max(); ++f) {
+  //   Uncentred case:
+  //     c_2 = (( 4 * m    ) << r) * 2^(e_0 - 1) / 10^f <  ( 4 * M    ) * 8.
+  //
+  //   Uncentred case, refined:
+  //     c_2 = ((40 * m    ) << r) * 2^(e_0 - 1) / 10^f <  (40 * M    ) * 8.
+  //
+  // Hence, n < 320 * M. Now, if 5^f >= 320 * M, then n < 5^f. It follows that
+  // n is not multiple of 5^f, that is, is_multiple_of_pow5(n, f) == false.
+
+  auto const bound = 320 * mantissa_max();
+  for (std::int32_t f = 0; p5 < bound; ++f) {
 
     auto bound = p2size / p5 - (f == 0);
 

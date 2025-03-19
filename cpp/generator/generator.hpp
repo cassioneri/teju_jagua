@@ -191,7 +191,7 @@ private:
 
   /**
    * @brief Given alpha and delta, this function calculates the maximiser of
-   * phi(m) over the relevant set of mantissas.
+   * phi_1(n) over the relevant set of values.
    *
    * @param  alpha          Parameter alpha.
    * @param  delta          Parameter delta.
@@ -208,7 +208,7 @@ private:
   /**
    * @brief Get the EAF f(m) = alpha * m / delta which works on an interval of
    *        relevant mantissas. This fast EAF is associated to maximisation of
-   *        phi(m) over the set of mantissas.
+   *        phi_1(n) over the set of mantissas.
    *
    * @param  x              The container of alpha, beta and the solution of
    *                        the primary maximisation problem.

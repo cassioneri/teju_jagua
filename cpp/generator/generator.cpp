@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <limits>
 
 namespace teju {
 
@@ -601,7 +602,7 @@ generator_t::get_maxima() const {
   std::vector<alpha_delta_maximum_t> maxima;
   maxima.reserve(exponent_max() - exponent_min() + 1);
 
-  auto f_done = teju_log10_pow2(exponent_min()) - 1;
+  auto f_done = std::numeric_limits<int32_t>::min();
 
   for (auto e = exponent_min(); e <= exponent_max(); ++e) {
 
@@ -610,11 +611,11 @@ generator_t::get_maxima() const {
     if (f == f_done)
       continue;
 
-    auto const e0 = e - int32_t(teju_log10_pow2_residual(e)) - f;
+    auto const e0_f = e - int32_t(teju_log10_pow2_residual(e)) - f;
 
     alpha_delta_maximum_t x;
-    x.alpha   = f >= 0 ? pow2(e0) : pow5(-f );
-    x.delta   = f >= 0 ? pow5(f ) : pow2(-e0);
+    x.alpha   = f >= 0 ? pow2(e0_f) : pow5(-f   );
+    x.delta   = f >= 0 ? pow5(f   ) : pow2(-e0_f);
     x.maximum = get_maximum(x.alpha, x.delta, e == exponent_min());
 
     maxima.emplace_back(std::move(x));

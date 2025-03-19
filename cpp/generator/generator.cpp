@@ -99,58 +99,57 @@ phi_2(integer_t const& alpha_2, integer_t const& delta_2,
 }
 
 /**
- * @brief Given alpha_1, delta_1, a_1 and b_1, this function calculates the
- *        maximiser of phi_1(m) over [a_1, b_1[.
+ * @brief Given alpha_1, delta_1, L_1 and U_1, this function calculates the
+ *        maximiser of phi_1(m) over [L_1, U_1].
  *
  * @param  alpha_1          Parameter alpha_1.
  * @param  delta_1          Parameter delta_1.
- * @param  a_1              Lower bound a_1.
- * @param  b_1              Upper bound b_1.
+ * @param  L_1              Lower bound L_1.
+ * @param  U_1              Upper bound U_1.
  *
- * @pre 0 <= alpha_1 && alpha_1 < delta_1 && a_1 < b_1.
+ * @pre 0 <= alpha_1 && alpha_1 < delta_1 && 1 <= L1 && L_1 <= U_1.
  *
- * @returns The maximiser of phi_1(m) over [a_1, b_1[
+ * @returns The maximiser of phi_1(m) over [L_1, U_1].
  */
 rational_t
 get_maximum_1(integer_t const& alpha_1, integer_t const& delta_1,
-  integer_t const& a_1, integer_t const& b_1);
+  integer_t const& L_1, integer_t const& U_1);
 
 /**
- * @brief Given alpha, delta, a_2 and b_2, this function calculates the
- * maximiser of phi_2(m) over [a_2, b_2[.
+ * @brief Given alpha, delta, L_2 and U_2, this function calculates the
+ * maximiser of phi_2(m) over [L_2, U_2].
  *
  * @param  alpha_2          Parameter alpha_1.
  * @param  delta_2          Parameter delta_1.
- * @param  a_2              Lower bound a_2.
- * @param  b_2              Upper bound b_2.
+ * @param  L_2              Lower bound L_2.
+ * @param  U_2              Upper bound U_2.
  *
- * @pre 0 < alpha_2 && 0 < delta_2 && 1 <= a_2 && a_2 < b_2.
+ * @pre 0 < alpha_2 && 0 < delta_2 && 1 <= L_2 && L_2 <= U_2.
  *
- * @returns The maximiser of phi_2(m) over [a_2, b_2[.
+ * @returns The maximiser of phi_2(m) over [L_2, U_2].
  */
 rational_t
 get_maximum_2(integer_t const& alpha_2, integer_t const& delta_2,
-  integer_t const& a_2, integer_t const& b_2);
+  integer_t const& L_2, integer_t const& U_2);
 
 rational_t
 get_maximum_1(integer_t const& alpha_1, integer_t const& delta_1,
-  integer_t const& a_1, integer_t const& b_1) {
+  integer_t const& L_1, integer_t const& U_1) {
 
-  auto const b_minus_1 = b_1 - 1;
-  auto const maximum_1  = phi_1(alpha_1, delta_1, b_minus_1);
+  auto const maximum_1  = phi_1(alpha_1, delta_1, U_1);
 
-  if (alpha_1 == 0 || a_1 == b_minus_1)
+  if (alpha_1 == 0 || L_1 == U_1)
     return maximum_1;
 
-  auto const a_2 = alpha_1 * a_1 / delta_1 + 1;
-  auto const b_2 = alpha_1 * b_minus_1 / delta_1 + 1;
+  auto const L_2 = alpha_1 * L_1 / delta_1 + 1;
+  auto const U_2 = alpha_1 * U_1 / delta_1;
 
-  if (a_2 == b_2)
+  if (L_2 == U_2 + 1)
     return maximum_1;
 
   auto const  alpha_2 = delta_1 % alpha_1;
   auto const& delta_2 = alpha_1;
-  auto const  other   = get_maximum_2(alpha_2, delta_2, a_2, b_2);
+  auto const  other   = get_maximum_2(alpha_2, delta_2, L_2, U_2);
 
   auto const  maximum_2 = rational_t{
     delta_1 * numerator(other) - denominator(other),
@@ -161,25 +160,25 @@ get_maximum_1(integer_t const& alpha_1, integer_t const& delta_1,
 
 rational_t
 get_maximum_2(integer_t const& alpha_2,
-  integer_t const& delta_2, integer_t const& a_2, integer_t const& b_2) {
+  integer_t const& delta_2, integer_t const& L_2, integer_t const& U_2) {
 
   if (alpha_2 == 0)
-    return b_2 - 1;
+    return U_2;
 
-  auto const maximum_1 = phi_2(alpha_2, delta_2, a_2);
+  auto const maximum_1 = phi_2(alpha_2, delta_2, L_2);
 
-  if (a_2 == b_2 - 1)
+  if (L_2 == U_2)
     return maximum_1;
 
-  auto const a1 = (alpha_2 * a_2 - 1) / delta_2 + 1;
-  auto const b1 = (alpha_2 * (b_2 - 1) - 1) / delta_2 + 1;
+  auto const L_1 = (alpha_2 * L_2 - 1) / delta_2 + 1;
+  auto const U_1 = (alpha_2 * U_2 - 1) / delta_2;
 
-  if (a1 == b1)
+  if (L_1 == U_1 + 1)
     return maximum_1;
 
   auto const  alpha1 = delta_2 % alpha_2;
   auto const& delta1 = alpha_2;
-  auto const  other  = get_maximum_1(alpha1, delta1, a1, b1);
+  auto const  other  = get_maximum_1(alpha1, delta1, L_1, U_1);
 
   auto const  maximum_2 = rational_t{
     delta_2 * numerator(other) + denominator(other),
@@ -629,10 +628,10 @@ generator_t::get_maximum(integer_t alpha, integer_t const& delta,
 
   // Usual interval.
 
-  auto const a = start_at_1 ? integer_t{1} : integer_t{2 * mantissa_min()};
-  auto const b = integer_t{16 * mantissa_max() - 15};
+  auto const L = start_at_1 ? integer_t{1} : integer_t{2 * mantissa_min()};
+  auto const U = integer_t{16 * mantissa_max() - 15};
 
-  auto const max_ab = get_maximum_1(alpha, delta, a, b);
+  auto const max_LU = get_maximum_1(alpha, delta, L, U);
 
   // Extras that are needed when mantissa == normal_mantissa_min().
 
@@ -644,7 +643,7 @@ generator_t::get_maximum(integer_t alpha, integer_t const& delta,
     return std::max(max_m_a, max_m_c);
   };
 
-  return std::max({max_ab, max_extras(mantissa_min()),
+  return std::max({max_LU, max_extras(mantissa_min()),
     max_extras(2 * mantissa_min()), max_extras(4 * mantissa_min()),
     max_extras(8 * mantissa_min())});
 }

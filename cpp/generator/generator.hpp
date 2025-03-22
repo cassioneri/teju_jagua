@@ -175,6 +175,38 @@ private:
   generate_dot_c(std::ostream& stream) const;
 
   struct alpha_delta_maximum_t;
+  struct fast_eaf_t;
+
+  /**
+   * @brief Gets all fast EAFs.
+   *
+   * Recall that for each possible exponent yielded by Teju Jagua, it defines a
+   * fast EAF used to calculate mantissas. (See get_fast_eaf.)
+   *
+   * This function returns a vector v where each element contains the fast EAF
+   * corresponding to an exponent. Elements are ordered by exponent and, in
+   * particular, v[0] is the entry for the minimal exponent.
+   *
+   * @returns The vector v.
+   */
+  std::vector<fast_eaf_t>
+  get_fast_eafs() const;
+
+  /**
+   * @brief Gets the fast EAF for f(n) = alpha * n / delta which works on a set
+   *        of relevant values of n.
+   *
+   * Recall that for each possible exponent yielded by Teju Jagua, it defines a
+   * fast EAF used to calculate mantissas and a maximisation problem whose
+   * objective function is parameterised on alpha and delta.
+   *
+   * @param  x              The container of alpha, delta and the maximum of the
+   *                        objective function.
+   *
+   * @returns The fast EAF.
+   */
+  fast_eaf_t
+  get_fast_eaf(alpha_delta_maximum_t const& x) const;
 
   /**
    * @brief Gets the maxima of all primary maximisation problems.
@@ -211,39 +243,6 @@ private:
    */
   rational_t
   get_maximum(integer_t alpha, integer_t const& delta, bool is_min) const;
-
-  struct fast_eaf_t;
-
-  /**
-   * @brief Gets all fast EAFs.
-   *
-   * Recall that for each possible exponent yielded by Teju Jagua, it defines a
-   * fast EAF used to calculate mantissas. (See get_fast_eaf.)
-   *
-   * This function returns a vector v where each element contains the fast EAF
-   * corresponding to an exponent. Elements are ordered by exponent and, in
-   * particular, v[0] is the entry for the minimal exponent.
-   *
-   * @returns The vector v.
-   */
-  std::vector<fast_eaf_t>
-  get_fast_eafs() const;
-
-  /**
-   * @brief Gets the fast EAF for f(n) = alpha * n / delta which works on a set
-   *        of relevant values of n.
-   *
-   * Recall that for each possible exponent yielded by Teju Jagua, it defines a
-   * fast EAF used to calculate mantissas and a maximisation problem whose
-   * objective function is parameterised on alpha and delta.
-   *
-   * @param  x              The container of alpha, delta and the maximum of the
-   *                        objective function.
-   *
-   * @returns The fast EAF.
-   */
-  fast_eaf_t
-  get_fast_eaf(alpha_delta_maximum_t const& x) const;
 
   config_t     config_;
   std::string  prefix_;

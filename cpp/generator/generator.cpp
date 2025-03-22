@@ -20,6 +20,43 @@ namespace teju {
 namespace {
 
 /**
+ * @brief Returns the type prefix corresponding to a given size.
+ *
+ * @param  size             The size.
+ *
+ * @returns The type prefix corresponding to a given size.
+ */
+std::string
+get_prefix(std::uint32_t const size) {
+  switch (size) {
+    case 16:
+      return "teju16_";
+    case 32:
+      return "teju32_";
+    case 64:
+      return "teju64_";
+    case 128:
+      return "teju128_";
+  }
+  throw exception_t{"BUG: Unrecognised size."};
+}
+
+/**
+ * @brief Converts a given string to upper case letters.
+ *
+ * @param  str              The given string
+ *
+ * @returns The upper case string.
+ */
+std::string
+to_upper(std::string const& str) {
+  std::string result;
+  std::transform(str.begin(), str.end(), std::back_inserter(result),
+    [](char const c) { return static_cast<char>(std::toupper(c)); });
+  return result;
+}
+
+/**
  * @brief Returns 2^n.
  *
  * @param  n                The exponent n.
@@ -186,43 +223,6 @@ get_maximum_2(integer_t const& alpha_2,
     alpha_2 * denominator(other)};
 
   return std::max(maximum_1, maximum_2);
-}
-
-/**
- * @brief Returns the type prefix corresponding to a given size.
- *
- * @param  size             The size.
- *
- * @returns The type prefix corresponding to a given size.
- */
-std::string
-get_prefix(std::uint32_t const size) {
-  switch (size) {
-    case 16:
-      return "teju16_";
-    case 32:
-      return "teju32_";
-    case 64:
-      return "teju64_";
-    case 128:
-      return "teju128_";
-  }
-  throw exception_t{"BUG: Unrecognised size."};
-}
-
-/**
- * @brief Converts a given string to upper case letters.
- *
- * @param  str              The given string
- *
- * @returns The upper case string.
- */
-std::string
-to_upper(std::string const& str) {
-  std::string result;
-  std::transform(str.begin(), str.end(), std::back_inserter(result),
-    [](char const c) { return static_cast<char>(std::toupper(c)); });
-  return result;
 }
 
 } // namespace <anonymous>
@@ -558,76 +558,6 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "#endif\n";
 }
 
-std::vector<generator_t::alpha_delta_maximum_t>
-generator_t::get_maxima() const {
-
-  auto get_e_0 = [](int32_t const e) {
-    return e - int32_t(teju_log10_pow2_residual(e));
-  };
-
-  auto e_0 = get_e_0(exponent_min());
-  auto f   = teju_log10_pow2(e_0);
-
-  auto const f_max = teju_log10_pow2(exponent_max());
-  auto const f_min = f;
-
-  std::vector<alpha_delta_maximum_t> maxima;
-  maxima.reserve(f_max - f_min + 1);
-
-  while (f <= f_max) {
-
-    alpha_delta_maximum_t x;
-    if (f <= 0) {
-      x.alpha = pow5(-f);
-      x.delta = pow2(-(e_0 - 1 - f));
-    }
-    else {
-      x.alpha = pow2(e_0 - 1 - f);
-      x.delta = pow5(f);
-    }
-
-    x.maximum = get_maximum(x.alpha, x.delta, f == f_min);
-    maxima.emplace_back(std::move(x));
-
-    e_0 = get_e_0(e_0 + 4);
-    ++f;
-  }
-  return maxima;
-}
-
-rational_t
-generator_t::get_maximum(integer_t alpha, integer_t const& delta,
-  bool const is_min) const {
-
-  alpha %= delta;
-
-  // Usual interval for the centred case.
-
-  auto const L = is_min ? integer_t{1} : integer_t{2 * mantissa_min() + 1};
-  auto const U = integer_t{(4 * mantissa_max()) << 3};
-
-  auto const max_LU = get_maximum_1(alpha, delta, L, U);
-
-  // Extras for the uncentred case.
-
-  auto const extras = [&](uint32_t const r) {
-
-    auto const m_a               = ( 4 * mantissa_min() - 1) << r;
-    auto const m_b               = ( 2 * mantissa_min() + 1) << r;
-    auto const m_c               = ( 4 * mantissa_min()    ) << r;
-    auto const m_c_refined       = (40 * mantissa_min()    ) << r;
-
-    auto const phi_1_m_a         = phi_1(alpha, delta, m_a);
-    auto const phi_1_m_b         = phi_1(alpha, delta, m_b);
-    auto const phi_1_m_c         = phi_1(alpha, delta, m_c);
-    auto const phi_1_m_c_refined = phi_1(alpha, delta, m_c_refined);
-
-    return std::max({phi_1_m_a, phi_1_m_a, phi_1_m_c, phi_1_m_c_refined});
-  };
-
-  return std::max({max_LU, extras(0), extras(1), extras(2), extras(3)});
-}
-
 std::vector<generator_t::fast_eaf_t>
 generator_t::get_fast_eafs() const {
 
@@ -700,6 +630,76 @@ generator_t::get_fast_eaf(alpha_delta_maximum_t const& x) const {
   }
 
   throw exception_t{"Cannot find fast EAF."};
+}
+
+std::vector<generator_t::alpha_delta_maximum_t>
+generator_t::get_maxima() const {
+
+  auto get_e_0 = [](int32_t const e) {
+    return e - int32_t(teju_log10_pow2_residual(e));
+  };
+
+  auto e_0 = get_e_0(exponent_min());
+  auto f   = teju_log10_pow2(e_0);
+
+  auto const f_max = teju_log10_pow2(exponent_max());
+  auto const f_min = f;
+
+  std::vector<alpha_delta_maximum_t> maxima;
+  maxima.reserve(f_max - f_min + 1);
+
+  while (f <= f_max) {
+
+    alpha_delta_maximum_t x;
+    if (f <= 0) {
+      x.alpha = pow5(-f);
+      x.delta = pow2(-(e_0 - 1 - f));
+    }
+    else {
+      x.alpha = pow2(e_0 - 1 - f);
+      x.delta = pow5(f);
+    }
+
+    x.maximum = get_maximum(x.alpha, x.delta, f == f_min);
+    maxima.emplace_back(std::move(x));
+
+    e_0 = get_e_0(e_0 + 4);
+    ++f;
+  }
+  return maxima;
+}
+
+rational_t
+generator_t::get_maximum(integer_t alpha, integer_t const& delta,
+  bool const is_min) const {
+
+  alpha %= delta;
+
+  // Usual interval for the centred case.
+
+  auto const L = is_min ? integer_t{1} : integer_t{2 * mantissa_min() + 1};
+  auto const U = integer_t{(4 * mantissa_max()) << 3};
+
+  auto const max_LU = get_maximum_1(alpha, delta, L, U);
+
+  // Extras for the uncentred case.
+
+  auto const extras = [&](uint32_t const r) {
+
+    auto const m_a               = ( 4 * mantissa_min() - 1) << r;
+    auto const m_b               = ( 2 * mantissa_min() + 1) << r;
+    auto const m_c               = ( 4 * mantissa_min()    ) << r;
+    auto const m_c_refined       = (40 * mantissa_min()    ) << r;
+
+    auto const phi_1_m_a         = phi_1(alpha, delta, m_a);
+    auto const phi_1_m_b         = phi_1(alpha, delta, m_b);
+    auto const phi_1_m_c         = phi_1(alpha, delta, m_c);
+    auto const phi_1_m_c_refined = phi_1(alpha, delta, m_c_refined);
+
+    return std::max({phi_1_m_a, phi_1_m_a, phi_1_m_c, phi_1_m_c_refined});
+  };
+
+  return std::max({max_LU, extras(0), extras(1), extras(2), extras(3)});
 }
 
 } // namespace teju

@@ -20,7 +20,7 @@ namespace teju {
 
 /**
  * @brief Generator of Teju Jagua's implementation for a given floating-point
- * number type.
+ *        number type.
  */
 struct generator_t {
 

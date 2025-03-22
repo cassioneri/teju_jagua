@@ -117,7 +117,7 @@ auto get_bench() {
 
 /**
  * @brief Benchmarks conversion of a given floating-point number value to its
- * decimal representation.
+ *        decimal representation.
  *
  * @tparam T                The floating-point number type of value.
  *
@@ -172,7 +172,7 @@ benchmark(nanobench::Bench& bench, T const value) {
 
 /**
  * @brief Streams out detailed benchmarks results to a given file and a summary
- * to std::cout.
+ *        to std::cout.
  *
  * @param  bench            The instance of the benchmark object.
  * @param  filename         The name of the output file.

@@ -81,7 +81,7 @@ private:
 
 /**
  * @brief Created by splitter_t::operator(), it holds information for splitting
- * a given number.
+ *        a given number.
  */
 struct splitter_t::data_t {
 

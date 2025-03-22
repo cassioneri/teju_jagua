@@ -61,7 +61,7 @@ do {                               \
 
 /**
  * @brief Returns the largest exponent f such that 10^f <= 2^e, i.e., the
- * integer part of log_10(2^e).
+ *        integer part of log_10(2^e).
  *
  * @param  e                 The exponent e.
  *
@@ -78,7 +78,8 @@ teju_log10_pow2(int32_t const e) {
 
 /**
  * @brief Returns the residual r = e - e_0, where e_0 is the smallest exponent
- * such that the integer part of log_10(2^e_0) matches that of log_10(2^e).
+ *        such that the integer part of log_10(2^e_0) matches that of
+ *        log_10(2^e).
  *
  * @param  e                The exponent e.
  *

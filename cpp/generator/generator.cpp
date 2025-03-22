@@ -118,7 +118,7 @@ get_maximum_1(integer_t const& alpha_1, integer_t const& delta_1,
 
 /**
  * @brief Given alpha, delta, L_2 and U_2, this function calculates the
- * maximiser of phi_2(m) over [L_2, U_2].
+ *        maximiser of phi_2(m) over [L_2, U_2].
  *
  * @param  alpha_2          Parameter alpha_1.
  * @param  delta_2          Parameter delta_1.

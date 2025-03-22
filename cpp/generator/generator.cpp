@@ -459,7 +459,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 
   for (auto e_0 = e_0_min; e_0 <= e_0_max; e_0 = get_e_0(e_0 + 4)) {
 
-    auto U = get_fast_eaf_numerator(e_0, shift, e_0 == e_0_min);
+    auto U = get_fast_eaf_numerator(e_0, e_0 == e_0_min);
 
     sorted &= std::invoke([&]{
       auto const m_a = 4 * mantissa_min() - 1;
@@ -533,10 +533,11 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 }
 
 integer_t
-generator_t::get_fast_eaf_numerator(int32_t const e_0, uint32_t const k,
-  bool const is_min) const {
+generator_t::get_fast_eaf_numerator(int32_t const e_0, bool const is_min)
+  const {
 
-  auto const f = teju_log10_pow2(e_0);
+  auto const shift = 2 * size();
+  auto const f     = teju_log10_pow2(e_0);
 
   integer_t alpha, delta;
   if (f <= 0) {
@@ -551,12 +552,12 @@ generator_t::get_fast_eaf_numerator(int32_t const e_0, uint32_t const k,
   auto const maximum = get_maximum(alpha, delta, is_min);
 
   integer_t q, r;
-  divide_qr(alpha << k, delta, q, r);
+  divide_qr(alpha << shift, delta, q, r);
 
-  require(maximum < rational_t{pow2(k), delta - r},
+  require(maximum < rational_t{pow2(shift), delta - r},
     "Unable to use shift that is twice the size.");
 
-  return q + 1;
+  return q + (f != 0);
 }
 
 rational_t

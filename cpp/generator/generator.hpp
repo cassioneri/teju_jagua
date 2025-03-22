@@ -182,17 +182,17 @@ private:
    * some integer f. (This f is unique and it's the exponent of the EAF's
    * denominator.)
    *
-   * This functions returns an integer U such that
-   *   U * n / 2^k == n * 2^(e0 - 1) / 10^f.
+   * This function returns an integer U such that
+   *   U * n / 2^k == n * 2^(e0 - 1) / 10^f,
+   * where k = 2 * size().
    *
    * @param  e_0            The binary exponent.
-   * @param  k              The shift of the fast EAF.
    * @param  is_min         Tells whether the exponent e_0 is the minimal one.
    *
    * @returns The numerator of the fast EAF.
    */
   integer_t
-  get_fast_eaf_numerator(int32_t e_0, uint32_t k, bool is_min) const;
+  get_fast_eaf_numerator(int32_t e_0, bool is_min) const;
 
   /**
    * @brief Given alpha and delta, this function calculates the maximum of

@@ -29,7 +29,7 @@ extern "C" {
  *
  * @returns The binary representation of the given value.
  */
-teju16_fields_t
+teju32_fields_t
 teju_float16_to_binary(float16_t value);
 
 /**
@@ -41,7 +41,7 @@ teju_float16_to_binary(float16_t value);
  *
  * @returns The decimal representation of the given value.
  */
-teju16_fields_t
+teju32_fields_t
 teju_float16_to_decimal(float16_t value);
 
 #ifdef __cplusplus

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 {
   "id"  : "ieee16",
-  "size": 16,
+  "size": 32,
 
   "spdx": {
     "identifier": "APACHE-2.0",

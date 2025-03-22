@@ -15,8 +15,8 @@
 extern "C" {
 #endif
 
-teju16_fields_t
-teju_ieee16(teju16_fields_t binary);
+teju32_fields_t
+teju_ieee16(teju32_fields_t binary);
 
 #ifdef __cplusplus
 }

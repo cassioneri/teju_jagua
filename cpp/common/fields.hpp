@@ -28,8 +28,8 @@ struct cpp_fields_t;
 
 #if defined(teju_has_float16)
 template <>
-struct cpp_fields_t<float16_t> : teju16_fields_t {
-  using streamable_t = std::uint16_t;
+struct cpp_fields_t<float16_t> : teju32_fields_t {
+  using streamable_t = std::uint32_t;
 };
 #endif // defined(teju_has_float16)
 

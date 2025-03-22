@@ -95,13 +95,13 @@ private:
   mantissa_size() const;
 
   /**
-   * @brief Returns the normal minimal mantissa.
+   * @brief Returns the (normal) minimal mantissa.
    */
   integer_t const&
   mantissa_min() const;
 
   /**
-   * @brief Returns the normal maximal mantissa.
+   * @brief Returns the maximal mantissa.
    */
   integer_t const&
   mantissa_max() const;

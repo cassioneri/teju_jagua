@@ -236,7 +236,7 @@ generator_t::generator_t(config_t config, std::string directory) :
   prefix_      {get_prefix(size())             },
   function_    {"teju_" + id()                 },
   mantissa_min_{pow2(mantissa_size() - 1u)     },
-  mantissa_max_{2 * mantissa_min()             },
+  mantissa_max_{pow2(mantissa_size()) - 1u     },
   index_offset_{teju_log10_pow2(exponent_min())},
   directory_   {std::move(directory)           },
   dot_h_       {id() + ".h"                    },
@@ -591,8 +591,12 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 std::vector<generator_t::alpha_delta_maximum_t>
 generator_t::get_maxima() const {
 
-  auto e = exponent_min();
-  auto f = teju_log10_pow2(e);
+  auto get_e_0 = [](int32_t const e) {
+    return e - int32_t(teju_log10_pow2_residual(e));
+  };
+
+  auto e_0 = get_e_0(exponent_min());
+  auto f   = teju_log10_pow2(e_0);
 
   auto const f_max = teju_log10_pow2(exponent_max());
   auto const f_min = f;
@@ -601,8 +605,6 @@ generator_t::get_maxima() const {
   maxima.reserve(f_max - f_min + 1);
 
   while (f <= f_max) {
-
-    auto const e_0 = e - int32_t(teju_log10_pow2_residual(e));
 
     alpha_delta_maximum_t x;
     if (f <= 0) {
@@ -617,10 +619,8 @@ generator_t::get_maxima() const {
     x.maximum = get_maximum(x.alpha, x.delta, f == f_min);
     maxima.emplace_back(std::move(x));
 
-    // Setting e to e_0 + 4 is possibly an over-estimation but it doesn't matter
-    // because e_0 will be corrected at the beginning of next iteration.
+    e_0 = get_e_0(e_0 + 4);
     ++f;
-    e = e_0 + 4;
   }
   return maxima;
 }
@@ -631,26 +631,31 @@ generator_t::get_maximum(integer_t alpha, integer_t const& delta,
 
   alpha %= delta;
 
-  // Usual interval.
+  // Usual interval for the centred case.
 
-  auto const L = start_at_1 ? integer_t{1} : integer_t{2 * mantissa_min()};
-  auto const U = integer_t{16 * mantissa_max() - 15};
+  auto const L = start_at_1 ? integer_t{1} : integer_t{2 * mantissa_min() + 1};
+  auto const U = integer_t{(4 * mantissa_max()) << 3};
 
   auto const max_LU = get_maximum_1(alpha, delta, L, U);
 
-  // Extras that are needed when mantissa == mantissa_min().
+  // Extras for the uncentred case.
 
-  auto max_extras = [&](auto const& mantissa) {
-    auto const m_a     =  4 * mantissa - 1;
-    auto const m_c     = 20 * mantissa;
-    auto const max_m_a = phi_1(alpha, delta, m_a);
-    auto const max_m_c = phi_2(alpha, delta, m_c);
-    return std::max(max_m_a, max_m_c);
+  auto const extras = [&](uint32_t const r) {
+
+    auto const m_a               = ( 4 * mantissa_min() - 1) << r;
+    auto const m_b               = ( 2 * mantissa_min() + 1) << r;
+    auto const m_c               = ( 4 * mantissa_min()    ) << r;
+    auto const m_c_refined       = (40 * mantissa_min()    ) << r;
+
+    auto const phi_1_m_a         = phi_1(alpha, delta, m_a);
+    auto const phi_1_m_b         = phi_1(alpha, delta, m_b);
+    auto const phi_1_m_c         = phi_1(alpha, delta, m_c);
+    auto const phi_1_m_c_refined = phi_1(alpha, delta, m_c_refined);
+
+    return std::max({phi_1_m_a, phi_1_m_a, phi_1_m_c, phi_1_m_c_refined});
   };
 
-  return std::max({max_LU, max_extras(mantissa_min()),
-    max_extras(2 * mantissa_min()), max_extras(4 * mantissa_min()),
-    max_extras(8 * mantissa_min())});
+  return std::max({max_LU, extras(0), extras(1), extras(2), extras(3)});
 }
 
 generator_t::fast_eaf_t

@@ -11,56 +11,56 @@
 extern "C" {
 #endif
 
-#define teju_size                 16u
+#define teju_size                 32u
 #define teju_exponent_min         -24
 #define teju_mantissa_size        11u
 #define teju_storage_index_offset -8
 #define teju_calculation_sorted   1u
 #define teju_calculation_div10    teju_built_in_2
 #define teju_calculation_mshift   teju_built_in_4
-#define teju_calculation_shift    32u
+#define teju_calculation_shift    64u
 
 #define teju_function             teju_ieee16
-#define teju_fields_t             teju16_fields_t
-#define teju_u1_t                 teju16_u1_t
+#define teju_fields_t             teju32_fields_t
+#define teju_u1_t                 teju32_u1_t
 
-#if defined(teju16_u2_t)
-  #define teju_u2_t               teju16_u2_t
+#if defined(teju32_u2_t)
+  #define teju_u2_t               teju32_u2_t
 #endif
 
-#if defined(teju16_u4_t)
-  #define teju_u4_t               teju16_u4_t
+#if defined(teju32_u4_t)
+  #define teju_u4_t               teju32_u4_t
 #endif
 
 static struct {
   teju_u1_t const upper;
   teju_u1_t const lower;
 } const multipliers[] = {
-  { 0xbebc, 0x2001 }, // -8
-  { 0x9896, 0x8001 }, // -7
-  { 0xf424, 0x0001 }, // -6
-  { 0xc350, 0x0001 }, // -5
-  { 0x9c40, 0x0001 }, // -4
-  { 0xfa00, 0x0001 }, // -3
-  { 0xc800, 0x0001 }, // -2
-  { 0xa000, 0x0001 }, // -1
-  { 0x8000, 0x0001 }, // 0
-  { 0xcccc, 0xcccd }, // 1
+  { 0xbebc2000, 0x00000001 }, // -8
+  { 0x98968000, 0x00000001 }, // -7
+  { 0xf4240000, 0x00000001 }, // -6
+  { 0xc3500000, 0x00000001 }, // -5
+  { 0x9c400000, 0x00000001 }, // -4
+  { 0xfa000000, 0x00000001 }, // -3
+  { 0xc8000000, 0x00000001 }, // -2
+  { 0xa0000000, 0x00000001 }, // -1
+  { 0x80000000, 0x00000001 }, // 0
+  { 0xcccccccc, 0xcccccccd }, // 1
 };
 
 static struct {
   teju_u1_t const multiplier;
   teju_u1_t const bound;
 } const minverse[] = {
-  { 0x0001, 0xffff },
-  { 0xcccd, 0x3333 },
-  { 0x5c29, 0x0a3d },
-  { 0x78d5, 0x020c },
-  { 0x7e91, 0x0068 },
-  { 0xe61d, 0x0014 },
-  { 0x6139, 0x0004 },
-  { 0x46a5, 0x0000 },
-  { 0x0e21, 0x0000 },
+  { 0x00000001, 0xffffffff },
+  { 0xcccccccd, 0x33333333 },
+  { 0xc28f5c29, 0x0a3d70a3 },
+  { 0x26e978d5, 0x020c49ba },
+  { 0x3afb7e91, 0x0068db8b },
+  { 0x0bcbe61d, 0x0014f8b5 },
+  { 0x68c26139, 0x000431bd },
+  { 0xae8d46a5, 0x0000d6bf },
+  { 0x22e90e21, 0x00002af3 },
 };
 
 #include "teju/teju.h"

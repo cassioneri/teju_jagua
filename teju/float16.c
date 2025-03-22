@@ -16,11 +16,11 @@
 extern "C" {
 #endif
 
-teju16_fields_t
+teju32_fields_t
 teju_float16_to_binary(float16_t const value) {
 
-  typedef teju16_fields_t teju_fields_t;
-  typedef teju16_u1_t     teju_u1_t;
+  typedef teju32_fields_t teju_fields_t;
+  typedef teju32_u1_t     teju_u1_t;
 
   uint32_t const mantissa_size =  11u;
   int32_t  const exponent_min  = -24;
@@ -39,13 +39,13 @@ teju_float16_to_binary(float16_t const value) {
   }
 
   exponent += exponent_min;
-  teju16_fields_t binary = {mantissa, exponent};
+  teju32_fields_t binary = {mantissa, exponent};
   return binary;
 }
 
-teju16_fields_t
+teju32_fields_t
 teju_float16_to_decimal(float16_t const value) {
-  teju16_fields_t binary = teju_float16_to_binary(value);
+  teju32_fields_t binary = teju_float16_to_binary(value);
   return teju_ieee16(binary);
 }
 

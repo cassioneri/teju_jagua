@@ -450,9 +450,8 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   }
 
   // Optimal shift is 2 * size since it prevents mshift to deal with partial
-  // limbs. In addition, we subtract 1 to compensate shift's increment made
-  // later on, when shift is output. (See below.)
-  shift = std::max(shift, 2 * size() - 1);
+  // limbs.
+  shift = std::max(shift, 2 * size());
 
   // Replace minimal fast EAFs to use the same shift.
 
@@ -478,10 +477,8 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   bool sorted = true;
   {
     for (auto const& fast_eaf :fast_eafs) {
-      // Recall that, at this point, shift == 2 * size() - 1, which is 1 less
-      // than it should be and it's only later (below) that it's adjusted.
-      auto const a = m_a * fast_eaf.U >> (shift + 2);
-      auto const b = m_b * fast_eaf.U >> (shift + 1);
+      auto const a = m_a * fast_eaf.U >> (shift + 1);
+      auto const b = m_b * fast_eaf.U >> shift;
       if (b <= a) {
         sorted = false;
         break;
@@ -507,9 +504,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 
   stream <<
     "#define teju_calculation_mshift   teju_" << calculation_mshift() << "\n"
-    // Instead of using teju_mshift(m, upper, lower) / 2 in Teju Jagua, shift is
-    // incremented here and the division by 2 is removed.
-    "#define teju_calculation_shift    " << shift + 1  << "u\n"
+    "#define teju_calculation_shift    " << shift      << "u\n"
     "\n"
     "#define teju_function             " << function() << "\n"
     "#define teju_fields_t             " << prefix()   << "fields_t\n"
@@ -596,31 +591,36 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 std::vector<generator_t::alpha_delta_maximum_t>
 generator_t::get_maxima() const {
 
-  auto const f_min = teju_log10_pow2(exponent_min());
+  auto e = exponent_min();
+  auto f = teju_log10_pow2(e);
+
   auto const f_max = teju_log10_pow2(exponent_max());
+  auto const f_min = f;
 
   std::vector<alpha_delta_maximum_t> maxima;
   maxima.reserve(f_max - f_min + 1);
 
-  auto f_done = f_min - 1;
+  while (f <= f_max) {
 
-  for (auto e = exponent_min(); e <= exponent_max(); ++e) {
-
-    auto const f = teju_log10_pow2(e);
-
-    if (f == f_done)
-      continue;
-
-    auto const e0_f = e - int32_t(teju_log10_pow2_residual(e)) - f;
+    auto const e_0 = e - int32_t(teju_log10_pow2_residual(e));
 
     alpha_delta_maximum_t x;
-    x.alpha   = f >= 0 ? pow2(e0_f) : pow5(-f   );
-    x.delta   = f >= 0 ? pow5(f   ) : pow2(-e0_f);
-    x.maximum = get_maximum(x.alpha, x.delta, e == exponent_min());
+    if (f <= 0) {
+      x.alpha = pow5(-f);
+      x.delta = pow2(-(e_0 - 1 - f));
+    }
+    else {
+      x.alpha = pow2(e_0 - 1 - f);
+      x.delta = pow5(f);
+    }
 
+    x.maximum = get_maximum(x.alpha, x.delta, f == f_min);
     maxima.emplace_back(std::move(x));
 
-    f_done = f;
+    // Setting e to e_0 + 4 is possibly an over-estimation but it doesn't matter
+    // because e_0 will be corrected at the beginning of next iteration.
+    ++f;
+    e = e_0 + 4;
   }
   return maxima;
 }

@@ -434,43 +434,19 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "#endif\n"
     "\n";
 
-  auto const fast_eafs = get_fast_eafs();
-  require(!fast_eafs.empty(), "BUG: Failed to find fast EAFs.");
-
-  // All EAFs are supposed to have the same shift.
-  auto const shift = fast_eafs.front().k;
-
-  // Check whether the uncentred case is always sorted, that is, a < b for all
-  // exponents.
-  auto const m_a = 4 * mantissa_min() - 1;
-  auto const m_b = 2 * mantissa_min() + 1;
-  bool sorted = true;
-  {
-    for (auto const& fast_eaf :fast_eafs) {
-      auto const a = m_a * fast_eaf.U >> (fast_eaf.k + 1);
-      auto const b = m_b * fast_eaf.U >> fast_eaf.k;
-      if (b <= a) {
-        sorted = false;
-        break;
-      }
-    }
-  }
-
-  auto const p2size   = pow2(size());
-  auto const mask     = p2size - 1;
-  auto const minv5    = minverse5(size());
-  auto const splitter = splitter_t{size(), storage_split()};
-
   stream <<
     "#define teju_size                 " << size()          << "u\n"
     "#define teju_exponent_min         " << exponent_min()  << "\n"
     "#define teju_mantissa_size        " << mantissa_size() << "u\n"
-    "#define teju_storage_index_offset " << index_offset()  << "\n"
-    "#define teju_calculation_sorted   " << sorted          << "u\n";
+    "#define teju_storage_index_offset " << index_offset()  << "\n";
 
   if (!calculation_div10().empty())
     stream <<
     "#define teju_calculation_div10    teju_" << calculation_div10() << "\n";
+
+  // The optimal runtime shift is twice the carrier size because it avoids
+  // teju_mshift to work on partial limbs.
+  auto const shift = 2 * size();
 
   stream <<
     "#define teju_calculation_mshift   teju_" << calculation_mshift() << "\n"
@@ -493,10 +469,66 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "  teju_u1_t const lower;\n"
     "} const multipliers[] = {\n";
 
-  auto e2 = exponent_min();
-  auto f  = teju_log10_pow2(e2);
+  auto const p2shift  = pow2(shift);
+  auto const p2size   = pow2(size());
+  auto const mask     = p2size - 1;
+  auto const splitter = splitter_t{size(), storage_split()};
 
-  for (auto const& fast_eaf : fast_eafs) {
+  auto const m_a      = 4 * mantissa_min() - 1;
+  auto const m_b      = 2 * mantissa_min() + 1;
+  bool       sorted   = true;
+
+  auto const get_e_0  = [](int32_t const e) {
+    return e - int32_t(teju_log10_pow2_residual(e));
+  };
+
+  auto e_0 = get_e_0(exponent_min());
+  auto f   = teju_log10_pow2(e_0);
+
+  auto const f_max = teju_log10_pow2(exponent_max());
+  auto const f_min = f;
+
+  while (f <= f_max) {
+
+    alpha_delta_maximum_t x;
+    if (f <= 0) {
+      x.alpha = pow5(-f);
+      x.delta = pow2(-(e_0 - 1 - f));
+    }
+    else {
+      x.alpha = pow2(e_0 - 1 - f);
+      x.delta = pow5(f);
+    }
+
+    x.maximum = get_maximum(x.alpha, x.delta, f == f_min);
+
+    // Calculate fast EAF with minimal shift.
+
+    auto fast_eaf = get_fast_eaf(x);
+    require(fast_eaf.k <= shift,
+      "The integer carrier must be more than 2x the size of the floating-point "
+      "type.");
+
+    // Replace minimal fast EAF with another using the optimal shift.
+
+    fast_eaf = std::invoke([&]{
+
+      integer_t q, r;
+      divide_qr(x.alpha << shift, x.delta, q, r);
+
+      require(x.maximum < rational_t{p2shift, x.delta - r},
+        "Unable to use same shift.");
+
+      return fast_eaf_t{q + 1, shift};
+    });
+
+    sorted &= std::invoke([&]{
+      auto const a = m_a * fast_eaf.U >> (fast_eaf.k + 1);
+      auto const b = m_b * fast_eaf.U >> fast_eaf.k;
+      return a < b;
+    });
+
+    // Output
 
     integer_t upper = fast_eaf.U >> size();
     integer_t lower = fast_eaf.U & mask;
@@ -506,15 +538,20 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     stream << "  { " << splitter(std::move(upper)) << ", " <<
       splitter(std::move(lower)) << " }, // " << std::dec << f << "\n";
 
+    e_0 = get_e_0(e_0 + 4);
     ++f;
   }
 
   stream << "};\n"
     "\n"
+    "#define teju_calculation_sorted " << sorted << "u\n"
+    "\n"
     "static struct {\n"
     "  teju_u1_t const multiplier;\n"
     "  teju_u1_t const bound;\n"
     "} const minverse[] = {\n";
+
+  auto const minv5    = minverse5(size());
 
   auto multiplier = integer_t{1};
   auto p5         = integer_t{1};
@@ -556,70 +593,6 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "#ifdef __cplusplus\n"
     "}\n"
     "#endif\n";
-}
-
-std::vector<generator_t::fast_eaf_t>
-generator_t::get_fast_eafs() const {
-
-  auto get_e_0 = [](int32_t const e) {
-    return e - int32_t(teju_log10_pow2_residual(e));
-  };
-
-  auto e_0 = get_e_0(exponent_min());
-  auto f   = teju_log10_pow2(e_0);
-
-  auto const f_max = teju_log10_pow2(exponent_max());
-  auto const f_min = f;
-
-  std::vector<fast_eaf_t> fast_eafs;
-  fast_eafs.reserve(f_max - f_min + 1);
-
-  // The optimal runtime shift is twice the carrier size because it avoids
-  // teju_mshift to work on partial limbs.
-  auto const shift   = 2 * size();
-  auto const p2shift = pow2(shift);
-
-  while (f <= f_max) {
-
-    alpha_delta_maximum_t x;
-    if (f <= 0) {
-      x.alpha = pow5(-f);
-      x.delta = pow2(-(e_0 - 1 - f));
-    }
-    else {
-      x.alpha = pow2(e_0 - 1 - f);
-      x.delta = pow5(f);
-    }
-
-    x.maximum = get_maximum(x.alpha, x.delta, f == f_min);
-
-    // Calculate fast EAF with minimal shift.
-
-    auto fast_eaf = get_fast_eaf(x);
-    require(fast_eaf.k <= shift,
-      "The integer carrier must be more than 2x the size of the floating-point "
-      "type.");
-
-    // Replace minimal fast EAF with another using the optimal shift.
-
-    fast_eaf = std::invoke([&]{
-
-      integer_t q, r;
-      divide_qr(x.alpha << shift, x.delta, q, r);
-
-      require(x.maximum < rational_t{p2shift, x.delta - r},
-        "Unable to use same shift.");
-
-      return fast_eaf_t{q + 1, shift};
-    });
-
-    fast_eafs.emplace_back(std::move(fast_eaf));
-
-    e_0 = get_e_0(e_0 + 4);
-    ++f;
-  }
-
-  return fast_eafs;
 }
 
 generator_t::fast_eaf_t

@@ -178,21 +178,6 @@ private:
   struct fast_eaf_t;
 
   /**
-   * @brief Gets all fast EAFs.
-   *
-   * Recall that for each possible exponent yielded by Teju Jagua, it defines a
-   * fast EAF used to calculate mantissas. (See get_fast_eaf.)
-   *
-   * This function returns a vector v where each element contains the fast EAF
-   * corresponding to an exponent. Elements are ordered by exponent and, in
-   * particular, v[0] is the entry for the minimal exponent.
-   *
-   * @returns The vector v.
-   */
-  std::vector<fast_eaf_t>
-  get_fast_eafs() const;
-
-  /**
    * @brief Gets the fast EAF for f(n) = alpha * n / delta which works on a set
    *        of relevant values of n.
    *

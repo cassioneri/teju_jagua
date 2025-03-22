@@ -15,7 +15,6 @@ extern "C" {
 #define teju_exponent_min         -1074
 #define teju_mantissa_size        53u
 #define teju_storage_index_offset -324
-#define teju_calculation_sorted   0u
 #define teju_calculation_div10    teju_built_in_2
 #define teju_calculation_mshift   teju_built_in_2
 #define teju_calculation_shift    128u
@@ -654,6 +653,8 @@ static struct {
   { 0x9faacf3df73609b1, 0x77b191618c54e9ad }, // 291
   { 0xff77b1fcbebcdc4f, 0x25e8e89c13bb0f7b }, // 292
 };
+
+#define teju_calculation_sorted 0u
 
 static struct {
   teju_u1_t const multiplier;

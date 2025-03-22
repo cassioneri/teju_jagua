@@ -477,8 +477,6 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   auto const m_b = 2 * mantissa_min() + 1;
   bool sorted = true;
   {
-    auto e2 = exponent_min();
-    auto f  = teju_log10_pow2(e2);
     for (auto const& fast_eaf :fast_eafs) {
       // Recall that, at this point, shift == 2 * size() - 1, which is 1 less
       // than it should be and it's only later (below) that it's adjusted.
@@ -488,7 +486,6 @@ generator_t::generate_dot_c(std::ostream& stream) const {
         sorted = false;
         break;
       }
-      ++f;
     }
   }
 
@@ -499,7 +496,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 
   stream <<
     "#define teju_size                 " << size()          << "u\n"
-    "#define teju_exponent_minimum     " << exponent_min()  << "\n"
+    "#define teju_exponent_min         " << exponent_min()  << "\n"
     "#define teju_mantissa_size        " << mantissa_size() << "u\n"
     "#define teju_storage_index_offset " << index_offset()  << "\n"
     "#define teju_calculation_sorted   " << sorted          << "u\n";
@@ -510,9 +507,9 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 
   stream <<
     "#define teju_calculation_mshift   teju_" << calculation_mshift() << "\n"
-    // Instead of using mshift(m, upper, lower) / 2 in Teju Jagua, shift is
+    // Instead of using teju_mshift(m, upper, lower) / 2 in Teju Jagua, shift is
     // incremented here and the division by 2 is removed.
-    "#define teju_calculation_shift    " << shift + 1             << "u\n"
+    "#define teju_calculation_shift    " << shift + 1  << "u\n"
     "\n"
     "#define teju_function             " << function() << "\n"
     "#define teju_fields_t             " << prefix()   << "fields_t\n"
@@ -599,10 +596,13 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 std::vector<generator_t::alpha_delta_maximum_t>
 generator_t::get_maxima() const {
 
-  std::vector<alpha_delta_maximum_t> maxima;
-  maxima.reserve(exponent_max() - exponent_min() + 1);
+  auto const f_min = teju_log10_pow2(exponent_min());
+  auto const f_max = teju_log10_pow2(exponent_max());
 
-  auto f_done = std::numeric_limits<int32_t>::min();
+  std::vector<alpha_delta_maximum_t> maxima;
+  maxima.reserve(f_max - f_min + 1);
+
+  auto f_done = f_min - 1;
 
   for (auto e = exponent_min(); e <= exponent_max(); ++e) {
 
@@ -638,7 +638,7 @@ generator_t::get_maximum(integer_t alpha, integer_t const& delta,
 
   auto const max_LU = get_maximum_1(alpha, delta, L, U);
 
-  // Extras that are needed when mantissa == normal_mantissa_min().
+  // Extras that are needed when mantissa == mantissa_min().
 
   auto max_extras = [&](auto const& mantissa) {
     auto const m_a     =  4 * mantissa - 1;

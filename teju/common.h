@@ -60,7 +60,8 @@ do {                               \
 #define teju_log10_pow2_max  112815
 
 /**
- * @brief Returns the largest exponent f such that 10^f <= 2^e.
+ * @brief Returns the largest exponent f such that 10^f <= 2^e, i.e., the
+ * integer part of log_10(2^e).
  *
  * @param  e                 The exponent e.
  *
@@ -71,7 +72,8 @@ do {                               \
 static inline
 int32_t
 teju_log10_pow2(int32_t const e) {
-  return (((uint64_t) 1292913987u) * e) >> 32u;
+  assert(teju_log10_pow2_min <= e && e <= teju_log10_pow2_max);
+  return (((int64_t) 1292913987u) * e) >> 32u;
 }
 
 /**
@@ -87,7 +89,8 @@ teju_log10_pow2(int32_t const e) {
 static inline
 uint32_t
 teju_log10_pow2_residual(int32_t const e) {
-  return ((uint32_t) (((uint64_t) 1292913987u) * e)) / 1292913987u;
+  assert(teju_log10_pow2_min <= e && e <= teju_log10_pow2_max);
+  return ((uint32_t) (((int64_t) 1292913987u) * e)) / 1292913987u;
 }
 
 #ifdef __cplusplus

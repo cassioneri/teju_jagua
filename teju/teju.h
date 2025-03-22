@@ -182,7 +182,7 @@ teju_function(teju_fields_t const binary) {
   teju_u1_t const l   = multipliers[i].lower;
 
   teju_u1_t const m_0 = teju_pow2(teju_u1_t, teju_mantissa_size - 1u);
-  if (m != m_0 || e == teju_exponent_minimum) {
+  if (m != m_0 || e == teju_exponent_min) {
 
     // Calculations of m_a, m_b and m_c are safe in the centred case if
     // teju_u1_t can hold m_c = 4u * m << r.

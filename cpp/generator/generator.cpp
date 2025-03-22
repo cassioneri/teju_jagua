@@ -449,9 +449,10 @@ generator_t::generate_dot_c(std::ostream& stream) const {
       shift = s;
   }
 
-  // Optimal shift is 2 * size since it prevents mshift to deal with partial
-  // limbs.
-  shift = std::max(shift, 2 * size());
+  require(shift <= 2 * size(),
+    "The integer carrier must be more than 2x the size of the floating-point "
+    "type.");
+  shift = 2 * size();
 
   // Replace minimal fast EAFs to use the same shift.
 

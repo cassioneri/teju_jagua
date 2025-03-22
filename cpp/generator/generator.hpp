@@ -191,7 +191,7 @@ private:
 
   /**
    * @brief Given alpha and delta, this function calculates the maximiser of
-   * phi_1(n) over the relevant set of values.
+   *        phi_1(n) over the relevant set of values.
    *
    * @param  alpha          Parameter alpha.
    * @param  delta          Parameter delta.

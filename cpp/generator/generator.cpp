@@ -434,42 +434,11 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "#endif\n"
     "\n";
 
-  auto const maxima = get_maxima();
-  std::vector<fast_eaf_t> fast_eafs;
-  fast_eafs.reserve(maxima.size());
+  auto const fast_eafs = get_fast_eafs();
+  require(!fast_eafs.empty(), "BUG: Failed to find fast EAFs.");
 
-  auto shift = std::uint32_t{0};
-
-  // Calculates minimal fast EAFs (i.e., those with minimal shift).
-
-  for (auto const& x : maxima) {
-    fast_eafs.emplace_back(get_fast_eaf(x));
-    auto const s = fast_eafs.back().k;
-    if (s > shift)
-      shift = s;
-  }
-
-  require(shift <= 2 * size(),
-    "The integer carrier must be more than 2x the size of the floating-point "
-    "type.");
-  shift = 2 * size();
-
-  // Replace minimal fast EAFs to use the same shift.
-
-  auto const p2shift = pow2(shift);
-
-  for (std::uint32_t i = 0; i < maxima.size(); ++i) {
-
-    auto const& x = maxima[i];
-
-    integer_t q, r;
-    divide_qr(x.alpha << shift, x.delta, q, r);
-
-    require(x.maximum < rational_t{p2shift, x.delta - r},
-      "Unable to use same shift.");
-
-    fast_eafs[i] = fast_eaf_t{q + 1, shift};
-  }
+  // All EAFs are supposed to have the same shift.
+  auto const shift = fast_eafs.front().k;
 
   // Check whether the uncentred case is always sorted, that is, a < b for all
   // exponents.
@@ -478,8 +447,8 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   bool sorted = true;
   {
     for (auto const& fast_eaf :fast_eafs) {
-      auto const a = m_a * fast_eaf.U >> (shift + 1);
-      auto const b = m_b * fast_eaf.U >> shift;
+      auto const a = m_a * fast_eaf.U >> (fast_eaf.k + 1);
+      auto const b = m_b * fast_eaf.U >> fast_eaf.k;
       if (b <= a) {
         sorted = false;
         break;
@@ -532,7 +501,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     integer_t upper = fast_eaf.U >> size();
     integer_t lower = fast_eaf.U & mask;
 
-    require(upper < p2size, "Multiplier is out of range.");
+    require(upper < p2size, "A multiplier is out of range.");
 
     stream << "  { " << splitter(std::move(upper)) << ", " <<
       splitter(std::move(lower)) << " }, // " << std::dec << f << "\n";
@@ -628,13 +597,13 @@ generator_t::get_maxima() const {
 
 rational_t
 generator_t::get_maximum(integer_t alpha, integer_t const& delta,
-  bool const start_at_1) const {
+  bool const is_min) const {
 
   alpha %= delta;
 
   // Usual interval for the centred case.
 
-  auto const L = start_at_1 ? integer_t{1} : integer_t{2 * mantissa_min() + 1};
+  auto const L = is_min ? integer_t{1} : integer_t{2 * mantissa_min() + 1};
   auto const U = integer_t{(4 * mantissa_max()) << 3};
 
   auto const max_LU = get_maximum_1(alpha, delta, L, U);
@@ -657,6 +626,47 @@ generator_t::get_maximum(integer_t alpha, integer_t const& delta,
   };
 
   return std::max({max_LU, extras(0), extras(1), extras(2), extras(3)});
+}
+
+std::vector<generator_t::fast_eaf_t>
+generator_t::get_fast_eafs() const {
+
+  auto const maxima = get_maxima();
+  std::vector<fast_eaf_t> fast_eafs;
+  fast_eafs.reserve(maxima.size());
+
+  // The optimal runtime shift is twice the carrier size because it avoids
+  // teju_mshift to work on partial limbs.
+  auto const shift = 2 * size();
+
+  // Calculate fast EAFs with minimal shifts.
+
+  for (auto const& x : maxima) {
+    fast_eafs.emplace_back(get_fast_eaf(x));
+    auto const s = fast_eafs.back().k;
+    require(s <= shift,
+      "The integer carrier must be more than 2x the size of the floating-point "
+      "type.");
+  }
+
+  // Replace minimal fast EAFs with others using the optimal shift.
+
+  auto const p2shift = pow2(shift);
+
+  for (std::uint32_t i = 0; i < maxima.size(); ++i) {
+
+    auto const& x = maxima[i];
+
+    integer_t q, r;
+    divide_qr(x.alpha << shift, x.delta, q, r);
+
+    require(x.maximum < rational_t{p2shift, x.delta - r},
+      "Unable to use same shift.");
+
+    fast_eafs[i] = fast_eaf_t{q + 1, shift};
+  }
+
+  return fast_eafs;
 }
 
 generator_t::fast_eaf_t

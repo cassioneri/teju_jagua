@@ -174,15 +174,19 @@ private:
   void
   generate_dot_c(std::ostream& stream) const;
 
-  struct fast_eaf_t;
   struct alpha_delta_maximum_t;
 
   /**
-   * @brief Gets the maxima of all primary problems. (See get_maximum.)
+   * @brief Gets the maxima of all primary maximisation problems.
    *
-   * It returns a vector v of size exponent_max() - exponent_min() + 1 such that
-   * v[i] contains the maximum of the primary problem corresponding to exponent
-   * = exponent_min() + i.
+   * Recall that for each possible exponent yielded by Teju Jagua, it defines a
+   * maximisation problem whose objective function is parameterised on alpha and
+   * delta. (See get_maximum.)
+   *
+   * This function returns a vector v where each element contains the parameters
+   * alpha and delta, and the maximum of the objective function corresponding to
+   * an exponent. Elements are ordered by exponent and, in particular, v[0] is
+   * the entry for the minimal exponent.
    *
    * @returns The vector v.
    */
@@ -190,28 +194,53 @@ private:
   get_maxima() const;
 
   /**
-   * @brief Given alpha and delta, this function calculates the maximiser of
+   * @brief Given alpha and delta, this function calculates the maximum of
    *        phi_1(n) over the relevant set of values.
+   *
+   * Recall that for each possible exponent yielded by Teju Jagua, it defines a
+   * maximisation problem whose objective function, phi_1(n), is parameterised
+   * on alpha and delta and where n is in a set of values related to mantissas.
    *
    * @param  alpha          Parameter alpha.
    * @param  delta          Parameter delta.
-   * @param  start_at_1     True if the set of relevant mantissas start at 1, or
-   *                        false if it starts at mantissa_min().
+   * @param  is_min         True if the exponent is the minimal one.
    *
    * @pre 0 <= alpha && 0 < delta.
    *
-   * @returns The maximiser of phi(m) over the relevant set of mantissas.
+   * @returns The maximum of phi_1(n) over the relevant set of values.
    */
   rational_t
-  get_maximum(integer_t alpha, integer_t const& delta, bool start_at_1) const;
+  get_maximum(integer_t alpha, integer_t const& delta, bool is_min) const;
+
+  struct fast_eaf_t;
 
   /**
-   * @brief Get the EAF f(m) = alpha * m / delta which works on an interval of
-   *        relevant mantissas. This fast EAF is associated to maximisation of
-   *        phi_1(n) over the set of mantissas.
+   * @brief Gets all fast EAFs.
    *
-   * @param  x              The container of alpha, beta and the solution of
-   *                        the primary maximisation problem.
+   * Recall that for each possible exponent yielded by Teju Jagua, it defines a
+   * fast EAF used to calculate mantissas. (See get_fast_eaf.)
+   *
+   * This function returns a vector v where each element contains the fast EAF
+   * corresponding to an exponent. Elements are ordered by exponent and, in
+   * particular, v[0] is the entry for the minimal exponent.
+   *
+   * @returns The vector v.
+   */
+  std::vector<fast_eaf_t>
+  get_fast_eafs() const;
+
+  /**
+   * @brief Gets the fast EAF for f(n) = alpha * n / delta which works on a set
+   *        of relevant values of n.
+   *
+   * Recall that for each possible exponent yielded by Teju Jagua, it defines a
+   * fast EAF used to calculate mantissas and a maximisation problem whose
+   * objective function is parameterised on alpha and delta.
+   *
+   * @param  x              The container of alpha, delta and the maximum of the
+   *                        objective function.
+   *
+   * @returns The fast EAF.
    */
   fast_eaf_t
   get_fast_eaf(alpha_delta_maximum_t const& x) const;

@@ -351,30 +351,6 @@ generator_t::dot_c() const {
   return dot_c_;
 }
 
-/**
- * @brief Fast EAF coefficients.
- *
- * For given alpha > 0 and delta > 0, we often find U > 0 and k >= 0 such that:
- *
- *   alpha * m / delta = U * m >> k for m in a certain interval.
- *
- * This type stores U and k.
- */
-struct generator_t::fast_eaf_t {
-  integer_t     U;
-  std::uint32_t k;
-};
-
-/**
- * @brief Stores alpha, delta (usually pow2(e) and pow2(f)) and the maximum of
- *        m / (delta - alpha * m % delta) for m in the set of mantissas.
- */
-struct generator_t::alpha_delta_maximum_t {
-  integer_t  alpha;
-  integer_t  delta;
-  rational_t maximum;
-};
-
 std::ostream&
 generator_t::generate_license(std::ostream& stream) const {
 
@@ -469,77 +445,39 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "  teju_u1_t const lower;\n"
     "} const multipliers[] = {\n";
 
-  auto const p2shift  = pow2(shift);
   auto const p2size   = pow2(size());
   auto const mask     = p2size - 1;
   auto const splitter = splitter_t{size(), storage_split()};
-
-  auto const m_a      = 4 * mantissa_min() - 1;
-  auto const m_b      = 2 * mantissa_min() + 1;
   bool       sorted   = true;
 
   auto const get_e_0  = [](int32_t const e) {
     return e - int32_t(teju_log10_pow2_residual(e));
   };
 
-  auto e_0 = get_e_0(exponent_min());
-  auto f   = teju_log10_pow2(e_0);
+  auto const e_0_min  = get_e_0(exponent_min());
+  auto const e_0_max  = get_e_0(exponent_max());
 
-  auto const f_max = teju_log10_pow2(exponent_max());
-  auto const f_min = f;
+  for (auto e_0 = e_0_min; e_0 <= e_0_max; e_0 = get_e_0(e_0 + 4)) {
 
-  while (f <= f_max) {
-
-    alpha_delta_maximum_t x;
-    if (f <= 0) {
-      x.alpha = pow5(-f);
-      x.delta = pow2(-(e_0 - 1 - f));
-    }
-    else {
-      x.alpha = pow2(e_0 - 1 - f);
-      x.delta = pow5(f);
-    }
-
-    x.maximum = get_maximum(x.alpha, x.delta, f == f_min);
-
-    // Calculate fast EAF with minimal shift.
-
-    auto fast_eaf = get_fast_eaf(x);
-    require(fast_eaf.k <= shift,
-      "The integer carrier must be more than 2x the size of the floating-point "
-      "type.");
-
-    // Replace minimal fast EAF with another using the optimal shift.
-
-    fast_eaf = std::invoke([&]{
-
-      integer_t q, r;
-      divide_qr(x.alpha << shift, x.delta, q, r);
-
-      require(x.maximum < rational_t{p2shift, x.delta - r},
-        "Unable to use same shift.");
-
-      return fast_eaf_t{q + 1, shift};
-    });
+    auto U = get_fast_eaf_numerator(e_0, shift, e_0 == e_0_min);
 
     sorted &= std::invoke([&]{
-      auto const a = m_a * fast_eaf.U >> (fast_eaf.k + 1);
-      auto const b = m_b * fast_eaf.U >> fast_eaf.k;
+      auto const m_a = 4 * mantissa_min() - 1;
+      auto const a   = m_a * U >> (shift + 1);
+      auto const m_b = 2 * mantissa_min() + 1;
+      auto const b   = m_b * U >> shift;
       return a < b;
     });
 
     // Output
 
-    integer_t upper = fast_eaf.U >> size();
-    integer_t lower = fast_eaf.U & mask;
+    integer_t upper = U >> size();
+    integer_t lower = std::move(U &= mask);
 
     require(upper < p2size, "A multiplier is out of range.");
 
     stream << "  { " << splitter(std::move(upper)) << ", " <<
-      splitter(std::move(lower)) << " }, // " << std::dec << f << "\n";
-
-    e_0 = get_e_0(e_0 + 4);
-    ++f;
+      splitter(std::move(lower)) << " },\n";
   }
 
   stream << "};\n"
@@ -550,11 +488,6 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "  teju_u1_t const multiplier;\n"
     "  teju_u1_t const bound;\n"
     "} const minverse[] = {\n";
-
-  auto const minv5    = minverse5(size());
-
-  auto multiplier = integer_t{1};
-  auto p5         = integer_t{1};
 
   // Let M = mantissa_max(). Teju Jagua might call is_multiple_of_pow5(n, f) for
   // the following values of  n:
@@ -573,16 +506,20 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   // Hence, n < 320 * M. Now, if 5^f >= 320 * M, then n < 5^f. It follows that
   // n is not multiple of 5^f, that is, is_multiple_of_pow5(n, f) == false.
 
-  auto const bound = 320 * mantissa_max();
+  auto const bound      = 320 * mantissa_max();
+  auto const minv5      = minverse5(size());
+  auto       multiplier = integer_t{1};
+  auto       p5         = integer_t{1};
   for (std::int32_t f = 0; p5 < bound; ++f) {
 
-    auto bound = p2size / p5 - (f == 0);
+    auto bnd = p2size / p5 - (f == 0);
 
     stream << "  { " << splitter(multiplier) << ", " <<
-      splitter(std::move(bound)) << " },\n";
+      splitter(std::move(bnd)) << " },\n";
 
-    multiplier = (multiplier * minv5) & mask;
-    p5 *= 5;
+    multiplier *= minv5;
+    multiplier &= mask;
+    p5         *= 5;
   }
 
   stream << std::dec <<
@@ -595,37 +532,31 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "#endif\n";
 }
 
-generator_t::fast_eaf_t
-generator_t::get_fast_eaf(alpha_delta_maximum_t const& x) const {
+integer_t
+generator_t::get_fast_eaf_numerator(int32_t const e_0, uint32_t const k,
+  bool const is_min) const {
 
-  // Making shift >= size, simplifies mshift executed at runtime. Indeed, it
-  // ensures that the least significant limb of the product is irrelevant. For
-  // this reason, later on, the generator actually outputs shift - size
-  // (still labelling it as 'shift') so that Teju Jagua doesn't need to do it at
-  // runtime.
-  auto k   = size();
-  auto p2k = pow2(k);
+  auto const f = teju_log10_pow2(e_0);
 
-  integer_t q, r;
-  divide_qr(p2k * x.alpha, x.delta, q, r);
-
-  // It should return from inside the loop but let's set an upper bound.
-  while (k < 3 * size()) {
-
-    if (x.maximum < rational_t{p2k, x.delta - r})
-      return { q + 1, k };
-
-    k   += 1;
-    p2k *= 2;
-    q   *= 2;
-    r   *= 2;
-    while (r >= x.delta) {
-      q += 1;
-      r -= x.delta;
-    }
+  integer_t alpha, delta;
+  if (f <= 0) {
+    alpha = pow5(-f);
+    delta = pow2(-(e_0 - 1 - f));
+  }
+  else {
+    alpha = pow2(e_0 - 1 - f);
+    delta = pow5(f);
   }
 
-  throw exception_t{"Cannot find fast EAF."};
+  auto const maximum = get_maximum(alpha, delta, is_min);
+
+  integer_t q, r;
+  divide_qr(alpha << k, delta, q, r);
+
+  require(maximum < rational_t{pow2(k), delta - r},
+    "Unable to use shift that is twice the size.");
+
+  return q + 1;
 }
 
 rational_t

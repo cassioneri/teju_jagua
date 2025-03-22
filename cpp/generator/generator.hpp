@@ -174,24 +174,25 @@ private:
   void
   generate_dot_c(std::ostream& stream) const;
 
-  struct alpha_delta_maximum_t;
-  struct fast_eaf_t;
-
   /**
-   * @brief Gets the fast EAF for f(n) = alpha * n / delta which works on a set
-   *        of relevant values of n.
+   * @brief Gets the numerator of the fast EAF for n * 2^(e0 - 1) / 10^f which
+   *        works on a set of relevant values of n.
    *
-   * Recall that for each possible exponent yielded by Teju Jagua, it defines a
-   * fast EAF used to calculate mantissas and a maximisation problem whose
-   * objective function is parameterised on alpha and delta.
+   * The binary exponent e_0 must be such that 10^(e_0 - 1) < 10^f <= 10^e_0 for
+   * some integer f. (This f is unique and it's the exponent of the EAF's
+   * denominator.)
    *
-   * @param  x              The container of alpha, delta and the maximum of the
-   *                        objective function.
+   * This functions returns an integer U such that
+   *   U * n / 2^k == n * 2^(e0 - 1) / 10^f.
    *
-   * @returns The fast EAF.
+   * @param  e_0            The binary exponent.
+   * @param  k              The shift of the fast EAF.
+   * @param  is_min         Tells whether the exponent e_0 is the minimal one.
+   *
+   * @returns The numerator of the fast EAF.
    */
-  fast_eaf_t
-  get_fast_eaf(alpha_delta_maximum_t const& x) const;
+  integer_t
+  get_fast_eaf_numerator(int32_t e_0, uint32_t k, bool is_min) const;
 
   /**
    * @brief Given alpha and delta, this function calculates the maximum of
@@ -203,7 +204,7 @@ private:
    *
    * @param  alpha          Parameter alpha.
    * @param  delta          Parameter delta.
-   * @param  is_min         True if the exponent is the minimal one.
+   * @param  is_min         Tells whether the exponent is the minimal one.
    *
    * @pre 0 <= alpha && 0 < delta.
    *

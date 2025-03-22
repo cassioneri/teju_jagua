@@ -561,39 +561,62 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 std::vector<generator_t::fast_eaf_t>
 generator_t::get_fast_eafs() const {
 
-  auto const maxima = get_maxima();
+  auto get_e_0 = [](int32_t const e) {
+    return e - int32_t(teju_log10_pow2_residual(e));
+  };
+
+  auto e_0 = get_e_0(exponent_min());
+  auto f   = teju_log10_pow2(e_0);
+
+  auto const f_max = teju_log10_pow2(exponent_max());
+  auto const f_min = f;
+
   std::vector<fast_eaf_t> fast_eafs;
-  fast_eafs.reserve(maxima.size());
+  fast_eafs.reserve(f_max - f_min + 1);
 
   // The optimal runtime shift is twice the carrier size because it avoids
   // teju_mshift to work on partial limbs.
-  auto const shift = 2 * size();
-
-  // Calculate fast EAFs with minimal shifts.
-
-  for (auto const& x : maxima) {
-    fast_eafs.emplace_back(get_fast_eaf(x));
-    auto const s = fast_eafs.back().k;
-    require(s <= shift,
-      "The integer carrier must be more than 2x the size of the floating-point "
-      "type.");
-  }
-
-  // Replace minimal fast EAFs with others using the optimal shift.
-
+  auto const shift   = 2 * size();
   auto const p2shift = pow2(shift);
 
-  for (std::uint32_t i = 0; i < maxima.size(); ++i) {
+  while (f <= f_max) {
 
-    auto const& x = maxima[i];
+    alpha_delta_maximum_t x;
+    if (f <= 0) {
+      x.alpha = pow5(-f);
+      x.delta = pow2(-(e_0 - 1 - f));
+    }
+    else {
+      x.alpha = pow2(e_0 - 1 - f);
+      x.delta = pow5(f);
+    }
 
-    integer_t q, r;
-    divide_qr(x.alpha << shift, x.delta, q, r);
+    x.maximum = get_maximum(x.alpha, x.delta, f == f_min);
 
-    require(x.maximum < rational_t{p2shift, x.delta - r},
-      "Unable to use same shift.");
+    // Calculate fast EAF with minimal shift.
 
-    fast_eafs[i] = fast_eaf_t{q + 1, shift};
+    auto fast_eaf = get_fast_eaf(x);
+    require(fast_eaf.k <= shift,
+      "The integer carrier must be more than 2x the size of the floating-point "
+      "type.");
+
+    // Replace minimal fast EAF with another using the optimal shift.
+
+    fast_eaf = std::invoke([&]{
+
+      integer_t q, r;
+      divide_qr(x.alpha << shift, x.delta, q, r);
+
+      require(x.maximum < rational_t{p2shift, x.delta - r},
+        "Unable to use same shift.");
+
+      return fast_eaf_t{q + 1, shift};
+    });
+
+    fast_eafs.emplace_back(std::move(fast_eaf));
+
+    e_0 = get_e_0(e_0 + 4);
+    ++f;
   }
 
   return fast_eafs;
@@ -630,43 +653,6 @@ generator_t::get_fast_eaf(alpha_delta_maximum_t const& x) const {
   }
 
   throw exception_t{"Cannot find fast EAF."};
-}
-
-std::vector<generator_t::alpha_delta_maximum_t>
-generator_t::get_maxima() const {
-
-  auto get_e_0 = [](int32_t const e) {
-    return e - int32_t(teju_log10_pow2_residual(e));
-  };
-
-  auto e_0 = get_e_0(exponent_min());
-  auto f   = teju_log10_pow2(e_0);
-
-  auto const f_max = teju_log10_pow2(exponent_max());
-  auto const f_min = f;
-
-  std::vector<alpha_delta_maximum_t> maxima;
-  maxima.reserve(f_max - f_min + 1);
-
-  while (f <= f_max) {
-
-    alpha_delta_maximum_t x;
-    if (f <= 0) {
-      x.alpha = pow5(-f);
-      x.delta = pow2(-(e_0 - 1 - f));
-    }
-    else {
-      x.alpha = pow2(e_0 - 1 - f);
-      x.delta = pow5(f);
-    }
-
-    x.maximum = get_maximum(x.alpha, x.delta, f == f_min);
-    maxima.emplace_back(std::move(x));
-
-    e_0 = get_e_0(e_0 + 4);
-    ++f;
-  }
-  return maxima;
 }
 
 rational_t

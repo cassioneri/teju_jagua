@@ -209,23 +209,6 @@ private:
   get_fast_eaf(alpha_delta_maximum_t const& x) const;
 
   /**
-   * @brief Gets the maxima of all primary maximisation problems.
-   *
-   * Recall that for each possible exponent yielded by Teju Jagua, it defines a
-   * maximisation problem whose objective function is parameterised on alpha and
-   * delta. (See get_maximum.)
-   *
-   * This function returns a vector v where each element contains the parameters
-   * alpha and delta, and the maximum of the objective function corresponding to
-   * an exponent. Elements are ordered by exponent and, in particular, v[0] is
-   * the entry for the minimal exponent.
-   *
-   * @returns The vector v.
-   */
-  std::vector<alpha_delta_maximum_t>
-  get_maxima() const;
-
-  /**
    * @brief Given alpha and delta, this function calculates the maximum of
    *        phi_1(n) over the relevant set of values.
    *

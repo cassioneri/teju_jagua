@@ -35,7 +35,8 @@ static inline
 teju_u1_t
 teju_div10(teju_u1_t const n) {
 
-  #if !defined(teju_calculation_div10)
+  #if !defined(teju_calculation_div10) || \
+    teju_calculation_div10 == teju_built_in_1
 
     return n / 10u;
 
@@ -66,16 +67,6 @@ teju_div10(teju_u1_t const n) {
       (void) teju_multiply(inv10, n, &upper);
       return upper;
     #endif
-
-  #elif teju_calculation_div10 == teju_built_in_1
-
-    teju_u1_t const p2   = ((teju_u1_t) 1) << (teju_size / 2u);
-    teju_u1_t const inv5 = (p2 - 1u) / 5u;
-    teju_u1_t const u    = n / p2;
-    teju_u1_t const l    = n % p2;
-
-    return ((((inv5 + 1u) * l) / p2 + (inv5 + 0u) * l + (inv5 + 1u) * u) / p2 +
-      (inv5 + 0u) * u) / 2u;
 
   #else
 

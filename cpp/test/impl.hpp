@@ -27,15 +27,6 @@ struct built_in_1_t {
   static int const shift;
 
   /**
-   * @brief Implementation of teju_div10 for teju_calculation_div10 =
-   * teju_built_in_1.
-   *
-   * @param  m              Forwarded to teju_div10.
-   */
-  static teju_u1_t
-  div10(teju_u1_t m);
-
-  /**
    * @brief Implementation of teju_mshift for teju_calculation_shift =
    *        teju_built_in_1 and teju_calculation_shift >= 2 * teju_size.
    *

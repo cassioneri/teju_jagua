@@ -174,6 +174,11 @@ private:
   void
   generate_dot_c(std::ostream& stream) const;
 
+  // TODO (CN): Document
+  bool
+  check_div_10_algorithm() const;
+
+  // TODO (CN): Document
   /**
    * @brief Gets the numerator of the fast EAF for n * 2^(e0 - 1) / 10^f which
    *        works on a set of relevant values of n.

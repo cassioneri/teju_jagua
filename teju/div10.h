@@ -43,22 +43,14 @@ teju_div10(teju_u1_t const n) {
   #elif teju_calculation_div10 == teju_built_in_2 || \
     teju_calculation_div10 == teju_synthetic_1
 
-    // This is Theorem 4 of Neri C, Schneider L. "Euclidean affine functions
-    // and their application to calendar algorithms." Softw Pract Exper. 2023;
-    // 53(4):937-970.
+    // This is the algorithm in Theorem 4 of Neri C, Schneider L. "Euclidean
+    // affine functions and their application to calendar algorithms." Softw
+    // Pract Exper. 2023; 53(4):937-970.
     // https://onlinelibrary.wiley.com/doi/full/10.1002/spe.3172
 
-    teju_u1_t const d = 10u;
-    uint32_t  const k = teju_size;
-    // Since 2^k % d != 0, we have
-    //   2^k / d = (2^k - 1) / d and 2^k % d = ((2^k - 1) % d + 1) % d.
-    teju_u1_t const p2_k_minus_1 = (teju_u1_t) -1;
-    teju_u1_t const a            = p2_k_minus_1 / d + 1u;
-    teju_u1_t const epsilon      = d - (p2_k_minus_1 % d + 1u) % d;
-    teju_u1_t const U            = 1u * ((a + epsilon - 1u) / epsilon) * d - 1u;
-
-    teju_static_assert(epsilon <= a, "Can't use this algorithm.");
-    assert(n < U);
+    // Since 2^k % 10 != 0 we have 2^k / 10 = (2^k - 1) / 10, in particular,
+    //   2^teju_size / 10 = (2^teju_size - 1) / 10u = ((teju_u1_t) -1) / 10u.
+    teju_u1_t const a = ((teju_u1_t) -1) / 10u + 1u;
 
     #if teju_calculation_div10 == teju_built_in_2
       return (1u * a * ((teju_u2_t) n)) >> teju_size;

@@ -420,27 +420,8 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 
     if (calculation_div10() == "built_in_2" ||
       calculation_div10() == "synthetic_1") {
-
-        // Check whether the algorithm of Theorem 4 of the following paper can
-        // be used to calculate n / 10.
-        //
-        // Neri C, Schneider L. "Euclidean affine functions and their
-        // application to calendar algorithms." Softw Pract Exper. 2023;
-        // 53(4):937-970.
-        // https://onlinelibrary.wiley.com/doi/full/10.1002/spe.3172
-
-        auto const d       = integer_t{10};
-        auto const k       = size();
-        auto const p2k     = pow2(k);
-        auto const a       = p2k / d + 1;
-        auto const epsilon = d - p2k % d;
-        auto const U       = ((a + epsilon - 1) / epsilon) * d - 1;
-        // b = ((2 * m + 1) << r) * 2^(e_0 - 1) / 10^f
-        //   < ((2 * mantissa_max() + 1) << 3) * 1
-        //   = 16 * mantissa_max() + 8.
-        auto const b_max   = 16 * mantissa_max() + 8;
-        require(epsilon <= a && b_max < U,
-          "Can't use the selected algorithm for div10.");
+      require(check_div_10_algorithm(),
+        "Can't use the selected algorithm for div10.");
     }
     stream <<
     "#define teju_calculation_div10    teju_" << calculation_div10() << "\n";

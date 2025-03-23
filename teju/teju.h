@@ -42,7 +42,7 @@ static inline
 bool
 is_multiple_of_pow2(teju_u1_t const m, int32_t const e) {
   assert(0 <= e && e < teju_mantissa_size);
-  return ((m >> e) << e) == m;
+  return (m & ((teju_u1_t) -1 << e)) == m;
 }
 
 /**
@@ -56,7 +56,7 @@ is_multiple_of_pow2(teju_u1_t const m, int32_t const e) {
 static inline
 bool
 is_small_integer(teju_u1_t const m, int32_t const e) {
-  return (-teju_mantissa_size < e && e <= 0) && is_multiple_of_pow2(m, -e);
+  return 0 <= -e && -e < teju_mantissa_size && is_multiple_of_pow2(m, -e);
 }
 
 /**

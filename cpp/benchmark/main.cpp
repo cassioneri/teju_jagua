@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
+/**
+ * @file cpp/benchmark/benchmark.cpp
+ *
+ * Benchmark Teju Jagua against other algorithms.
+ */
+
 #include "teju/common.h"
 #include "teju/config.h"
 #include "teju/double.h"
@@ -17,6 +23,7 @@
 #include <fstream>
 #include <random>
 #include <string>
+#include <string_view>
 
 #if defined(__unix__)
   #include <unistd.h>
@@ -29,17 +36,18 @@ auto constexpr run_dragonbox = true;
 auto constexpr run_ryu       = true;
 
 auto constexpr str_algorithm = "algorithm";
-auto const     str_teju      = std::string{"teju"};
-auto const     str_dragonbox = std::string{"dragonbox"};
-auto const     str_ryu       = std::string{"ryu"};
+auto const     str_teju      = std::string_view{"teju"};
+auto const     str_dragonbox = std::string_view{"dragonbox"};
+auto const     str_ryu       = std::string_view{"ryu"};
 
 auto constexpr str_binary    = "binary";
 auto constexpr str_decimal   = "decimal";
 
 // https://nanobench.ankerl.com/reference.html#render-mustache-like-templates
-auto constexpr str_csv       = R"DELIM("algorithm";"binary";"decimal";"elapsed";"error %";"instructions";"branches";"branch misses";"total"
+auto constexpr str_csv       = std::string_view{
+  R"DELIM("algorithm";"binary";"decimal";"elapsed";"error %";"instructions";"branches";"branch misses";"total"
 {{#result}}{{context(algorithm)}};{{context(binary)}};{{context(decimal)}};{{average(elapsed)}};{{medianAbsolutePercentError(elapsed)}};{{median(instructions)}};{{median(branchinstructions)}};{{median(branchmisses)}};{{sumProduct(iterations, elapsed)}}
-{{/result}})DELIM";
+{{/result}})DELIM"};
 
 auto const to_chars_failure = teju::exception_t{"to_chars failed."};
 
@@ -116,13 +124,13 @@ auto get_bench() {
 }
 
 /**
- * @brief Benchmarks conversion of a given floating-point number value to its
- *        decimal representation.
+ * @brief Benchmarks conversion of a given floating-point number to its decimal
+ *        representation.
  *
- * @tparam T                The floating-point number type of value.
+ * @tparam T                The floating-point number type.
  *
- * @param  bench            The instance of the benchmark object.
- * @param  value            The given floating-point number value.
+ * @param  bench            The benchmark object recording the results.
+ * @param  value            The given floating-point number.
  */
 template <typename T>
 void
@@ -144,7 +152,7 @@ benchmark(nanobench::Bench& bench, T const value) {
 
   if constexpr (run_teju)
     bench.relative(true)
-      .context(str_algorithm, str_teju.c_str()        )
+      .context(str_algorithm, str_teju.data()         )
       .context(str_binary   , std::data(binary_chars) )
       .context(str_decimal  , std::data(decimal_chars))
       .run("", [&]() {
@@ -153,7 +161,7 @@ benchmark(nanobench::Bench& bench, T const value) {
 
   if constexpr (run_dragonbox)
     bench
-      .context(str_algorithm, str_dragonbox.c_str()   )
+      .context(str_algorithm, str_dragonbox.data()    )
       .context(str_binary   , std::data(binary_chars) )
       .context(str_decimal  , std::data(decimal_chars))
       .run("", [&]() {
@@ -162,7 +170,7 @@ benchmark(nanobench::Bench& bench, T const value) {
 
   if constexpr (run_ryu)
     bench
-      .context(str_algorithm, str_ryu.c_str()         )
+      .context(str_algorithm, str_ryu.data()          )
       .context(str_binary   , std::data(binary_chars) )
       .context(str_decimal  , std::data(decimal_chars))
       .run("", [&]() {
@@ -174,16 +182,16 @@ benchmark(nanobench::Bench& bench, T const value) {
  * @brief Streams out detailed benchmarks results to a given file and a summary
  *        to std::cout.
  *
- * @param  bench            The instance of the benchmark object.
+ * @param  bench            The benchmark object recording the results.
  * @param  filename         The name of the output file.
  */
 void
-output(nanobench::Bench const& bench, const char* const filename) {
+output(nanobench::Bench const& bench, std::string_view const filename) {
 
   // Save detailed results in csv file.
   {
-    auto out = std::ofstream{filename};
-    render(str_csv, bench, out);
+    auto out = std::ofstream{filename.data()};
+    render(str_csv.data(), bench, out);
   }
 
   // Print summary to std::cout.
@@ -251,20 +259,20 @@ output(nanobench::Bench const& bench, const char* const filename) {
 }
 
 /**
- * @brief Benchmarks conversion of integral floating-point numbers values to
- *        their decimal representations. Streams out detailed benchmarks results
- *        to a given file and a summary to std::cout.
+ * @brief Benchmarks conversion of integral floating-point numbers to their
+ *        decimal representations. Streams out detailed benchmarks results to a
+ *        given file and a summary to std::cout.
  *
  * The set of values comprises the smallest and largest 5,000 integral values (a
- * total of 10,000 values) which Teju Jagua treats as special cases.
+ * maximum of 10,000 values) which Teju Jagua treats as special cases.
  *
- * @tparam T                The floating-point number type of values.
+ * @tparam T                The floating-point number type.
  *
  * @param  filename         The name of the output file.
  */
 template <typename T>
 void
-benchmark_integers(const char* const filename) {
+benchmark_integers(std::string_view const filename) {
 
   auto bench = get_bench();
 
@@ -289,8 +297,20 @@ TEST(double, integers) {
   benchmark_integers<double>("double_integers.csv");
 }
 
+/**
+ * @brief Benchmarks conversion of floating-point numbers with a given mantissa.
+ *        Streams out detailed benchmarks results to a given file and a summary
+ *        to std::cout.
+ *
+ * @tparam T                The floating-point number type.
+ *
+ * @param  bench            The benchmark object recording the results.
+ * @param  filename         The name of the output file.
+ * @param  mantissa         The given mantissa.
+ */
 template <typename T>
 void bench_all_exponents(nanobench::Bench& bench,
+  std::string_view const filename,
   typename teju::traits_t<T>::u1_t const mantissa) {
 
   using traits_t = teju::traits_t<T>;
@@ -307,19 +327,19 @@ void bench_all_exponents(nanobench::Bench& bench,
 }
 
 /**
- * @brief Benchmarks conversion of centred floating-point numbers values to
- *        their decimal representations. Streams out detailed benchmarks results
- *        to a given file and a summary to std::cout.
+ * @brief Benchmarks conversion of centred floating-point numbers to their
+ *        decimal representations. Streams out detailed benchmarks results to a
+ *        given file and a summary to std::cout.
  *
- * The set of values comprises a given number of randomly selected mantissas
- * for all possible binary exponents.
+ * The set of values comprises a given number of randomly selected mantissas for
+ * all possible binary exponents.
  *
  * @param  filename         The name of the output file.
- * @param  n_mantissas      The number of mantissas to be draw.
+ * @param  n_mantissas      The number of mantissas to be drawn.
  */
 template <typename T>
 void
-benchmark_centred(const char* const filename, unsigned n_mantissas) {
+benchmark_centred(std::string_view const filename, unsigned n_mantissas) {
 
   using traits_t  = teju::traits_t<T>;
   using u1_t      = typename traits_t::u1_t;
@@ -338,7 +358,7 @@ benchmark_centred(const char* const filename, unsigned n_mantissas) {
 
   while (n_mantissas--) {
     auto const mantissa = distribution(device);
-    bench_all_exponents<T>(bench, mantissa);
+    bench_all_exponents<T>(bench, filename, mantissa);
   }
 
   output(bench, filename);
@@ -353,9 +373,9 @@ TEST(double, centred) {
 }
 
 /**
- * @brief Benchmarks conversion of uncentred floating-point numbers values to
- *        their decimal representations. Streams out detailed benchmarks results
- *        to a given file and a summary to std::cout.
+ * @brief Benchmarks conversion of uncentred floating-point numbers to their
+ *        decimal representations. Streams out detailed benchmarks results to a
+ *        given file and a summary to std::cout.
  *
  * The set of values comprises all uncentred values.
  *
@@ -363,7 +383,7 @@ TEST(double, centred) {
  */
 template <typename T>
 void
-benchmark_uncentred(const char* const filename) {
+benchmark_uncentred(std::string_view const filename) {
 
   using traits_t = teju::traits_t<T>;
   using u1_t     = typename traits_t::u1_t;
@@ -371,7 +391,7 @@ benchmark_uncentred(const char* const filename) {
   auto bench = get_bench();
 
   auto constexpr mantissa = teju_pow2(u1_t, traits_t::mantissa_size - 1);
-  bench_all_exponents<T>(bench, mantissa);
+  bench_all_exponents<T>(bench, filename, mantissa);
   output(bench, filename);
 }
 
@@ -385,8 +405,7 @@ TEST(double, uncentred) {
 
 } // namespace <anonymous>
 
-// On Linux, the following should help to reduce the variance of benchmark
-// results.
+// On Linux, the following should help to reduce variance of benchmark results.
 //
 // 1) Disable CPU frequency scaling:
 //
@@ -412,7 +431,8 @@ TEST(double, uncentred) {
 //
 //   If more than one CPU is provided, then the last one will be used.
 
-int main(int argc, char* argv[]) {
+int
+main(int argc, char* argv[]) {
 
   testing::InitGoogleTest(&argc, argv);
 

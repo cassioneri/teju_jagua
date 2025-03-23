@@ -18,20 +18,6 @@ extern "C" {
 #endif
 
 /**
- * @brief A C99 compliant static assert.
- *
- * @param  c                The condition to be checked.
- * @param  msg              The error message to be (hopefully) displayed.
- */
-#define teju_static_assert(c, msg) \
-do {                               \
-  const int _ = (c) ? 1 : -1;      \
-  int                              \
-  static_assert_failed[_];         \
-  (void) static_assert_failed;     \
-} while(false)
-
-/**
  * @brief Returns the k least significant bits of n (i.e. n % 2^k.)
  *
  * @param  n                The value of n.

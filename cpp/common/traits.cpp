@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
+/**
+ * @file cpp/common/traits.cpp
+ *
+ * Traits for floating-point number types.
+ */
+
 #include "teju/common.h"
 #include "cpp/common/traits.hpp"
 

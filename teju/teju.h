@@ -157,12 +157,11 @@ remove_trailing_zeros(teju_u1_t m, int32_t e) {
 }
 
 /**
- * @brief Teju Jagua itself.
+ * @brief Finds the shortest decimal representation of m * 2^e.
  *
- * Finds the shortest decimal representation of m * 2^e.
+ * This is Teju Jagua itself.
  *
- * @param  e                The exponent e.
- * @param  m                The mantissa m.
+ * @param  binary           The fields of the binary representation.
  *
  * @returns The fields of the shortest decimal representation.
  */

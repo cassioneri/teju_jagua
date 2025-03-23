@@ -179,6 +179,17 @@ private:
   check_div_10_algorithm() const;
 
   // TODO (CN): Document
+  bool
+  check_centred_calculations() const;
+
+  // TODO (CN): Document
+  bool
+  check_uncentred_calculations() const;
+
+  // TODO (CN): Document
+  bool
+  check_uncentred_refined_calculations() const;
+
   /**
    * @brief Gets the numerator of the fast EAF for n * 2^(e0 - 1) / 10^f which
    *        works on a set of relevant values of n.

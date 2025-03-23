@@ -398,6 +398,14 @@ generator_t::generate_dot_h(std::ostream& stream) const {
 void
 generator_t::generate_dot_c(std::ostream& stream) const {
 
+  // Performs the overflow safety checks except for uncentred refined
+  // calculations. The latter check is delayed to after checking whether the
+  // uncentred case is sorted because, if so, then Teju Jagua never performs
+  // uncentred refined calculations.
+  require(check_centred_calculations(), "Centred calculations could overflow.");
+  require(check_uncentred_calculations(),
+    "Uncentred calculations could overflow.");
+
   generate_license(stream) <<
     "// This file was generated. DO NOT EDIT IT.\n"
     "\n"
@@ -487,6 +495,9 @@ generator_t::generate_dot_c(std::ostream& stream) const {
       splitter(std::move(lower)) << " },\n";
   }
 
+  require(sorted || check_uncentred_refined_calculations(),
+    "Uncentred refined calculation could overflow.");
+
   stream << "};\n"
     "\n"
     "#define teju_calculation_sorted " << sorted << "u\n"
@@ -537,6 +548,60 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "#ifdef __cplusplus\n"
     "}\n"
     "#endif\n";
+}
+
+bool
+generator_t::check_div_10_algorithm() const {
+
+  // Check whether Teju Jagua can use the algorithm of Theorem 4 of Neri C,
+  // Schneider L. "Euclidean affine functions and their application to calendar
+  // algorithms." Softw Pract Exper. 2023; 53(4):937-970.
+  // https://onlinelibrary.wiley.com/doi/full/10.1002/spe.3172
+
+  auto const d       = integer_t{10};
+  auto const k       = size();
+  auto const p2k     = pow2(k);
+  auto const a       = p2k / d + 1;
+  auto const epsilon = d - p2k % d;
+  auto const U       = ((a + epsilon - 1) / epsilon) * d - 1;
+  // b = ((2 * m + 1) << r) * 2^(e_0 - 1) / 10^f
+  //   < ((2 * mantissa_max() + 1) << 3) * 1
+  //   = 16 * mantissa_max() + 8.
+  auto const b_max   = 16 * mantissa_max() + 8;
+  return epsilon <= a && b_max < U;
+}
+
+bool
+generator_t::check_centred_calculations() const {
+  // Calculations of m_a, m_b and m_c are safe if the carrier type can represent
+  // m_c = (4u * m << r) for all values of m and r, i.e.,
+  //   (4 * mantissa_max() << 3) <  2^size() <=>
+  //   32 * mantissa_max()       <  2^size().
+  // In terms of number of bits, the above is equivalent to
+  //    5 + mantissa_size()      <= size().
+  return 5 + mantissa_size() <= size();
+}
+
+bool
+generator_t::check_uncentred_calculations() const {
+  // Calculations of m_a and m_b are safe if the carrier type can represent
+  // m_a = (4u * m - 1u) << r for m = mantissa_min() and all values of r, i.e.,
+  //   (4 * mantissa_min()  - 1) << 3 <  2^size() <=>
+  //   32 * mantissa_min()  - 8       <  2^size() <=>
+  // In terms of number of bits, the above is equivalent to
+  //    5 + mantissa_size() - 1       <= size()
+  return 4 + mantissa_size() <= size();
+}
+
+bool
+generator_t::check_uncentred_refined_calculations() const {
+  // Calculation of m_c is safe if the carrier type can represent
+  // m_c = 40u * m << r for m = mantissa_min() and all values of r, i.e.,
+  //   40 * mantissa_min() << 3    <  2^size() <=>
+  //  320 * mantissa_min()         <  2^size() <=>
+  // In terms of number of bits, the above is equivalent to
+  //     9 + (mantissa_size() - 1) <= size()
+  return 8 + mantissa_size() <= size();
 }
 
 integer_t

@@ -184,11 +184,6 @@ teju_function(teju_fields_t const binary) {
   teju_u1_t const m_0 = teju_pow2(teju_u1_t, teju_mantissa_size - 1u);
   if (m != m_0 || e == teju_exponent_min) {
 
-    // Calculations of m_a, m_b and m_c are safe in the centred case if
-    // teju_u1_t can hold m_c = 4u * m << r.
-    bool const is_safe_centred = teju_mantissa_size + 5u <= teju_size;
-    teju_static_assert(is_safe_centred, "Calculations might overflow.");
-
     teju_u1_t const m_a = (2u * m - 1u) << r;
     teju_u1_t const a   = teju_mshift(m_a, u, l);
     teju_u1_t const m_b = (2u * m + 1u) << r;
@@ -217,11 +212,6 @@ teju_function(teju_fields_t const binary) {
 
     return make_fields(c + 1u, f);
   }
-
-  // Calculations of m_a and m_b are safe in the uncentred case if
-  // teju_u1_t can represent m_a = (4u * m_0 - 1u) << r.
-  bool const is_safe_uncentred = teju_mantissa_size + 5 <= teju_size;
-  teju_static_assert(is_safe_uncentred, "Calculations might overflow.");
 
   teju_u1_t const m_a = (4u * m_0 - 1u) << r;
   teju_u1_t const a   = teju_mshift(m_a, u, l) / 2u;
@@ -253,13 +243,6 @@ teju_function(teju_fields_t const binary) {
 
   else if (is_tie_uncentred(m_a, f))
     return remove_trailing_zeros(a, f);
-
-  // Calculation of m_c is safe in the refined uncentred case if the execution
-  // never gets here (teju_calculation_sorted == true) or teju_u1_t can
-  // represent m_c = 40u * m_0 << r.
-  bool const is_safe_uncentred_refined = teju_calculation_sorted ||
-    teju_mantissa_size + 8u <= teju_size;
-  teju_static_assert(is_safe_uncentred_refined, "Calculations might overflow.");
 
   teju_u1_t const m_c = 40u * m_0 << r;
   teju_u1_t const c_2 = teju_mshift(m_c, u, l);

@@ -122,20 +122,8 @@ make_fields(teju_u1_t const m, int32_t const e) {
 }
 
 /**
- * @brief Rotates the bits of a given number 1 position to the right.
- *
- * @param  m                The given number.
- *
- * @returns The value of m after the rotation.
- */
-static inline
-teju_u1_t ror(teju_u1_t m) {
-  return m << (teju_size - 1u) | m >> 1u;
-}
-
-/**
- * @brief Shortens the decimal representation m\cdot 10^e\f by removing trailing
- *        zeros of m and increasing e.
+ * @brief Shortens the decimal representation of m * 10^e by removing trailing
+ *        zeros from m and increasing e accordingly.
  *
  * @param  m                The mantissa m.
  * @param  e                The exponent e.
@@ -144,16 +132,11 @@ teju_u1_t ror(teju_u1_t m) {
  */
 static inline
 teju_fields_t
-remove_trailing_zeros(teju_u1_t m, int32_t e) {
-  teju_u1_t const multiplier = minverse[1].multiplier;
-  teju_u1_t const bound = minverse[1].bound / 2u;
-  while (true) {
-    teju_u1_t const q = ror(1u * m * multiplier);
-    if (q >= bound)
-      return make_fields(m, e);
-    ++e;
-    m = q;
-  }
+remove_trailing_zeros(teju_u1_t const m, int32_t const e) {
+  teju_u1_t const q = teju_div10(m);
+  if ((unsigned) m != 10u * (unsigned) q)
+    return make_fields(m, e);
+  return remove_trailing_zeros(q, e + 1);
 }
 
 /**

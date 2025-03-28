@@ -42,7 +42,7 @@ static inline
 bool
 is_multiple_of_pow2(teju_u1_t const m, int32_t const e) {
   assert(0 <= e && e < teju_mantissa_size);
-  return (m & ((teju_u1_t) -1 << e)) == m;
+  return (m & ~((teju_u1_t) -1 << e)) == 0;
 }
 
 /**

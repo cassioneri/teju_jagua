@@ -35,7 +35,7 @@ teju_float128_to_binary(float128_t const value) {
 
   if (exponent != 0) {
     exponent -= 1;
-    mantissa += teju_pow2(teju_u1_t, mantissa_size - 1u);
+    mantissa |= teju_pow2(teju_u1_t, mantissa_size - 1u);
   }
 
   exponent += exponent_min;

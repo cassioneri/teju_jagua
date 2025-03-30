@@ -138,23 +138,41 @@ struct traits_t<float> {
   }
 
   static
+  auto
+  teju_raw(float const value) {
+    return teju_float_to_decimal(value);
+  }
+
+  static
   decimal_t
   teju(float const value) {
-    auto const decimal = teju_float_to_decimal(value);
+    auto const decimal = teju_raw(value);
     return {decimal.exponent, decimal.mantissa};
+  }
+
+  static
+  auto
+  dragonbox_raw(float const value) {
+    return teju::dragonbox::to_decimal(value);
   }
 
   static
   decimal_t
   dragonbox(float const value) {
-    auto const decimal = teju::dragonbox::to_decimal(value);
+    auto const decimal = dragonbox_raw(value);
     return {std::int32_t{decimal.exponent}, u1_t{decimal.significand}};
+  }
+
+  static
+  auto
+  ryu_raw(float const value) {
+    return ryu_float_to_decimal(value);
   }
 
   static
   decimal_t
   ryu(float const value) {
-    auto const decimal = ryu_float_to_decimal(value);
+    auto const decimal = ryu_raw(value);
     return {decimal.exponent, decimal.mantissa};
   }
 
@@ -186,25 +204,43 @@ struct traits_t<double> {
   }
 
   static
+  auto
+  teju_raw(double const value) {
+    return teju_double_to_decimal(value);
+  }
+
+  static
   decimal_t
   teju(double const value) {
-    auto const decimal = teju_double_to_decimal(value);
+    auto const decimal = teju_raw(value);
     return {decimal.exponent, decimal.mantissa};
+  }
+
+  static
+  auto
+  dragonbox_raw(double const value) {
+    return teju::dragonbox::to_decimal(value);
   }
 
   static
   decimal_t
   dragonbox(double const value) {
-    auto const decimal = teju::dragonbox::to_decimal(value);
+    auto const decimal = dragonbox_raw(value);
     return {std::int32_t{decimal.exponent}, u1_t{decimal.significand}};
+  }
+
+  static
+  auto
+  ryu_raw(double const value) {
+    return ryu_double_to_decimal(value);
   }
 
   static
   decimal_t
   ryu(double const value) {
-      auto const decimal = ryu_double_to_decimal(value);
-      return {decimal.exponent, decimal.mantissa};
-    }
+    auto const decimal = ryu_raw(value);
+    return {decimal.exponent, decimal.mantissa};
+  }
 }; // traits_t<double>
 
 #if defined(teju_has_float128)

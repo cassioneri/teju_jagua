@@ -156,7 +156,7 @@ benchmark(nanobench::Bench& bench, T const value) {
       .context(str_binary   , std::data(binary_chars) )
       .context(str_decimal  , std::data(decimal_chars))
       .run("", [&]() {
-        nanobench::doNotOptimizeAway(traits_t::teju(value));
+        nanobench::doNotOptimizeAway(traits_t::teju_raw(value));
     });
 
   if constexpr (run_dragonbox)
@@ -165,7 +165,7 @@ benchmark(nanobench::Bench& bench, T const value) {
       .context(str_binary   , std::data(binary_chars) )
       .context(str_decimal  , std::data(decimal_chars))
       .run("", [&]() {
-        nanobench::doNotOptimizeAway(traits_t::dragonbox(value));
+        nanobench::doNotOptimizeAway(traits_t::dragonbox_raw(value));
     });
 
   if constexpr (run_ryu)
@@ -174,7 +174,7 @@ benchmark(nanobench::Bench& bench, T const value) {
       .context(str_binary   , std::data(binary_chars) )
       .context(str_decimal  , std::data(decimal_chars))
       .run("", [&]() {
-        nanobench::doNotOptimizeAway(traits_t::ryu(value));
+        nanobench::doNotOptimizeAway(traits_t::ryu_raw(value));
     });
 }
 

@@ -98,14 +98,14 @@ struct traits_t<float16_t> {
   binary_t
   to_binary(float16_t const value) {
     auto const binary = teju_float16_to_binary(value);
-    return {binary.mantissa, binary.exponent};
+    return {binary.exponent, binary.mantissa};
   }
 
   static
   decimal_t
   teju(float16_t const value) {
     auto const decimal = teju_float16_to_decimal(value);
-    return {decimal.mantissa, decimal.exponent};
+    return {decimal.exponent, decimal.mantissa};
   }
 
 }; // traits_t<float16_t>
@@ -128,7 +128,7 @@ struct traits_t<float> {
   binary_t
   to_binary(float const value) {
     auto const binary = teju_float_to_binary(value);
-    return binary_t{ binary.mantissa, binary.exponent };
+    return binary_t{binary.exponent, binary.mantissa};
   }
 
   static
@@ -141,21 +141,21 @@ struct traits_t<float> {
   decimal_t
   teju(float const value) {
     auto const decimal = teju_float_to_decimal(value);
-    return {decimal.mantissa, decimal.exponent};
+    return {decimal.exponent, decimal.mantissa};
   }
 
   static
   decimal_t
   dragonbox(float const value) {
     auto const decimal = teju::dragonbox::to_decimal(value);
-    return {u1_t{decimal.significand}, std::int32_t{decimal.exponent}};
+    return {std::int32_t{decimal.exponent}, u1_t{decimal.significand}};
   }
 
   static
   decimal_t
   ryu(float const value) {
     auto const decimal = ryu_float_to_decimal(value);
-    return {decimal.mantissa, decimal.exponent};
+    return {decimal.exponent, decimal.mantissa};
   }
 
 }; // traits_t<float>
@@ -176,7 +176,7 @@ struct traits_t<double> {
   binary_t
   to_binary(double const value) {
     auto const binary = teju_double_to_binary(value);
-    return binary_t{ binary.mantissa, binary.exponent };
+    return binary_t{binary.exponent, binary.mantissa};
   }
 
   static
@@ -189,21 +189,21 @@ struct traits_t<double> {
   decimal_t
   teju(double const value) {
     auto const decimal = teju_double_to_decimal(value);
-    return {decimal.mantissa, decimal.exponent};
+    return {decimal.exponent, decimal.mantissa};
   }
 
   static
   decimal_t
   dragonbox(double const value) {
     auto const decimal = teju::dragonbox::to_decimal(value);
-    return {u1_t{decimal.significand}, std::int32_t{decimal.exponent}};
+    return {std::int32_t{decimal.exponent}, u1_t{decimal.significand}};
   }
 
   static
   decimal_t
   ryu(double const value) {
       auto const decimal = ryu_double_to_decimal(value);
-      return {decimal.mantissa, decimal.exponent};
+      return {decimal.exponent, decimal.mantissa};
     }
 }; // traits_t<double>
 
@@ -225,14 +225,14 @@ struct traits_t<float128_t> {
   binary_t
   to_binary(float128_t const value) {
     auto const binary = teju_float128_to_binary(value);
-    return binary_t{ binary.mantissa, binary.exponent };
+    return binary_t{binary.exponent, binary.mantissa};
   }
 
   static
   decimal_t
   teju(float128_t const value) {
     auto const decimal = teju_float128_to_decimal(value);
-    return {decimal.mantissa, decimal.exponent};
+    return {decimal.exponent, decimal.mantissa};
   }
 
 }; // traits_t<float128_t>

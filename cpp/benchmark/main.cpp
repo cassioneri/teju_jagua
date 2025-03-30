@@ -320,7 +320,7 @@ void bench_all_exponents(nanobench::Bench& bench,
 
   for (std::int32_t exponent = exponent_min; exponent <= exponent_max;
     ++exponent) {
-    auto const binary = teju::binary_t<T>{mantissa, exponent};
+    auto const binary = teju::binary_t<T>{exponent, mantissa};
     auto const value  = traits_t::to_value(binary);
     benchmark(bench, value);
   }

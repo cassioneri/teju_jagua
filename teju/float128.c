@@ -39,7 +39,7 @@ teju_float128_to_binary(float128_t const value) {
   }
 
   exponent += exponent_min;
-  teju128_fields_t binary = {mantissa, exponent};
+  teju128_fields_t binary = {exponent, mantissa};
   return binary;
 }
 

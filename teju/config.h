@@ -133,8 +133,8 @@ extern "C" {
 #define teju16_u4_t uint64_t
 
 typedef struct {
-  teju16_u1_t mantissa;
   int32_t     exponent;
+  teju16_u1_t mantissa;
 } teju16_fields_t;
 
 //----------//
@@ -156,8 +156,8 @@ typedef struct {
 #endif
 
 typedef struct {
-  teju32_u1_t mantissa;
   int32_t     exponent;
+  teju32_u1_t mantissa;
 } teju32_fields_t;
 
 //----------//
@@ -178,8 +178,8 @@ typedef struct {
 #endif
 
 typedef struct {
-  teju64_u1_t mantissa;
   int32_t     exponent;
+  teju64_u1_t mantissa;
 } teju64_fields_t;
 
 //----------//
@@ -192,8 +192,8 @@ typedef struct {
   #define teju128_multiply_type teju_built_in_1
 
   typedef struct {
-    teju128_u1_t mantissa;
     int32_t      exponent;
+    teju128_u1_t mantissa;
   } teju128_fields_t;
 
 #endif

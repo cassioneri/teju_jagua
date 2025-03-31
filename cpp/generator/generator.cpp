@@ -428,7 +428,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 
     if (calculation_div10() == "built_in_2" ||
       calculation_div10() == "synthetic_1") {
-      require(check_div_10_algorithm(),
+      require(check_div10_algorithm(),
         "Can't use the selected algorithm for div10.");
     }
     stream <<
@@ -551,7 +551,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 }
 
 bool
-generator_t::check_div_10_algorithm() const {
+generator_t::check_div10_algorithm() const {
 
   // Check whether Teju Jagua can use the algorithm of Theorem 4 of Neri C,
   // Schneider L. "Euclidean affine functions and their application to calendar

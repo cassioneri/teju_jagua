@@ -176,7 +176,7 @@ private:
 
   // TODO (CN): Document
   bool
-  check_div_10_algorithm() const;
+  check_div10_algorithm() const;
 
   // TODO (CN): Document
   bool

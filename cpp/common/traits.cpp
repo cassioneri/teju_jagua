@@ -26,7 +26,7 @@ namespace teju::detail {
     auto const bits = binary.exponent == exponent_min
         ? u1_t(binary.mantissa)
         : (u1_t(binary.exponent - exponent_min + 2) << (mantissa_size - 1)) +
-            teju_lsb(u1_t(binary.mantissa), mantissa_size - 1);
+            teju_lsb(u1_t, u1_t(binary.mantissa), mantissa_size - 1);
 
     T value;
     std::memcpy(&value, &bits, sizeof(value));

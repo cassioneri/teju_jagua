@@ -28,7 +28,7 @@ teju_float128_to_binary(float128_t const value) {
   teju_u1_t bits;
   memcpy(&bits, &value, sizeof(value));
 
-  teju_u1_t mantissa = teju_lsb(bits, mantissa_size - 1u);
+  teju_u1_t mantissa = teju_lsb(teju_u1_t, bits, mantissa_size - 1u);
   bits >>= (mantissa_size - 1u);
 
   int32_t exponent = (int32_t) bits;

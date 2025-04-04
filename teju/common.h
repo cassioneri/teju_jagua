@@ -32,6 +32,7 @@ extern "C" {
  /**
  * @brief Returns the k least significant bits of n (i.e. n % 2^k.)
  *
+ * @tparam type             The type of n.
  * @param  n                The value of n.
  * @param  k                The value of k.
  *
@@ -39,7 +40,7 @@ extern "C" {
  *
  * @returns The k least significant bits of n.
  */
-#define teju_lsb(n, k) ((n) & (((0u * (n) + 1u) << (k)) - 1u))
+#define teju_lsb(type, n, k) ((n) % teju_pow2(type, k))
 
 // Argument bounds of teju_log10_pow2.
 #define teju_log10_pow2_min -112815

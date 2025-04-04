@@ -20,14 +20,14 @@ extern "C" {
 /**
  * @brief Returns 2^e as a given type.
  *
- * @tparam type             The type.
- * @param  n                The exponent e.
+ * @tparam type             The given type.
+ * @param  e                The exponent e.
  *
  * @pre e < sizeof(type) * CHAR_BIT.
  *
  * @returns 2^e.
  */
- #define teju_pow2(type, e) (((type) 1u) << (e))
+ #define teju_pow2(type, e) ((type) (((type) 1u) << (e)))
 
  /**
  * @brief Returns the k least significant bits of n (i.e. n % 2^k.)

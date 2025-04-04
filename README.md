@@ -32,7 +32,7 @@ An academic paper will be written to provide proof of correctness.
 
 This work has been presented at [C++ Now 2024](https://www.youtube.com/watch?v=w0WrRdW7eqg),
 [C++ on Sea 2024](https://www.youtube.com/watch?v=cEDo44i9imU)
-and [CppCon 2024](https://cppcon2024.sched.com/event/1gZgo/a-new-dragon-in-the-den-fast-conversion-from-floating-point-numbers)
+and [CppCon 2024](https://www.youtube.com/watch?v=fPZ1ZdA7Iwc)
 
 ## Table of Contents
 

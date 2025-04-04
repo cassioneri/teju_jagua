@@ -18,6 +18,18 @@ extern "C" {
 #endif
 
 /**
+ * @brief Returns 2^e as a given type.
+ *
+ * @tparam type             The type.
+ * @param  n                The exponent e.
+ *
+ * @pre e < sizeof(type) * CHAR_BIT.
+ *
+ * @returns 2^e.
+ */
+ #define teju_pow2(type, e) (((type) 1u) << (e))
+
+ /**
  * @brief Returns the k least significant bits of n (i.e. n % 2^k.)
  *
  * @param  n                The value of n.
@@ -28,18 +40,6 @@ extern "C" {
  * @returns The k least significant bits of n.
  */
 #define teju_lsb(n, k) ((n) & (((0u * (n) + 1u) << (k)) - 1u))
-
-/**
- * @brief Returns 2^e as a given type.
- *
- * @param  type             The type.
- * @param  n                The exponent e.
- *
- * @pre e < sizeof(type) * CHAR_BIT.
- *
- * @returns 2^e.
- */
-#define teju_pow2(type, e) ((type) ((type) 1u) << (e))
 
 // Argument bounds of teju_log10_pow2.
 #define teju_log10_pow2_min -112815

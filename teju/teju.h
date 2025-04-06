@@ -27,6 +27,10 @@
 extern "C" {
 #endif
 
+//------------------------------------------------------------------------------
+// Helper functions.
+//------------------------------------------------------------------------------
+
 /**
  * @brief Checks whether mantissa m is multiple of 2^e.
  *
@@ -40,22 +44,8 @@ extern "C" {
 static inline
 bool
 is_multiple_of_pow2(int32_t const e, teju_u1_t const m) {
-  assert(0 <= e && e < teju_mantissa_size);
+  assert(0 <= e && ((uint32_t) e) < teju_mantissa_size);
   return (m >> e) << e == m;
-}
-
-/**
- * @brief Checks whether the number m * 2^e is a "small" integer.
- *
- * @param  e                The exponent e.
- * @param  m                The mantissa m.
- *
- * @returns true if m * 2^e is a "small" integer and false, otherwise.
- */
-static inline
-bool
-is_small_integer(int32_t const e, teju_u1_t const m) {
-  return 0 <= -e && -e < teju_mantissa_size && is_multiple_of_pow2(-e, m);
 }
 
 /**
@@ -68,42 +58,24 @@ is_small_integer(int32_t const e, teju_u1_t const m) {
  *
  * @returns true if n is multiple of 5^f and false, otherwise.
  */
-static inline
-bool
-is_multiple_of_pow5(int32_t const f, teju_u1_t const n) {
-  assert(0 <= f && f < (int32_t) (sizeof(minverse) / sizeof(minverse[0])));
-  return ((teju_u1_t) (1u * n * minverse[f].multiplier)) <= minverse[f].bound;
-}
+ static inline
+ bool
+ is_multiple_of_pow5(int32_t const f, teju_u1_t const n) {
+   assert(0 <= f && (uint32_t) f < sizeof(minverse) / sizeof(minverse[0]));
+   return (teju_u1_t) (1u * n * minverse[f].multiplier) <= minverse[f].bound;
+ }
 
-/**
- * @brief Checks whether m, for m in { m_a, m_b, c_2 }, yields a tie.
+ /**
+ * @brief Rotates the bits of a given number 1 position to the right.
  *
- * @param  f                The exponent f (for m == m_a and m == m_b) or
- *                          its negation -f for (m == c_2).
- * @param  m                The number m.
+ * @param  m                The given number.
  *
- * @returns true if m yields a tie and false, otherwise.
+ * @returns The value of m after the rotation.
  */
-static inline
-bool
-is_tie(int32_t const f, teju_u1_t const m) {
-  return 0 <= f && f < (int32_t) (sizeof(minverse) / sizeof(minverse[0])) &&
-    is_multiple_of_pow5(f, m);
-}
-
-/**
- * @brief Checks whether m_a for the uncentred value yields a tie.
- *
- * @param  f                The exponent f.
- * @param  m_a              The number m_a.
- *
- * @returns true if m_a yields a tie and false, otherwise.
- */
-static inline
-bool
-is_tie_uncentred(int32_t const f, teju_u1_t const m_a) {
-  return 0 <= f && m_a % 5u == 0u && is_multiple_of_pow5(f, m_a);
-}
+ static inline
+ teju_u1_t ror(teju_u1_t m) {
+   return m << (teju_size - 1u) | m >> 1u;
+ }
 
 /**
  * @brief Creates a teju_fields_t from exponent and mantissa.
@@ -120,16 +92,53 @@ make_fields(int32_t const e, teju_u1_t const m) {
   return fields;
 }
 
+//------------------------------------------------------------------------------
+// Teju Jagua
+//------------------------------------------------------------------------------
+
 /**
- * @brief Rotates the bits of a given number 1 position to the right.
+ * @brief Checks whether the number m * 2^e is a "small" integer.
  *
- * @param  m                The given number.
+ * @param  e                The exponent e.
+ * @param  m                The mantissa m.
  *
- * @returns The value of m after the rotation.
+ * @returns true if m * 2^e is a "small" integer and false, otherwise.
+ */
+ static inline
+ bool
+ is_small_integer(int32_t const e, teju_u1_t const m) {
+   return 0 <= -e && (uint32_t) -e < teju_mantissa_size &&
+     is_multiple_of_pow2(-e, m);
+ }
+
+ /**
+ * @brief Checks whether m, for m in { m_a, m_b, c_2 }, yields a tie.
+ *
+ * @param  f                The exponent f (for m == m_a and m == m_b) or
+ *                          its negation -f for (m == c_2).
+ * @param  m                The number m.
+ *
+ * @returns true if m yields a tie and false, otherwise.
  */
 static inline
-teju_u1_t ror(teju_u1_t m) {
-  return m << (teju_size - 1u) | m >> 1u;
+bool
+is_tie(int32_t const f, teju_u1_t const m) {
+  return 0 <= f && (uint32_t) f < sizeof(minverse) / sizeof(minverse[0]) &&
+    is_multiple_of_pow5(f, m);
+}
+
+/**
+ * @brief Checks whether m_a for the uncentred value yields a tie.
+ *
+ * @param  f                The exponent f.
+ * @param  m_a              The number m_a.
+ *
+ * @returns true if m_a yields a tie and false, otherwise.
+ */
+static inline
+bool
+is_tie_uncentred(int32_t const f, teju_u1_t const m_a) {
+  return m_a % 5u == 0 && 0 <= f && is_multiple_of_pow5(f, m_a);
 }
 
 /**
@@ -171,7 +180,7 @@ teju_function(teju_fields_t const binary) {
   teju_u1_t const m = binary.mantissa;
 
   if (is_small_integer(e, m))
-    return remove_trailing_zeros(0, m >> -e);
+    return remove_trailing_zeros(0, 1u * m >> -e);
 
   int32_t   const f   = teju_log10_pow2(e);
   uint32_t  const r   = teju_log10_pow2_residual(e);

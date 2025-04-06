@@ -32,7 +32,9 @@ An academic paper will be written to provide proof of correctness.
 
 This work has been presented at [C++ Now 2024](https://www.youtube.com/watch?v=w0WrRdW7eqg),
 [C++ on Sea 2024](https://www.youtube.com/watch?v=cEDo44i9imU)
-and [CppCon 2024](https://www.youtube.com/watch?v=fPZ1ZdA7Iwc)
+and [CppCon 2024](https://www.youtube.com/watch?v=fPZ1ZdA7Iwc).
+
+[![CppCon 2024 talk on Tejú Jaguá](cppcon.png)](https://www.youtube.com/watch?v=fPZ1ZdA7Iwc)
 
 ## Table of Contents
 

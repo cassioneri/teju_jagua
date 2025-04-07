@@ -29,10 +29,10 @@ teju_float16_to_binary(float16_t const value) {
   uint32_t const mantissa_size =  11u;
   int32_t  const exponent_min  = -24;
 
-  teju_u1_t bits;
+  uint16_t bits;
   memcpy(&bits, &value, sizeof(value));
 
-  teju_u1_t mantissa = teju_lsb(teju_u1_t, bits, mantissa_size - 1u);
+  teju_u1_t mantissa = teju_lsb(uint16_t, bits, mantissa_size - 1u);
   bits >>= (mantissa_size - 1u);
 
   int32_t exponent = (int32_t) bits;

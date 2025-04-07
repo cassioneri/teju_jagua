@@ -4,6 +4,8 @@
 #include "teju/common.h"
 #include "teju/double.h"
 
+#include <assert.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -14,6 +16,8 @@ extern "C" {
 
 teju64_fields_t
 teju_double_to_binary(double const value) {
+
+  assert(isfinite(value) && value > 0 && "Invalid double value.");
 
   typedef teju64_fields_t teju_fields_t;
   typedef teju64_u1_t     teju_u1_t;

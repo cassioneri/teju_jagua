@@ -4,6 +4,8 @@
 #include "teju/common.h"
 #include "teju/float.h"
 
+#include <assert.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -14,6 +16,8 @@ extern "C" {
 
 teju32_fields_t
 teju_float_to_binary(float const value) {
+
+  assert(isfinite(value) && value > 0 && "Invalid float value.");
 
   typedef teju32_fields_t teju_fields_t;
   typedef teju32_u1_t     teju_u1_t;

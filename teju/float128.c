@@ -8,6 +8,8 @@
 #include "teju/common.h"
 #include "teju/float128.h"
 
+#include <assert.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -18,6 +20,8 @@ extern "C" {
 
 teju128_fields_t
 teju_float128_to_binary(float128_t const value) {
+
+  assert(isfinite(value) && value > 0 && "Invalid float128_t value.");
 
   typedef teju128_fields_t teju_fields_t;
   typedef teju128_u1_t     teju_u1_t;

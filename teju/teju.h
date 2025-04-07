@@ -77,21 +77,6 @@ is_multiple_of_pow2(int32_t const e, teju_u1_t const m) {
    return m << (teju_size - 1u) | m >> 1u;
  }
 
-/**
- * @brief Creates a teju_fields_t from exponent and mantissa.
- *
- * @param  e                The exponent.
- * @param  m                The mantissa.
- *
- * @returns The teju_fields_t object.
- */
-static inline
-teju_fields_t
-make_fields(int32_t const e, teju_u1_t const m) {
-  teju_fields_t const fields = {e, m};
-  return fields;
-}
-
 //------------------------------------------------------------------------------
 // Teju Jagua
 //------------------------------------------------------------------------------
@@ -158,7 +143,7 @@ remove_trailing_zeros(int32_t e, teju_u1_t m) {
   while (true) {
     teju_u1_t const q = ror((teju_u1_t) (1u * m * minv5));
     if (q >= bound)
-      return make_fields(e, m);
+      return (teju_fields_t){e, m};
     ++e;
     m = q;
   }
@@ -208,16 +193,16 @@ teju_function(teju_fields_t const binary) {
     }
 
     if ((a + b) % 2u == 1u)
-      return make_fields(f, (a + b) / 2u + 1u);
+      return (teju_fields_t){f, (a + b) / 2u + 1u};
 
     teju_u1_t const m_c = 4u * m << r;
     teju_u1_t const c_2 = teju_mshift(m_c, u, l);
     teju_u1_t const c   = c_2 / 2u;
 
     if (c_2 % 2u == 0 || (c % 2u == 0 && is_tie(-f, c_2)))
-      return make_fields(f, c);
+      return (teju_fields_t){f, c};
 
-    return make_fields(f, c + 1u);
+    return (teju_fields_t){f, c + 1u};
   }
 
   teju_u1_t const m_a = (4u * m_0 - 1u) << r;
@@ -240,12 +225,12 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const c        = c_2 / 2u;
 
     if (c == a && !is_tie_uncentred(f, m_a))
-      return make_fields(f, c + 1u);
+      return (teju_fields_t){f, c + 1u};
 
     if (c_2 % 2u == 0 || (c % 2u == 0 && is_tie(-f, c_2)))
-      return make_fields(f, c);
+      return (teju_fields_t){f, c};
 
-    return make_fields(f, c + 1u);
+    return (teju_fields_t){f, c + 1u};
   }
 
   else if (is_tie_uncentred(f, m_a))
@@ -256,9 +241,9 @@ teju_function(teju_fields_t const binary) {
   teju_u1_t const c   = c_2 / 2u;
 
   if (c_2 % 2u == 0 || (c % 2u == 0 && is_tie(-f, c_2)))
-    return make_fields(f - 1 , c);
+    return (teju_fields_t){f - 1 , c};
 
-  return make_fields(f - 1, c + 1u);
+  return (teju_fields_t){f - 1, c + 1u};
 }
 
 #ifdef __cplusplus

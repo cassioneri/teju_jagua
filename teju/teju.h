@@ -37,14 +37,14 @@ extern "C" {
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
  *
- * @pre 0 <= e && e < teju_mantissa_size.
+ * @pre 0 <= e && e < teju_size.
  *
  * @returns true if m is multiple of 2^e and false, otherwise.
  */
 static inline
 bool
 is_multiple_of_pow2(int32_t const e, teju_u1_t const m) {
-  assert(0 <= e && ((uint32_t) e) < teju_mantissa_size);
+  assert(0 <= e && (uint32_t) e < teju_size);
   return (m >> e) << e == m;
 }
 
@@ -54,7 +54,7 @@ is_multiple_of_pow2(int32_t const e, teju_u1_t const m) {
  * @param  f                The exponent f.
  * @param  n                The number n.
  *
- * @pre 0 <= f && f < sizeof(minverse) / sizeof(minverse[0])
+ * @pre 0 <= f && f < sizeof(minverse) / sizeof(minverse[0]).
  *
  * @returns true if n is multiple of 5^f and false, otherwise.
  */

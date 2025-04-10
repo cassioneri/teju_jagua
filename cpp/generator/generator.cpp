@@ -629,7 +629,7 @@ generator_t::get_fast_eaf_numerator(int32_t const e_0, bool const is_min)
   require(maximum < rational_t{pow2(shift), delta - r},
     "Unable to use shift that is twice the size.");
 
-  return q + (f != 0);
+  return q + 1;
 }
 
 rational_t

@@ -40,8 +40,8 @@ extern "C" {
 //------------------------------------------------------------------------------
 
 // The size in bits of the limb is teju_size. For instance, if teju_size == 32,
-// then 1-, 2- and 4-limb integers have size 32, 64 and 128, respectively.
-// Similarly, if teju_size == 64, then 1-, 2- and 4-limb integers have size 64,
+// then 1-, 2- and 4-limb integers have sizes 32, 64 and 128, respectively.
+// Similarly, if teju_size == 64, then 1-, 2- and 4-limb integers have sizes 64,
 // 128 and 256 respectively. The platform is required to support 1-limb integers
 // but not necessarily 2- and 4-limb integers.
 

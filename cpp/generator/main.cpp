@@ -26,6 +26,8 @@ report_usage(const char* const prog) noexcept {
 generator_t
 parse(const char* const filename, const char* const dir) {
 
+  std::cout << "Parsing of " << filename << " started.\n";
+
   std::ifstream file{filename};
   require(file.is_open(), "Cannot open input file");
 
@@ -37,6 +39,8 @@ parse(const char* const filename, const char* const dir) {
   std::string directory = dir;
   if (directory.back() != '/')
     directory.append(1, '/');
+
+  std::cout << "Parsing of " << filename << " finished.\n";
 
   return { std::move(config), std::move(directory) };
 }

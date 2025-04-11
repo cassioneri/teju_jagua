@@ -127,6 +127,24 @@ is_tie_uncentred(int32_t const f, teju_u1_t const m_a) {
 }
 
 /**
+ * @brief Checks whether mantissa m wins the tiebreak against its neighbour.
+ *
+ * Implements the ties-to-even rule, i.e., m wins the tiebreak if it's even.
+ * Contrarily to other tie-breaking rules, this one doesn't depend on the
+ * neighbour that m is compeating against or the sign of the floating-point
+ * number.
+ *
+ * @param  m                The mantissa m.
+ *
+ * @returns true if m wins the tiebreak and false, otherwise.
+ */
+static inline
+bool
+wins_tiebreak(teju_u1_t const m) {
+  return m % 2u == 0;
+}
+
+/**
  * @brief Shortens the decimal representation of m * 10^e by removing trailing
  *        zeros from m and increasing e accordingly.
  *
@@ -183,14 +201,12 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const q   = teju_div10(b);
     teju_u1_t const s   = 10u * q;
 
-    if (s >= a) {
-      if (s == b) {
-        if (m % 2u == 0u || !is_tie(f, m_b))
-          return remove_trailing_zeros(f + 1, q);
-      }
-      else if (s > a || (m % 2u == 0u && is_tie(f, m_a)))
+    if (a < s) {
+      if (s < b || wins_tiebreak(m) || !is_tie(f, m_b))
         return remove_trailing_zeros(f + 1, q);
     }
+    else if (s == a && wins_tiebreak(m) && is_tie(f, m_a))
+      return remove_trailing_zeros(f + 1, q);
 
     if ((a + b) % 2u == 1u)
       return (teju_fields_t){f, (a + b) / 2u + 1u};
@@ -199,7 +215,7 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const c_2 = teju_mshift(m_c, u, l);
     teju_u1_t const c   = c_2 / 2u;
 
-    if (c_2 % 2u == 0 || (c % 2u == 0 && is_tie(-f, c_2)))
+    if (c_2 % 2u == 0 || (wins_tiebreak(c) && is_tie(-f, c_2)))
       return (teju_fields_t){f, c};
 
     return (teju_fields_t){f, c + 1u};
@@ -215,7 +231,11 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const q = teju_div10(b);
     teju_u1_t const s = 10u * q;
 
-    if (s > a || (s == a && is_tie_uncentred(f, m_a)))
+    if (a < s) {
+      if (s < b || wins_tiebreak(m_0) || !is_tie_uncentred(f, m_b))
+        return remove_trailing_zeros(f + 1, q);
+    }
+    else if (s == a && wins_tiebreak(m_0) && is_tie_uncentred(f, m_a))
       return remove_trailing_zeros(f + 1, q);
 
     // m_c = 4 * m_0 * 2^r = 2^{teju_mantissa_size + r + 1}
@@ -240,7 +260,7 @@ teju_function(teju_fields_t const binary) {
   teju_u1_t const c_2 = teju_mshift(m_c, u, l);
   teju_u1_t const c   = c_2 / 2u;
 
-  if (c_2 % 2u == 0 || (c % 2u == 0 && is_tie(-f, c_2)))
+  if (c_2 % 2u == 0 || (wins_tiebreak(c) && is_tie(-f, c_2)))
     return (teju_fields_t){f - 1 , c};
 
   return (teju_fields_t){f - 1, c + 1u};

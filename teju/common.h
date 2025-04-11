@@ -27,7 +27,7 @@ extern "C" {
  *
  * @returns 2^e.
  */
- #define teju_pow2(type, e) ((type) (((type) 1u) << (e)))
+#define teju_pow2(type, e) ((type) (((type) 1u) << (e)))
 
  /**
  * @brief Returns the k least significant bits of n (i.e. n % 2^k.)

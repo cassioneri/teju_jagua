@@ -4,7 +4,7 @@
 /**
  * @file cpp/common/dragonbox.hpp
  *
- * Teju Jagua's wrapper around dragonbox used for testing and benchmarking.
+ * Tejú Jaguá's wrapper around dragonbox used for testing and benchmarking.
  */
 
 #ifndef TEJU_CPP_COMMON_DRAGONBOX_HPP_

@@ -4,7 +4,7 @@
 /**
  * @file cpp/generator/generator.hpp
  *
- * Generator of Teju Jagua's implementations.
+ * Generator of Tejú Jaguá's implementations.
  */
 
 #ifndef TEJU_CPP_GENERATOR_GENERATOR_HPP_
@@ -19,7 +19,7 @@
 namespace teju {
 
 /**
- * @brief Generator of Teju Jagua's implementation for a given floating-point
+ * @brief Generator of Tejú Jaguá's implementation for a given floating-point
  *        number type.
  */
 struct generator_t {
@@ -71,7 +71,7 @@ private:
   prefix() const;
 
   /**
-   * @brief Returns the name of Teju Jagua's conversion function.
+   * @brief Returns the name of Tejú Jaguá's conversion function.
    */
   std::string const&
   function() const;
@@ -214,7 +214,7 @@ private:
    * @brief Given alpha and delta, this function calculates the maximum of
    *        phi_1(n) over the relevant set of values.
    *
-   * Recall that for each possible exponent yielded by Teju Jagua, it defines a
+   * Recall that for each possible exponent yielded by Tejú Jaguá, it defines a
    * maximisation problem whose objective function, phi_1(n), is parameterised
    * on alpha and delta and where n is in a set of values related to mantissas.
    *

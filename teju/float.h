@@ -4,7 +4,7 @@
 /**
  * @file teju/float.h
  *
- * Teju Jagua and helpers for float values.
+ * Tejú Jaguá and helpers for float values.
  */
 
 #ifndef TEJU_TEJU_FLOAT_H_

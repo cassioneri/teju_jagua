@@ -4,7 +4,7 @@
 /**
  * @file cpp/common/dragonbox.cpp
  *
- * Teju Jagua's wrapper around dragonbox used for testing and benchmarking.
+ * Tejú Jaguá's wrapper around dragonbox used for testing and benchmarking.
  */
 
 #include "cpp/common/dragonbox.hpp"

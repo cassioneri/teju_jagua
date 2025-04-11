@@ -4,7 +4,7 @@
 /**
  * @file teju/double.h
  *
- * Teju Jagua and helpers for double values.
+ * Tejú Jaguá and helpers for double values.
  */
 
 #ifndef TEJU_TEJU_DOUBLE_H_

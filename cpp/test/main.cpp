@@ -92,7 +92,7 @@ get_next(T value) {
 }
 
 /**
- * @brief Converts a given value from binary to decimal using Teju Jagua and a
+ * @brief Converts a given value from binary to decimal using Tejú Jaguá and a
  *        third part-library and check whether they match.
  *
  * @tparam T                The floating-point value type.

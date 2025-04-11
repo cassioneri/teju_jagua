@@ -4,7 +4,7 @@
 /**
  * @file cpp/generator/config.hpp
  *
- * Generator of Teju Jagua's implementations.
+ * Generator of Tejú Jaguá's implementations.
  */
 
 #ifndef TEJU_CPP_GENERATOR_CONFIG_HPP_
@@ -20,7 +20,7 @@
 namespace teju {
 
 /**
- * @brief Configuration of Teju Jagua's implementation.
+ * @brief Configuration of Tejú Jaguá's implementation.
  */
 struct config_t {
 

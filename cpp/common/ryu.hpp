@@ -4,7 +4,7 @@
 /**
  * @file cpp/common/ryu.hpp
  *
- * Teju Jagua's wrapper around ryu used for testing and benchmarking.
+ * Tejú Jaguá's wrapper around ryu used for testing and benchmarking.
  */
 
 #ifndef TEJU_CPP_COMMON_RYU_HPP_

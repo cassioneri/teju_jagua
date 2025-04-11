@@ -4,7 +4,7 @@
 /**
  * @file cpp/common/exception.hpp
  *
- * Exception thrown by Teju Jagua.
+ * Exception thrown by Tejú Jaguá.
  */
 
 #ifndef TEJU_CPP_COMMON_EXCEPTION_HPP_
@@ -16,7 +16,7 @@
 namespace teju {
 
 /**
- * @brief Jeju Jagua's exception.
+ * @brief Tejú Jaguá's exception.
  */
 struct exception_t : std::runtime_error {
   using std::runtime_error::runtime_error;

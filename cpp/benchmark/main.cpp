@@ -4,7 +4,7 @@
 /**
  * @file cpp/benchmark/benchmark.cpp
  *
- * Benchmark Teju Jagua against other algorithms.
+ * Benchmark Tejú Jaguá against other algorithms.
  */
 
 #include "teju/common.h"
@@ -264,7 +264,7 @@ output(nanobench::Bench const& bench, std::string_view const filename) {
  *        given file and a summary to std::cout.
  *
  * The set of values comprises the smallest and largest 5,000 integral values (a
- * maximum of 10,000 values) which Teju Jagua treats as special cases.
+ * maximum of 10,000 values) which Tejú Jaguá treats as special cases.
  *
  * @tparam T                The floating-point number type.
  *

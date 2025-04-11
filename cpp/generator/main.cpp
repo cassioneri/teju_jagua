@@ -18,7 +18,7 @@ namespace teju {
 void
 report_usage(const char* const prog) noexcept {
   std::fprintf(stderr, "Usage: %s [OPTION]... CONFIG DIR\n"
-    "Generate Teju Jagua source files for the given JSON configuration file "
+    "Generate Tejú Jaguá source files for the given JSON configuration file "
     "CONFIG. The files are saved in directory DIR.\n",
     prog);
 }

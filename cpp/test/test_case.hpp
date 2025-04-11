@@ -22,7 +22,7 @@ namespace test {
 /**
  * @brief Test case for a given type.
  *
- * It stores a value of type T and the expected fields of its Teju Jagua's
+ * It stores a value of type T and the expected fields of its Tejú Jaguá's
  * decimal representation. Instantiations are provided for float, double and
  * float128_t (if supported).
  *
@@ -32,21 +32,21 @@ template <typename T>
 struct test_case_t {
 
   /**
-   * @brief Constructor from a value and the expected fields of its Teju Jagua's
+   * @brief Constructor from a value and the expected fields of its Tejú Jaguá's
    *        decimal representation.
    *
    * @param  value          The given value.
-   * @param  expected       The expected fields of Teju Jagua's decimal
+   * @param  expected       The expected fields of Tejú Jaguá's decimal
    *                        representation.
    */
   explicit test_case_t(T value, decimal_t<T> const& expected);
 
   /**
-   * @brief Constructor from the fields of Teju Jagua's binary representation
-   *        and the expected fields of its Teju Jagua's decimal representation.
+   * @brief Constructor from the fields of Tejú Jaguá's binary representation
+   *        and the expected fields of its Tejú Jaguá's decimal representation.
    *
-   * @param  value          The fields of Teju Jagua's binary representation.
-   * @param  expected       The expected fields of Teju Jagua's decimal
+   * @param  value          The fields of Tejú Jaguá's binary representation.
+   * @param  expected       The expected fields of Tejú Jaguá's decimal
    *                        representation.
    */
   explicit test_case_t(decimal_t<T> const& teju_binary,

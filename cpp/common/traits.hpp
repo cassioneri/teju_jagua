@@ -41,7 +41,7 @@ namespace detail {
 /**
  * @brief Traits for floating-point number types.
  *
- * Teju Jagua (and possibly other third-party libraries with the same purpose)
+ * Tejú Jaguá (and possibly other third-party libraries with the same purpose)
  * are supposed to be called in C which doesn't support overloading and
  * templates. This class serves to wrap C functions (and data) referring to
  * specific types into a generic interface. For instance,
@@ -69,7 +69,7 @@ namespace detail {
  * @li binary_t to_value(binary_t binary)
  *   Returns the value corresponding to the given binary field representation.
  * @li decimal_t teju(T value)
- *   Returns the decimal field representation obtained by Teju Jagua.
+ *   Returns the decimal field representation obtained by Tejú Jaguá.
  * @li decimal_t dragonbox(T value)
  *   Returns the decimal field representation obtained by Dragonbox.
  * @li decimal_t ryu(T value)

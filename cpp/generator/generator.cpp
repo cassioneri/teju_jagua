@@ -400,7 +400,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 
   // Performs the overflow safety checks except for uncentred refined
   // calculations. The latter check is delayed to after checking whether the
-  // uncentred case is sorted because, if so, then Teju Jagua never performs
+  // uncentred case is sorted because, if so, then Tejú Jaguá never performs
   // uncentred refined calculations.
   require(check_centred_calculations(), "Centred calculations could overflow.");
   require(check_uncentred_calculations(),
@@ -507,7 +507,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "  teju_u1_t const bound;\n"
     "} const minverse[] = {\n";
 
-  // Let M = mantissa_max(). Teju Jagua might call is_multiple_of_pow5(n, f) for
+  // Let M = mantissa_max(). Tejú Jaguá might call is_multiple_of_pow5(n, f) for
   // the following values of  n:
   //
   //   Centred case:
@@ -553,7 +553,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 bool
 generator_t::check_div10_algorithm() const {
 
-  // Check whether Teju Jagua can use the algorithm of Theorem 4 of Neri C,
+  // Check whether Tejú Jaguá can use the algorithm of Theorem 4 of Neri C,
   // Schneider L. "Euclidean affine functions and their application to calendar
   // algorithms." Softw Pract Exper. 2023; 53(4):937-970.
   // https://onlinelibrary.wiley.com/doi/full/10.1002/spe.3172

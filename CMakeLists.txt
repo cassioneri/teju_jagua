@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(teju_jagua
   VERSION 1.0
-  DESCRIPTION "Teju Jagua: the gentle 7-headed beast from Guarani mythology \
+  DESCRIPTION "Tejú Jaguá: the gentle 7-headed beast from Guarani mythology \
     that comes out of its cave to help us efficiently finding decimal       \
     representations of floating-point numbers."
   LANGUAGES C CXX

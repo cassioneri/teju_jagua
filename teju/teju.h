@@ -4,7 +4,7 @@
 /**
  * @file teju/teju.h
  *
- * The implementation of Teju Jagua and some of its helpers.
+ * The implementation of Tejú Jaguá and some of its helpers.
  */
 
 #ifndef TEJU_TEJU_TEJU_H_
@@ -78,7 +78,7 @@ is_multiple_of_pow2(int32_t const e, teju_u1_t const m) {
  }
 
 //------------------------------------------------------------------------------
-// Teju Jagua
+// Tejú Jaguá
 //------------------------------------------------------------------------------
 
 /**
@@ -170,7 +170,7 @@ remove_trailing_zeros(int32_t e, teju_u1_t m) {
 /**
  * @brief Finds the shortest decimal representation of m * 2^e.
  *
- * This is Teju Jagua itself.
+ * This is Tejú Jaguá itself.
  *
  * @param  binary           The fields of the binary representation.
  *

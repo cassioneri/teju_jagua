@@ -247,7 +247,7 @@ teju_function(teju_fields_t const binary) {
     if (c == a && !is_tie_uncentred(f, m_a))
       return (teju_fields_t){f, c + 1u};
 
-    if (c_2 % 2u == 0 || (c % 2u == 0 && is_tie(-f, c_2)))
+    if (c_2 % 2u == 0 || (wins_tiebreak(c) && is_tie(-f, c_2)))
       return (teju_fields_t){f, c};
 
     return (teju_fields_t){f, c + 1u};

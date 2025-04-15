@@ -486,13 +486,14 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 
     // Output
 
-    integer_t upper = U >> size();
-    integer_t lower = std::move(U &= mask);
+    integer_t       upper = U >> size();
+    integer_t       lower = std::move(U &= mask);
+    int32_t   const f     = teju_log10_pow2(e_0);
 
     require(upper < p2size, "A multiplier is out of range.");
 
     stream << "  { " << splitter(std::move(upper)) << ", " <<
-      splitter(std::move(lower)) << " },\n";
+      splitter(std::move(lower)) << " }, // " << std::dec << f << '\n';
   }
 
   require(sorted || check_uncentred_refined_calculations(),
@@ -533,7 +534,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     auto bnd = p2size / p5 - (f == 0);
 
     stream << "  { " << splitter(multiplier) << ", " <<
-      splitter(std::move(bnd)) << " },\n";
+      splitter(std::move(bnd)) << " }, // " << std::dec << f << '\n';
 
     multiplier *= minv5;
     multiplier &= mask;

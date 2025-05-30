@@ -353,9 +353,6 @@ benchmark_centred(std::string_view const filename, unsigned n_mantissas) {
   auto  distribution   = distribution_t{mantissa_min, mantissa_max};
   auto  device         = std::mt19937_64{};
 
-  auto constexpr exponent_min = traits_t::exponent_min;
-  auto constexpr exponent_max = traits_t::exponent_max;
-
   while (n_mantissas--) {
     auto const mantissa = distribution(device);
     bench_all_exponents<T>(bench, filename, mantissa);

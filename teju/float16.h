@@ -14,7 +14,11 @@
 
 #if defined(teju_has_float16)
 
-#include "teju/generated/ieee16.h"
+#if defined(teju_has_uint128)
+  #include "teju/generated/ieee16_with_uint128.h"
+#else
+  #include "teju/generated/ieee16_no_uint128.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {

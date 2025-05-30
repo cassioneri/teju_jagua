@@ -26,11 +26,10 @@ TYPED_TEST(div10, test_all_values) {
 
   // Applying theorem 4 of [1] for d = 10 and k = 16 gives:
   teju_u1_t constexpr d            = 10u;
-  teju_u1_t constexpr k            = 16u;
   teju_u1_t constexpr p2_k_minus_1 = teju_u1_t(-1);
   teju_u1_t constexpr a            = p2_k_minus_1 / 10u + 1u;
   teju_u1_t constexpr epsilon      = d - (p2_k_minus_1 % d + 1u) % d;
-  teju_u1_t constexpr U       = 1u * ((a + epsilon - 1u) / epsilon) * d - 1u;
+  teju_u1_t constexpr U = 1u * ((a + epsilon - 1u) / epsilon) * d - 1u;
 
   static_assert(epsilon <= a, "Theorem 4 does not apply.");
   static_assert(U == 16389u, "Invalid calculation of U of Theorem 4.");

@@ -43,14 +43,18 @@ teju_float16_to_binary(float16_t const value) {
   }
 
   exponent += exponent_min;
-  teju32_fields_t binary = {exponent, mantissa};
+  teju_fields_t binary = {exponent, mantissa};
   return binary;
 }
 
 teju32_fields_t
 teju_float16_to_decimal(float16_t const value) {
   teju32_fields_t binary = teju_float16_to_binary(value);
-  return teju_ieee16(binary);
+  #if defined(teju_has_uint128)
+    return teju_ieee16_with_uint128(binary);
+  #else
+    return teju_ieee16_no_uint128(binary);
+  #endif
 }
 
 #ifdef __cplusplus

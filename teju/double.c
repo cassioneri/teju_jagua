@@ -39,7 +39,7 @@ teju_double_to_binary(double const value) {
   }
 
   exponent += exponent_min;
-  teju64_fields_t binary = {exponent, mantissa};
+  teju_fields_t binary = {exponent, mantissa};
   return binary;
 }
 

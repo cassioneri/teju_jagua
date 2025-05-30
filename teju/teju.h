@@ -58,24 +58,40 @@ is_multiple_of_pow2(int32_t const e, teju_u1_t const m) {
  *
  * @returns true if n is multiple of 5^f and false, otherwise.
  */
- static inline
- bool
- is_multiple_of_pow5(int32_t const f, teju_u1_t const n) {
-   assert(0 <= f && (uint32_t) f < sizeof(minverse) / sizeof(minverse[0]));
-   return (teju_u1_t) (1u * n * minverse[f].multiplier) <= minverse[f].bound;
- }
+static inline
+bool
+is_multiple_of_pow5(int32_t const f, teju_u1_t const n) {
+  assert(0 <= f && (uint32_t) f < sizeof(minverse) / sizeof(minverse[0]));
+  return (teju_u1_t) (1u * n * minverse[f].multiplier) <= minverse[f].bound;
+}
 
- /**
+/**
  * @brief Rotates the bits of a given number 1 position to the right.
  *
  * @param  m                The given number.
  *
  * @returns The value of m after the rotation.
  */
- static inline
- teju_u1_t ror(teju_u1_t m) {
-   return m << (teju_size - 1u) | m >> 1u;
- }
+static inline
+teju_u1_t
+  ror(teju_u1_t m) {
+  return m << (teju_size - 1u) | m >> 1u;
+}
+
+/**
+ * @brief Creates a teju_fields_t from exponent and mantissa.
+ *
+ * @param  e                The exponent.
+ * @param  m                The mantissa.
+ *
+ * @returns The teju_fields_t object.
+ */
+static inline
+teju_fields_t
+  make_fields(int32_t const e, teju_u1_t const m) {
+  teju_fields_t const fields = {e, m};
+  return fields;
+}
 
 //------------------------------------------------------------------------------
 // Tejú Jaguá
@@ -156,12 +172,13 @@ wins_tiebreak(teju_u1_t const m) {
 static inline
 teju_fields_t
 remove_trailing_zeros(int32_t e, teju_u1_t m) {
-  teju_u1_t const minv5 = -(((teju_u1_t) -1) / 5u);
+  // Subtracting from zero prevents msvc warning C4146.
+  teju_u1_t const minv5 = 0u - ((teju_u1_t) -1) / 5u;
   teju_u1_t const bound = ((teju_u1_t) -1) / 10u + 1u;
   while (true) {
     teju_u1_t const q = ror((teju_u1_t) (1u * m * minv5));
     if (q >= bound)
-      return (teju_fields_t){e, m};
+      return make_fields(e, m);
     ++e;
     m = q;
   }
@@ -209,16 +226,16 @@ teju_function(teju_fields_t const binary) {
       return remove_trailing_zeros(f + 1, q);
 
     if ((a + b) % 2u == 1u)
-      return (teju_fields_t){f, (a + b) / 2u + 1u};
+      return make_fields(f, (a + b) / 2u + 1u);
 
     teju_u1_t const m_c = 4u * m << r;
     teju_u1_t const c_2 = teju_mshift(m_c, u, l);
     teju_u1_t const c   = c_2 / 2u;
 
     if (c_2 % 2u == 0 || (wins_tiebreak(c) && is_tie(-f, c_2)))
-      return (teju_fields_t){f, c};
+      return make_fields(f, c);
 
-    return (teju_fields_t){f, c + 1u};
+    return make_fields(f, c + 1u);
   }
 
   teju_u1_t const m_a = (4u * m_0 - 1u) << r;
@@ -245,12 +262,12 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const c        = c_2 / 2u;
 
     if (c == a && !is_tie_uncentred(f, m_a))
-      return (teju_fields_t){f, c + 1u};
+      return make_fields(f, c + 1u);
 
     if (c_2 % 2u == 0 || (wins_tiebreak(c) && is_tie(-f, c_2)))
-      return (teju_fields_t){f, c};
+      return make_fields(f, c);
 
-    return (teju_fields_t){f, c + 1u};
+    return make_fields(f, c + 1u);
   }
 
   else if (is_tie_uncentred(f, m_a))
@@ -261,9 +278,9 @@ teju_function(teju_fields_t const binary) {
   teju_u1_t const c   = c_2 / 2u;
 
   if (c_2 % 2u == 0 || (wins_tiebreak(c) && is_tie(-f, c_2)))
-    return (teju_fields_t){f - 1 , c};
+    return make_fields(f - 1 , c);
 
-  return (teju_fields_t){f - 1, c + 1u};
+  return make_fields(f - 1, c + 1u);
 }
 
 #ifdef __cplusplus

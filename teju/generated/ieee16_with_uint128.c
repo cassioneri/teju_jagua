@@ -3,7 +3,7 @@
 
 // This file was generated. DO NOT EDIT IT.
 
-#include "ieee16.h"
+#include "ieee16_with_uint128.h"
 
 #include "teju/literal.h"
 
@@ -19,7 +19,7 @@ extern "C" {
 #define teju_calculation_mshift   teju_built_in_4
 #define teju_calculation_shift    64u
 
-#define teju_function             teju_ieee16
+#define teju_function             teju_ieee16_with_uint128
 #define teju_fields_t             teju32_fields_t
 #define teju_u1_t                 teju32_u1_t
 

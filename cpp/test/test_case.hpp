@@ -49,8 +49,8 @@ struct test_case_t {
    * @param  expected       The expected fields of Tejú Jaguá's decimal
    *                        representation.
    */
-  explicit test_case_t(decimal_t<T> const& teju_binary,
-    decimal_t<T> const& expected);
+  //explicit test_case_t(decimal_t<T> const& teju_binary,
+  //  decimal_t<T> const& expected);
 
   /**
    * @brief Gets the value.

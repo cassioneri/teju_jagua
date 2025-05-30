@@ -105,7 +105,7 @@ teju_mshift(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
   #if teju_calculation_mshift == teju_built_in_4
 
     teju_u4_t const n = (((teju_u2_t) u) << teju_size) | l;
-    return 1u * n * m >> teju_calculation_shift;
+    return (teju_u1_t) (1u * n * m >> teju_calculation_shift);
 
   #elif teju_calculation_mshift == teju_synthetic_2
 

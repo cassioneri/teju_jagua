@@ -56,7 +56,7 @@ teju_div10(teju_u1_t const n) {
       return (1u * a * ((teju_u2_t) n)) >> teju_size;
     #else // teju_calculation_div10 == teju_synthetic_1
       teju_u1_t upper;
-      (void) teju_multiply(inv10, n, &upper);
+      (void) teju_multiply(a, n, &upper);
       return upper;
     #endif
 

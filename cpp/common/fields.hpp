@@ -14,6 +14,7 @@
   #include <boost/multiprecision/cpp_int.hpp>
 #endif
 
+#include <cstdint>
 #include <iostream>
 
 namespace teju {

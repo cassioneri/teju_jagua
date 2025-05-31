@@ -219,10 +219,10 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const s   = 10u * q;
 
     if (a < s) {
-      if (s < b || wins_tiebreak(m) || !is_tie(f, m_b))
+      if (s < b || !is_tie(f, m_b) || wins_tiebreak(m))
         return remove_trailing_zeros(f + 1, q);
     }
-    else if (s == a && wins_tiebreak(m) && is_tie(f, m_a))
+    else if (s == a && is_tie(f, m_a) && wins_tiebreak(m))
       return remove_trailing_zeros(f + 1, q);
 
     if ((a + b) % 2u == 1u)

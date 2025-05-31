@@ -151,13 +151,13 @@ benchmark(nanobench::Bench& bench, T const value) {
     decimal, 10);
 
   if constexpr (run_teju)
-    bench.relative(true)
-      .context(str_algorithm, str_teju.data()         )
-      .context(str_binary   , std::data(binary_chars) )
+    bench
+      .context(str_algorithm, str_teju.data())
+      .context(str_binary   , std::data(binary_chars))
       .context(str_decimal  , std::data(decimal_chars))
       .run("", [&]() {
         nanobench::doNotOptimizeAway(traits_t::teju_raw(value));
-    });
+      });
 
   if constexpr (run_dragonbox)
     bench
@@ -166,7 +166,7 @@ benchmark(nanobench::Bench& bench, T const value) {
       .context(str_decimal  , std::data(decimal_chars))
       .run("", [&]() {
         nanobench::doNotOptimizeAway(traits_t::dragonbox_raw(value));
-    });
+      });
 
   if constexpr (run_ryu)
     bench
@@ -175,7 +175,7 @@ benchmark(nanobench::Bench& bench, T const value) {
       .context(str_decimal  , std::data(decimal_chars))
       .run("", [&]() {
         nanobench::doNotOptimizeAway(traits_t::ryu_raw(value));
-    });
+      });
 }
 
 /**
@@ -196,10 +196,10 @@ output(nanobench::Bench const& bench, std::string_view const filename) {
 
   // Print summary to std::cout.
   {
-    auto results    = bench.results();
-    auto teju       = teju::stats_t{};
-    auto dragonbox  = teju::stats_t{};
-    auto ryu        = teju::stats_t{};
+    auto const& results    = bench.results();
+    auto        teju       = teju::stats_t{};
+    auto        dragonbox  = teju::stats_t{};
+    auto        ryu        = teju::stats_t{};
 
     for (auto const& result : results) {
 

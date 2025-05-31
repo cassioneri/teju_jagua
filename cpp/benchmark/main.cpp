@@ -20,7 +20,9 @@
 
 #include <algorithm>
 #include <charconv>
+#include <cstring>
 #include <fstream>
+#include <limits>
 #include <random>
 #include <string>
 #include <string_view>
@@ -281,10 +283,13 @@ benchmark_integers(std::string_view const filename) {
       benchmark(bench, value);
   };
 
-  auto const max = std::pow(T{2}, T{teju::traits_t<T>::mantissa_size});
+  using traits_t               = teju::traits_t<T>;
+  using u1_t                   = typename traits_t::u1_t;
+  auto constexpr mantissa_size = traits_t::mantissa_size;
+  auto constexpr max           = teju_pow2(u1_t, mantissa_size - 1);
 
   test(T{1}, T{5000});
-  test(max - T{5000}, max);
+  test(T{max} - T{5000}, T{max});
 
   output(bench, filename);
 }
@@ -385,6 +390,72 @@ TEST(float, uncentred) {
 
 TEST(double, uncentred) {
   benchmark_uncentred<double>("double_uncentred.csv");
+}
+
+template <typename T>
+void
+benchmark_simple(unsigned n_samples) {
+
+  auto bench = nanobench::Bench()
+    .batch(n_samples)
+    .unit("conversion")
+    .epochs(200);
+
+  using          traits_t = teju::traits_t<T>;
+  using          u1_t     = typename traits_t::u1_t;
+  auto constexpr min      = std::numeric_limits<T>::denorm_min();
+  auto constexpr max      = std::numeric_limits<T>::max();
+
+  auto to_bits = [](T value) {
+    u1_t bits{};
+    std::memcpy(&bits, &value, sizeof(value));
+    return bits;
+  };
+
+  auto const min_bits = to_bits(min);
+  auto const max_bits = to_bits(max);
+
+  auto device       = std::mt19937_64{};
+  auto distribution = std::uniform_int_distribution<u1_t>{min_bits, max_bits};
+
+  auto to_value = [](u1_t bits) {
+    T value{};
+    std::memcpy(&value, &bits, sizeof(value));
+    return value;
+  };
+
+  std::vector<T> values;
+  values.reserve(n_samples);
+
+  while (n_samples--)
+    values.push_back(to_value(distribution(device)));
+
+  if constexpr (run_teju)
+    bench.run("teju", [&]() {
+      for (auto const value : values)
+        nanobench::doNotOptimizeAway(traits_t::teju_raw(value));
+    });
+
+  if constexpr (run_dragonbox)
+    bench
+    .run("dragonbox", [&]() {
+      for (auto const value : values)
+        nanobench::doNotOptimizeAway(traits_t::dragonbox_raw(value));
+    });
+
+  if constexpr (run_ryu)
+    bench.run("ryu", [&]() {
+        for (auto const value : values)
+          nanobench::doNotOptimizeAway(traits_t::ryu_raw(value));
+      });
+}
+
+TEST(float, simple) {
+  benchmark_simple<float>(65536);
+}
+
+TEST(double, simple) {
+  benchmark_simple<double>(65536);
 }
 
 } // namespace <anonymous>

@@ -218,11 +218,15 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const q   = teju_div10(b);
     teju_u1_t const s   = 10u * q;
 
-    if (a < s) {
-      if (s < b || !is_tie(f, m_b) || wins_tiebreak(m))
+    if (s == a) {
+      if (is_tie(f, m_a) & wins_tiebreak(m))
         return remove_trailing_zeros(f + 1, q);
     }
-    else if (s == a && is_tie(f, m_a) && wins_tiebreak(m))
+    else if (s == b) {
+      if (!is_tie(f, m_b) | wins_tiebreak(m))
+        return remove_trailing_zeros(f + 1, q);
+    }
+    else if (a < s)
       return remove_trailing_zeros(f + 1, q);
 
     if ((a + b) % 2u == 1u)
@@ -232,8 +236,17 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const c_2 = teju_mshift(m_c, u, l);
     teju_u1_t const c   = c_2 / 2u;
 
-    if (c_2 % 2u == 0 || (wins_tiebreak(c) && is_tie(-f, c_2)))
-      return make_fields(f, c);
+    if (c_2 % 4u != 3u) {
+      // Recall that wins_tiebreak(c) is true, if and only if, c % 2 == 0.
+      // Now, c_2 % 4 != 3 => c_2 % 2 == 0 or c % 2 == 0, where c = c_2 / 2.
+      // Therefore, since c_2 % 4 != 3, we have c_2 % 2 or wins_tiebreak(c).
+      // This implies that this condition:
+      //   c_2 % 2u == 0 || is_tie(-f, c_2) && wins_tiebreak(c)
+      // simplifies to
+      //   c_2 % 2u == 0 || is_tie(-f, c_2).
+      if (is_tie(-f, c_2) | c_2 % 2u == 0)
+        return make_fields(f, c);
+    }
 
     return make_fields(f, c + 1u);
   }
@@ -249,10 +262,10 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const s = 10u * q;
 
     if (a < s) {
-      if (s < b || wins_tiebreak(m_0) || !is_tie_uncentred(f, m_b))
+      if (s < b || (!is_tie_uncentred(f, m_b) | wins_tiebreak(m_0)))
         return remove_trailing_zeros(f + 1, q);
     }
-    else if (s == a && wins_tiebreak(m_0) && is_tie_uncentred(f, m_a))
+    else if (s == a && (is_tie_uncentred(f, m_a) & wins_tiebreak(m_0)))
       return remove_trailing_zeros(f + 1, q);
 
     // m_c = 4 * m_0 * 2^r = 2^{teju_mantissa_size + r + 1}
@@ -261,11 +274,14 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const c_2      = mshift_pow2(log2_m_c, u, l);
     teju_u1_t const c        = c_2 / 2u;
 
-    if (c == a && !is_tie_uncentred(f, m_a))
+    if (c == a & !is_tie_uncentred(f, m_a))
       return make_fields(f, c + 1u);
 
-    if (c_2 % 2u == 0 || (wins_tiebreak(c) && is_tie(-f, c_2)))
-      return make_fields(f, c);
+      if (c_2 % 4u != 3u) {
+        // Similar argument as for the centred case.
+        if (is_tie(-f, c_2) | c_2 % 2u == 0)
+          return make_fields(f, c);
+      }
 
     return make_fields(f, c + 1u);
   }

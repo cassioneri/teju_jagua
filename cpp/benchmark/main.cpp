@@ -298,75 +298,52 @@ TEST(double, integers) {
 }
 
 /**
- * @brief Benchmarks conversion of floating-point numbers with a given mantissa.
- *        Streams out detailed benchmarks results to a given file and a summary
- *        to std::cout.
- *
- * @tparam T                The floating-point number type.
- *
- * @param  bench            The benchmark object recording the results.
- * @param  filename         The name of the output file.
- * @param  mantissa         The given mantissa.
- */
-template <typename T>
-void bench_all_exponents(nanobench::Bench& bench,
-  std::string_view const filename,
-  typename teju::traits_t<T>::u1_t const mantissa) {
-
-  using traits_t = teju::traits_t<T>;
-
-  auto constexpr exponent_min = traits_t::exponent_min;
-  auto constexpr exponent_max = traits_t::exponent_max;
-
-  for (std::int32_t exponent = exponent_min; exponent <= exponent_max;
-    ++exponent) {
-    auto const binary = teju::binary_t<T>{exponent, mantissa};
-    auto const value  = traits_t::to_value(binary);
-    benchmark(bench, value);
-  }
-}
-
-/**
- * @brief Benchmarks conversion of centred floating-point numbers to their
- *        decimal representations. Streams out detailed benchmarks results to a
- *        given file and a summary to std::cout.
- *
- * The set of values comprises a given number of randomly selected mantissas for
- * all possible binary exponents.
+ * @brief Benchmarks conversion of a sample of centred floating-point numbers to
+ *        their decimal representations. Streams out detailed benchmarks results
+ *        to a given file and a summary to std::cout.
  *
  * @param  filename         The name of the output file.
- * @param  n_mantissas      The number of mantissas to be drawn.
+ * @param  n_samples        The number of samples.
  */
 template <typename T>
 void
-benchmark_centred(std::string_view const filename, unsigned n_mantissas) {
+benchmark_centred(std::string_view const filename, unsigned n_samples) {
 
-  using traits_t  = teju::traits_t<T>;
-  using u1_t      = typename traits_t::u1_t;
+  using traits_t = teju::traits_t<T>;
+  using u1_t     = typename traits_t::u1_t;
 
-  auto bench = get_bench();
+  auto device = std::mt19937_64{};
+  auto bench  = get_bench();
 
-  auto constexpr mantissa_min = teju_pow2(u1_t, traits_t::mantissa_size - 1);
-  auto constexpr mantissa_max = 2 * mantissa_min - 1;
+  auto constexpr mantissa_size      = traits_t::mantissa_size;
+  auto constexpr mantissa_uncentred = teju_pow2(u1_t, mantissa_size - 1);
+  auto constexpr mantissa_min       = mantissa_uncentred + 1;
+  auto constexpr mantissa_max       = 2 * mantissa_uncentred - 1;
+  auto mantissa_distribution        =
+    std::uniform_int_distribution<u1_t>{mantissa_min, mantissa_max};
 
-  using distribution_t = std::uniform_int_distribution<u1_t>;
-  auto  distribution   = distribution_t{mantissa_min, mantissa_max};
-  auto  device         = std::mt19937_64{};
+  auto constexpr exponent_min       = traits_t::exponent_min;
+  auto constexpr exponent_max       = traits_t::exponent_max;
+  auto exponent_distribution        =
+    std::uniform_int_distribution<std::int32_t>{exponent_min, exponent_max};
 
-  while (n_mantissas--) {
-    auto const mantissa = distribution(device);
-    bench_all_exponents<T>(bench, filename, mantissa);
+  while (n_samples--) {
+    auto const mantissa = mantissa_distribution(device);
+    auto const exponent = exponent_distribution(device);
+    auto const binary   = teju::binary_t<T>{exponent, mantissa};
+    auto const value    = traits_t::to_value(binary);
+    benchmark(bench, value);
   }
 
   output(bench, filename);
 }
 
 TEST(float, centred) {
-  benchmark_centred<float>("float_centred.csv", 10);
+  benchmark_centred<float>("float_centred.csv", 2'000);
 }
 
 TEST(double, centred) {
-  benchmark_centred<double>("double_centred.csv", 10);
+  benchmark_centred<double>("double_centred.csv", 2'000);
 }
 
 /**
@@ -387,8 +364,18 @@ benchmark_uncentred(std::string_view const filename) {
 
   auto bench = get_bench();
 
-  auto constexpr mantissa = teju_pow2(u1_t, traits_t::mantissa_size - 1);
-  bench_all_exponents<T>(bench, filename, mantissa);
+  auto constexpr mantissa_size      = traits_t::mantissa_size;
+  auto constexpr mantissa_uncentred = teju_pow2(u1_t, mantissa_size - 1);
+  auto constexpr exponent_min       = traits_t::exponent_min;
+  auto constexpr exponent_max       = traits_t::exponent_max;
+
+  for (std::int32_t exponent = exponent_min; exponent <= exponent_max;
+    ++exponent) {
+    auto const binary = teju::binary_t<T>{exponent, mantissa_uncentred};
+    auto const value  = traits_t::to_value(binary);
+    benchmark(bench, value);
+  }
+
   output(bench, filename);
 }
 

@@ -219,11 +219,11 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const s   = 10u * q;
 
     if (s == a) {
-      if (is_tie(f, m_a) & wins_tiebreak(m))
+      if ((unsigned) is_tie(f, m_a) & (unsigned) wins_tiebreak(m))
         return remove_trailing_zeros(f + 1, q);
     }
     else if (s == b) {
-      if (!is_tie(f, m_b) | wins_tiebreak(m))
+      if ((unsigned) !is_tie(f, m_b) | (unsigned) wins_tiebreak(m))
         return remove_trailing_zeros(f + 1, q);
     }
     else if (a < s)
@@ -262,10 +262,12 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const s = 10u * q;
 
     if (a < s) {
-      if (s < b || (!is_tie_uncentred(f, m_b) | wins_tiebreak(m_0)))
+      if (s < b ||
+        ((unsigned) !is_tie_uncentred(f, m_b) | (unsigned) wins_tiebreak(m_0)))
         return remove_trailing_zeros(f + 1, q);
     }
-    else if (s == a && (is_tie_uncentred(f, m_a) & wins_tiebreak(m_0)))
+    else if (s == a &&
+      ((unsigned) is_tie_uncentred(f, m_a) & (unsigned) wins_tiebreak(m_0)))
       return remove_trailing_zeros(f + 1, q);
 
     // m_c = 4 * m_0 * 2^r = 2^{teju_mantissa_size + r + 1}
@@ -277,11 +279,11 @@ teju_function(teju_fields_t const binary) {
     if ((c == a) & !is_tie_uncentred(f, m_a))
       return make_fields(f, c + 1u);
 
-      if (c_2 % 4u != 3u) {
-        // Similar argument as for the centred case.
-        if (is_tie(-f, c_2) | (c_2 % 2u == 0))
-          return make_fields(f, c);
-      }
+    if (c_2 % 4u != 3u) {
+      // Similar argument as for the centred case.
+      if (is_tie(-f, c_2) | (c_2 % 2u == 0))
+        return make_fields(f, c);
+    }
 
     return make_fields(f, c + 1u);
   }

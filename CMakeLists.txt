@@ -31,7 +31,7 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
 
   add_compile_options("-march=native")
 
-  # Sets optimisation level to -O3 in RelWithDebInfo build for gcc ang clang.
+  # Sets optimisation level to -O3 in RelWithDebInfo build.
   foreach (flags IN ITEMS CMAKE_C_FLAGS_RELWITHDEBINFO
     CMAKE_CXX_FLAGS_RELWITHDEBINFO)
     string(REPLACE "-O2" "-O3" ${flags} ${${flags}})
@@ -47,7 +47,7 @@ if (CMAKE_C_COMPILER_ID MATCHES "Clang" AND NOT MSVC)
 
   add_compile_options("-march=native")
 
-  # Sets optimisation level to -O3 in RelWithDebInfo build for gcc ang clang.
+  # Sets optimisation level to -O3 in RelWithDebInfo build.
   foreach (flags IN ITEMS CMAKE_C_FLAGS_RELWITHDEBINFO
     CMAKE_CXX_FLAGS_RELWITHDEBINFO)
     string(REPLACE "-O2" "-O3" ${flags} ${${flags}})

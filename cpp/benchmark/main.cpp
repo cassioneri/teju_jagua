@@ -265,8 +265,8 @@ output(nanobench::Bench const& bench, std::string_view const filename) {
  *        decimal representations. Streams out detailed benchmarks results to a
  *        given file and a summary to std::cout.
  *
- * The set of values comprises the smallest and largest 5,000 integral values (a
- * maximum of 10,000 values) which Tejú Jaguá treats as special cases.
+ * The set of values comprises the smallest and largest 1,000 integral values (a
+ * maximum of 2,000 values) which Tejú Jaguá treats as special cases.
  *
  * @tparam T                The floating-point number type.
  *
@@ -288,8 +288,8 @@ benchmark_integers(std::string_view const filename) {
   auto constexpr mantissa_size = traits_t::mantissa_size;
   auto constexpr max           = teju_pow2(u1_t, mantissa_size - 1);
 
-  test(T{1}, T{5000});
-  test(T{max} - T{5000}, T{max});
+  test(T{1}, T{1'000});
+  test(T{max} - T{1'000}, T{max});
 
   output(bench, filename);
 }
@@ -398,8 +398,8 @@ benchmark_simple(unsigned n_samples) {
 
   auto bench = nanobench::Bench()
     .batch(n_samples)
-    .unit("conversion")
-    .epochs(200);
+    .unit("run")
+    .epochs(11);
 
   using          traits_t = teju::traits_t<T>;
   using          u1_t     = typename traits_t::u1_t;
@@ -431,31 +431,30 @@ benchmark_simple(unsigned n_samples) {
     values.push_back(to_value(distribution(device)));
 
   if constexpr (run_teju)
-    bench.run("teju", [&]() {
+    bench.relative(true).run("teju", [&]() {
       for (auto const value : values)
         nanobench::doNotOptimizeAway(traits_t::teju_raw(value));
     });
 
   if constexpr (run_dragonbox)
-    bench
-    .run("dragonbox", [&]() {
+    bench.run("dragonbox", [&]() {
       for (auto const value : values)
         nanobench::doNotOptimizeAway(traits_t::dragonbox_raw(value));
     });
 
   if constexpr (run_ryu)
     bench.run("ryu", [&]() {
-        for (auto const value : values)
-          nanobench::doNotOptimizeAway(traits_t::ryu_raw(value));
-      });
+      for (auto const value : values)
+        nanobench::doNotOptimizeAway(traits_t::ryu_raw(value));
+    });
 }
 
 TEST(float, simple) {
-  benchmark_simple<float>(65536);
+  benchmark_simple<float>(1u << 24);
 }
 
 TEST(double, simple) {
-  benchmark_simple<double>(65536);
+  benchmark_simple<double>(1u << 24);
 }
 
 } // namespace <anonymous>

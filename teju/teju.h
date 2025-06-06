@@ -22,6 +22,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -74,7 +75,7 @@ is_multiple_of_pow5(int32_t const f, teju_u1_t const n) {
  */
 static inline
 teju_u1_t
-  ror(teju_u1_t m) {
+ror(teju_u1_t const m) {
   return m << (teju_size - 1u) | m >> 1u;
 }
 
@@ -88,7 +89,7 @@ teju_u1_t
  */
 static inline
 teju_fields_t
-  make_fields(int32_t const e, teju_u1_t const m) {
+make_fields(int32_t const e, teju_u1_t const m) {
   teju_fields_t const fields = {e, m};
   return fields;
 }
@@ -105,14 +106,14 @@ teju_fields_t
  *
  * @returns true if m * 2^e is a "small" integer and false, otherwise.
  */
- static inline
- bool
- is_small_integer(int32_t const e, teju_u1_t const m) {
-   return 0 <= -e && (uint32_t) -e < teju_mantissa_size &&
-     is_multiple_of_pow2(-e, m);
- }
+static inline
+bool
+is_small_integer(int32_t const e, teju_u1_t const m) {
+  return 0 <= -e && (uint32_t) -e < teju_mantissa_size &&
+    is_multiple_of_pow2(-e, m);
+}
 
- /**
+/**
  * @brief Checks whether m, for m in { m_a, m_b, c_2 }, yields a tie.
  *
  * @param  f                The exponent f (for m == m_a and m == m_b) or
@@ -145,11 +146,6 @@ is_tie_uncentred(int32_t const f, teju_u1_t const m_a) {
 /**
  * @brief Checks whether mantissa m wins the tiebreak against its neighbour.
  *
- * Implements the ties-to-even rule, i.e., m wins the tiebreak if it's even.
- * Contrarily to other tie-breaking rules, this one doesn't depend on the
- * neighbour that m is compeating against or the sign of the floating-point
- * number.
- *
  * @param  m                The mantissa m.
  *
  * @returns true if m wins the tiebreak and false, otherwise.
@@ -158,6 +154,20 @@ static inline
 bool
 wins_tiebreak(teju_u1_t const m) {
   return m % 2u == 0;
+}
+
+/**
+ * @brief Checks whether |c * 10^f - m * 2^e| < |(c + 1) * 10^f - m * 2^e|.
+ *
+ * @param  c_2               The number c_2 (where, c = c_2 / 2)
+ *
+ * @returns true if |c * 10^f - m * 2^e| < |(c + 1) * 10^f - m * 2^e| and false,
+ *          otherwise.
+ */
+static inline
+bool
+previous_is_closer(teju_u1_t const c_2) {
+  return c_2 % 2u != 1u;
 }
 
 /**
@@ -176,7 +186,7 @@ remove_trailing_zeros(int32_t e, teju_u1_t m) {
   teju_u1_t const minv5 = 0u - ((teju_u1_t) -1) / 5u;
   teju_u1_t const bound = ((teju_u1_t) -1) / 10u + 1u;
   while (true) {
-    teju_u1_t const q = ror((teju_u1_t) (1u * m * minv5));
+    teju_u1_t const q = ror(1u * m * minv5);
     if (q >= bound)
       return make_fields(e, m);
     ++e;
@@ -207,67 +217,55 @@ teju_function(teju_fields_t const binary) {
   uint32_t  const i   = f - teju_storage_index_offset;
   teju_u1_t const u   = multipliers[i].upper;
   teju_u1_t const l   = multipliers[i].lower;
-
   teju_u1_t const m_0 = teju_pow2(teju_u1_t, teju_mantissa_size - 1u);
+
   if (m != m_0 || e == teju_exponent_min) {
 
-    teju_u1_t const m_a = (2u * m - 1u) << r;
-    teju_u1_t const a   = teju_mshift(m_a, u, l);
     teju_u1_t const m_b = (2u * m + 1u) << r;
     teju_u1_t const b   = teju_mshift(m_b, u, l);
+    teju_u1_t const m_a = (2u * m - 1u) << r;
+    teju_u1_t const a   = teju_mshift(m_a, u, l);
     teju_u1_t const q   = teju_div10(b);
     teju_u1_t const s   = 10u * q;
 
     if (s == a) {
-      if ((unsigned) is_tie(f, m_a) & (unsigned) wins_tiebreak(m))
+      if (is_tie(f, m_a) && wins_tiebreak(m))
         return remove_trailing_zeros(f + 1, q);
     }
     else if (s == b) {
-      if ((unsigned) !is_tie(f, m_b) | (unsigned) wins_tiebreak(m))
+      if (!is_tie(f, m_b) || wins_tiebreak(m))
         return remove_trailing_zeros(f + 1, q);
     }
     else if (a < s)
       return remove_trailing_zeros(f + 1, q);
 
-    if ((a + b) % 2u == 1u)
-      return make_fields(f, (a + b) / 2u + 1u);
-
     teju_u1_t const m_c = 4u * m << r;
     teju_u1_t const c_2 = teju_mshift(m_c, u, l);
     teju_u1_t const c   = c_2 / 2u;
 
-    if (c_2 % 4u != 3u) {
-      // Recall that wins_tiebreak(c) is true, if and only if, c % 2 == 0.
-      // Now, c_2 % 4 != 3 => c_2 % 2 == 0 or c % 2 == 0, where c = c_2 / 2.
-      // Therefore, since c_2 % 4 != 3, we have c_2 % 2 or wins_tiebreak(c).
-      // This implies that this condition:
-      //   c_2 % 2u == 0 || is_tie(-f, c_2) && wins_tiebreak(c)
-      // simplifies to
-      //   c_2 % 2u == 0 || is_tie(-f, c_2).
-      if (is_tie(-f, c_2) | (c_2 % 2u == 0))
-        return make_fields(f, c);
-    }
-
-    return make_fields(f, c + 1u);
+    teju_u1_t const step = !(is_tie(-f, c_2) && wins_tiebreak(c)) &&
+      !previous_is_closer(c_2);
+    return make_fields(f, c + step);
   }
 
   teju_u1_t const m_a = (4u * m_0 - 1u) << r;
   teju_u1_t const a   = teju_mshift(m_a, u, l) / 2u;
   teju_u1_t const m_b = (2u * m_0 + 1u) << r;
   teju_u1_t const b   = teju_mshift(m_b, u, l);
+  teju_u1_t const q   = teju_div10(b);
+  teju_u1_t const s   = 10u * q;
 
   if (teju_calculation_sorted || a < b) {
 
-    teju_u1_t const q = teju_div10(b);
-    teju_u1_t const s = 10u * q;
-
-    if (a < s) {
-      if (s < b ||
-        ((unsigned) !is_tie_uncentred(f, m_b) | (unsigned) wins_tiebreak(m_0)))
+    if (s == a) {
+      if (is_tie(f, m_a) && wins_tiebreak(m_0))
         return remove_trailing_zeros(f + 1, q);
     }
-    else if (s == a &&
-      ((unsigned) is_tie_uncentred(f, m_a) & (unsigned) wins_tiebreak(m_0)))
+    else if (s == b) {
+      if (!is_tie(f, m_b) || wins_tiebreak(m_0))
+        return remove_trailing_zeros(f + 1, q);
+    }
+    else if (a < s)
       return remove_trailing_zeros(f + 1, q);
 
     // m_c = 4 * m_0 * 2^r = 2^{teju_mantissa_size + r + 1}
@@ -276,29 +274,25 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const c_2      = mshift_pow2(log2_m_c, u, l);
     teju_u1_t const c        = c_2 / 2u;
 
-    if ((c == a) & !is_tie_uncentred(f, m_a))
+    if (c == a && !is_tie_uncentred(f, m_a))
       return make_fields(f, c + 1u);
 
-    if (c_2 % 4u != 3u) {
-      // Similar argument as for the centred case.
-      if (is_tie(-f, c_2) | (c_2 % 2u == 0))
-        return make_fields(f, c);
-    }
-
-    return make_fields(f, c + 1u);
+    teju_u1_t const step = !(is_tie(-f, c_2) && wins_tiebreak(c)) &&
+      !previous_is_closer(c_2);
+    return make_fields(f, c + step);
   }
 
-  else if (is_tie_uncentred(f, m_a))
+  if (is_tie_uncentred(f, m_a))
     return remove_trailing_zeros(f, a);
 
   teju_u1_t const m_c = 40u * m_0 << r;
   teju_u1_t const c_2 = teju_mshift(m_c, u, l);
   teju_u1_t const c   = c_2 / 2u;
 
-  if (c_2 % 2u == 0 || (wins_tiebreak(c) && is_tie(-f, c_2)))
-    return make_fields(f - 1 , c);
+  teju_u1_t const step = !(is_tie(-f, c_2) && wins_tiebreak(c)) &&
+    !previous_is_closer(c_2);
 
-  return make_fields(f - 1, c + 1u);
+  return make_fields(f - 1, c + step);
 }
 
 #ifdef __cplusplus

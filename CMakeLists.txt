@@ -21,8 +21,10 @@ set(CMAKE_C_STANDARD   99)
 set(CMAKE_CXX_STANDARD 17)
 
 # Specifics for gcc and clang (not clang-cl.)
+if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" AND NOT MSVC)
 
-if (CMAKE_C_COMPILER_ID STREQUAL "GNU|Clang" AND NOT MSVC)
+  add_compile_options("-march=native")
+
   foreach (flags IN ITEMS CMAKE_C_FLAGS_RELWITHDEBINFO
     CMAKE_CXX_FLAGS_RELWITHDEBINFO)
     # Sets optimisation level to -O3 in RelWithDebInfo build for gcc ang clang.

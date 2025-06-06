@@ -5,7 +5,7 @@
 # cmake
 #-------------------------------------------------------------------------------
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.31)
 
 project(teju_jagua
   VERSION 1.0
@@ -20,26 +20,53 @@ cmake_policy(SET CMP0076 NEW)
 set(CMAKE_C_STANDARD   99)
 set(CMAKE_CXX_STANDARD 17)
 
-# Specifics for gcc and clang (not clang-cl.)
-if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" AND NOT MSVC)
+set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+
+#-------------------------------------------------------------------------------
+# gcc
+#-------------------------------------------------------------------------------
+
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
 
   add_compile_options("-march=native")
 
+  # Sets optimisation level to -O3 in RelWithDebInfo build for gcc ang clang.
   foreach (flags IN ITEMS CMAKE_C_FLAGS_RELWITHDEBINFO
     CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-    # Sets optimisation level to -O3 in RelWithDebInfo build for gcc ang clang.
     string(REPLACE "-O2" "-O3" ${flags} ${${flags}})
   endforeach()
+
 endif()
 
-# Specifics for clang-cl.
+#-------------------------------------------------------------------------------
+# clang
+#-------------------------------------------------------------------------------
+
+if (CMAKE_C_COMPILER_ID MATCHES "Clang" AND NOT MSVC)
+
+  add_compile_options("-march=native")
+
+  # Sets optimisation level to -O3 in RelWithDebInfo build for gcc ang clang.
+  foreach (flags IN ITEMS CMAKE_C_FLAGS_RELWITHDEBINFO
+    CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+    string(REPLACE "-O2" "-O3" ${flags} ${${flags}})
+  endforeach()
+
+endif()
+
+#-------------------------------------------------------------------------------
+# clang-cl
+#-------------------------------------------------------------------------------
 
 if (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_SIMULATE_ID STREQUAL "MSVC")
   # Ignore unused command line arguments
   add_compile_options("-Wno-unused-command-line-argument")
 endif()
 
-# Specifics for msvc.
+#-------------------------------------------------------------------------------
+# msvc
+#-------------------------------------------------------------------------------
 
 if (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
 
@@ -47,32 +74,39 @@ if (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
   # we specify that all source files are C++.
   add_compile_options($<$<COMPILE_LANGUAGE:C>:/TP>)
 
-  # Sets inlining level to /Ob3 in Release and RelWithDebInfo builds for MSVC
-  # compilers.
-
+  # Sets inlining level to /Ob3 in Release and RelWithDebInfo builds.
   foreach (flags IN ITEMS CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO
     CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-
     string(REGEX REPLACE "/Ob[0-9]" "/Ob3" ${flags} ${${flags}})
-
   endforeach()
+
 endif()
 
-set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+#-------------------------------------------------------------------------------
+# _Float16
+#-------------------------------------------------------------------------------
 
-# Tests existence of _Float16.
+if (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_SIMULATE_ID STREQUAL "MSVC")
 
-try_compile(teju_has_float16
-  ${CMAKE_BINARY_DIR}
-  ${PROJECT_SOURCE_DIR}/cmake/float16.c
-)
+  # clang-cl has an issues with _Float16 and hence, we disable support for it.
+  # https://github.com/llvm/llvm-project/issues/56854
 
-if (teju_has_float16)
-  add_compile_definitions(teju_has_float16)
+else()
+
+  try_compile(teju_has_float16
+    ${CMAKE_BINARY_DIR}
+    ${PROJECT_SOURCE_DIR}/cmake/float16.c
+  )
+
+  if (teju_has_float16)
+    add_compile_definitions(teju_has_float16)
+  endif()
+
 endif()
 
-# Tests existence of __uint128_t.
+#-------------------------------------------------------------------------------
+# __uint128_t
+#-------------------------------------------------------------------------------
 
 try_compile(teju_has_uint128
   ${CMAKE_BINARY_DIR}
@@ -83,7 +117,9 @@ if (teju_has_uint128)
   add_compile_definitions(teju_has_uint128)
 endif()
 
-# Tests existence of __float128.
+#-------------------------------------------------------------------------------
+# __float128
+#-------------------------------------------------------------------------------
 
 try_compile(teju_has_float128
   ${CMAKE_BINARY_DIR}

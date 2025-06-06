@@ -20,13 +20,16 @@ For the most common IEEE-754 types the generated files are checked in `teju/gene
 The input for the generator is a config JSON file describing the floating-point type and details of the platform/implementation.
 Again, for the most common IEEE-754 types, config files are checked in `config`.
 
-Tejú Jaguá only performs the main step of the conversion.
-Indeed, converting a floating-point value `x` (*e.g.*, -10,000,000,000) into a string can be split into the three following steps.
+Tejú Jaguá only performs the main step of the conversion for **finite**, **strictly positive** floating point values. More precisely, converting a *finite* non-zero floating-point value `x` (*e.g.*, -10,000,000,000) into a string can be split into the three following steps.
 1. Decoding the bit pattern of `x` into its sign, exponent and mantissa of *the binary representation* (-9,765,625 x 2¹⁰).
-2. Finding the *shortest-information-preserving* decimal representation (1 x 10¹⁰) of the absolute value of the binary representation.
+2. Finding the shortest *information-preserving* decimal representation (1 x 10¹⁰) of the absolute value of the binary representation.
 3. Converting the sign, decimal mantissa and decimal exponent into strings (`"-"`, "`1`", `"10"`) and assemble them to form the final result (`"-1e10"`).
 Tejú Jaguá, *i.e.* `teju_function`, only performs step 2 but this repository also provides implementations of step 1 for the most common IEEE-754 floating-point types.
 No implementation for step 3 is provided (yet).
+
+**WARN**: It's worth repeating that Tejú Jaguá only handles **finite**, **strictly positive** floating point values, i.e., it does not handle `NaN`, `+inf`, `-inf`, `0` and negative values. These can be handled as explained in a [comment](https://github.com/cassioneri/teju_jagua/issues/5#issuecomment-2869821061) to issue #5.
+
+<code style="color : red">WARN:</code>
 
 An academic paper will be written to provide proof of correctness.
 

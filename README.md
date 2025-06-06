@@ -29,8 +29,6 @@ No implementation for step 3 is provided (yet).
 
 **WARN**: It's worth repeating that Tejú Jaguá only handles **finite**, **strictly positive** floating point values, i.e., it does not handle `NaN`, `+inf`, `-inf`, `0` and negative values. These can be handled as explained in a [comment](https://github.com/cassioneri/teju_jagua/issues/5#issuecomment-2869821061) to issue #5.
 
-<code style="color : red">WARN:</code>
-
 An academic paper will be written to provide proof of correctness.
 
 This work has been presented at [C++ Now 2024](https://www.youtube.com/watch?v=w0WrRdW7eqg),

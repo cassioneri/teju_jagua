@@ -155,7 +155,7 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
     teju_u1_t const m0 = m % y;
 
     // result, carry, temporary:
-    teju_u1_t r1, r0, c, t;
+    teju_u1_t r1, c, t;
 
     // (u * x + l) * m
     //     = ((n3 * y + n2) * y^2 + (n1 * y + n0)) * (m1 * y + m0),

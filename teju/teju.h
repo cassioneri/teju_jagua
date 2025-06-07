@@ -234,7 +234,7 @@ teju_function(teju_fields_t const binary) {
       return remove_trailing_zeros(f + 1, q);
 
     teju_u1_t const m_c = 4u * m << r;
-    teju_u1_t const c_2 = teju_mshift(m_c,M);
+    teju_u1_t const c_2 = teju_mshift(m_c, M);
     teju_u1_t const c   = c_2 / 2u;
 
     teju_u1_t const step = !(is_tie(-f, c_2) && wins_tiebreak(c)) &&
@@ -242,10 +242,10 @@ teju_function(teju_fields_t const binary) {
     return make_fields(f, c + step);
   }
 
-  teju_u1_t const m_a = (4u * m_0 - 1u) << r;
-  teju_u1_t const a   = teju_mshift(m_a, M) / 2u;
   teju_u1_t const m_b = (2u * m_0 + 1u) << r;
   teju_u1_t const b   = teju_mshift(m_b, M);
+  teju_u1_t const m_a = (4u * m_0 - 1u) << r;
+  teju_u1_t const a   = teju_mshift(m_a, M) / 2u;
   teju_u1_t const q   = teju_div10(b);
   teju_u1_t const s   = 10u * q;
 

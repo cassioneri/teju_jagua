@@ -31,10 +31,12 @@ extern "C" {
   #define teju_u4_t               teju32_u4_t
 #endif
 
-static struct {
+typedef struct {
   teju_u1_t const upper;
   teju_u1_t const lower;
-} const multipliers[] = {
+} teju_multiplier_t;
+
+static const teju_multiplier_t multipliers[] = {
   { 0xbebc2000, 0x00000001 }, // -8
   { 0x98968000, 0x00000001 }, // -7
   { 0xf4240000, 0x00000001 }, // -6

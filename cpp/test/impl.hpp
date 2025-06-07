@@ -19,6 +19,11 @@
 #define teju_u2_t   std::uint32_t
 #define teju_u4_t   std::uint64_t
 
+typedef struct {
+  teju_u1_t const upper;
+  teju_u1_t const lower;
+} teju_multiplier_t;
+
 namespace teju {
 namespace test {
 
@@ -30,12 +35,13 @@ struct built_in_1_t {
    * @brief Implementation of teju_mshift for teju_calculation_shift =
    *        teju_built_in_1 and teju_calculation_shift >= 2 * teju_size.
    *
-   * @param  m              Forwarded to teju_mshift.
-   * @param  u              Forwarded to teju_mshift.
-   * @param  l              Forwarded to teju_mshift.
+   * @param  m              The multiplicand m.
+   * @param  M              The multiplicand M.
+   *
+   * @returns teju_mshift(m, M);
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_multiplier_t M);
 
 };
 
@@ -47,12 +53,13 @@ struct built_in_1_small_shift_t {
    * @brief Implementation of teju_mshift for teju_calculation_shift =
    *        teju_built_in_1 and teju_calculation_shift < 2 * teju_size.
    *
-   * @param  m              Forwarded to teju_mshift.
-   * @param  u              Forwarded to teju_mshift.
-   * @param  l              Forwarded to teju_mshift.
+   * @param  m              The multiplicand m.
+   * @param  M              The multiplicand M.
+   *
+   * @returns teju_mshift(m, M);
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_multiplier_t M);
 
 };
 
@@ -76,13 +83,13 @@ struct synthetic_1_t {
    *        teju_synthetic_1 and teju_calculation_shift >= 2 * teju_size.
    *
    * @param  m              Forwarded to teju_mshift.
-   * @param  u              Forwarded to teju_mshift.
-   * @param  l              Forwarded to teju_mshift.
+   * @param  m              The multiplicand m.
+   * @param  M              The multiplicand M.
    *
-   * @returns mshift(m, u, l).
+   * @returns teju_mshift(m, M);
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_multiplier_t M);
 
 };
 
@@ -94,14 +101,13 @@ struct synthetic_1_small_shift_t {
    * @brief Implementation of teju_mshift for teju_calculation_shift =
    *        teju_synthetic_1 and teju_calculation_shift < 2 * teju_size.
    *
-   * @param  m              Forwarded to teju_mshift.
-   * @param  u              Forwarded to teju_mshift.
-   * @param  l              Forwarded to teju_mshift.
+   * @param  m              The multiplicand m.
+   * @param  M              The multiplicand M.
    *
-   * @returns mshift(m, u, l).
+   * @returns teju_mshift(m, M);
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_multiplier_t M);
 
 };
 
@@ -124,14 +130,13 @@ struct built_in_2_t {
    * @brief Implementation of teju_mshift for teju_calculation_shift =
    *        teju_built_in_2.
    *
-   * @param  m              Forwarded to teju_mshift.
-   * @param  u              Forwarded to teju_mshift.
-   * @param  l              Forwarded to teju_mshift.
+   * @param  m              The multiplicand m.
+   * @param  M              The multiplicand M.
    *
-   * @returns mshift(m, u, l).
+   * @returns teju_mshift(m, M);
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_multiplier_t M);
 
 };
 
@@ -143,14 +148,13 @@ struct synthetic_2_t {
    * @brief Implementation of teju_mshift for teju_calculation_shift =
    *        teju_synthetic_2 and teju_calculation_shift >= 2 * teju_size.
    *
-   * @param  m              Forwarded to teju_mshift.
-   * @param  u              Forwarded to teju_mshift.
-   * @param  l              Forwarded to teju_mshift.
+   * @param  m              The multiplicand m.
+   * @param  M              The multiplicand M.
    *
-   * @returns mshift(m, u, l).
+   * @returns teju_mshift(m, M);
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_multiplier_t M);
 
 };
 
@@ -162,14 +166,13 @@ struct synthetic_2_small_shift_t {
    * @brief Implementation of teju_mshift for teju_calculation_shift =
    *        teju_synthetic_2 and teju_calculation_shift < 2 * teju_size.
    *
-   * @param  m              Forwarded to teju_mshift.
-   * @param  u              Forwarded to teju_mshift.
-   * @param  l              Forwarded to teju_mshift.
+   * @param  m              The multiplicand m.
+   * @param  M              The multiplicand M.
    *
-   * @returns mshift(m, u, l).
+   * @returns teju_mshift(m, M);
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_multiplier_t M);
 
 };
 
@@ -181,14 +184,13 @@ struct built_in_4_t {
    * @brief Implementation of teju_mshift for teju_calculation_shift =
    *        teju_built_in_4.
    *
-   * @param  m              Forwarded to teju_mshift.
-   * @param  u              Forwarded to teju_mshift.
-   * @param  l              Forwarded to teju_mshift.
+   * @param  m              The multiplicand m.
+   * @param  M              The multiplicand M.
    *
-   * @returns mshift(m, u, l).
+   * @returns teju_mshift(m, M);
    */
   static teju_u1_t
-  mshift(teju_u1_t m, teju_u1_t u, teju_u1_t l);
+  mshift(teju_u1_t m, teju_multiplier_t M);
 
 };
 

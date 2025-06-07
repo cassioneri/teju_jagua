@@ -87,18 +87,22 @@ teju_rshift(teju_u1_t const r2, teju_u1_t const r1) {
 }
 
 /**
- * @brief Returns the quotient q = ((u * 2^N + l) * m) / 2^s, where
- *        N = teju_size and s = teju_calculation_shift.
+ * @brief Gets M * m / 2^s, where N = teju_size and s = teju_calculation_shift.
  *
- * @param  m                The 1st multiplicand m.
- * @param  u                The 2nd multiplicand upper half u.
- * @param  l                The 2nd multiplicand lower half l.
+ * M is split into two parts, namely, upper = M / 2^N and lower = M % 2^N, so
+ * that M = 2^N * upper + lower.
  *
- * @returns The quotient q.
+ * @param  m                The multiplicand m.
+ * @param  M                The multiplicand M.
+ *
+ * @returns M * m / 2^s.
  */
 static inline
 teju_u1_t
-teju_mshift(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
+teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
+
+  teju_u1_t const u = M.upper;
+  teju_u1_t const l = M.lower;
 
   // Let x := 2^N.
 
@@ -214,19 +218,26 @@ teju_mshift(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
 }
 
 /**
- * @brief Returns the quotient q = ((u * 2^N + l) * 2^k) / 2^s, where
- *        N = teju_size_size and s = teju_calculation_shift.
+ * @brief Gets M * 2^k / 2^s, where N = teju_size_size and s =
+ *        teju_calculation_shift.
+ *
+ * M is split into two parts, namely, upper = M / 2^N and lower = M % 2^N, so
+ * that M = 2^N * upper + lower.
  *
  * @param  k                The exponent k.
- * @param  u                The upper part of the multiplicand u.
- * @param  l                The lower part of the multiplicand l.
+ * @param  M                The multiplicand M.
  *
  * @returns The value of q.
  */
 static inline
 teju_u1_t
-mshift_pow2(uint32_t const k, teju_u1_t const u, teju_u1_t const l) {
-  int32_t const s = k - (teju_calculation_shift - teju_size);
+mshift_pow2(uint32_t const k, teju_multiplier_t const M) {
+
+  teju_u1_t const u = M.upper;
+  teju_u1_t const l = M.lower;
+
+  int32_t   const s = k - (teju_calculation_shift - teju_size);
+
   if (s <= 0)
     return u >> -s;
   return (u << s) | (l >> (teju_size - s));

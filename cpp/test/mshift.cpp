@@ -12,7 +12,9 @@ using namespace teju::test;
 template <typename TImpl>
 void check(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
 
-  teju_u1_t const actual   = TImpl::mshift(m, u, l);
+  teju_multiplier_t const M = { u, l };
+
+  teju_u1_t const actual   = TImpl::mshift(m, M);
   teju_u1_t const expected = (((teju_u4_t(u) << teju_size) + l) * m) >>
     TImpl::shift;
 

@@ -207,19 +207,18 @@ teju_function(teju_fields_t const binary) {
   if (is_small_integer(e, m))
     return remove_trailing_zeros(0, 1u * m >> -e);
 
-  int32_t   const f   = teju_log10_pow2(e);
-  uint32_t  const r   = teju_log10_pow2_residual(e);
-  uint32_t  const i   = f - teju_storage_index_offset;
-  teju_u1_t const u   = multipliers[i].upper;
-  teju_u1_t const l   = multipliers[i].lower;
-  teju_u1_t const m_0 = teju_pow2(teju_u1_t, teju_mantissa_size - 1u);
+  int32_t           const f   = teju_log10_pow2(e);
+  uint32_t          const r   = teju_log10_pow2_residual(e);
+  uint32_t          const i   = f - teju_storage_index_offset;
+  teju_multiplier_t const M   = multipliers[i];
+  teju_u1_t         const m_0 = teju_pow2(teju_u1_t, teju_mantissa_size - 1u);
 
   if (m != m_0 || e == teju_exponent_min) {
 
     teju_u1_t const m_b = (2u * m + 1u) << r;
-    teju_u1_t const b   = teju_mshift(m_b, u, l);
+    teju_u1_t const b   = teju_mshift(m_b, M);
     teju_u1_t const m_a = (2u * m - 1u) << r;
-    teju_u1_t const a   = teju_mshift(m_a, u, l);
+    teju_u1_t const a   = teju_mshift(m_a, M);
     teju_u1_t const q   = teju_div10(b);
     teju_u1_t const s   = 10u * q;
 
@@ -235,7 +234,7 @@ teju_function(teju_fields_t const binary) {
       return remove_trailing_zeros(f + 1, q);
 
     teju_u1_t const m_c = 4u * m << r;
-    teju_u1_t const c_2 = teju_mshift(m_c, u, l);
+    teju_u1_t const c_2 = teju_mshift(m_c,M);
     teju_u1_t const c   = c_2 / 2u;
 
     teju_u1_t const step = !(is_tie(-f, c_2) && wins_tiebreak(c)) &&
@@ -244,9 +243,9 @@ teju_function(teju_fields_t const binary) {
   }
 
   teju_u1_t const m_a = (4u * m_0 - 1u) << r;
-  teju_u1_t const a   = teju_mshift(m_a, u, l) / 2u;
+  teju_u1_t const a   = teju_mshift(m_a, M) / 2u;
   teju_u1_t const m_b = (2u * m_0 + 1u) << r;
-  teju_u1_t const b   = teju_mshift(m_b, u, l);
+  teju_u1_t const b   = teju_mshift(m_b, M);
   teju_u1_t const q   = teju_div10(b);
   teju_u1_t const s   = 10u * q;
 
@@ -266,7 +265,7 @@ teju_function(teju_fields_t const binary) {
     // m_c = 4 * m_0 * 2^r = 2^{teju_mantissa_size + r + 1}
     // c_2 = teju_mshift(m_c, upper, lower);
     uint32_t  const log2_m_c = teju_mantissa_size + r + 1u;
-    teju_u1_t const c_2      = mshift_pow2(log2_m_c, u, l);
+    teju_u1_t const c_2      = mshift_pow2(log2_m_c, M);
     teju_u1_t const c        = c_2 / 2u;
 
     if (c == a && !is_tie_uncentred(f, m_a))
@@ -281,7 +280,7 @@ teju_function(teju_fields_t const binary) {
     return remove_trailing_zeros(f, a);
 
   teju_u1_t const m_c = 40u * m_0 << r;
-  teju_u1_t const c_2 = teju_mshift(m_c, u, l);
+  teju_u1_t const c_2 = teju_mshift(m_c, M);
   teju_u1_t const c   = c_2 / 2u;
 
   teju_u1_t const step = !(is_tie(-f, c_2) && wins_tiebreak(c)) &&

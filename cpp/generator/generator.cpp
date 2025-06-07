@@ -452,7 +452,6 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 
   stream <<
     "#define teju_calculation_mshift   teju_" << calculation_mshift() << "\n"
-    "#define teju_calculation_shift    " << shift      << "u\n"
     "\n"
     "#define teju_function             " << function() << "\n"
     "#define teju_fields_t             " << prefix()   << "fields_t\n"

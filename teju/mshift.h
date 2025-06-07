@@ -10,9 +10,9 @@
 #ifndef TEJU_TEJU_MSHIFT_H_
 #define TEJU_TEJU_MSHIFT_H_
 
-#if !defined(teju_calculation_mshift) || !defined(teju_calculation_shift) || \
-  !defined(teju_u1_t) || !defined(teju_size)
-  #error "Macros teju_calculation_mshift, teju_calculation_shift, teju_size and teju_u1_t must be defined prior to inclusion of mshift.h."
+#if !defined(teju_calculation_mshift) || !defined(teju_u1_t) || \
+  !defined(teju_size)
+  #error "Macros teju_calculation_mshift, teju_size and teju_u1_t must be defined prior to inclusion of mshift.h."
 #endif
 
 #include "teju/common.h"
@@ -63,7 +63,7 @@ teju_add_and_carry(teju_u1_t x, teju_u1_t y, teju_u1_t* c) {
 
 /**
  * @brief Returns the quotient q = (r2 * 2^(2 * N) + r1 * 2^N) / 2^s, where
- *        N = teju_size and s = teju_calculation_shift.
+ *        N = teju_size and s = 2 * N.
  *
  * @param  r2               The value of r2.
  * @param  r1               The value of r1.
@@ -73,21 +73,11 @@ teju_add_and_carry(teju_u1_t x, teju_u1_t y, teju_u1_t* c) {
 static inline
 teju_u1_t
 teju_rshift(teju_u1_t const r2, teju_u1_t const r1) {
-
-  #if teju_calculation_shift >= 2u * teju_size
-
-    return r2 >> (teju_calculation_shift - 2u * teju_size);
-
-  #else
-
-    return r2 << (2u * teju_size - teju_calculation_shift) |
-      r1 >> (teju_calculation_shift - teju_size);
-
-  #endif
+  return r2;
 }
 
 /**
- * @brief Gets M * m / 2^s, where N = teju_size and s = teju_calculation_shift.
+ * @brief Gets M * m / 2^s, where N = teju_size and s = 2 * N.
  *
  * M is split into two parts, namely, upper = M / 2^N and lower = M % 2^N, so
  * that M = 2^N * upper + lower.
@@ -109,7 +99,7 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
   #if teju_calculation_mshift == teju_built_in_4
 
     teju_u4_t const n = (((teju_u2_t) u) << teju_size) | l;
-    return (teju_u1_t) (1u * n * m >> teju_calculation_shift);
+    return (teju_u1_t) (1u * n * m >> (2u * teju_size));
 
   #elif teju_calculation_mshift == teju_synthetic_2
 
@@ -131,7 +121,7 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
 
     teju_u2_t const s0 = 1u * ((teju_u2_t) l) * m;
     teju_u2_t const s1 = 1u * ((teju_u2_t) u) * m;
-    return (s1 + (s0 >> teju_size)) >> (teju_calculation_shift - teju_size);
+    return (s1 + (s0 >> teju_size)) >> teju_size;
 
   #elif teju_calculation_mshift == teju_synthetic_1
 
@@ -194,21 +184,12 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
     r1 += 1u * n2 * m1 + 1u * c * y; // This addition doesn't wraparound.
     t   = 1u * n3 * m0;
     r1  = teju_add_and_carry(r1, t, &c);
-    r0  = r1 % y;
     r1 /= y;
 
     // order 4:
     r1 += 1u * n3 * m1 + 1u * c * y;
 
-    #if teju_calculation_shift >= 2u * teju_size
-      (void) r0;
-      return r1 >> (teju_calculation_shift - 2u * teju_size);
-    #elif teju_calculation_shift >= 3u * teju_size / 2u
-      return (r1 << (2u * teju_size - teju_calculation_shift)) |
-        (r0 >> (teju_calculation_shift - 3u * teju_size / 2u));
-    #else
-      #error "Unsupported combination of size, shift and mshift calculation."
-    #endif
+    return r1;
 
   #else
 
@@ -218,8 +199,7 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
 }
 
 /**
- * @brief Gets M * 2^k / 2^s, where N = teju_size_size and s =
- *        teju_calculation_shift.
+ * @brief Gets M * 2^k / 2^s, where N = teju_size_size and s = 2 * N.
  *
  * M is split into two parts, namely, upper = M / 2^N and lower = M % 2^N, so
  * that M = 2^N * upper + lower.
@@ -236,7 +216,7 @@ mshift_pow2(uint32_t const k, teju_multiplier_t const M) {
   teju_u1_t const u = M.upper;
   teju_u1_t const l = M.lower;
 
-  int32_t   const s = k - (teju_calculation_shift - teju_size);
+  int32_t   const s = k - teju_size;
 
   if (s <= 0)
     return u >> -s;

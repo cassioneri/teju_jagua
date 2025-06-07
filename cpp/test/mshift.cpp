@@ -16,19 +16,14 @@ void check(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
 
   teju_u1_t const actual   = TImpl::mshift(m, M);
   teju_u1_t const expected = (((teju_u4_t(u) << teju_size) + l) * m) >>
-    TImpl::shift;
+    (2 * teju_size);
 
   EXPECT_EQ(actual, expected) << "Failed for "
     "m = " << m << ", u = " << u << ", l = " << l << '\n';
 }
 
-using impl_list_t = ::testing::Types<
-  built_in_1_t, built_in_1_small_shift_t,
-  synthetic_1_t, synthetic_1_small_shift_t,
-  built_in_2_t,
-  synthetic_2_t, synthetic_2_small_shift_t,
-  built_in_4_t
->;
+using impl_list_t = ::testing::Types<built_in_1_t, synthetic_1_t, built_in_2_t,
+  synthetic_2_t, built_in_4_t>;
 
 template <typename T>
 class mshift : public testing::Test {

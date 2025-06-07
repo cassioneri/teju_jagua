@@ -15,8 +15,6 @@
 
 using impl_t = teju::test::synthetic_1_t;
 
-int const impl_t::shift = teju_calculation_shift;
-
 teju_u1_t
 impl_t::div10(teju_u1_t const m) {
   return teju_div10(m);

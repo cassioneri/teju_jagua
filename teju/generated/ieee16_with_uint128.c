@@ -17,7 +17,6 @@ extern "C" {
 #define teju_storage_index_offset -8
 #define teju_calculation_div10    teju_built_in_2
 #define teju_calculation_mshift   teju_built_in_4
-#define teju_calculation_shift    64u
 
 #define teju_function             teju_ieee16_with_uint128
 #define teju_fields_t             teju32_fields_t

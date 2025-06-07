@@ -10,8 +10,7 @@
 #ifndef TEJU_TEJU_DIV10_H_
 #define TEJU_TEJU_DIV10_H_
 
-#if !defined(teju_u1_t) || !defined(teju_calculation_shift) || \
-  !defined(teju_size)
+#if !defined(teju_u1_t) || !defined(teju_size)
   #error "Macros teju_size and teju_u1_t must be defined prior to inclusion of div10.h."
 #endif
 

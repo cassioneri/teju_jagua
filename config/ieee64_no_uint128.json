@@ -22,7 +22,7 @@
 
   "storage": {
     "split"      : 1,
-    "endianness" : "big"
+    "endianness" : "little"
   },
 
   "calculation": {

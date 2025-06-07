@@ -32,21 +32,21 @@ extern "C" {
 #endif
 
 typedef struct {
-  teju_u1_t const upper;
   teju_u1_t const lower;
+  teju_u1_t const upper;
 } teju_multiplier_t;
 
 static const teju_multiplier_t multipliers[] = {
-  { 0xbebc2000, 0x00000001 }, // -8
-  { 0x98968000, 0x00000001 }, // -7
-  { 0xf4240000, 0x00000001 }, // -6
-  { 0xc3500000, 0x00000001 }, // -5
-  { 0x9c400000, 0x00000001 }, // -4
-  { 0xfa000000, 0x00000001 }, // -3
-  { 0xc8000000, 0x00000001 }, // -2
-  { 0xa0000000, 0x00000001 }, // -1
-  { 0x80000000, 0x00000001 }, // 0
-  { 0xcccccccc, 0xcccccccd }, // 1
+  { 0x00000001, 0xbebc2000 }, // -8
+  { 0x00000001, 0x98968000 }, // -7
+  { 0x00000001, 0xf4240000 }, // -6
+  { 0x00000001, 0xc3500000 }, // -5
+  { 0x00000001, 0x9c400000 }, // -4
+  { 0x00000001, 0xfa000000 }, // -3
+  { 0x00000001, 0xc8000000 }, // -2
+  { 0x00000001, 0xa0000000 }, // -1
+  { 0x00000001, 0x80000000 }, // 0
+  { 0xcccccccd, 0xcccccccc }, // 1
 };
 
 #define teju_calculation_sorted 1u

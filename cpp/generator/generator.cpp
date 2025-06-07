@@ -321,6 +321,11 @@ generator_t::storage_split() const {
   return config_.storage.split;
 }
 
+std::string const&
+generator_t::storage_endianness() const {
+  return config_.storage.endianness;
+}
+
 std::int32_t
 generator_t::index_offset() const {
   return index_offset_;
@@ -439,6 +444,12 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   // teju_mshift to work on partial limbs.
   auto const shift = 2 * size();
 
+  auto const upper_str = "upper";
+  auto const lower_str = "lower";
+  auto const is_little = storage_endianness() == "little";
+  auto const first     = is_little ? lower_str : upper_str;
+  auto const last      = is_little ? upper_str : lower_str;
+
   stream <<
     "#define teju_calculation_mshift   teju_" << calculation_mshift() << "\n"
     "#define teju_calculation_shift    " << shift      << "u\n"
@@ -455,10 +466,12 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "  #define teju_u4_t               " << prefix()   << "u4_t\n"
     "#endif\n"
     "\n"
-    "static struct {\n"
-    "  teju_u1_t const upper;\n"
-    "  teju_u1_t const lower;\n"
-    "} const multipliers[] = {\n";
+    "typedef struct {\n"
+    "  teju_u1_t const " << first << ";\n"
+    "  teju_u1_t const " << last  << ";\n"
+    "} teju_multiplier_t;\n"
+    "\n"
+    "static const teju_multiplier_t multipliers[] = {\n";
 
   auto const p2size   = pow2(size());
   auto const mask     = p2size - 1;
@@ -492,8 +505,11 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 
     require(upper < p2size, "A multiplier is out of range.");
 
-    stream << "  { " << splitter(std::move(upper)) << ", " <<
-      splitter(std::move(lower)) << " }, // " << std::dec << f << '\n';
+    stream << "  { " <<
+      (is_little ? splitter(std::move(lower)) : splitter(std::move(upper))) <<
+      ", " <<
+      (is_little ? splitter(std::move(upper)) : splitter(std::move(lower))) <<
+      " }, // " << std::dec << f << '\n';
   }
 
   require(sorted || check_uncentred_refined_calculations(),

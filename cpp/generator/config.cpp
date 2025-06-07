@@ -31,6 +31,7 @@ from_json(nlohmann::json const& src, config_t::mantissa_t& tgt) {
 void
 from_json(nlohmann::json const& src, config_t::storage_t& tgt) {
   src.at("split").get_to(tgt.split);
+  src.at("endianness").get_to(tgt.endianness);
 }
 
 void
@@ -74,6 +75,10 @@ validate(config_t const& json) {
   require(json.storage.split == 1 || json.storage.split == 2 ||
     json.storage.split == 4,
     "Constraint violation: storage.split in { 1, 2, 4 }");
+
+  require(json.storage.endianness == "little" ||
+    json.storage.endianness == "big",
+    "Constraint violation: storage.endianness in { \"little\", \"big\" }");
 
   std::string const multiply_types[] = {
     "", "built_in_1", "synthetic_1", "built_in_2", "synthetic_2",

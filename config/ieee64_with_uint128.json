@@ -21,7 +21,8 @@
   },
 
   "storage": {
-    "split": 1
+    "split"      : 1,
+    "endianness" : "big"
   },
 
   "calculation": {

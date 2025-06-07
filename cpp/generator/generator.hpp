@@ -113,6 +113,12 @@ private:
   storage_split() const;
 
   /**
+   * @brief Returns the endianess of the storage.
+   */
+  std::string const&
+  storage_endianness() const;
+
+  /**
    * @brief Returns the index offset.
    */
   std::int32_t

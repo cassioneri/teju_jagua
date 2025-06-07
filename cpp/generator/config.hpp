@@ -62,6 +62,12 @@ struct config_t {
     // __uint128_t) for which the platform does not support literals of.
     std::uint32_t split;
 
+    // The endianness of the storage, i.e., if the 2-limb multiplier is to be
+    // stored as { lower, upper } (endianess == "little") or { upper, lower}
+    // (endianness == "big"). It doesn't have to match the endianness of the
+    // target system but there might be a performance penalty if it does not.
+    std::string endianness;
+
   } storage;
 
   struct calculation_t {

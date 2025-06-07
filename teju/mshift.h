@@ -62,21 +62,6 @@ teju_add_and_carry(teju_u1_t x, teju_u1_t y, teju_u1_t* c) {
 }
 
 /**
- * @brief Returns the quotient q = (r2 * 2^(2 * N) + r1 * 2^N) / 2^s, where
- *        N = teju_size and s = 2 * N.
- *
- * @param  r2               The value of r2.
- * @param  r1               The value of r1.
- *
- * @returns The quotient q.
- */
-static inline
-teju_u1_t
-teju_rshift(teju_u1_t const r2, teju_u1_t const r1) {
-  return r2;
-}
-
-/**
  * @brief Gets M * m / 2^s, where N = teju_size and s = 2 * N.
  *
  * M is split into two parts, namely, upper = M / 2^N and lower = M % 2^N, so
@@ -108,8 +93,8 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
 
     teju_u2_t const n = (((teju_u2_t) u) << teju_size) | l;
     teju_u2_t r2;
-    teju_u2_t const r1 = teju_multiply(n, m, &r2) >> teju_size;
-    return teju_rshift(r2, r1);
+    (void) teju_multiply(n, m, &r2);
+    return r2;
 
   #elif teju_calculation_mshift == teju_built_in_2
 
@@ -135,9 +120,9 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
     teju_u1_t s01, s11, c;
     (void) teju_multiply(l, m, &s01);
     teju_u1_t const s10 = teju_multiply(u, m, &s11);
-    teju_u1_t const r0  = teju_add_and_carry(s01, s10, &c);
+    (void) teju_add_and_carry(s01, s10, &c);
     teju_u1_t const r1  = s11 + c;
-    return teju_rshift(r1, r0);
+    return r1;
 
   #elif teju_calculation_mshift == teju_built_in_1
 

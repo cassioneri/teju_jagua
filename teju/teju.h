@@ -111,8 +111,11 @@ is_small_integer(int32_t const e, teju_u1_t const m) {
 /**
  * @brief Checks whether m, for m in { m_a, m_b, c_2 }, yields a tie.
  *
- * @param  f                The exponent f (for m == m_a and m == m_b) or
- *                          its negation -f for (m == c_2).
+ * When called to detect a tie between c * 10^f and (c + 1) * 10^f, i.e., for
+ * m = c_2, the result is unspecified if is_closer_to_left(c) == true.
+ *
+ * @param  f                The exponent f, when m == m_a and m == m_b, or
+ *                          its negation -f when m == c_2.
  * @param  m                The number m.
  *
  * @returns true if m yields a tie and false, otherwise.
@@ -125,17 +128,18 @@ is_tie(int32_t const f, teju_u1_t const m) {
 }
 
 /**
- * @brief Checks whether m_a for the uncentred value yields a tie.
+ * @brief Checks whether m, for m in { m_a, m_b }, yields a tie in the uncentred
+ *        case.
  *
  * @param  f                The exponent f.
- * @param  m_a              The number m_a.
+ * @param  m                The number m.
  *
- * @returns true if m_a yields a tie and false, otherwise.
+ * @returns true if m yields a tie and false, otherwise.
  */
 static inline
 bool
-is_tie_uncentred(int32_t const f, teju_u1_t const m_a) {
-  return m_a % 5u == 0 && 0 <= f && is_multiple_of_pow5(f, m_a);
+is_tie_uncentred(int32_t const f, teju_u1_t const m) {
+  return m % 5u == 0 && is_tie(f, m);
 }
 
 /**
@@ -152,17 +156,17 @@ wins_tiebreak(teju_u1_t const m) {
 }
 
 /**
- * @brief Checks whether |c * 10^f - m * 2^e| < |(c + 1) * 10^f - m * 2^e|.
+ * @brief Assuming m * 2^e in [c * 10^f, (c + 1) * 10^f], this function checks
+ *        whether m * 2^e is closer to c * 10^f than to (c + 1) * 10^f.
  *
- * @param  c_2               The number c_2 (where, c = c_2 / 2)
+ * @param  c_2               The number c_2, where c = c_2 / 2.
  *
- * @returns true if |c * 10^f - m * 2^e| < |(c + 1) * 10^f - m * 2^e| and false,
- *          otherwise.
+ * @returns true if m * 2^e is closer to the left and false, otherwise.
  */
 static inline
 bool
-previous_is_closer(teju_u1_t const c_2) {
-  return c_2 % 2u != 1u;
+is_closer_to_left(teju_u1_t const c_2) {
+  return c_2 % 2u == 0u;
 }
 
 /**
@@ -238,7 +242,7 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const c   = c_2 / 2u;
 
     teju_u1_t const step = !(is_tie(-f, c_2) && wins_tiebreak(c)) &&
-      !previous_is_closer(c_2);
+      !is_closer_to_left(c_2);
     return make_fields(f, c + step);
   }
 
@@ -252,11 +256,11 @@ teju_function(teju_fields_t const binary) {
   if (teju_calculation_sorted || a < b) {
 
     if (s == a) {
-      if (is_tie(f, m_a) && wins_tiebreak(m_0))
+      if (is_tie_uncentred(f, m_a) && wins_tiebreak(m_0))
         return remove_trailing_zeros(f + 1, q);
     }
     else if (s == b) {
-      if (!is_tie(f, m_b) || wins_tiebreak(m_0))
+      if (!is_tie_uncentred(f, m_b) || wins_tiebreak(m_0))
         return remove_trailing_zeros(f + 1, q);
     }
     else if (a < s)
@@ -272,7 +276,7 @@ teju_function(teju_fields_t const binary) {
       return make_fields(f, c + 1u);
 
     teju_u1_t const step = !(is_tie(-f, c_2) && wins_tiebreak(c)) &&
-      !previous_is_closer(c_2);
+      !is_closer_to_left(c_2);
     return make_fields(f, c + step);
   }
 
@@ -284,8 +288,7 @@ teju_function(teju_fields_t const binary) {
   teju_u1_t const c   = c_2 / 2u;
 
   teju_u1_t const step = !(is_tie(-f, c_2) && wins_tiebreak(c)) &&
-    !previous_is_closer(c_2);
-
+    !is_closer_to_left(c_2);
   return make_fields(f - 1, c + step);
 }
 

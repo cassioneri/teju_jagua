@@ -26,20 +26,20 @@ teju_float128_to_binary(float128_t const value) {
   typedef teju128_fields_t teju_fields_t;
   typedef teju128_u1_t     teju_u1_t;
 
-  uint32_t const mantissa_size =    113u;
-  int32_t  const exponent_min  = -16494;
+  uint32_t const mantissa_width =    113u;
+  int32_t  const exponent_min   = -16494;
 
   teju_u1_t bits;
   memcpy(&bits, &value, sizeof(value));
 
-  teju_u1_t mantissa = teju_lsb(teju_u1_t, bits, mantissa_size - 1u);
-  bits >>= (mantissa_size - 1u);
+  teju_u1_t mantissa = teju_lsb(teju_u1_t, bits, mantissa_width - 1u);
+  bits >>= (mantissa_width - 1u);
 
   int32_t exponent = (int32_t) bits;
 
   if (exponent != 0) {
     exponent -= 1;
-    mantissa |= teju_pow2(teju_u1_t, mantissa_size - 1u);
+    mantissa |= teju_pow2(teju_u1_t, mantissa_width - 1u);
   }
 
   exponent += exponent_min;

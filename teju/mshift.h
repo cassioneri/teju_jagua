@@ -11,8 +11,8 @@
 #define TEJU_TEJU_MSHIFT_H_
 
 #if !defined(teju_calculation_mshift) || !defined(teju_u1_t) || \
-  !defined(teju_size)
-  #error "Macros teju_calculation_mshift, teju_size and teju_u1_t must be defined prior to inclusion of mshift.h."
+  !defined(teju_width)
+  #error "Macros teju_calculation_mshift, teju_width and teju_u1_t must be defined prior to inclusion of mshift.h."
 #endif
 
 #include "teju/common.h"
@@ -41,14 +41,14 @@ teju_add_and_carry(teju_u1_t x, teju_u1_t y, teju_u1_t* c) {
 
   #if defined(_MSC_VER) && !defined(__clang__)
 
-    #if teju_size == 16u
+    #if teju_width == 16u
       *c = _addcarry_u16(0, x, y, &x);
-    #elif teju_size == 32u
+    #elif teju_width == 32u
       *c = _addcarry_u32(0, x, y, &x);
-    #elif teju_size == 64u
+    #elif teju_width == 64u
       *c = _addcarry_u64(0, x, y, &x);
     #else
-      #error "Size not supported by msvc."
+      #error "Width not supported by msvc."
     #endif
 
   #else
@@ -62,7 +62,7 @@ teju_add_and_carry(teju_u1_t x, teju_u1_t y, teju_u1_t* c) {
 }
 
 /**
- * @brief Gets M * m / 2^s, where N = teju_size and s = 2 * N.
+ * @brief Gets M * m / 2^s, where N = teju_width and s = 2 * N.
  *
  * M is split into two parts, namely, upper = M / 2^N and lower = M % 2^N, so
  * that M = 2^N * upper + lower.
@@ -83,15 +83,15 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
 
   #if teju_calculation_mshift == teju_built_in_4
 
-    teju_u4_t const n = (((teju_u2_t) u) << teju_size) | l;
-    return (teju_u1_t) (1u * n * m >> (2u * teju_size));
+    teju_u4_t const n = (((teju_u2_t) u) << teju_width) | l;
+    return (teju_u1_t) (1u * n * m >> (2u * teju_width));
 
   #elif teju_calculation_mshift == teju_synthetic_2
 
     // (u * x + l) * m = r2 * x^2 + r1 * x + r0,
     //                   with r2, r1, r0 in [0, x[.
 
-    teju_u2_t const n = (((teju_u2_t) u) << teju_size) | l;
+    teju_u2_t const n = (((teju_u2_t) u) << teju_width) | l;
     teju_u2_t r2;
     (void) teju_multiply(n, m, &r2);
     return r2;
@@ -106,7 +106,7 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
 
     teju_u2_t const s0 = 1u * ((teju_u2_t) l) * m;
     teju_u2_t const s1 = 1u * ((teju_u2_t) u) * m;
-    return (s1 + (s0 >> teju_size)) >> teju_size;
+    return (s1 + (s0 >> teju_width)) >> teju_width;
 
   #elif teju_calculation_mshift == teju_synthetic_1
 
@@ -131,7 +131,7 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
     // l := (n1 * y + n0) with n1 := l / y, n0 = l % y in [0, y[,
     // m := (m1 * y + m0) with m1 := m / y, m0 = m % y in [0, y[.
 
-    teju_u1_t const y  = teju_pow2(teju_u1_t, teju_size / 2u);
+    teju_u1_t const y  = teju_pow2(teju_u1_t, teju_width / 2u);
     teju_u1_t const n3 = u / y;
     teju_u1_t const n2 = u % y;
     teju_u1_t const n1 = l / y;
@@ -184,7 +184,7 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
 }
 
 /**
- * @brief Gets M * 2^k / 2^s, where N = teju_size_size and s = 2 * N.
+ * @brief Gets M * 2^k / 2^s, where N = teju_width and s = 2 * N.
  *
  * M is split into two parts, namely, upper = M / 2^N and lower = M % 2^N, so
  * that M = 2^N * upper + lower.
@@ -201,11 +201,11 @@ mshift_pow2(uint32_t const k, teju_multiplier_t const M) {
   teju_u1_t const u = M.upper;
   teju_u1_t const l = M.lower;
 
-  int32_t   const s = k - teju_size;
+  int32_t   const s = k - teju_width;
 
   if (s <= 0)
     return u >> -s;
-  return (u << s) | (l >> (teju_size - s));
+  return (u << s) | (l >> (teju_width - s));
 }
 
 #ifdef __cplusplus

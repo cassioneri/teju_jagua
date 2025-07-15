@@ -10,8 +10,8 @@
 #ifndef TEJU_TEJU_DIV10_H_
 #define TEJU_TEJU_DIV10_H_
 
-#if !defined(teju_u1_t) || !defined(teju_size)
-  #error "Macros teju_size and teju_u1_t must be defined prior to inclusion of div10.h."
+#if !defined(teju_u1_t) || !defined(teju_width)
+  #error "Macros teju_width and teju_u1_t must be defined prior to inclusion of div10.h."
 #endif
 
 #include "teju/config.h"
@@ -48,11 +48,11 @@ teju_div10(teju_u1_t const n) {
     // https://onlinelibrary.wiley.com/doi/full/10.1002/spe.3172
 
     // Since 2^k % 10 != 0 we have 2^k / 10 = (2^k - 1) / 10, in particular,
-    //   2^teju_size / 10 = (2^teju_size - 1) / 10u = ((teju_u1_t) -1) / 10u.
+    //   2^teju_width / 10 = (2^teju_width - 1) / 10u = ((teju_u1_t) -1) / 10u.
     teju_u1_t const a = ((teju_u1_t) -1) / 10u + 1u;
 
     #if teju_calculation_div10 == teju_built_in_2
-      return (1u * a * ((teju_u2_t) n)) >> teju_size;
+      return (1u * a * ((teju_u2_t) n)) >> teju_width;
     #else // teju_calculation_div10 == teju_synthetic_1
       teju_u1_t upper;
       (void) teju_multiply(a, n, &upper);

@@ -39,11 +39,11 @@ extern "C" {
 // Flags indicating the platform's multiplication capability.
 //------------------------------------------------------------------------------
 
-// The size in bits of the limb is teju_size. For instance, if teju_size == 32,
-// then 1-, 2- and 4-limb integers have sizes 32, 64 and 128, respectively.
-// Similarly, if teju_size == 64, then 1-, 2- and 4-limb integers have sizes 64,
-// 128 and 256 respectively. The platform is required to support 1-limb integers
-// but not necessarily 2- and 4-limb integers.
+// The the limb number of bits is teju_width. For instance, if teju_width == 32,
+// then 1-, 2- and 4-limb integers have widths 32, 64 and 128, respectively.
+// Similarly, if teju_width == 64, then 1-, 2- and 4-limb integers have widths
+// 64, 128 and 256 respectively. The platform is required to support 1-limb
+// integers but not necessarily 2- and 4-limb integers.
 
 // Macros teju_calculation_div10 and teju_calculation_mshift define the
 // algorithm used in teju_div10 and teju_mshift, respectively. They are set to
@@ -119,9 +119,9 @@ extern "C" {
 // Limbs
 //------------------------------------------------------------------------------
 
-// Macros teju<X>_u1_t, where <X> = teju_size (e.g., teju32_u1_t for
-// teju_size = 32), is set to the type of 1-limb unsigned integers, i.e., that
-// whose size is teju_size. When defined, teju<X>_u2_t and teju<X>_u4_t are,
+// Macros teju<X>_u1_t, where <X> = teju_width (e.g., teju32_u1_t for
+// teju_width = 32), is set to the type of 1-limb unsigned integers, i.e., that
+// whose width is teju_width. When defined, teju<X>_u2_t and teju<X>_u4_t are,
 // respectively, set to the types of the 2- and 4-limb unsigned integers.
 
 //----------//

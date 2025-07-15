@@ -33,14 +33,14 @@ extern "C" {
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
  *
- * @pre 0 <= e && e < teju_size.
+ * @pre 0 <= e && e < teju_width.
  *
  * @returns true if m is multiple of 2^e and false, otherwise.
  */
 static inline
 bool
 is_multiple_of_pow2(int32_t const e, teju_u1_t const m) {
-  assert(0 <= e && (uint32_t) e < teju_size);
+  assert(0 <= e && (uint32_t) e < teju_width);
   return (m >> e) << e == m;
 }
 
@@ -71,7 +71,7 @@ is_multiple_of_pow5(int32_t const f, teju_u1_t const n) {
 static inline
 teju_u1_t
 ror(teju_u1_t const m) {
-  return m << (teju_size - 1u) | m >> 1u;
+  return m << (teju_width - 1u) | m >> 1u;
 }
 
 /**
@@ -104,7 +104,7 @@ make_fields(int32_t const e, teju_u1_t const m) {
 static inline
 bool
 is_small_integer(int32_t const e, teju_u1_t const m) {
-  return 0 <= -e && (uint32_t) -e < teju_mantissa_size &&
+  return 0 <= -e && (uint32_t) -e < teju_mantissa_width &&
     is_multiple_of_pow2(-e, m);
 }
 
@@ -215,7 +215,7 @@ teju_function(teju_fields_t const binary) {
   uint32_t          const r   = teju_log10_pow2_residual(e);
   uint32_t          const i   = f - teju_storage_index_offset;
   teju_multiplier_t const M   = multipliers[i];
-  teju_u1_t         const m_0 = teju_pow2(teju_u1_t, teju_mantissa_size - 1u);
+  teju_u1_t         const m_0 = teju_pow2(teju_u1_t, teju_mantissa_width - 1u);
 
   if (m != m_0 || e == teju_exponent_min) {
 
@@ -266,9 +266,9 @@ teju_function(teju_fields_t const binary) {
     else if (a < s)
       return remove_trailing_zeros(f + 1, q);
 
-    // m_c = 4 * m_0 * 2^r = 2^{teju_mantissa_size + r + 1}
+    // m_c = 4 * m_0 * 2^r = 2^{teju_mantissa_width + r + 1}
     // c_2 = teju_mshift(m_c, upper, lower);
-    uint32_t  const log2_m_c = teju_mantissa_size + r + 1u;
+    uint32_t  const log2_m_c = teju_mantissa_width + r + 1u;
     teju_u1_t const c_2      = mshift_pow2(log2_m_c, M);
     teju_u1_t const c        = c_2 / 2u;
 

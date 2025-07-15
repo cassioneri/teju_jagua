@@ -11,9 +11,9 @@
 extern "C" {
 #endif
 
-#define teju_size                 32u
+#define teju_width                32u
 #define teju_exponent_min         -24
-#define teju_mantissa_size        11u
+#define teju_mantissa_width       11u
 #define teju_storage_index_offset -8
 #define teju_calculation_div10    teju_built_in_2
 #define teju_calculation_mshift   teju_built_in_4

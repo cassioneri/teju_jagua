@@ -15,8 +15,8 @@ void check(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
   teju_multiplier_t const M = { u, l };
 
   teju_u1_t const actual   = TImpl::mshift(m, M);
-  teju_u1_t const expected = (((teju_u4_t(u) << teju_size) + l) * m) >>
-    (2 * teju_size);
+  teju_u1_t const expected = (((teju_u4_t(u) << teju_width) + l) * m) >>
+    (2 * teju_width);
 
   EXPECT_EQ(actual, expected) << "Failed for "
     "m = " << m << ", u = " << u << ", l = " << l << '\n';

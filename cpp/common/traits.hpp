@@ -58,7 +58,7 @@ namespace detail {
  *
  * Static data:
  *
- * @li mantissa_size        Mantissa size in bits.
+ * @li mantissa_width       Mantissa width (number of bits).
  * @li exponent_min         Minimum exponent of the binary representation.
  * @li exponent_max         Maximum exponent of the binary representation.
  *
@@ -90,9 +90,9 @@ struct traits_t<float16_t> {
   using decimal_t = teju::decimal_t<float16_t>;
   using binary_t  = teju::binary_t<float16_t>;
 
-  static auto constexpr mantissa_size =  11u;
-  static auto constexpr exponent_min  = -24;
-  static auto constexpr exponent_max  =   5;
+  static auto constexpr mantissa_width =  11u;
+  static auto constexpr exponent_min   = -24;
+  static auto constexpr exponent_max   =   5;
 
   static
   binary_t
@@ -120,9 +120,9 @@ struct traits_t<float> {
   using decimal_t = teju::decimal_t<float>;
   using binary_t  = teju::binary_t<float>;
 
-  static auto constexpr mantissa_size =  24u;
-  static auto constexpr exponent_min = -149;
-  static auto constexpr exponent_max =  104;
+  static auto constexpr mantissa_width =  24u;
+  static auto constexpr exponent_min  = -149;
+  static auto constexpr exponent_max  =  104;
 
   static
   binary_t
@@ -186,9 +186,9 @@ struct traits_t<double> {
   using decimal_t = teju::decimal_t<double>;
   using binary_t  = teju::binary_t<double>;
 
-  static auto constexpr mantissa_size =  53u;
-  static auto constexpr exponent_min = -1074;
-  static auto constexpr exponent_max =   971;
+  static auto constexpr mantissa_width =  53u;
+  static auto constexpr exponent_min  = -1074;
+  static auto constexpr exponent_max  =   971;
 
   static
   binary_t
@@ -253,9 +253,9 @@ struct traits_t<float128_t> {
   using decimal_t = teju::decimal_t<float128_t>;
   using binary_t  = teju::binary_t<float128_t>;
 
-  static auto constexpr mantissa_size =    113u;
-  static auto constexpr exponent_min  = -16494;
-  static auto constexpr exponent_max  =  16271;
+  static auto constexpr mantissa_width =    113u;
+  static auto constexpr exponent_min   = -16494;
+  static auto constexpr exponent_max   =  16271;
 
   static
   binary_t

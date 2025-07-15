@@ -283,10 +283,10 @@ benchmark_integers(std::string_view const filename) {
       benchmark(bench, value);
   };
 
-  using traits_t               = teju::traits_t<T>;
-  using u1_t                   = typename traits_t::u1_t;
-  auto constexpr mantissa_size = traits_t::mantissa_size;
-  auto constexpr max           = teju_pow2(u1_t, mantissa_size - 1);
+  using traits_t                = teju::traits_t<T>;
+  using u1_t                    = typename traits_t::u1_t;
+  auto constexpr mantissa_width = traits_t::mantissa_width;
+  auto constexpr max            = teju_pow2(u1_t, mantissa_width - 1);
 
   test(T{1}, T{1'000});
   test(T{max} - T{1'000}, T{max});
@@ -320,16 +320,16 @@ benchmark_centred(std::string_view const filename, unsigned n_samples) {
   auto device = std::mt19937_64{};
   auto bench  = get_bench();
 
-  auto constexpr mantissa_size      = traits_t::mantissa_size;
-  auto constexpr mantissa_uncentred = teju_pow2(u1_t, mantissa_size - 1);
-  auto constexpr mantissa_min       = mantissa_uncentred + 1;
-  auto constexpr mantissa_max       = 2 * mantissa_uncentred - 1;
-  auto mantissa_distribution        =
+  auto constexpr mantissa_width      = traits_t::mantissa_width;
+  auto constexpr mantissa_uncentred  = teju_pow2(u1_t, mantissa_width - 1);
+  auto constexpr mantissa_min        = mantissa_uncentred + 1;
+  auto constexpr mantissa_max        = 2 * mantissa_uncentred - 1;
+  auto mantissa_distribution         =
     std::uniform_int_distribution<u1_t>{mantissa_min, mantissa_max};
 
-  auto constexpr exponent_min       = traits_t::exponent_min;
-  auto constexpr exponent_max       = traits_t::exponent_max;
-  auto exponent_distribution        =
+  auto constexpr exponent_min        = traits_t::exponent_min;
+  auto constexpr exponent_max        = traits_t::exponent_max;
+  auto exponent_distribution         =
     std::uniform_int_distribution<std::int32_t>{exponent_min, exponent_max};
 
   while (n_samples--) {
@@ -369,8 +369,8 @@ benchmark_uncentred(std::string_view const filename) {
 
   auto bench = get_bench();
 
-  auto constexpr mantissa_size      = traits_t::mantissa_size;
-  auto constexpr mantissa_uncentred = teju_pow2(u1_t, mantissa_size - 1);
+  auto constexpr mantissa_width     = traits_t::mantissa_width;
+  auto constexpr mantissa_uncentred = teju_pow2(u1_t, mantissa_width - 1);
   auto constexpr exponent_min       = traits_t::exponent_min;
   auto constexpr exponent_max       = traits_t::exponent_max;
 

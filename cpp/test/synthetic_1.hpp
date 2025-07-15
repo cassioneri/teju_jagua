@@ -16,7 +16,7 @@ static inline
 teju_u1_t
 teju_multiply(teju_u1_t const a, teju_u1_t const b, teju_u1_t* upper) {
   teju_u2_t const p = teju_u2_t(a) * teju_u2_t(b);
-  *upper = teju_u1_t(p >> teju_size);
+  *upper = teju_u1_t(p >> teju_width);
   return teju_u1_t(p);
 }
 

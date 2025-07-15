@@ -150,7 +150,7 @@ TYPED_TEST_P(typed_tests_t, mantissa_min_all_exponents) {
   for (std::uint32_t exponent = traits_t::exponent_min; !this->HasFailure() &&
     exponent <= traits_t::exponent_max; ++exponent) {
 
-    auto const bits = teju_pow2(u1_t, traits_t::mantissa_size - 1);
+    auto const bits = teju_pow2(u1_t, traits_t::mantissa_width - 1);
     fp_t value;
     std::memcpy(&value, &bits, sizeof(bits));
     compare_to_others(value);
@@ -168,7 +168,7 @@ TYPED_TEST_P(typed_tests_t, integers) {
     }
   };
 
-  auto const max   = std::pow(fp_t{2}, fp_t{traits_t<fp_t>::mantissa_size - 1});
+  auto const max   = std::pow(fp_t{2}, fp_t{traits_t<fp_t>::mantissa_width - 1});
   auto const limit = fp_t{10'000'000};
 
   if (max <= limit) {

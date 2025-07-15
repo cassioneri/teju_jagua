@@ -30,8 +30,8 @@ struct config_t {
   // particular, it must not contain spaces -- "long double" is forbidden.
   std::string id;
 
-  // The size of the limb in bits.
-  std::uint32_t size;
+  // Limb width (number of bits).
+  std::uint32_t width;
 
   struct spdx_t {
     std::string              identifier;
@@ -50,8 +50,8 @@ struct config_t {
 
   struct mantissa_t {
 
-    // Size of mantissa in bits.
-    std::uint32_t size;
+    // Mantissa width (number of bits).
+    std::uint32_t width;
 
   } mantissa;
 

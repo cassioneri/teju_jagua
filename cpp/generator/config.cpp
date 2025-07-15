@@ -25,7 +25,7 @@ from_json(nlohmann::json const& src, config_t::exponent_t& tgt) {
 
 void
 from_json(nlohmann::json const& src, config_t::mantissa_t& tgt) {
-  src.at("size").get_to(tgt.size);
+  src.at("width").get_to(tgt.width);
 }
 
 void
@@ -44,7 +44,7 @@ from_json(nlohmann::json const& src, config_t::calculation_t& tgt) {
 void
 from_json(nlohmann::json const& src, config_t& tgt) {
   src.at("id"         ).get_to(tgt.id         );
-  src.at("size"       ).get_to(tgt.size       );
+  src.at("width"      ).get_to(tgt.width      );
   src.at("spdx"       ).get_to(tgt.spdx       );
   src.at("exponent"   ).get_to(tgt.exponent   );
   src.at("mantissa"   ).get_to(tgt.mantissa   );
@@ -55,9 +55,9 @@ from_json(nlohmann::json const& src, config_t& tgt) {
 void
 validate(config_t const& json) {
 
-  require(json.size == 16 || json.size == 32 || json.size == 64 ||
-    json.size == 128,
-    "Constraint violation: size in { 16, 32, 64, 128 }");
+  require(json.width == 16 || json.width == 32 || json.width == 64 ||
+    json.width == 128,
+    "Constraint violation: width in { 16, 32, 64, 128 }");
 
   require(json.exponent.minimum <= json.exponent.maximum,
     "Constraint violation: exponent.minimum <= exponent.maximum");

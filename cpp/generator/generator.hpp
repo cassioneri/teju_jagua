@@ -47,10 +47,10 @@ private:
   id() const;
 
   /**
-   * @brief Returns the size of the limb in bits.
+   * @brief Returns the limb width (number of bits).
    */
   std::uint32_t
-  size() const;
+  width() const;
 
   /**
    * @brief Returns the SPDX identifier.
@@ -65,7 +65,7 @@ private:
   spdx_copyright() const;
 
   /**
-   * @brief Returns the type prefix corresponding to a given size.
+   * @brief Returns the type prefix corresponding to a given width.
    */
   std::string const&
   prefix() const;
@@ -89,10 +89,10 @@ private:
   exponent_max() const;
 
   /**
-   * @brief Returns the size of mantissa in bits.
+   * @brief Returns the mantissa width (number of bits).
    */
   std::uint32_t
-  mantissa_size() const;
+  mantissa_width() const;
 
   /**
    * @brief Returns the (normal) minimal mantissa.
@@ -206,7 +206,7 @@ private:
    *
    * This function returns an integer U such that
    *   U * n / 2^k == n * 2^(e0 - 1) / 10^f,
-   * where k = 2 * size().
+   * where k = 2 * width().
    *
    * @param  e_0            The binary exponent.
    * @param  is_min         Tells whether the exponent e_0 is the minimal one.

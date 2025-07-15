@@ -20,15 +20,15 @@ namespace teju {
 namespace {
 
 /**
- * @brief Returns the type prefix corresponding to a given size.
+ * @brief Returns the type prefix corresponding to a given width.
  *
- * @param  size             The size.
+ * @param  width            The width.
  *
- * @returns The type prefix corresponding to a given size.
+ * @returns The type prefix corresponding to a given width.
  */
 std::string
-get_prefix(std::uint32_t const size) {
-  switch (size) {
+get_prefix(std::uint32_t const width) {
+  switch (width) {
     case 16:
       return "teju16_";
     case 32:
@@ -38,7 +38,7 @@ get_prefix(std::uint32_t const size) {
     case 128:
       return "teju128_";
   }
-  throw exception_t{"BUG: Unrecognised size."};
+  throw exception_t{"BUG: Unrecognised width."};
 }
 
 /**
@@ -233,10 +233,10 @@ get_maximum_2(integer_t const& alpha_2,
 
 generator_t::generator_t(config_t config, std::string directory) :
   config_      {std::move(config)              },
-  prefix_      {get_prefix(size())             },
+  prefix_      {get_prefix(width())            },
   function_    {"teju_" + id()                 },
-  mantissa_min_{pow2(mantissa_size() - 1u)     },
-  mantissa_max_{pow2(mantissa_size()) - 1u     },
+  mantissa_min_{pow2(mantissa_width() - 1u)    },
+  mantissa_max_{pow2(mantissa_width()) - 1u    },
   index_offset_{teju_log10_pow2(exponent_min())},
   directory_   {std::move(directory)           },
   dot_h_       {id() + ".h"                    },
@@ -246,7 +246,7 @@ generator_t::generator_t(config_t config, std::string directory) :
 void
 generator_t::generate() const {
 
-  auto const p2size       = pow2(size());
+  auto const p2width      = pow2(width());
   auto       dot_h_stream = std::ofstream{directory() + dot_h()};
   auto       dot_c_stream = std::ofstream{directory() + dot_c()};
 
@@ -267,8 +267,8 @@ generator_t::id() const {
 }
 
 std::uint32_t
-generator_t::size() const {
-  return config_.size;
+generator_t::width() const {
+  return config_.width;
 }
 
 std::string const&
@@ -302,8 +302,8 @@ generator_t::exponent_max() const {
 }
 
 std::uint32_t
-generator_t::mantissa_size() const {
-  return config_.mantissa.size;
+generator_t::mantissa_width() const {
+  return config_.mantissa.width;
 }
 
 integer_t const&
@@ -424,10 +424,10 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "\n";
 
   stream <<
-    "#define teju_size                 " << size()          << "u\n"
-    "#define teju_exponent_min         " << exponent_min()  << "\n"
-    "#define teju_mantissa_size        " << mantissa_size() << "u\n"
-    "#define teju_storage_index_offset " << index_offset()  << "\n";
+    "#define teju_width                " << width()          << "u\n"
+    "#define teju_exponent_min         " << exponent_min()   << "\n"
+    "#define teju_mantissa_width       " << mantissa_width() << "u\n"
+    "#define teju_storage_index_offset " << index_offset()   << "\n";
 
   if (!calculation_div10().empty()) {
 
@@ -440,9 +440,9 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "#define teju_calculation_div10    teju_" << calculation_div10() << "\n";
   }
 
-  // The optimal runtime shift is twice the carrier size because it avoids
+  // The optimal runtime shift is twice the carrier width because it avoids
   // teju_mshift to work on partial limbs.
-  auto const shift = 2 * size();
+  auto const shift = 2 * width();
 
   auto const upper_str = "upper";
   auto const lower_str = "lower";
@@ -472,9 +472,9 @@ generator_t::generate_dot_c(std::ostream& stream) const {
     "\n"
     "static const teju_multiplier_t multipliers[] = {\n";
 
-  auto const p2size   = pow2(size());
-  auto const mask     = p2size - 1;
-  auto const splitter = splitter_t{size(), storage_split()};
+  auto const p2width  = pow2(width());
+  auto const mask     = p2width - 1;
+  auto const splitter = splitter_t{width(), storage_split()};
   bool       sorted   = true;
 
   auto const get_e_0  = [](int32_t const e) {
@@ -498,11 +498,11 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 
     // Output
 
-    integer_t       upper = U >> size();
+    integer_t       upper = U >> width();
     integer_t       lower = std::move(U &= mask);
     int32_t   const f     = teju_log10_pow2(e_0);
 
-    require(upper < p2size, "A multiplier is out of range.");
+    require(upper < p2width, "A multiplier is out of range.");
 
     stream << "  { " <<
       (is_little ? splitter(std::move(lower)) : splitter(std::move(upper))) <<
@@ -541,12 +541,12 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   // n is not multiple of 5^f, that is, is_multiple_of_pow5(n, f) == false.
 
   auto const bound      = 320 * mantissa_max();
-  auto const minv5      = minverse5(size());
+  auto const minv5      = minverse5(width());
   auto       multiplier = integer_t{1};
   auto       p5         = integer_t{1};
   for (std::int32_t f = 0; p5 < bound; ++f) {
 
-    auto bnd = p2size / p5 - (f == 0);
+    auto bnd = p2width / p5 - (f == 0);
 
     stream << "  { " << splitter(multiplier) << ", " <<
       splitter(std::move(bnd)) << " }, // " << std::dec << f << '\n';
@@ -575,7 +575,7 @@ generator_t::check_div10_algorithm() const {
   // https://onlinelibrary.wiley.com/doi/full/10.1002/spe.3172
 
   auto const d       = integer_t{10};
-  auto const k       = size();
+  auto const k       = width();
   auto const p2k     = pow2(k);
   auto const a       = p2k / d + 1;
   auto const epsilon = d - p2k % d;
@@ -591,40 +591,40 @@ bool
 generator_t::check_centred_calculations() const {
   // Calculations of m_a, m_b and m_c are safe if the carrier type can represent
   // m_c = (4u * m << r) for all values of m and r, i.e.,
-  //   (4 * mantissa_max() << 3) <  2^size() <=>
-  //   32 * mantissa_max()       <  2^size().
+  //   (4 * mantissa_max() << 3) <  2^width() <=>
+  //   32 * mantissa_max()       <  2^width().
   // In terms of number of bits, the above is equivalent to
-  //    5 + mantissa_size()      <= size().
-  return 5 + mantissa_size() <= size();
+  //    5 + mantissa_width()     <= width().
+  return 5 + mantissa_width() <= width();
 }
 
 bool
 generator_t::check_uncentred_calculations() const {
   // Calculations of m_a and m_b are safe if the carrier type can represent
   // m_a = (4u * m - 1u) << r for m = mantissa_min() and all values of r, i.e.,
-  //   (4 * mantissa_min()  - 1) << 3 <  2^size() <=>
-  //   32 * mantissa_min()  - 8       <  2^size() <=>
+  //   (4 * mantissa_min()  - 1) << 3 <  2^width() <=>
+  //   32 * mantissa_min()  - 8       <  2^width() <=>
   // In terms of number of bits, the above is equivalent to
-  //    5 + mantissa_size() - 1       <= size()
-  return 4 + mantissa_size() <= size();
+  //    5 + mantissa_width() - 1      <= width()
+  return 4 + mantissa_width() <= width();
 }
 
 bool
 generator_t::check_uncentred_refined_calculations() const {
   // Calculation of m_c is safe if the carrier type can represent
   // m_c = 40u * m << r for m = mantissa_min() and all values of r, i.e.,
-  //   40 * mantissa_min() << 3    <  2^size() <=>
-  //  320 * mantissa_min()         <  2^size() <=>
+  //   40 * mantissa_min() << 3     <  2^width() <=>
+  //  320 * mantissa_min()          <  2^width() <=>
   // In terms of number of bits, the above is equivalent to
-  //     9 + (mantissa_size() - 1) <= size()
-  return 8 + mantissa_size() <= size();
+  //     9 + (mantissa_width() - 1) <= width()
+  return 8 + mantissa_width() <= width();
 }
 
 integer_t
 generator_t::get_fast_eaf_numerator(int32_t const e_0, bool const is_min)
   const {
 
-  auto const shift = 2 * size();
+  auto const shift = 2 * width();
   auto const f     = teju_log10_pow2(e_0);
 
   integer_t alpha, delta;
@@ -643,7 +643,7 @@ generator_t::get_fast_eaf_numerator(int32_t const e_0, bool const is_min)
   divide_qr(alpha << shift, delta, q, r);
 
   require(maximum < rational_t{pow2(shift), delta - r},
-    "Unable to use shift that is twice the size.");
+    "Unable to use shift that is twice the width.");
 
   return q + 1;
 }

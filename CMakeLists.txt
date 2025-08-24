@@ -174,7 +174,7 @@ FetchContent_MakeAvailable(googletest)
 
 FetchContent_Declare(
   json
-  URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+  URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz
   DOWNLOAD_EXTRACT_TIMESTAMP TRUE
   SOURCE_DIR ${third_party_dir}/json
 )
@@ -187,7 +187,7 @@ FetchContent_MakeAvailable(json)
 
 FetchContent_Declare(
   multiprecision
-  URL https://github.com/boostorg/multiprecision/archive/refs/tags/Boost_1_84_0.tar.gz
+  URL https://github.com/boostorg/multiprecision/archive/refs/tags/Boost_1_89_0.tar.gz
   DOWNLOAD_EXTRACT_TIMESTAMP TRUE
   SOURCE_DIR     ${third_party_dir}/multiprecision
 )

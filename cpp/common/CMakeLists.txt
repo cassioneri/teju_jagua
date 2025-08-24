@@ -11,6 +11,7 @@ target_include_directories(others PUBLIC
 )
 
 target_link_libraries(others
+  Boost::multiprecision
   dragonbox::dragonbox
   ryu::ryu
 )

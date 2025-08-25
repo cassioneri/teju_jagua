@@ -4,6 +4,12 @@
 #include "teju/common.h"
 #include "teju/float.h"
 
+#if defined(teju_has_uint128)
+  #include "teju/generated/ieee32_with_uint128.h"
+#else
+  #include "teju/generated/ieee32_no_uint128.h"
+#endif
+
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>

@@ -10,11 +10,9 @@
 #ifndef TEJU_TEJU_FLOAT128_H_
 #define TEJU_TEJU_FLOAT128_H_
 
-#include "teju/config.h"
-
 #if defined(teju_has_float128)
 
-#include "teju/generated/ieee128.h"
+#include "teju/config.h"
 
 #ifdef __cplusplus
 extern "C" {

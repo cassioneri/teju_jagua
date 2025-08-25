@@ -6,6 +6,12 @@
 #include "teju/common.h"
 #include "teju/float16.h"
 
+#if defined(teju_has_uint128)
+  #include "teju/generated/ieee16_with_uint128.h"
+#else
+  #include "teju/generated/ieee16_no_uint128.h"
+#endif
+
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>

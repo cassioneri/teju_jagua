@@ -9,8 +9,6 @@
 
 #include "teju/common.h"
 #include "teju/config.h"
-#include "teju/double.h"
-#include "teju/float.h"
 #include "cpp/benchmark/stats.hpp"
 #include "cpp/common/exception.hpp"
 #include "cpp/common/traits.hpp"

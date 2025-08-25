@@ -1,16 +1,12 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
-#include "teju/config.h"
-
 #if defined(teju_has_float16)
 
 #include "teju/common.h"
 #include "teju/float16.h"
 
 #include <assert.h>
-#include <math.h>
-#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 

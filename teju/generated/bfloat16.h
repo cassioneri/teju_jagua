@@ -6,9 +6,6 @@
 #ifndef TEJU_TEJU_GENERATED_BFLOAT16_H_
 #define TEJU_TEJU_GENERATED_BFLOAT16_H_
 
-#include <stdbool.h>
-#include <stdint.h>
-
 #include "teju/config.h"
 
 #ifdef __cplusplus

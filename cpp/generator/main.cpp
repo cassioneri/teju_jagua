@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
-#include "cpp/common/exception.hpp"
-#include "cpp/generator/config.hpp"
-#include "cpp/generator/generator.hpp"
+#include "config.hpp"
+#include "generator.hpp"
+
+#include "common/exception.hpp"
 
 #include <nlohmann/json.hpp>
 

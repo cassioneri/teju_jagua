@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
-#include "cpp/common/exception.hpp"
-#include "cpp/generator/generator.hpp"
-#include "cpp/generator/multiprecision.hpp"
-#include "cpp/generator/splitter.hpp"
+#include "generator.hpp"
+#include "multiprecision.hpp"
+#include "splitter.hpp"
+
+#include "common/exception.hpp"
 #include "teju/src/common.h"
 
 #include <algorithm>

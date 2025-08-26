@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
-#include "cpp/test/impl.hpp"
+#include "impl.hpp"
 
 // Other macros required by teju/div10.h and teju/mshift.h.
 #define teju_do_not_define_teju_multiply
 #define teju_calculation_mshift teju_synthetic_1
 #define teju_calculation_shift  32
 
-#include "cpp/test/synthetic_1.hpp"
+#include "synthetic_1.hpp"
 
 #include "teju/src/div10.h"
 #include "teju/src/mshift.h"

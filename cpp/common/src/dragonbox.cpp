@@ -7,7 +7,7 @@
  * Tejú Jaguá's wrapper around dragonbox used for testing and benchmarking.
  */
 
-#include "cpp/common/dragonbox.hpp"
+#include "common/dragonbox.hpp"
 
 namespace teju::dragonbox {
 

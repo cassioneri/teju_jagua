@@ -10,7 +10,7 @@
 #ifndef TEJU_CPP_GENERATOR_SPLITTER_HPP_
 #define TEJU_CPP_GENERATOR_SPLITTER_HPP_
 
-#include "cpp/generator/multiprecision.hpp"
+#include "multiprecision.hpp"
 
 namespace teju {
 

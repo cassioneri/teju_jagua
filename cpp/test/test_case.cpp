@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
-#include "cpp/common/traits.hpp"
-#include "cpp/test/test_case.hpp"
+#include "test_case.hpp"
+
+#include "common/traits.hpp"
 
 namespace teju {
 namespace test {

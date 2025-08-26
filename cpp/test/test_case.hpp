@@ -10,7 +10,7 @@
 #ifndef TEJU_CPP_TEST_TEST_CASE_HPP_
 #define TEJU_CPP_TEST_TEST_CASE_HPP_
 
-#include "cpp/common/fields.hpp"
+#include "common/fields.hpp"
 
 #include <iosfwd>
 

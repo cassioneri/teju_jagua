@@ -13,5 +13,7 @@ target_include_directories(generator PRIVATE
 
 target_link_libraries(generator PRIVATE
   Boost::multiprecision
+  common
   nlohmann_json::nlohmann_json
+  teju
 )

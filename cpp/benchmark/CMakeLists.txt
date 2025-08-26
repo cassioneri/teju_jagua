@@ -5,6 +5,10 @@ add_executable(benchmark
   main.cpp
 )
 
+target_include_directories(benchmark PRIVATE
+    "${CMAKE_SOURCE_DIR}"
+)
+
 target_link_libraries(benchmark PRIVATE
   Boost::multiprecision
   common

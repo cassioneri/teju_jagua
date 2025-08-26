@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
-#include "cpp/test/impl.hpp"
+#include "impl.hpp"
 
 // Other macros required by teju/mshift.h.
 #define teju_calculation_mshift teju_built_in_4

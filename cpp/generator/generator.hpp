@@ -10,8 +10,8 @@
 #ifndef TEJU_CPP_GENERATOR_GENERATOR_HPP_
 #define TEJU_CPP_GENERATOR_GENERATOR_HPP_
 
-#include "cpp/generator/config.hpp"
-#include "cpp/generator/multiprecision.hpp"
+#include "config.hpp"
+#include "multiprecision.hpp"
 
 #include <cstdint>
 #include <string>

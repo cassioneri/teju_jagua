@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
-#include "cpp/common/exception.hpp"
-#include "cpp/generator/config.hpp"
+#include "config.hpp"
+
+#include "common/exception.hpp"
 #include "teju/src/common.h"
 
 #include <algorithm>

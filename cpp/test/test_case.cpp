@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
-#include "cpp/common/exception.hpp"
 #include "cpp/common/traits.hpp"
 #include "cpp/test/test_case.hpp"
-#include "../../teju/src/common.h"
 
 namespace teju {
 namespace test {

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
-#include "teju/src/common.h"
-#include "teju/src/config.h"
 #include "cpp/common/traits.hpp"
 #include "cpp/test/test_case.hpp"
+#include "teju/src/common.h"
+#include "teju/src/config.h"
 
 #include <gtest/gtest.h>
 

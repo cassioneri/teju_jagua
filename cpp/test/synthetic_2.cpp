@@ -10,7 +10,7 @@
 
 #include "cpp/test/synthetic_2.hpp"
 
-#include "../../teju/src/mshift.h"
+#include "teju/src/mshift.h"
 
 using impl_t = teju::test::synthetic_2_t;
 

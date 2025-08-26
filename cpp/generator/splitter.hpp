@@ -12,8 +12,6 @@
 
 #include "cpp/generator/multiprecision.hpp"
 
-#include <cstdint>
-
 namespace teju {
 
 /**

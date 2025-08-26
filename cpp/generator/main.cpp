@@ -8,7 +8,6 @@
 #include <nlohmann/json.hpp>
 
 #include <cstdio>
-#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <string>

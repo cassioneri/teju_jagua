@@ -22,7 +22,7 @@ add_executable(test
 
 target_link_libraries(test PRIVATE
   Boost::multiprecision
+  common
   gtest_main
-  others
   teju
 )

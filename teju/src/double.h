@@ -2,17 +2,15 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file teju/float128.h
+ * @file teju/src/double.h
  *
- * Tejú Jaguá and helpers for float128_t values.
+ * Tejú Jaguá and helpers for double values.
  */
 
-#ifndef TEJU_TEJU_FLOAT128_H_
-#define TEJU_TEJU_FLOAT128_H_
+#ifndef TEJU_TEJU_SRC_DOUBLE_H_
+#define TEJU_TEJU_SRC_DOUBLE_H_
 
-#if defined(teju_has_float128)
-
-#include "teju/config.h"
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,14 +19,14 @@ extern "C" {
 /**
  * @brief Gets the binary representation of a given value.
  *
- * @param  value            The given value.
+ * @param  value             The given value.
  *
  * @pre isfinite(value) && value > 0.
  *
  * @returns The binary representation of the given value.
  */
-teju128_fields_t
-teju_float128_to_binary(float128_t value);
+teju64_fields_t
+teju_double_to_binary(double value);
 
 /**
  * @brief Gets the decimal representation of a given value.
@@ -39,12 +37,11 @@ teju_float128_to_binary(float128_t value);
  *
  * @returns The decimal representation of the given value.
  */
-teju128_fields_t
-teju_float128_to_decimal(float128_t value);
+teju64_fields_t
+teju_double_to_decimal(double value);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // defined(teju_has_float128)
-#endif // TEJU_TEJU_FLOAT128_H_
+#endif // TEJU_TEJU_SRC_DOUBLE_H_

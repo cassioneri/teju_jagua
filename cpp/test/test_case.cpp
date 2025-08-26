@@ -4,7 +4,7 @@
 #include "cpp/common/exception.hpp"
 #include "cpp/common/traits.hpp"
 #include "cpp/test/test_case.hpp"
-#include "teju/common.h"
+#include "../../teju/src/common.h"
 
 namespace teju {
 namespace test {

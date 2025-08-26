@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file teju/float.h
+ * @file teju/src/float.h
  *
  * Tejú Jaguá and helpers for float values.
  */
 
-#ifndef TEJU_TEJU_FLOAT_H_
-#define TEJU_TEJU_FLOAT_H_
+#ifndef TEJU_TEJU_SRC_FLOAT_H_
+#define TEJU_TEJU_SRC_FLOAT_H_
 
-#include "teju/config.h"
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,4 +44,4 @@ teju_float_to_decimal(float value);
 }
 #endif
 
-#endif // TEJU_TEJU_FLOAT_H_
+#endif // TEJU_TEJU_SRC_FLOAT_H_

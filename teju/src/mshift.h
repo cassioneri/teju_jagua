@@ -2,21 +2,21 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file teju/mshift.h
+ * @file teju/src/mshift.h
  *
  * Multiply-and-shift operations.
  */
 
-#ifndef TEJU_TEJU_MSHIFT_H_
-#define TEJU_TEJU_MSHIFT_H_
+#ifndef TEJU_TEJU_SRC_MSHIFT_H_
+#define TEJU_TEJU_SRC_MSHIFT_H_
 
 #if !defined(teju_calculation_mshift) || !defined(teju_u1_t) || \
   !defined(teju_width)
   #error "Macros teju_calculation_mshift, teju_width and teju_u1_t must be defined prior to inclusion of mshift.h."
 #endif
 
-#include "teju/common.h"
-#include "teju/config.h"
+#include "teju/src/common.h"
+#include "teju/src/config.h"
 
 #if defined(_MSC_VER) && !defined(__clang__)
   #include <intrin.h>
@@ -212,4 +212,4 @@ mshift_pow2(uint32_t const k, teju_multiplier_t const M) {
 }
 #endif
 
-#endif // TEJU_TEJU_MSHIFT_H_
+#endif // TEJU_TEJU_SRC_MSHIFT_H_

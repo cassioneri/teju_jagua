@@ -10,7 +10,7 @@
 #ifndef TEJU_CPP_TEST_TEST_CASE_HPP_
 #define TEJU_CPP_TEST_TEST_CASE_HPP_
 
-#include "teju/config.h"
+#include "../../teju/src/config.h"
 #include "cpp/common/fields.hpp"
 #include "cpp/common/traits.hpp"
 

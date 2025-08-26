@@ -7,8 +7,8 @@
  * Benchmark Tejú Jaguá against other algorithms.
  */
 
-#include "teju/common.h"
-#include "teju/config.h"
+#include "../../teju/src/common.h"
+#include "teju/src/config.h"
 #include "cpp/benchmark/stats.hpp"
 #include "cpp/common/exception.hpp"
 #include "cpp/common/traits.hpp"
@@ -33,7 +33,7 @@ namespace {
 
 auto constexpr run_teju      = true;
 auto constexpr run_dragonbox = true;
-auto constexpr run_ryu       = true;
+auto constexpr run_ryu       = false;
 
 auto constexpr str_algorithm = "algorithm";
 auto const     str_teju      = std::string_view{"teju"};

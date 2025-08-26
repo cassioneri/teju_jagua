@@ -10,8 +10,8 @@
 
 #include "cpp/test/synthetic_1.hpp"
 
-#include "teju/div10.h"
-#include "teju/mshift.h"
+#include "../../teju/src/div10.h"
+#include "../../teju/src/mshift.h"
 
 using impl_t = teju::test::synthetic_1_t;
 

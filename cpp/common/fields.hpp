@@ -10,12 +10,13 @@
 #ifndef TEJU_CPP_COMMON_FIELDS_HPP_
 #define TEJU_CPP_COMMON_FIELDS_HPP_
 
+#include "teju/src/config.h"
+
 #if defined(teju_has_float128)
   #include <boost/multiprecision/cpp_int.hpp>
 #endif
 
 #include <cstdint>
-#include <iostream>
 
 namespace teju {
 

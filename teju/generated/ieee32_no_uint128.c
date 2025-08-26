@@ -137,7 +137,7 @@ static struct {
   { 0xf6433fbd, 0x00000003 }, // 13
 };
 
-#include "teju/teju.h"
+#include "../src/teju.h"
 
 #ifdef __cplusplus
 }

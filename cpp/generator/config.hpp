@@ -10,7 +10,7 @@
 #ifndef TEJU_CPP_GENERATOR_CONFIG_HPP_
 #define TEJU_CPP_GENERATOR_CONFIG_HPP_
 
-#include "teju/config.h"
+#include "../../teju/src/config.h"
 
 #include <nlohmann/json.hpp>
 

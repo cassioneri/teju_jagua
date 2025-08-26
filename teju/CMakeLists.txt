@@ -7,7 +7,7 @@ add_library(teju STATIC)
 # float
 #-------------------------------------------------------------------------------
 
-target_sources(teju PUBLIC float.c)
+target_sources(teju PUBLIC src/float.c)
 
 if (teju_has_uint128)
   target_sources(teju PUBLIC generated/ieee32_with_uint128.c)
@@ -19,7 +19,7 @@ endif()
 # double
 #-------------------------------------------------------------------------------
 
-target_sources(teju PUBLIC double.c)
+target_sources(teju PUBLIC src/double.c)
 
 if (teju_has_uint128)
   target_sources(teju PUBLIC generated/ieee64_with_uint128.c)
@@ -33,7 +33,7 @@ endif()
 
 if (teju_has_float16)
 
-  target_sources(teju PUBLIC float16.c)
+  target_sources(teju PUBLIC src/float16.c)
 
   # _Float16 can't work with uint16_t and needs uint32_t.
   if (teju_has_uint128)
@@ -50,7 +50,7 @@ endif()
 
 if (teju_has_float128)
   target_sources(teju PUBLIC
-    float128.c
+          src/float128.c
     generated/ieee128.c
   )
 endif()

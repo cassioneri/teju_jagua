@@ -12,6 +12,11 @@
 
 #ifndef TEJU_TEJU_LITERAL_H_
 #define TEJU_TEJU_LITERAL_H_
+/**
+ * @file teju/src/literal.h
+ *
+ * Helpers to define 128-bits unsigned literals.
+ */
 
 /**
  * @brief Constructs a number from its two halves.

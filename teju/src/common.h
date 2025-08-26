@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file teju/common.h
+ * @file teju/src/common.h
  *
  * Common functionalities used by Tejú Jaguá and elsewhere (e.g., tests).
  */
 
-#ifndef TEJU_TEJU_COMMON_H_
-#define TEJU_TEJU_COMMON_H_
+#ifndef TEJU_TEJU_SRC_COMMON_H_
+#define TEJU_TEJU_SRC_COMMON_H_
 
 #include <assert.h>
 #include <stdint.h>
@@ -85,4 +85,4 @@ teju_log10_pow2_residual(int32_t const e) {
 }
 #endif
 
-#endif // TEJU_TEJU_COMMON_H_
+#endif // TEJU_TEJU_SRC_COMMON_H_

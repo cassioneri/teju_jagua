@@ -2,15 +2,17 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file teju/double.h
+ * @file teju/src/float16.h
  *
- * Tejú Jaguá and helpers for double values.
+ * Tejú Jaguá and helpers for float16_t values.
  */
 
-#ifndef TEJU_TEJU_DOUBLE_H_
-#define TEJU_TEJU_DOUBLE_H_
+#ifndef TEJU_TEJU_SRC_FLOAT16_H_
+#define TEJU_TEJU_SRC_FLOAT16_H_
 
-#include "teju/config.h"
+#if defined(teju_has_float16)
+
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,14 +21,14 @@ extern "C" {
 /**
  * @brief Gets the binary representation of a given value.
  *
- * @param  value             The given value.
+ * @param  value            The given value.
  *
  * @pre isfinite(value) && value > 0.
  *
  * @returns The binary representation of the given value.
  */
-teju64_fields_t
-teju_double_to_binary(double value);
+teju32_fields_t
+teju_float16_to_binary(float16_t value);
 
 /**
  * @brief Gets the decimal representation of a given value.
@@ -37,11 +39,12 @@ teju_double_to_binary(double value);
  *
  * @returns The decimal representation of the given value.
  */
-teju64_fields_t
-teju_double_to_decimal(double value);
+teju32_fields_t
+teju_float16_to_decimal(float16_t value);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // TEJU_TEJU_DOUBLE_H_
+#endif // defined(teju_has_float16)
+#endif // TEJU_TEJU_SRC_FLOAT16_H_

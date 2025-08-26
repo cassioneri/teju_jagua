@@ -7,7 +7,7 @@
 #define teju_calculation_mshift teju_built_in_4
 #define teju_calculation_shift  32
 
-#include "teju/mshift.h"
+#include "../../teju/src/mshift.h"
 
 using impl_t = teju::test::built_in_4_t;
 

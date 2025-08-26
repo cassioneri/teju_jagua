@@ -2,20 +2,19 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file teju/div10.h
+ * @file teju/src/div10.h
  *
  * Different algorithms for division by 10.
  */
 
-#ifndef TEJU_TEJU_DIV10_H_
-#define TEJU_TEJU_DIV10_H_
+#ifndef TEJU_TEJU_SRC_DIV10_H_
+#define TEJU_TEJU_SRC_DIV10_H_
 
 #if !defined(teju_u1_t) || !defined(teju_width)
   #error "Macros teju_width and teju_u1_t must be defined prior to inclusion of div10.h."
 #endif
 
-#include "teju/config.h"
-#include "teju/common.h"
+#include "teju/src/config.h"
 
 #include <assert.h>
 
@@ -71,4 +70,4 @@ teju_div10(teju_u1_t const n) {
 }
 #endif
 
-#endif // TEJU_TEJU_DIV10_H_
+#endif // TEJU_TEJU_SRC_DIV10_H_

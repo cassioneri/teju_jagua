@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file teju/config.h
+ * @file teju/src/config.h
  *
  * Platform configurations, notably, multiplication capabilities.
  */
 
-#ifndef TEJU_TEJU_CONFIG_H_
-#define TEJU_TEJU_CONFIG_H_
+#ifndef TEJU_TEJU_SRC_CONFIG_H_
+#define TEJU_TEJU_SRC_CONFIG_H_
 
 #include <stdint.h>
 
@@ -230,4 +230,4 @@ typedef struct {
 }
 #endif
 
-#endif // TEJU_TEJU_CONFIG_H_
+#endif // TEJU_TEJU_SRC_CONFIG_H_

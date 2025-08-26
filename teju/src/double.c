@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
-#include "teju/common.h"
-#include "teju/double.h"
+#include "common.h"
+#include "teju/src/double.h"
 
 #if defined(teju_has_uint128)
   #include "teju/generated/ieee64_with_uint128.h"

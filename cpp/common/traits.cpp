@@ -7,7 +7,7 @@
  * Traits for floating-point number types.
  */
 
-#include "teju/common.h"
+#include "../../teju/src/common.h"
 #include "cpp/common/traits.hpp"
 
 #include <cstring>

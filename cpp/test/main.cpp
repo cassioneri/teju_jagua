@@ -1,15 +1,10 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
-#include "teju/common.h"
-#include "teju/config.h"
-#include "teju/double.h"
-#include "teju/float.h"
-#include "teju/float128.h"
-#include "teju/literal.h"
+#include "teju/src/common.h"
+#include "teju/src/config.h"
 #include "cpp/common/traits.hpp"
 #include "cpp/test/test_case.hpp"
-#include "cpp/common/dragonbox.hpp"
 
 #include <gtest/gtest.h>
 

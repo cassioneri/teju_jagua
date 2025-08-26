@@ -2,18 +2,18 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file teju/teju.h
+ * @file teju/src/teju.h
  *
  * The implementation of Tejú Jaguá and some of its helpers.
  */
 
-#ifndef TEJU_TEJU_TEJU_H_
-#define TEJU_TEJU_TEJU_H_
+#ifndef TEJU_TEJU_SRC_TEJU_H_
+#define TEJU_TEJU_SRC_TEJU_H_
 
-#include "teju/common.h"
-#include "teju/config.h"
-#include "teju/div10.h"
-#include "teju/mshift.h"
+#include "common.h"
+#include "teju/src/config.h"
+#include "div10.h"
+#include "mshift.h"
 
 #include <assert.h>
 #include <stdbool.h>
@@ -202,6 +202,7 @@ remove_trailing_zeros(int32_t e, teju_u1_t m) {
  *
  * @returns The fields of the shortest decimal representation.
  */
+inline
 teju_fields_t
 teju_function(teju_fields_t const binary) {
 
@@ -226,15 +227,12 @@ teju_function(teju_fields_t const binary) {
     teju_u1_t const q   = teju_div10(b);
     teju_u1_t const s   = 10u * q;
 
-    if (s == a) {
-      if (is_tie(f, m_a) && wins_tiebreak(m))
-        return remove_trailing_zeros(f + 1, q);
-    }
-    else if (s == b) {
-      if (!is_tie(f, m_b) || wins_tiebreak(m))
-        return remove_trailing_zeros(f + 1, q);
-    }
-    else if (a < s)
+    bool shortest = a < s;
+    if (s == b)
+      shortest = !is_tie(f, m_b) || wins_tiebreak(m);
+    else if (s == a)
+      shortest = is_tie(f, m_a) && wins_tiebreak(m);
+    if (shortest)
       return remove_trailing_zeros(f + 1, q);
 
     teju_u1_t const m_c = 4u * m << r;
@@ -296,4 +294,4 @@ teju_function(teju_fields_t const binary) {
 }
 #endif
 
-#endif // TEJU_TEJU_TEJU_H_
+#endif // TEJU_TEJU_SRC_TEJU_H_

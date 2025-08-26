@@ -690,7 +690,7 @@ static struct {
   { 0x01c445d3a8cc9189, 0x000000000000000c }, // 26
 };
 
-#include "teju/teju.h"
+#include "../src/teju.h"
 
 #ifdef __cplusplus
 }

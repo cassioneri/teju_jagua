@@ -17,6 +17,7 @@
 #endif
 
 #include <cstdint>
+#include <iosfwd>
 
 namespace teju {
 

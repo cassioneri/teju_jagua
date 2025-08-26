@@ -202,7 +202,6 @@ remove_trailing_zeros(int32_t e, teju_u1_t m) {
  *
  * @returns The fields of the shortest decimal representation.
  */
-inline
 teju_fields_t
 teju_function(teju_fields_t const binary) {
 

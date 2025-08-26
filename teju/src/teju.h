@@ -252,15 +252,12 @@ teju_function(teju_fields_t const binary) {
 
   if (teju_calculation_sorted || a < b) {
 
-    if (s == a) {
-      if (is_tie_uncentred(f, m_a) && wins_tiebreak(m_0))
-        return remove_trailing_zeros(f + 1, q);
-    }
-    else if (s == b) {
-      if (!is_tie_uncentred(f, m_b) || wins_tiebreak(m_0))
-        return remove_trailing_zeros(f + 1, q);
-    }
-    else if (a < s)
+    bool shortest = a < s;
+    if (s == a)
+      shortest = is_tie_uncentred(f, m_a) && wins_tiebreak(m_0);
+    else if (s == b)
+      shortest = !is_tie_uncentred(f, m_b) || wins_tiebreak(m_0);
+    if (shortest)
       return remove_trailing_zeros(f + 1, q);
 
     // m_c = 4 * m_0 * 2^r = 2^{teju_mantissa_width + r + 1}

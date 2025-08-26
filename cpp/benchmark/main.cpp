@@ -7,11 +7,10 @@
  * Benchmark Tejú Jaguá against other algorithms.
  */
 
-#include "../../teju/src/common.h"
-#include "teju/src/config.h"
 #include "cpp/benchmark/stats.hpp"
 #include "cpp/common/exception.hpp"
 #include "cpp/common/traits.hpp"
+#include "teju/src/common.h"
 
 #include <gtest/gtest.h>
 #include <nanobench.h>

@@ -33,7 +33,7 @@ namespace {
 
 auto constexpr run_teju      = true;
 auto constexpr run_dragonbox = true;
-auto constexpr run_ryu       = false;
+auto constexpr run_ryu       = true;
 
 auto constexpr str_algorithm = "algorithm";
 auto const     str_teju      = std::string_view{"teju"};

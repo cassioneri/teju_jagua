@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file teju/literal.h
+ * @file teju/src/literal.h
  *
  * Workaround for lack of support for large literals.
  *
@@ -12,11 +12,6 @@
 
 #ifndef TEJU_TEJU_LITERAL_H_
 #define TEJU_TEJU_LITERAL_H_
-/**
- * @file teju/src/literal.h
- *
- * Helpers to define 128-bits unsigned literals.
- */
 
 /**
  * @brief Constructs a number from its two halves.

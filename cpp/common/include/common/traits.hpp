@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file cpp/common/traits.hpp
+ * @file common/traits.hpp
  *
  * Traits for floating-point number types.
  */
@@ -20,7 +20,6 @@
 #include "teju/src/config.h"
 
 namespace teju {
-
 namespace detail {
 
   /**

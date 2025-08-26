@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file teju/src/double.h
+ * @file teju/double.h
  *
  * Tejú Jaguá and helpers for double values.
  */

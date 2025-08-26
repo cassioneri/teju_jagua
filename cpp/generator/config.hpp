@@ -4,7 +4,7 @@
 /**
  * @file cpp/generator/config.hpp
  *
- * Generator of Tejú Jaguá's implementations.
+ * Configuration of Tejú Jaguá's implementations.
  */
 
 #ifndef TEJU_CPP_GENERATOR_CONFIG_HPP_

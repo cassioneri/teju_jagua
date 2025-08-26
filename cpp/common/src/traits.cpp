@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file cpp/common/traits.cpp
+ * @file cpp/common/src/traits.cpp
  *
  * Traits for floating-point number types.
  */

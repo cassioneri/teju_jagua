@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file cpp/common/ryu.hpp
+ * @file common/ryu.hpp
  *
  * Tejú Jaguá's wrapper around ryu used for testing and benchmarking.
  */

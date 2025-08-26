@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file cpp/benchmark/benchmark.cpp
+ * @file cpp/benchmark/main.cpp
  *
  * Benchmark Tejú Jaguá against other algorithms.
  */

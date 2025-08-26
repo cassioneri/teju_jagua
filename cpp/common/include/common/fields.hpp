@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file cpp/common/fields.hpp
+ * @file common/fields.hpp
  *
  * C++ wrapper around the C fields of floating-point representation.
  */

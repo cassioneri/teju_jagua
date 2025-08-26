@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
+/**
+ * @file cpp/generator/config.cpp
+ *
+ * Configuration of Tejú Jaguá's implementations.
+ */
+
 #include "config.hpp"
 
 #include "common/exception.hpp"

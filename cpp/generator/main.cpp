@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
+/**
+ * @file cpp/generator/main.cpp
+ *
+ * Generator's executable.
+ */
+
 #include "config.hpp"
 #include "generator.hpp"
 

@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
+/**
+ * @file cpp/generator/generator.cpp
+ *
+ * Generator of Tejú Jaguá's implementations.
+ */
+
 #include "generator.hpp"
 #include "multiprecision.hpp"
 #include "splitter.hpp"

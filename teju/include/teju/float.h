@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file teju/src/float.h
+ * @file teju/float.h
  *
  * Tejú Jaguá and helpers for float values.
  */

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file cpp/common/dragonbox.hpp
+ * @file common/dragonbox.hpp
  *
  * Tejú Jaguá's wrapper around dragonbox used for testing and benchmarking.
  */

@@ -13,6 +13,12 @@
 #include <cstdio>
 #include <stdexcept>
 
+/**
+ * @file common/exception.hpp
+ *
+ * Tejú Jaguá's error handling.
+ */
+
 namespace teju {
 
 /**

@@ -20,9 +20,9 @@ add_executable(test
   synthetic_2.cpp
 )
 
-target_link_libraries(test
-  teju
+target_link_libraries(test PRIVATE
   Boost::multiprecision
   gtest_main
   others
+  teju
 )

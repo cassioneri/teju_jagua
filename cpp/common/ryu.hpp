@@ -10,8 +10,6 @@
 #ifndef TEJU_CPP_COMMON_RYU_HPP_
 #define TEJU_CPP_COMMON_RYU_HPP_
 
-#include "../../teju/src/config.h"
-
 #include <ryu/ryu.h>
 
 #if defined(__GNUC__) || defined(__clang__)

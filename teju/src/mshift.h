@@ -10,11 +10,6 @@
 #ifndef TEJU_TEJU_SRC_MSHIFT_H_
 #define TEJU_TEJU_SRC_MSHIFT_H_
 
-#if !defined(teju_calculation_mshift) || !defined(teju_u1_t) || \
-  !defined(teju_width)
-  #error "Macros teju_calculation_mshift, teju_width and teju_u1_t must be defined prior to inclusion of mshift.h."
-#endif
-
 #include "teju/src/common.h"
 #include "teju/src/config.h"
 

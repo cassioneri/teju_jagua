@@ -10,13 +10,7 @@
 #ifndef TEJU_TEJU_SRC_DIV10_H_
 #define TEJU_TEJU_SRC_DIV10_H_
 
-#if !defined(teju_u1_t) || !defined(teju_width)
-  #error "Macros teju_width and teju_u1_t must be defined prior to inclusion of div10.h."
-#endif
-
 #include "teju/src/config.h"
-
-#include <assert.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -6,7 +6,7 @@
 #include "teju/float128.h"
 #include "teju/src/common.h"
 
-#include "teju/generated/ieee128.h"
+#include "teju/src/generated/ieee128.h"
 
 #include <assert.h>
 #include <stdint.h>

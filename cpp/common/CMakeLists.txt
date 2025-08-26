@@ -10,8 +10,9 @@ target_include_directories(others PUBLIC
   "${CMAKE_SOURCE_DIR}"
 )
 
-target_link_libraries(others
+target_link_libraries(others PUBLIC
   Boost::multiprecision
   dragonbox::dragonbox
   ryu::ryu
+  teju
 )

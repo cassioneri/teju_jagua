@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
+#include "teju/float.h"
 #include "teju/src/common.h"
-#include "teju/src/float.h"
 
 #if defined(teju_has_uint128)
   #include "teju/generated/ieee32_with_uint128.h"

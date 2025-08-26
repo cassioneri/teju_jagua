@@ -3,8 +3,8 @@
 
 #if defined(teju_has_float16)
 
+#include "teju/float16.h"
 #include "teju/src/common.h"
-#include "teju/src/float16.h"
 
 #if defined(teju_has_uint128)
   #include "teju/generated/ieee16_with_uint128.h"

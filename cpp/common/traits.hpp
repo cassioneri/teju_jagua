@@ -13,11 +13,11 @@
 #include "cpp/common/fields.hpp"
 #include "cpp/common/dragonbox.hpp"
 #include "cpp/common/ryu.hpp"
+#include "teju/double.h"
+#include "teju/float.h"
+#include "teju/float16.h"
+#include "teju/float128.h"
 #include "teju/src/config.h"
-#include "teju/src/double.h"
-#include "teju/src/float.h"
-#include "teju/src/float128.h"
-#include "teju/src/float16.h"
 
 namespace teju {
 

@@ -6,7 +6,7 @@
 #ifndef TEJU_TEJU_GENERATED_X86_EXTENDED_H_
 #define TEJU_TEJU_GENERATED_X86_EXTENDED_H_
 
-#include "teju/config.h"
+#include "teju/src/config.h"
 
 #ifdef __cplusplus
 extern "C" {

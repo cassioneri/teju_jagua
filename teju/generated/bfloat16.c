@@ -3,9 +3,9 @@
 
 // This file was generated. DO NOT EDIT IT.
 
-#include "bfloat16.h"
+#include "./bfloat16.h"
 
-#include "teju/literal.h"
+#include "teju/src/literal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -132,7 +132,7 @@ static struct {
   { 0x46a5, 0x0000 }, // 7
 };
 
-#include "../src/teju.h"
+#include "teju/src/teju.h"
 
 #ifdef __cplusplus
 }

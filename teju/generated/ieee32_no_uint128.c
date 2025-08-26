@@ -3,9 +3,9 @@
 
 // This file was generated. DO NOT EDIT IT.
 
-#include "ieee32_no_uint128.h"
+#include "./ieee32_no_uint128.h"
 
-#include "teju/literal.h"
+#include "teju/src/literal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -137,7 +137,7 @@ static struct {
   { 0xf6433fbd, 0x00000003 }, // 13
 };
 
-#include "../src/teju.h"
+#include "teju/src/teju.h"
 
 #ifdef __cplusplus
 }

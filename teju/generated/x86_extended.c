@@ -3,9 +3,9 @@
 
 // This file was generated. DO NOT EDIT IT.
 
-#include "x86_extended.h"
+#include "./x86_extended.h"
 
-#include "teju/literal.h"
+#include "teju/src/literal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -9942,7 +9942,7 @@ static struct {
   { teju_literal2(0xed84c0d863912975, 0x6fbd4c4a34909285), teju_literal2(0x0000000000000000, 0x01039d66589687f9) }, // 31
 };
 
-#include "teju/teju.h"
+#include "teju/src/teju.h"
 
 #ifdef __cplusplus
 }

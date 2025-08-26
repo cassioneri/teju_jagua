@@ -3,9 +3,9 @@
 
 // This file was generated. DO NOT EDIT IT.
 
-#include "ieee128.h"
+#include "./ieee128.h"
 
-#include "../src/literal.h"
+#include "teju/src/literal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -9963,7 +9963,7 @@ static struct {
   { teju_literal2(0xa09b9a9f23c1b749, 0xe2c0e45215147b51), teju_literal2(0x0000000000000000, 0x0000000000000099) }, // 52
 };
 
-#include "../src/teju.h"
+#include "teju/src/teju.h"
 
 #ifdef __cplusplus
 }

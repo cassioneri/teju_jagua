@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
-#include "../../teju/src/common.h"
 #include "cpp/common/exception.hpp"
 #include "cpp/generator/generator.hpp"
 #include "cpp/generator/multiprecision.hpp"
 #include "cpp/generator/splitter.hpp"
+#include "teju/src/common.h"
 
 #include <algorithm>
 #include <fstream>
-#include <limits>
 
 namespace teju {
 
@@ -381,7 +380,7 @@ generator_t::generate_dot_h(std::ostream& stream) const {
     "#ifndef " << include_guard << "\n"
     "#define " << include_guard << "\n"
     "\n"
-    "#include \"teju/config.h\"\n"
+    "#include \"teju/src/config.h\"\n"
     "\n"
     "#ifdef __cplusplus\n"
     "extern \"C\" {\n"
@@ -411,9 +410,9 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   generate_license(stream) <<
     "// This file was generated. DO NOT EDIT IT.\n"
     "\n"
-    "#include \"" << dot_h() << "\"\n"
+    "#include \"./" << dot_h() << "\"\n"
     "\n"
-    "#include \"teju/literal.h\"\n"
+    "#include \"teju/src/literal.h\"\n"
     "\n"
     "#ifdef __cplusplus\n"
     "extern \"C\" {\n"
@@ -556,7 +555,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   stream << std::dec <<
     "};\n"
     "\n"
-    "#include \"teju/teju.h\"\n"
+    "#include \"teju/src/teju.h\"\n"
     "\n"
     "#ifdef __cplusplus\n"
     "}\n"

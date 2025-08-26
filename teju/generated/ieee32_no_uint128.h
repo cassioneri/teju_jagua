@@ -6,7 +6,7 @@
 #ifndef TEJU_TEJU_GENERATED_IEEE32_NO_UINT128_H_
 #define TEJU_TEJU_GENERATED_IEEE32_NO_UINT128_H_
 
-#include "../src/config.h"
+#include "teju/src/config.h"
 
 #ifdef __cplusplus
 extern "C" {

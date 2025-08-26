@@ -7,10 +7,10 @@
  * Tejú Jaguá and helpers for double values.
  */
 
-#ifndef TEJU_TEJU_SRC_DOUBLE_H_
-#define TEJU_TEJU_SRC_DOUBLE_H_
+#ifndef TEJU_TEJU_INCLUDE_TEJU_DOUBLE_H_
+#define TEJU_TEJU_INCLUDE_TEJU_DOUBLE_H_
 
-#include "../../src/config.h"
+#include "teju/src/config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,4 +44,4 @@ teju_double_to_decimal(double value);
 }
 #endif
 
-#endif // TEJU_TEJU_SRC_DOUBLE_H_
+#endif // TEJU_TEJU_INCLUDE_TEJU_DOUBLE_H_

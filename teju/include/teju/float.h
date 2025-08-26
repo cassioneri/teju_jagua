@@ -7,8 +7,8 @@
  * Tejú Jaguá and helpers for float values.
  */
 
-#ifndef TEJU_TEJU_SRC_FLOAT_H_
-#define TEJU_TEJU_SRC_FLOAT_H_
+#ifndef TEJU_TEJU_INCLUDE_TEJU_FLOAT_H_
+#define TEJU_TEJU_INCLUDE_TEJU_FLOAT_H_
 
 #include "teju/src/config.h"
 
@@ -44,4 +44,4 @@ teju_float_to_decimal(float value);
 }
 #endif
 
-#endif // TEJU_TEJU_SRC_FLOAT_H_
+#endif // TEJU_TEJU_INCLUDE_TEJU_FLOAT_H_

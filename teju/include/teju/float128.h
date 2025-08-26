@@ -7,8 +7,8 @@
  * Tejú Jaguá and helpers for float128_t values.
  */
 
-#ifndef TEJU_TEJU_SRC_FLOAT128_H_
-#define TEJU_TEJU_SRC_FLOAT128_H_
+#ifndef TEJU_TEJU_INCLUDE_TEJU_FLOAT128_H_
+#define TEJU_TEJU_INCLUDE_TEJU_FLOAT128_H_
 
 #if defined(teju_has_float128)
 
@@ -47,4 +47,4 @@ teju_float128_to_decimal(float128_t value);
 #endif
 
 #endif // defined(teju_has_float128)
-#endif // TEJU_TEJU_SRC_FLOAT128_H_
+#endif // TEJU_TEJU_INCLUDE_TEJU_FLOAT128_H_

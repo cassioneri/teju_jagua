@@ -3,7 +3,7 @@
 
 #if defined(teju_has_float128)
 
-#include "common.h"
+#include "teju/src/common.h"
 #include "teju/src/float128.h"
 
 #include "teju/generated/ieee128.h"

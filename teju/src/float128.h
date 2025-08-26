@@ -12,7 +12,7 @@
 
 #if defined(teju_has_float128)
 
-#include "config.h"
+#include "teju/src/config.h"
 
 #ifdef __cplusplus
 extern "C" {

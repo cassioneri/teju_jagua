@@ -10,10 +10,10 @@
 #ifndef TEJU_TEJU_SRC_TEJU_H_
 #define TEJU_TEJU_SRC_TEJU_H_
 
-#include "common.h"
+#include "teju/src/common.h"
 #include "teju/src/config.h"
-#include "div10.h"
-#include "mshift.h"
+#include "teju/src/div10.h"
+#include "teju/src/mshift.h"
 
 #include <assert.h>
 #include <stdbool.h>

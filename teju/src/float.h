@@ -10,7 +10,7 @@
 #ifndef TEJU_TEJU_SRC_FLOAT_H_
 #define TEJU_TEJU_SRC_FLOAT_H_
 
-#include "config.h"
+#include "teju/src/config.h"
 
 #ifdef __cplusplus
 extern "C" {

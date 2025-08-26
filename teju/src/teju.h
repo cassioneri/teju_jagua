@@ -219,10 +219,10 @@ teju_function(teju_fields_t const binary) {
 
   if (m != m_0 || e == teju_exponent_min) {
 
-    teju_u1_t const m_b = (2u * m + 1u) << r;
-    teju_u1_t const b   = teju_mshift(m_b, M);
     teju_u1_t const m_a = (2u * m - 1u) << r;
+    teju_u1_t const m_b = (2u * m + 1u) << r;
     teju_u1_t const a   = teju_mshift(m_a, M);
+    teju_u1_t const b   = teju_mshift(m_b, M);
     teju_u1_t const q   = teju_div10(b);
     teju_u1_t const s   = 10u * q;
 
@@ -231,6 +231,7 @@ teju_function(teju_fields_t const binary) {
       shortest = !is_tie(f, m_b) || wins_tiebreak(m);
     else if (s == a)
       shortest = is_tie(f, m_a) && wins_tiebreak(m);
+
     if (shortest)
       return remove_trailing_zeros(f + 1, q);
 
@@ -243,10 +244,10 @@ teju_function(teju_fields_t const binary) {
     return make_fields(f, c + step);
   }
 
-  teju_u1_t const m_b = (2u * m_0 + 1u) << r;
-  teju_u1_t const b   = teju_mshift(m_b, M);
   teju_u1_t const m_a = (4u * m_0 - 1u) << r;
+  teju_u1_t const m_b = (2u * m_0 + 1u) << r;
   teju_u1_t const a   = teju_mshift(m_a, M) / 2u;
+  teju_u1_t const b   = teju_mshift(m_b, M);
   teju_u1_t const q   = teju_div10(b);
   teju_u1_t const s   = 10u * q;
 

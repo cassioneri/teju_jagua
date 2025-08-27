@@ -89,6 +89,30 @@ make_fields(int32_t const e, teju_u1_t const m) {
   return fields;
 }
 
+/**
+ * @brief Shortens the decimal representation of m * 10^e by removing trailing
+ *        zeros from m and increasing e accordingly.
+ *
+ * @param  e                The exponent e.
+ * @param  m                The mantissa m.
+ *
+ * @returns The fields of the shortest close decimal representation.
+ */
+static inline
+teju_fields_t
+remove_trailing_zeros(int32_t e, teju_u1_t m) {
+  // Subtracting from zero prevents msvc warning C4146.
+  teju_u1_t const minv5 = 0u - ((teju_u1_t) -1) / 5u;
+  teju_u1_t const bound = ((teju_u1_t) -1) / 10u + 1u;
+  while (true) {
+    teju_u1_t const q = ror(1u * m * minv5);
+    if (q >= bound)
+      return make_fields(e, m);
+    ++e;
+    m = q;
+  }
+}
+
 //------------------------------------------------------------------------------
 // Tejú Jaguá
 //------------------------------------------------------------------------------
@@ -109,6 +133,27 @@ is_small_integer(int32_t const e, teju_u1_t const m) {
 }
 
 /**
+ * @brief The mantissa of uncentred floating-point numbers.
+ */
+static
+teju_u1_t const m_uncentred = teju_pow2(teju_u1_t, teju_mantissa_width - 1u);
+
+/**
+ * @brief Checks whether the number m * 2^e is a centred floating-point number.
+ *
+ * @param  e                The exponent e.
+ * @param  m                The mantissa m.
+ *
+ * @returns true if m * 2^e is a centred floating-point number and false,
+ *          otherwise.
+ */
+static inline
+bool
+is_centred(int32_t const e, teju_u1_t const m) {
+  return m != m_uncentred || e == teju_exponent_min;
+}
+
+/**
  * @brief Checks whether m, for m in { m_a, m_b, c_2 }, yields a tie.
  *
  * When called to detect a tie between c * 10^f and (c + 1) * 10^f, i.e., for
@@ -125,21 +170,6 @@ bool
 is_tie(int32_t const f, teju_u1_t const m) {
   return 0 <= f && (uint32_t) f < sizeof(minverse) / sizeof(minverse[0]) &&
     is_multiple_of_pow5(f, m);
-}
-
-/**
- * @brief Checks whether m, for m in { m_a, m_b }, yields a tie in the uncentred
- *        case.
- *
- * @param  f                The exponent f.
- * @param  m                The number m.
- *
- * @returns true if m yields a tie and false, otherwise.
- */
-static inline
-bool
-is_tie_uncentred(int32_t const f, teju_u1_t const m) {
-  return m % 5u == 0 && is_tie(f, m);
 }
 
 /**
@@ -170,33 +200,122 @@ is_closer_to_left(teju_u1_t const c_2) {
 }
 
 /**
- * @brief Shortens the decimal representation of m * 10^e by removing trailing
- *        zeros from m and increasing e accordingly.
+ * @brief This is Tejú Jaguá for x = m * 2^e for, where x is a centred
+ *        floating-point number.
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
  *
- * @returns The fields of the shortest close decimal representation.
+ * @returns The fields of the shortest decimal representation.
+ */
+static inline
+teju_fields_t centred(int32_t const e, teju_u1_t const m) {
+
+  int32_t           const f   = teju_log10_pow2(e);
+  uint32_t          const r   = teju_log10_pow2_residual(e);
+  teju_multiplier_t const M   = multipliers[f - teju_storage_index_offset];
+  teju_u1_t         const m_a = (2u * m - 1u) << r;
+  teju_u1_t         const m_b = (2u * m + 1u) << r;
+  teju_u1_t         const b   = teju_mshift(m_b, M);
+  teju_u1_t         const a   = teju_mshift(m_a, M);
+  teju_u1_t         const q   = teju_div10(b);
+  teju_u1_t         const s   = 10u * q;
+
+  bool const shortest =
+    s == a ?  is_tie(f, m_a) && wins_tiebreak(m) :
+    s == b ? !is_tie(f, m_b) || wins_tiebreak(m) :
+    a <  s;
+  if (shortest)
+    return remove_trailing_zeros(f + 1, q);
+
+  teju_u1_t const m_c = 4u * m << r;
+  teju_u1_t const c_2 = teju_mshift(m_c, M);
+  teju_u1_t const c   = c_2 / 2u;
+
+  bool const pick_left = (is_tie(-f, c_2) && wins_tiebreak(c)) ||
+    is_closer_to_left(c_2);
+
+  return make_fields(f, c + !pick_left);
+}
+
+/**
+ * @brief Checks whether m, for m in { m_a, m_b }, yields a tie in the uncentred
+ *        case.
+ *
+ * @param  f                The exponent f.
+ * @param  m                The number m.
+ *
+ * @returns true if m yields a tie and false, otherwise.
+ */
+static inline
+bool
+is_tie_uncentred(int32_t const f, teju_u1_t const m) {
+  return m % 5u == 0 && is_tie(f, m);
+}
+
+/**
+ * @brief This is Tejú Jaguá for x = m * 2^e for, where x is an uncentred
+ *        floating-point number, i.e., m = m_uncentred.
+ *
+ * @param  e                The exponent e.
+ *
+ * @returns The fields of the shortest decimal representation.
  */
 static inline
 teju_fields_t
-remove_trailing_zeros(int32_t e, teju_u1_t m) {
-  // Subtracting from zero prevents msvc warning C4146.
-  teju_u1_t const minv5 = 0u - ((teju_u1_t) -1) / 5u;
-  teju_u1_t const bound = ((teju_u1_t) -1) / 10u + 1u;
-  while (true) {
-    teju_u1_t const q = ror(1u * m * minv5);
-    if (q >= bound)
-      return make_fields(e, m);
-    ++e;
-    m = q;
+uncentred(int32_t const e) {
+
+  teju_u1_t         const m   = m_uncentred;
+  int32_t           const f   = teju_log10_pow2(e);
+  uint32_t          const r   = teju_log10_pow2_residual(e);
+  teju_multiplier_t const M   = multipliers[f - teju_storage_index_offset];
+  teju_u1_t         const m_a = (4u * m - 1u) << r;
+  teju_u1_t         const m_b = (2u * m + 1u) << r;
+  teju_u1_t         const b   = teju_mshift(m_b, M);
+  teju_u1_t         const a   = teju_mshift(m_a, M) / 2u;
+  teju_u1_t         const q   = teju_div10(b);
+  teju_u1_t         const s   = 10u * q;
+
+  if (teju_calculation_sorted || a < b) {
+
+    bool const shortest =
+      s == a ?  is_tie_uncentred(f, m_a) && wins_tiebreak(m) :
+      s == b ? !is_tie_uncentred(f, m_b) || wins_tiebreak(m) :
+      a <  s;
+
+    if (shortest)
+      return remove_trailing_zeros(f + 1, q);
+
+    // m_c = 4 * m_0 * 2^r = 2^{teju_mantissa_width + r + 1}
+    // c_2 = teju_mshift(m_c, upper, lower);
+    uint32_t  const log2_m_c = teju_mantissa_width + r + 1u;
+    teju_u1_t const c_2      = mshift_pow2(log2_m_c, M);
+    teju_u1_t const c        = c_2 / 2u;
+
+    if (c == a && !is_tie_uncentred(f, m_a))
+      return make_fields(f, c + 1u);
+
+    bool const pick_left = (is_tie(-f, c_2) && wins_tiebreak(c)) ||
+      is_closer_to_left(c_2);
+
+    return make_fields(f, c + !pick_left);
   }
+
+  if (is_tie_uncentred(f, m_a))
+    return remove_trailing_zeros(f, a);
+
+  teju_u1_t const m_c = 40u * m << r;
+  teju_u1_t const c_2 = teju_mshift(m_c, M);
+  teju_u1_t const c   = c_2 / 2u;
+
+  bool const pick_left = (is_tie(-f, c_2) && wins_tiebreak(c)) ||
+    is_closer_to_left(c_2);
+
+  return make_fields(f - 1, c + !pick_left);
 }
 
 /**
  * @brief Finds the shortest decimal representation of m * 2^e.
- *
- * This is Tejú Jaguá itself.
  *
  * @param  binary           The fields of the binary representation.
  *
@@ -211,80 +330,10 @@ teju_function(teju_fields_t const binary) {
   if (is_small_integer(e, m))
     return remove_trailing_zeros(0, 1u * m >> -e);
 
-  int32_t           const f   = teju_log10_pow2(e);
-  uint32_t          const r   = teju_log10_pow2_residual(e);
-  uint32_t          const i   = f - teju_storage_index_offset;
-  teju_multiplier_t const M   = multipliers[i];
-  teju_u1_t         const m_0 = teju_pow2(teju_u1_t, teju_mantissa_width - 1u);
+  if (is_centred(e, m))
+    return centred(e, m);
 
-  if (m != m_0 || e == teju_exponent_min) {
-
-    teju_u1_t const m_a = (2u * m - 1u) << r;
-    teju_u1_t const m_b = (2u * m + 1u) << r;
-    teju_u1_t const a   = teju_mshift(m_a, M);
-    teju_u1_t const b   = teju_mshift(m_b, M);
-    teju_u1_t const q   = teju_div10(b);
-    teju_u1_t const s   = 10u * q;
-
-    bool shortest = a < s;
-    if (s == b)
-      shortest = !is_tie(f, m_b) || wins_tiebreak(m);
-    else if (s == a)
-      shortest = is_tie(f, m_a) && wins_tiebreak(m);
-
-    if (shortest)
-      return remove_trailing_zeros(f + 1, q);
-
-    teju_u1_t const m_c = 4u * m << r;
-    teju_u1_t const c_2 = teju_mshift(m_c, M);
-    teju_u1_t const c   = c_2 / 2u;
-
-    teju_u1_t const step = !(is_tie(-f, c_2) && wins_tiebreak(c)) &&
-      !is_closer_to_left(c_2);
-    return make_fields(f, c + step);
-  }
-
-  teju_u1_t const m_a = (4u * m_0 - 1u) << r;
-  teju_u1_t const m_b = (2u * m_0 + 1u) << r;
-  teju_u1_t const a   = teju_mshift(m_a, M) / 2u;
-  teju_u1_t const b   = teju_mshift(m_b, M);
-  teju_u1_t const q   = teju_div10(b);
-  teju_u1_t const s   = 10u * q;
-
-  if (teju_calculation_sorted || a < b) {
-
-    bool shortest = a < s;
-    if (s == a)
-      shortest = is_tie_uncentred(f, m_a) && wins_tiebreak(m_0);
-    else if (s == b)
-      shortest = !is_tie_uncentred(f, m_b) || wins_tiebreak(m_0);
-    if (shortest)
-      return remove_trailing_zeros(f + 1, q);
-
-    // m_c = 4 * m_0 * 2^r = 2^{teju_mantissa_width + r + 1}
-    // c_2 = teju_mshift(m_c, upper, lower);
-    uint32_t  const log2_m_c = teju_mantissa_width + r + 1u;
-    teju_u1_t const c_2      = mshift_pow2(log2_m_c, M);
-    teju_u1_t const c        = c_2 / 2u;
-
-    if (c == a && !is_tie_uncentred(f, m_a))
-      return make_fields(f, c + 1u);
-
-    teju_u1_t const step = !(is_tie(-f, c_2) && wins_tiebreak(c)) &&
-      !is_closer_to_left(c_2);
-    return make_fields(f, c + step);
-  }
-
-  if (is_tie_uncentred(f, m_a))
-    return remove_trailing_zeros(f, a);
-
-  teju_u1_t const m_c = 40u * m_0 << r;
-  teju_u1_t const c_2 = teju_mshift(m_c, M);
-  teju_u1_t const c   = c_2 / 2u;
-
-  teju_u1_t const step = !(is_tie(-f, c_2) && wins_tiebreak(c)) &&
-    !is_closer_to_left(c_2);
-  return make_fields(f - 1, c + step);
+  return uncentred(e);
 }
 
 #ifdef __cplusplus

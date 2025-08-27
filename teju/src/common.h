@@ -27,10 +27,10 @@ extern "C" {
  *
  * @returns 2^e.
  */
-#define teju_pow2(type, e) ((type) (((type) 1u) << (e)))
+#define teju_pow2(type, e) ((type) ((type) 1u << (e)))
 
  /**
- * @brief Returns the k least significant bits of n (i.e. n % 2^k.)
+ * @brief Returns the k least-significant bits of n (i.e. n % 2^k.)
  *
  * @tparam type             The type of n.
  * @param  n                The value of n.
@@ -38,13 +38,13 @@ extern "C" {
  *
  * @pre k < sizeof(n) * CHAR_BIT.
  *
- * @returns The k least significant bits of n.
+ * @returns The k least-significant bits of n.
  */
 #define teju_lsb(type, n, k) ((n) % teju_pow2(type, k))
 
 // Argument bounds of teju_log10_pow2.
-#define teju_log10_pow2_min -112815
-#define teju_log10_pow2_max  112815
+#define teju_log10_pow2_min (-112815)
+#define teju_log10_pow2_max   112815
 
 /**
  * @brief Returns the largest exponent f such that 10^f <= 2^e, i.e., the
@@ -60,7 +60,7 @@ static inline
 int32_t
 teju_log10_pow2(int32_t const e) {
   assert(teju_log10_pow2_min <= e && e <= teju_log10_pow2_max);
-  return (((int64_t) 1292913987u) * e) >> 32u;
+  return (int32_t) ((int64_t) 1292913987u * e >> 32u);
 }
 
 /**
@@ -78,7 +78,7 @@ static inline
 uint32_t
 teju_log10_pow2_residual(int32_t const e) {
   assert(teju_log10_pow2_min <= e && e <= teju_log10_pow2_max);
-  return ((uint32_t) (((int64_t) 1292913987u) * e)) / 1292913987u;
+  return (uint32_t) ((int64_t) 1292913987u * e) / 1292913987u;
 }
 
 #ifdef __cplusplus

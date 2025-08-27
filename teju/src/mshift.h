@@ -89,7 +89,7 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
     teju_u2_t const n = (((teju_u2_t) u) << teju_width) | l;
     teju_u2_t r2;
     (void) teju_multiply(n, m, &r2);
-    return r2;
+    return (teju_u1_t) r2;
 
   #elif teju_calculation_mshift == teju_built_in_2
 
@@ -99,9 +99,9 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
     //                       with s01 := s0 / x, s00 := s0 % x in [0, x[,
     //                 = (s1 + s01) * x + s00.
 
-    teju_u2_t const s0 = 1u * ((teju_u2_t) l) * m;
+    teju_u2_t const s01 = (1u * ((teju_u2_t) l) * m) >> teju_width;
     teju_u2_t const s1 = 1u * ((teju_u2_t) u) * m;
-    return (s1 + (s0 >> teju_width)) >> teju_width;
+    return (teju_u1_t) ((s1 + s01) >> teju_width);
 
   #elif teju_calculation_mshift == teju_synthetic_1
 
@@ -196,7 +196,7 @@ mshift_pow2(uint32_t const k, teju_multiplier_t const M) {
   teju_u1_t const u = M.upper;
   teju_u1_t const l = M.lower;
 
-  int32_t   const s = k - teju_width;
+  int32_t   const s = (int32_t) (k - teju_width);
 
   if (s <= 0)
     return u >> -s;

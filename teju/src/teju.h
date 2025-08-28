@@ -133,13 +133,29 @@ is_small_integer(int32_t const e, teju_u1_t const m) {
 }
 
 /**
+ * @brief Finds the shortest decimal representation of x = m * 2^e when x is a
+ *        "small" integer.
+ *
+ * @param  e                The exponent e.
+ * @param  m                The mantissa m.
+ *
+ * @returns The shortest decimal representation.
+ */
+static inline
+teju_fields_t
+to_decimal_small_integer(int32_t const e, teju_u1_t const m) {
+  return remove_trailing_zeros(0, 1u * m >> -e);
+}
+
+/**
  * @brief The mantissa of uncentred floating-point numbers.
  */
 static
-teju_u1_t const m_uncentred = teju_pow2(teju_u1_t, teju_mantissa_width - 1u);
+teju_u1_t const mantissa_uncentred =
+  teju_pow2(teju_u1_t, teju_mantissa_width - 1u);
 
 /**
- * @brief Checks whether the number m * 2^e is a centred floating-point number.
+ * @brief Checks whether m * 2^e is a centred floating-point number.
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
@@ -150,7 +166,7 @@ teju_u1_t const m_uncentred = teju_pow2(teju_u1_t, teju_mantissa_width - 1u);
 static inline
 bool
 is_centred(int32_t const e, teju_u1_t const m) {
-  return m != m_uncentred || e == teju_exponent_min;
+  return m != mantissa_uncentred || e == teju_exponent_min;
 }
 
 /**
@@ -175,6 +191,11 @@ is_tie(int32_t const f, teju_u1_t const m) {
 /**
  * @brief Checks whether mantissa m wins the tiebreak against its neighbour.
  *
+  * Implements the ties-to-even rule, i.e., m wins the tiebreak if it's even.
+  * Contrarily to other tie-breaking rules, this one doesn't depend on the
+  * neighbour that m is competing against or the sign of the floating-point
+  * number.
+  *
  * @param  m                The mantissa m.
  *
  * @returns true if m wins the tiebreak and false, otherwise.
@@ -200,23 +221,23 @@ is_closer_to_left(teju_u1_t const c_2) {
 }
 
 /**
- * @brief This is Tejú Jaguá for x = m * 2^e for, where x is a centred
- *        floating-point number.
+ * @brief Tejú Jaguá for x = m * 2^e when x is centred.
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
  *
- * @returns The fields of the shortest decimal representation.
+ * @returns The shortest decimal representation.
  */
 static inline
-teju_fields_t centred(int32_t const e, teju_u1_t const m) {
+teju_fields_t
+to_decimal_centred(int32_t const e, teju_u1_t const m) {
 
   int32_t           const f        = teju_log10_pow2(e);
   uint32_t          const r        = teju_log10_pow2_residual(e);
   teju_multiplier_t const M        = multipliers[f - teju_storage_index_offset];
   teju_u1_t         const m_b      = (2u * m + 1u) << r;
   teju_u1_t         const m_a      = (2u * m - 1u) << r;
-  teju_u1_t         const a_is_tie = is_tie(f, m_a);
+  bool              const a_is_tie = is_tie(f, m_a);
   teju_u1_t         const b        = teju_mshift(m_b, M);
   teju_u1_t         const a        = teju_mshift(m_a, M) + !a_is_tie;
   teju_u1_t         const q        = teju_div10(b);
@@ -229,11 +250,10 @@ teju_fields_t centred(int32_t const e, teju_u1_t const m) {
   if (shortest)
     return remove_trailing_zeros(f + 1, q);
 
-  teju_u1_t const m_c = 4u * m << r;
-  teju_u1_t const c_2 = teju_mshift(m_c, M);
-  teju_u1_t const c   = c_2 / 2u;
-
-  bool const pick_left = (is_tie(-f, c_2) && wins_tiebreak(c)) ||
+  teju_u1_t const m_c       = 4u * m << r;
+  teju_u1_t const c_2       = teju_mshift(m_c, M);
+  teju_u1_t const c         = c_2 / 2u;
+  bool      const pick_left = (is_tie(-f, c_2) && wins_tiebreak(c)) ||
     is_closer_to_left(c_2);
 
   return make_fields(f, c + !pick_left);
@@ -255,18 +275,18 @@ is_tie_uncentred(int32_t const f, teju_u1_t const m) {
 }
 
 /**
- * @brief This is Tejú Jaguá for x = m * 2^e for, where x is an uncentred
- *        floating-point number, i.e., m = m_uncentred.
+ * @brief Tejú Jaguá for x = m * 2^e when x is uncentred, i.e., m =
+ *        mantissa_uncentred.
  *
  * @param  e                The exponent e.
  *
- * @returns The fields of the shortest decimal representation.
+ * @returns The shortest decimal representation.
  */
 static inline
 teju_fields_t
-uncentred(int32_t const e) {
+to_decimal_uncentred(int32_t const e) {
 
-  teju_u1_t         const m   = m_uncentred;
+  teju_u1_t         const m   = mantissa_uncentred;
   int32_t           const f   = teju_log10_pow2(e);
   uint32_t          const r   = teju_log10_pow2_residual(e);
   teju_multiplier_t const M   = multipliers[f - teju_storage_index_offset];
@@ -282,12 +302,11 @@ uncentred(int32_t const e) {
     bool const shortest =
       s == a ?  is_tie_uncentred(f, m_a) && wins_tiebreak(m) :
       s == b ? !is_tie_uncentred(f, m_b) || wins_tiebreak(m) :
-      a <  s;
-
+      s >  a;
     if (shortest)
       return remove_trailing_zeros(f + 1, q);
 
-    // m_c = 4 * m_0 * 2^r = 2^{teju_mantissa_width + r + 1}
+    // m_c = 4 * m * 2^r = 2^{teju_mantissa_width + r + 1}
     // c_2 = teju_mshift(m_c, upper, lower);
     uint32_t  const log2_m_c = teju_mantissa_width + r + 1u;
     teju_u1_t const c_2      = mshift_pow2(log2_m_c, M);
@@ -305,36 +324,36 @@ uncentred(int32_t const e) {
   if (is_tie_uncentred(f, m_a))
     return remove_trailing_zeros(f, a);
 
-  teju_u1_t const m_c = 40u * m << r;
-  teju_u1_t const c_2 = teju_mshift(m_c, M);
-  teju_u1_t const c   = c_2 / 2u;
-
-  bool const pick_left = (is_tie(-f, c_2) && wins_tiebreak(c)) ||
+  teju_u1_t const m_c       = 40u * m << r;
+  teju_u1_t const c_2       = teju_mshift(m_c, M);
+  teju_u1_t const c         = c_2 / 2u;
+  bool      const pick_left = (is_tie(-f, c_2) && wins_tiebreak(c)) ||
     is_closer_to_left(c_2);
 
   return make_fields(f - 1, c + !pick_left);
 }
 
 /**
- * @brief Finds the shortest decimal representation of m * 2^e.
+ * @brief Finds the shortest decimal representation of a binary floating-point
+ *        number.
  *
  * @param  binary           The fields of the binary representation.
  *
- * @returns The fields of the shortest decimal representation.
+ * @returns The shortest decimal representation.
  */
-teju_fields_t
+teju_fields_t inline
 teju_function(teju_fields_t const binary) {
 
   int32_t   const e = binary.exponent;
   teju_u1_t const m = binary.mantissa;
 
   if (is_small_integer(e, m))
-    return remove_trailing_zeros(0, 1u * m >> -e);
+    return to_decimal_small_integer(e, m);
 
   if (is_centred(e, m))
-    return centred(e, m);
+    return to_decimal_centred(e, m);
 
-  return uncentred(e);
+  return to_decimal_uncentred(e);
 }
 
 #ifdef __cplusplus

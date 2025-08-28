@@ -364,7 +364,7 @@ TEST(float128, test_hard_coded_values) {
 
 // Adhoc test for a given floating-point number value.
 TEST(ad_hoc, value) {
-  auto const value = 1.0f;
+  auto constexpr value = 1.0;
   compare_to_others(value);
 }
 

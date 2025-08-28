@@ -30,7 +30,7 @@ extern "C" {
  *
  * @param  value            The given value.
  *
- * @pre isfinite(value) && value > 0.
+ * @pre 0.f128 < value && value <= __FLT128_MAX__.
  *
  * @returns The binary representation of the given value.
  */
@@ -38,7 +38,7 @@ inline
 teju128_fields_t
 teju_float128_to_binary(float128_t const value) {
 
-  assert(isfinite(value) && value > 0 && "Invalid float128_t value.");
+  assert(0.f128 < value && value <= __FLT128_MAX__ && "Invalid float128_t value.");
 
   typedef teju128_fields_t teju_fields_t;
   typedef teju128_u1_t     teju_u1_t;

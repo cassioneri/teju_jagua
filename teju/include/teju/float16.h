@@ -34,7 +34,7 @@ extern "C" {
  *
  * @param  value            The given value.
  *
- * @pre isfinite(value) && value > 0.
+ * @pre 0.f16 < value && value <= __FLT16_MAX__.
  *
  * @returns The binary representation of the given value.
  */
@@ -42,7 +42,7 @@ inline
 teju32_fields_t
 teju_float16_to_binary(float16_t const value) {
 
-  assert(isfinite(value) && value > 0 && "Invalid float16_t value.");
+  assert(0.f16 < value && value <= __FLT16_MAX__ && "Invalid float16_t value.");
 
   typedef teju32_fields_t teju_fields_t;
   typedef teju32_u1_t     teju_u1_t;

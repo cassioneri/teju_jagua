@@ -18,19 +18,19 @@ extern "C" {
 #endif
 
 /**
- * @brief Returns 2^e as a given unsigned integer type.
+ * @brief Returns pow(2, e) as a given unsigned integer type.
  *
  * @tparam type             The given type.
  * @param  e                The exponent e.
  *
  * @pre type is an unsigned integer type and e < sizeof(type) * CHAR_BIT.
  *
- * @returns 2^e.
+ * @returns pow(2, e).
  */
 #define teju_pow2(type, e) ((type) ((type) 1u << (e)))
 
  /**
- * @brief Returns the k least-significant bits of n (i.e. n % 2^k.)
+ * @brief Returns the k least-significant bits of n (i.e. n % pow(2, k).)
  *
  * @tparam type             The type of n.
  * @param  n                The value of n.
@@ -47,8 +47,8 @@ extern "C" {
 #define teju_log10_pow2_max   112815
 
 /**
- * @brief Returns the largest exponent f such that 10^f <= 2^e, i.e., the
- *        integer part of log_10(2^e).
+ * @brief Returns the largest exponent f such that pow(10, f) <= pow(2, e),
+ *        i.e., the integer part of log_10(pow(2, e)).
  *
  * @param  e                 The exponent e.
  *
@@ -65,7 +65,8 @@ teju_log10_pow2(int32_t const e) {
 
 /**
  * @brief Returns the residual r = e - e_0, where e_0 is the smallest exponent
- *        such that the integer parts of log_10(2^e_0) and log_10(2^e) match.
+ *        such that the integer parts of log_10(pow(2, e_0)) and
+ *        log_10(pow(2, e)) match.
  *
  * @param  e                The exponent e.
  *

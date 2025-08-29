@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @file cpp/common/exception.hpp
+ * @file common/exception.hpp
  *
  * Exception thrown by Tejú Jaguá.
  */

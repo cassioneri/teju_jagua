@@ -7,7 +7,7 @@
  * Workaround for lack of support for large literals.
  *
  * Some platforms might support uint128_t and, still, lack support for literals
- * of this type. This file provides two macros to workaround this issue.
+ * of this type. This file provides two macros to work around this issue.
  */
 
 #ifndef TEJU_TEJU_LITERAL_H_
@@ -16,8 +16,8 @@
 /**
  * @brief Constructs a number from its two halves.
  *
- * Let N = teju_width / 2. Given a_1, a_0 in [0, 2^N[, this macro expands to
- * a_1 * 2^N + a_0.
+ * Let N = teju_width / 2. Given a_1, a_0 in [0, pow(2, N)[, this macro expands
+ * to a_1 * pow(2, N) + a_0.
  *
  * For instance, if teju_width == 128, then:
  * @code{.cpp}
@@ -39,8 +39,9 @@
 /**
  * @brief Constructs a number from its four quarters.
  *
- * Let N = teju_width / 4. Given a_3, a_2, a_1, a_0 in [0, 2^N[, this macro
- * expands to a_3 * 2^(6 * N) + a_2 * 2^(4 * N) + a_1 2^N + a_0.
+ * Let N = teju_width / 4. Given a_3, a_2, a_1, a_0 in [0, pow(2, N)[, this
+ * macro expands to:
+ *   a_3 * pow(2, 6 * N)) + a_2 * pow(2, 4 * N) + a_1 * pow(2, N) + a_0.
  *
  * For instance, if teju_width == 128, then:
  * @code{.cpp}

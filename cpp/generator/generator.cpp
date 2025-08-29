@@ -63,11 +63,11 @@ to_upper(std::string const& str) {
 }
 
 /**
- * @brief Returns 2^n.
+ * @brief Returns pow(2, n).
  *
  * @param  n                The exponent n.
  *
- * @returns 2^n.
+ * @returns pow(2, n).
  */
 integer_t
 pow2(std::uint32_t const n) {
@@ -75,11 +75,11 @@ pow2(std::uint32_t const n) {
 }
 
 /**
- * @brief Returns 5^n.
+ * @brief Returns pow(5, n).
  *
  * @param  n                The exponent n.
  *
- * @returns 5^n.
+ * @returns pow(5, n).
  */
 integer_t
 pow5(std::uint32_t const n) {
@@ -90,11 +90,11 @@ pow5(std::uint32_t const n) {
 }
 
 /**
- * @brief Returns the inverse of 5 modulo 2^k.
+ * @brief Returns the inverse of 5 modulo pow(2, k).
  *
  * @param  k                The exponent k.
  *
- * @returns The inverse of 5 modulo 2^k
+ * @returns The inverse of 5 modulo pow(2, k).
  */
 integer_t
 minverse5(std::uint32_t k) {
@@ -532,16 +532,17 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   //   Centred case:
   //     m_a = (( 2 * m - 1) << r)                      <= ( 2 * M - 1) * 8;
   //     m_b = (( 2 * m + 1) << r)                      <= ( 2 * M + 1) * 8;
-  //     c_2 = (( 4 * m    ) << r) * 2^(e_0 - 1) / 10^f <  ( 4 * M    ) * 8.
+  //     c_2 = (( 4 * m    ) << r) * pow(2, e_0 - 1) / pow(10, f) < 4 * M * 8.
   //
   //   Uncentred case:
-  //     c_2 = (( 4 * m    ) << r) * 2^(e_0 - 1) / 10^f <  ( 4 * M    ) * 8.
+  //     c_2 = (( 4 * m    ) << r) * pow(2, e_0 - 1) / pow(10, f) < 4 * M * 8.
   //
   //   Uncentred case, refined:
-  //     c_2 = ((40 * m    ) << r) * 2^(e_0 - 1) / 10^f <  (40 * M    ) * 8.
+  //     c_2 = ((40 * m    ) << r) * pow(2, e_0 - 1) / pow(10, f) < 40 * M * 8.
   //
-  // Hence, n < 320 * M. Now, if 5^f >= 320 * M, then n < 5^f. It follows that
-  // n is not multiple of 5^f, that is, is_multiple_of_pow5(n, f) == false.
+  // Hence, n < 320 * M. Now, if pow(5, f) >= 320 * M, then n < pow(5, f). It
+  // follows that  n is not multiple of pow(5, f), that is,
+  // is_multiple_of_pow5(n, f) == false.
 
   auto const bound      = 320 * mantissa_max();
   auto const minv5      = minverse5(width());
@@ -583,7 +584,7 @@ generator_t::check_div10_algorithm() const {
   auto const a       = p2k / d + 1;
   auto const epsilon = d - p2k % d;
   auto const U       = ((a + epsilon - 1) / epsilon) * d - 1;
-  // b = ((2 * m + 1) << r) * 2^(e_0 - 1) / 10^f
+  // b = ((2 * m + 1) << r) * pow(2, e_0 - 1) / pow(10, f)
   //   < ((2 * mantissa_max() + 1) << 3) * 1
   //   = 16 * mantissa_max() + 8.
   auto const b_max   = 16 * mantissa_max() + 8;
@@ -594,8 +595,8 @@ bool
 generator_t::check_centred_calculations() const {
   // Calculations of m_a, m_b and m_c are safe if the carrier type can represent
   // m_c = (4u * m << r) for all values of m and r, i.e.,
-  //   (4 * mantissa_max() << 3) <  2^width() <=>
-  //   32 * mantissa_max()       <  2^width().
+  //   (4 * mantissa_max() << 3) <  pow(2, width()) <=>
+  //   32 * mantissa_max()       <  pow(2, width()).
   // In terms of number of bits, the above is equivalent to
   //    5 + mantissa_width()     <= width().
   return 5 + mantissa_width() <= width();
@@ -605,8 +606,8 @@ bool
 generator_t::check_uncentred_calculations() const {
   // Calculations of m_a and m_b are safe if the carrier type can represent
   // m_a = (4u * m - 1u) << r for m = mantissa_min() and all values of r, i.e.,
-  //   (4 * mantissa_min()  - 1) << 3 <  2^width() <=>
-  //   32 * mantissa_min()  - 8       <  2^width() <=>
+  //   (4 * mantissa_min()  - 1) << 3 <  pow(2, width()) <=>
+  //   32 * mantissa_min()  - 8       <  pow(2, width()) <=>
   // In terms of number of bits, the above is equivalent to
   //    5 + mantissa_width() - 1      <= width()
   return 4 + mantissa_width() <= width();
@@ -616,8 +617,8 @@ bool
 generator_t::check_uncentred_refined_calculations() const {
   // Calculation of m_c is safe if the carrier type can represent
   // m_c = 40u * m << r for m = mantissa_min() and all values of r, i.e.,
-  //   40 * mantissa_min() << 3     <  2^width() <=>
-  //  320 * mantissa_min()          <  2^width() <=>
+  //   40 * mantissa_min() << 3     <  pow(2, width()) <=>
+  //  320 * mantissa_min()          <  pow(2, width()) <=>
   // In terms of number of bits, the above is equivalent to
   //     9 + (mantissa_width() - 1) <= width()
   return 8 + mantissa_width() <= width();

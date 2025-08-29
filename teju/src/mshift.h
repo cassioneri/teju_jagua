@@ -57,15 +57,15 @@ teju_add_and_carry(teju_u1_t x, teju_u1_t y, teju_u1_t* c) {
 }
 
 /**
- * @brief Gets M * m / 2^s, where N = teju_width and s = 2 * N.
+ * @brief Gets M * m >> s, where N = teju_width and s = 2 * N.
  *
- * M is split into two parts, namely, upper = M / 2^N and lower = M % 2^N, so
- * that M = 2^N * upper + lower.
+ * M is split into two parts, namely, upper = M / pow(2, N) and lower =
+ * M % pow(2, N), so that M = pow(2, N) * upper + lower.
  *
  * @param  m                The multiplicand m.
  * @param  M                The multiplicand M.
  *
- * @returns M * m / 2^s.
+ * @returns M * m >> s.
  */
 static inline
 teju_u1_t
@@ -74,7 +74,7 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
   teju_u1_t const u = M.upper;
   teju_u1_t const l = M.lower;
 
-  // Let x := 2^N.
+  // Let x := pow(2, N).
 
   #if teju_calculation_mshift == teju_built_in_4
 
@@ -83,7 +83,7 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
 
   #elif teju_calculation_mshift == teju_synthetic_2
 
-    // (u * x + l) * m = r2 * x^2 + r1 * x + r0,
+    // (u * x + l) * m = r2 * x * x + r1 * x + r0,
     //                   with r2, r1, r0 in [0, x[.
 
     teju_u2_t const n = (((teju_u2_t) u) << teju_width) | l;
@@ -94,7 +94,7 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
   #elif teju_calculation_mshift == teju_built_in_2
 
     // (u * x + l) * m = s1 * x + s0,
-    //                       with s1 := u * m, s0 := l * m in [0, x^2[,
+    //                       with s1 := u * m, s0 := l * m in [0, x * x[,
     //                 = s1 * x + (s01 * x + s00)
     //                       with s01 := s0 / x, s00 := s0 % x in [0, x[,
     //                 = (s1 + s01) * x + s00.
@@ -106,11 +106,11 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
   #elif teju_calculation_mshift == teju_synthetic_1
 
     // (u * x + l) * m = s1 * x + s0,
-    //                       with s1 := u * m, s0 := l * m in [0, x^2[,
+    //                       with s1 := u * m, s0 := l * m in [0, x * x[,
     //                 = (s11 * x + s10) * x + (s01 * x + s00),
     //                       with s11 := s1 / x, s10 := s1 % x,
     //                            s01 := s0 / x, s00 := s0 % x in [0, x[,
-    //                 = s11 * x^2 +(s10 + s01) * x + s00
+    //                 = s11 * x * x +(s10 + s01) * x + s00
 
     teju_u1_t s01, s11, c;
     (void) teju_multiply(l, m, &s01);
@@ -121,7 +121,7 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
 
   #elif teju_calculation_mshift == teju_built_in_1
 
-    // Let y := 2^(N / 2), so that, x = y^2. Then:
+    // Let y := pow(2, N / 2), so that, x = y * y. Then:
     // u := (n3 * y + n2) with n3 := u / y, n2 = u % y in [0, y[,
     // l := (n1 * y + n0) with n1 := l / y, n0 = l % y in [0, y[,
     // m := (m1 * y + m0) with m1 := m / y, m0 = m % y in [0, y[.
@@ -138,10 +138,10 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
     teju_u1_t r1, c, t;
 
     // (u * x + l) * m
-    //     = ((n3 * y + n2) * y^2 + (n1 * y + n0)) * (m1 * y + m0),
-    //     = (n3 * y^3 + n2 * y^2 + n1 * y + n0) * (m1 * y + m0),
-    //     = (n3 * m1) * y^4 + (n3 * m0 + n2 * m1) * y^3 +
-    //       (n2 * m0 + n1 * m1) * y^2 + (n1 * m0 + n0 * m1) * y +
+    //     = ((n3 * y + n2) * y * y + (n1 * y + n0)) * (m1 * y + m0),
+    //     = (n3 * y * y * y + n2 * y * y + n1 * y + n0) * (m1 * y + m0),
+    //     = (n3 * m1) * y * y * y * y + (n3 * m0 + n2 * m1) * y * y * y +
+    //       (n2 * m0 + n1 * m1) * y * y + (n1 * m0 + n0 * m1) * y +
     //       (n0 * m0)
 
     // order 0:
@@ -179,10 +179,10 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
 }
 
 /**
- * @brief Gets M * 2^k / 2^s, where N = teju_width and s = 2 * N.
+ * @brief Gets M * pow(2, k) >> s, where N = teju_width and s = 2 * N.
  *
- * M is split into two parts, namely, upper = M / 2^N and lower = M % 2^N, so
- * that M = 2^N * upper + lower.
+ * M is split into two parts, namely, upper = M / pow(2, N) and lower =
+ * M % pow(2, N), so that M = pow(2, N) * upper + lower.
  *
  * @param  k                The exponent k.
  * @param  M                The multiplicand M.

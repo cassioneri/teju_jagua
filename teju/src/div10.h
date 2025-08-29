@@ -40,8 +40,9 @@ teju_div10(teju_u1_t const n) {
     // Pract Exper. 2023; 53(4):937-970.
     // https://onlinelibrary.wiley.com/doi/full/10.1002/spe.3172
 
-    // Since 2^k % 10 != 0 we have 2^k / 10 = (2^k - 1) / 10, in particular,
-    //   2^teju_width / 10 = (2^teju_width - 1) / 10u = ((teju_u1_t) -1) / 10u.
+    // Since pow(2, k) % 10 != 0 we have pow(2, k) / 10 = (pow(2, k) - 1) / 10,
+    //   in particular, pow(2, teju_width) / 10 = (pow(2, teju_width) - 1) / 10u
+    //   = ((teju_u1_t) -1) / 10u.
     teju_u1_t const a = ((teju_u1_t) -1) / 10u + 1u;
 
     #if teju_calculation_div10 == teju_built_in_2

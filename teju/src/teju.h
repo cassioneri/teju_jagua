@@ -62,20 +62,20 @@ is_multiple_of_pow5(int32_t const f, teju_u1_t const n) {
 }
 
 /**
- * @brief Rotates the bits of a given number 1 position to the right.
+ * @brief Rotates the bits of n by 1 position to the right.
  *
- * @param  m                The given number.
+ * @param  n                The given number.
  *
  * @returns The value of m after the rotation.
  */
 static inline
 teju_u1_t
-ror(teju_u1_t const m) {
-  return m << (teju_width - 1u) | m >> 1u;
+ror(teju_u1_t const n) {
+  return n << (teju_width - 1u) | n >> 1u;
 }
 
 /**
- * @brief Creates a teju_fields_t from exponent and mantissa.
+ * @brief Creates a teju_fields_t object from exponent and mantissa.
  *
  * @param  e                The exponent.
  * @param  m                The mantissa.
@@ -95,6 +95,10 @@ make_fields(int32_t const e, teju_u1_t const m) {
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
+ *
+ * @pre (2^N - 1) % 5 == 0, where N = sizeof(teju_u1_t) * CHAR_BIT is the number
+ *      of bits of teju_u1_t. (This holds if N is in { 16, 32, 64, 128, 256, } =
+ *      { 16 * 2^k, k >= 0 is integer }.)
  *
  * @returns The fields of the shortest close decimal representation.
  */
@@ -118,12 +122,15 @@ remove_trailing_zeros(int32_t e, teju_u1_t m) {
 //------------------------------------------------------------------------------
 
 /**
- * @brief Checks whether x = m * 2^e is a "small" integer.
+ * @brief Checks whether x = m * 2^e is an integer in [0, U[ where U = 2^N and
+ *        N = teju_mantissa_width.
+ *
+ * For such x, a faster binary-to-decimal algorithm can be used.
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
  *
- * @returns true if x is a "small" integer and false, otherwise.
+ * @returns true if x is a "small integer" and false, otherwise.
  */
 static inline
 bool
@@ -133,8 +140,8 @@ is_small_integer(int32_t const e, teju_u1_t const m) {
 }
 
 /**
- * @brief Finds the shortest decimal representation of x = m * 2^e when x is a
- *        "small" integer.
+ * @brief Finds the shortest decimal representation of x = m * 2^e when
+ *        is_small_integer(e, m) == true.
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
@@ -172,7 +179,7 @@ is_centred(int32_t const e, teju_u1_t const m) {
 }
 
 /**
- * @brief Checks whether decimal exponent f allows for ties.
+ * @brief Checks whether decimal exponent f allows for mantissa ties.
  *
  * @param  f                The exponent f.
  *
@@ -186,9 +193,6 @@ allows_ties(int32_t const f) {
 
 /**
  * @brief Checks whether m, for m in { m_a, m_b, c_2 }, yields a tie.
- *
- * When called to detect a tie between c * 10^f and (c + 1) * 10^f, i.e., for
- * m = c_2, the result is unspecified if is_closer_to_left(c) == true.
  *
  * @param  f                The exponent f, when m == m_a and m == m_b, or
  *                          its negation -f when m == c_2.
@@ -250,15 +254,15 @@ to_decimal_centred(int32_t const e, teju_u1_t const m) {
 
   assert(is_centred(e, m));
 
-  int32_t           const f        = teju_log10_pow2(e);
-  uint32_t          const r        = teju_log10_pow2_residual(e);
-  teju_multiplier_t const M        = multipliers[f - teju_storage_index_offset];
-  teju_u1_t         const m_b      = (2u * m + 1u) << r;
-  teju_u1_t         const m_a      = (2u * m - 1u) << r;
-  teju_u1_t         const b        = teju_mshift(m_b, M);
-  teju_u1_t         const a        = teju_mshift(m_a, M);
-  teju_u1_t         const q        = teju_div10(b);
-  teju_u1_t         const s        = 10u * q;
+  int32_t           const f   = teju_log10_pow2(e);
+  uint32_t          const r   = teju_log10_pow2_residual(e);
+  teju_multiplier_t const M   = multipliers[f - teju_storage_index_offset];
+  teju_u1_t         const m_b = (2u * m + 1u) << r;
+  teju_u1_t         const m_a = (2u * m - 1u) << r;
+  teju_u1_t         const b   = teju_mshift(m_b, M);
+  teju_u1_t         const a   = teju_mshift(m_a, M);
+  teju_u1_t         const q   = teju_div10(b);
+  teju_u1_t         const s   = 10u * q;
 
   // This branch is an optimisation: the code inside the "if" block can also
   // handle the opposite case. Indeed, if allows_ties(f) == false, then
@@ -304,6 +308,8 @@ is_tie_uncentred(int32_t const f, teju_u1_t const m) {
  *        mantissa_uncentred.
  *
  * @param  e                The exponent e.
+ *
+ * @pre is_centred(e, m) == false.
  *
  * @returns The shortest decimal representation of x.
  */

@@ -28,24 +28,24 @@ extern "C" {
 //------------------------------------------------------------------------------
 
 /**
- * @brief Checks whether mantissa m is multiple of 2^e.
+ * @brief Checks whether n is multiple of 2^e.
  *
  * @param  e                The exponent e.
- * @param  m                The mantissa m.
+ * @param  n                The number n.
  *
  * @pre 0 <= e && e < teju_width.
  *
- * @returns true if m is multiple of 2^e and false, otherwise.
+ * @returns true if n is multiple of 2^e and false, otherwise.
  */
 static inline
 bool
-is_multiple_of_pow2(int32_t const e, teju_u1_t const m) {
+is_multiple_of_pow2(int32_t const e, teju_u1_t const n) {
   assert(0 <= e && (uint32_t) e < teju_width);
-  return (m >> e) << e == m;
+  return (n >> e) << e == n;
 }
 
 /**
- * @brief Checks whether n is a "small" multiple of 5^f.
+ * @brief Checks whether n is multiple of 5^f.
  *
  * @param  f                The exponent f.
  * @param  n                The number n.
@@ -118,12 +118,12 @@ remove_trailing_zeros(int32_t e, teju_u1_t m) {
 //------------------------------------------------------------------------------
 
 /**
- * @brief Checks whether the number m * 2^e is a "small" integer.
+ * @brief Checks whether x = m * 2^e is a "small" integer.
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
  *
- * @returns true if m * 2^e is a "small" integer and false, otherwise.
+ * @returns true if x is a "small" integer and false, otherwise.
  */
 static inline
 bool
@@ -139,7 +139,7 @@ is_small_integer(int32_t const e, teju_u1_t const m) {
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
  *
- * @returns The shortest decimal representation.
+ * @returns The shortest decimal representation of x.
  */
 static inline
 teju_fields_t
@@ -155,13 +155,12 @@ teju_u1_t const mantissa_uncentred =
   teju_pow2(teju_u1_t, teju_mantissa_width - 1u);
 
 /**
- * @brief Checks whether m * 2^e is a centred floating-point number.
+ * @brief Checks whether x = m * 2^e is centred.
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
  *
- * @returns true if m * 2^e is a centred floating-point number and false,
- *          otherwise.
+ * @returns true if x is centred and false, otherwise.
  */
 static inline
 bool
@@ -191,11 +190,11 @@ is_tie(int32_t const f, teju_u1_t const m) {
 /**
  * @brief Checks whether mantissa m wins the tiebreak against its neighbour.
  *
-  * Implements the ties-to-even rule, i.e., m wins the tiebreak if it's even.
-  * Contrarily to other tie-breaking rules, this one doesn't depend on the
-  * neighbour that m is competing against or the sign of the floating-point
-  * number.
-  *
+ * Implements the ties-to-even rule, i.e., m wins the tiebreak if it's even.
+ * Contrarily to other tie-breaking rules, this one doesn't depend on the
+ * neighbour that m is competing against or the sign of the floating-point
+ * number.
+ *
  * @param  m                The mantissa m.
  *
  * @returns true if m wins the tiebreak and false, otherwise.
@@ -226,7 +225,7 @@ is_closer_to_left(teju_u1_t const c_2) {
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
  *
- * @returns The shortest decimal representation.
+ * @returns The shortest decimal representation of x.
  */
 static inline
 teju_fields_t
@@ -280,7 +279,7 @@ is_tie_uncentred(int32_t const f, teju_u1_t const m) {
  *
  * @param  e                The exponent e.
  *
- * @returns The shortest decimal representation.
+ * @returns The shortest decimal representation of x.
  */
 static inline
 teju_fields_t
@@ -334,12 +333,11 @@ to_decimal_uncentred(int32_t const e) {
 }
 
 /**
- * @brief Finds the shortest decimal representation of a binary floating-point
- *        number.
+ * @brief Finds the shortest decimal representation of x = m * 2^e.
  *
- * @param  binary           The fields of the binary representation.
+ * @param  binary           The binary representation of x.
  *
- * @returns The shortest decimal representation.
+ * @returns The shortest decimal representation of x.
  */
 teju_fields_t inline
 teju_function(teju_fields_t const binary) {

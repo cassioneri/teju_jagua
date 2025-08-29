@@ -172,6 +172,19 @@ is_centred(int32_t const e, teju_u1_t const m) {
 }
 
 /**
+ * @brief Checks whether decimal exponent f allows for ties.
+ *
+ * @param  f                The exponent f.
+ *
+ * @returns true if f allows for ties and false, otherwise.
+ */
+static inline
+bool
+allows_ties(int32_t const f) {
+  return 0 <= f && (uint32_t) f < sizeof(minverse) / sizeof(minverse[0]);
+}
+
+/**
  * @brief Checks whether m, for m in { m_a, m_b, c_2 }, yields a tie.
  *
  * When called to detect a tie between c * 10^f and (c + 1) * 10^f, i.e., for
@@ -186,8 +199,7 @@ is_centred(int32_t const e, teju_u1_t const m) {
 static inline
 bool
 is_tie(int32_t const f, teju_u1_t const m) {
-  return 0 <= f && (uint32_t) f < sizeof(minverse) / sizeof(minverse[0]) &&
-    is_multiple_of_pow5(f, m);
+  return allows_ties(f) && is_multiple_of_pow5(f, m);
 }
 
 /**
@@ -248,11 +260,19 @@ to_decimal_centred(int32_t const e, teju_u1_t const m) {
   teju_u1_t         const q        = teju_div10(b);
   teju_u1_t         const s        = 10u * q;
 
-  bool const shortest =
-    s == b ? !is_tie(f, m_b) || wins_tiebreak(m) :
-    s == a ?  is_tie(f, m_a) && wins_tiebreak(m) :
-    s >  a;
-  if (shortest)
+  // This branch is an optimisation: the code inside the "if" block can also
+  // handle the opposite case. Indeed, if allows_ties(f) == false, then
+  // is_tie(f, m_b) == false and is_tie(f, m_a) == false, in which case, the
+  // code simplifies to shortest = a < s.
+  if (allows_ties(f)) {
+    bool const shortest =
+      s == b ? !is_tie(f, m_b) || wins_tiebreak(m) :
+      s == a ?  is_tie(f, m_a) && wins_tiebreak(m) :
+      /*else*/ s > a;
+    if (shortest)
+      return remove_trailing_zeros(f + 1, q);
+  }
+  else if (s > a)
     return remove_trailing_zeros(f + 1, q);
 
   teju_u1_t const m_c       = 4u * m << r;
@@ -307,7 +327,7 @@ to_decimal_uncentred(int32_t const e) {
     bool const shortest =
       s == a ?  is_tie_uncentred(f, m_a) && wins_tiebreak(m) :
       s == b ? !is_tie_uncentred(f, m_b) || wins_tiebreak(m) :
-      s >  a;
+      /*else*/ s > a;
     if (shortest)
       return remove_trailing_zeros(f + 1, q);
 

@@ -139,11 +139,14 @@ is_small_integer(int32_t const e, teju_u1_t const m) {
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
  *
+ * @pre is_small_integer(e, m) == true.
+ *
  * @returns The shortest decimal representation of x.
  */
 static inline
 teju_fields_t
 to_decimal_small_integer(int32_t const e, teju_u1_t const m) {
+  assert(is_small_integer(e, m));
   return remove_trailing_zeros(0, 1u * m >> -e);
 }
 
@@ -225,11 +228,15 @@ is_closer_to_left(teju_u1_t const c_2) {
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
  *
+ * @pre is_centred(e, m) == true.
+ *
  * @returns The shortest decimal representation of x.
  */
 static inline
 teju_fields_t
 to_decimal_centred(int32_t const e, teju_u1_t const m) {
+
+  assert(is_centred(e, m));
 
   int32_t           const f        = teju_log10_pow2(e);
   uint32_t          const r        = teju_log10_pow2_residual(e);

@@ -243,15 +243,14 @@ to_decimal_centred(int32_t const e, teju_u1_t const m) {
   teju_multiplier_t const M        = multipliers[f - teju_storage_index_offset];
   teju_u1_t         const m_b      = (2u * m + 1u) << r;
   teju_u1_t         const m_a      = (2u * m - 1u) << r;
-  bool              const a_is_tie = is_tie(f, m_a);
   teju_u1_t         const b        = teju_mshift(m_b, M);
-  teju_u1_t         const a        = teju_mshift(m_a, M) + !a_is_tie;
+  teju_u1_t         const a        = teju_mshift(m_a, M);
   teju_u1_t         const q        = teju_div10(b);
   teju_u1_t         const s        = 10u * q;
 
   bool const shortest =
     s == b ? !is_tie(f, m_b) || wins_tiebreak(m) :
-    s == a ? !a_is_tie       || wins_tiebreak(m) :
+    s == a ?  is_tie(f, m_a) && wins_tiebreak(m) :
     s >  a;
   if (shortest)
     return remove_trailing_zeros(f + 1, q);

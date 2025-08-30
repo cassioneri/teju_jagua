@@ -18,6 +18,7 @@
 #include "teju/src/generated/ieee128.h"
 
 #include <assert.h>
+#include <math.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -30,7 +31,7 @@ extern "C" {
  *
  * @param  value            The given value.
  *
- * @pre 0.f128 < value && value <= __FLT128_MAX__.
+ * @pre isfinite(value) && value > 0.
  *
  * @returns The binary representation of the given value.
  */
@@ -38,7 +39,13 @@ inline
 teju128_fields_t
 teju_float128_to_binary(float128_t const value) {
 
-  assert(0.f128 < value && value <= __FLT128_MAX__ && "Invalid float128_t value.");
+  #if !defined(__cplusplus)
+    // Nor libstdc++ 15.2 neither libc++ 20.1 define isfinite for __float128.
+    // https://godbolt.org/z/c6Mhej48r
+    // However, gcc 15.2 and clang 20.1 do:
+    // https://godbolt.org/z/5c46M9zad
+    assert(isfinite(value) && value > 0 && "Invalid float128_t value.");
+  #endif
 
   typedef teju128_fields_t teju_fields_t;
   typedef teju128_u1_t     teju_u1_t;

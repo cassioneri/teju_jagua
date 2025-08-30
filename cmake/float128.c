@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
 /**
- * @brief Checks existence of _Float128.
+ * @brief Checks existence of __float128.
  */
 
-typedef _Float128 float128_t;
+typedef __float128 float128_t;
 
 int main() {
 }

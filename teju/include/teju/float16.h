@@ -22,6 +22,7 @@
 #endif
 
 #include <assert.h>
+#include <math.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -34,7 +35,7 @@ extern "C" {
  *
  * @param  value            The given value.
  *
- * @pre 0.f16 < value && value <= __FLT16_MAX__.
+ * @pre isfinite(value) && value > 0.
  *
  * @returns The binary representation of the given value.
  */
@@ -42,7 +43,13 @@ inline
 teju32_fields_t
 teju_float16_to_binary(float16_t const value) {
 
-  assert(0.f16 < value && value <= __FLT16_MAX__ && "Invalid float16_t value.");
+  #if !defined(__cplusplus)
+    // Nor libstdc++ 15.2 neither libc++ 20.1 define isfinite for _Float16.
+    // https://godbolt.org/z/Kb1WjGavd
+    // However, gcc 15.2 and clang 20.1 do:
+    // https://godbolt.org/z/hdjYrTcEY
+    assert(isfinite(value) && value > 0 && "Invalid float16_t value.");
+  #endif
 
   typedef teju32_fields_t teju_fields_t;
   typedef teju32_u1_t     teju_u1_t;

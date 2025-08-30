@@ -382,7 +382,7 @@ to_decimal_uncentred(int32_t const e) {
  *
  * @returns The shortest decimal representation of x.
  */
-teju_fields_t inline
+teju_fields_t
 teju_function(teju_fields_t const binary) {
 
   int32_t   const e = binary.exponent;

@@ -83,6 +83,19 @@ if (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 #-------------------------------------------------------------------------------
+# __uint128_t
+#-------------------------------------------------------------------------------
+
+try_compile(teju_has_uint128
+        ${CMAKE_BINARY_DIR}
+        ${PROJECT_SOURCE_DIR}/cmake/uint128.c
+)
+
+if (teju_has_uint128)
+  add_compile_definitions(teju_has_uint128)
+endif()
+
+#-------------------------------------------------------------------------------
 # _Float16
 #-------------------------------------------------------------------------------
 
@@ -102,19 +115,6 @@ else()
     add_compile_definitions(teju_has_float16)
   endif()
 
-endif()
-
-#-------------------------------------------------------------------------------
-# __uint128_t
-#-------------------------------------------------------------------------------
-
-try_compile(teju_has_uint128
-  ${CMAKE_BINARY_DIR}
-  ${PROJECT_SOURCE_DIR}/cmake/uint128.c
-)
-
-if (teju_has_uint128)
-  add_compile_definitions(teju_has_uint128)
 endif()
 
 #-------------------------------------------------------------------------------

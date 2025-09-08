@@ -280,7 +280,7 @@ to_decimal_centred(int32_t const e, teju_u1_t const m) {
   // This branch is an optimisation: the code inside the "if" block can also
   // handle the opposite case. Indeed, if allows_ties(f) == false, then
   // is_tie(f, m_b) == false and is_tie(f, m_a) == false, in which case, the
-  // code simplifies to shortest = s < a.
+  // code simplifies to shortest = s > a.
   if (allows_ties(f)) {
     bool const shortest =
       s == b ? !is_tie(f, m_b) || wins_tiebreak(m) :

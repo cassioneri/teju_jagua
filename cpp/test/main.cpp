@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
-#include "test_case.hpp"
-
 #include "common/traits.hpp"
 #include "teju/src/common.h"
 #include "teju/src/config.h"
@@ -18,13 +16,12 @@
 namespace {
 
 using namespace teju;
-using namespace teju::test;
 
 /**
  * @brief Creates an integer number from chars.
  *
  * @tparam T                The type of the number to be generated.
- * @tparam Cs...            The chars.
+ * @tparam Cs               The chars.
  */
 template <typename T, char... Cs>
 struct make_number;
@@ -215,9 +212,8 @@ TEST(double, random_comparison_to_other) {
 
 TEST(float16, test_hard_coded_values) {
 
-  using traits_t    = teju::traits_t<float16_t>;
-  using decimal_t   = teju::decimal_t<float16_t>;
-  using test_case_t = teju::test::test_case_t<float16_t>;
+  using traits_t  = teju::traits_t<float16_t>;
+  using decimal_t = teju::decimal_t<float16_t>;
 
   struct test_data_t {
     float16_t value;
@@ -274,10 +270,10 @@ TEST(float16, test_hard_coded_values) {
   };
 
   for (std::size_t i = 0; i < std::size(data); ++i) {
-    auto const value     = data[i].value;
-    auto const test_case = test_case_t{value, data[i].decimal};
-    auto const actual    = traits_t::teju(test_case.value());
-    ASSERT_EQ(test_case.expected(), actual) <<
+    auto const value    = data[i].value;
+    auto const expected = data[i].decimal;
+    auto const actual   = traits_t::teju(value);
+    ASSERT_EQ(expected, actual) <<
       "    Note: test case line = " << data[i].line;
   }
 }
@@ -293,9 +289,8 @@ uint128_t operator ""_u128() {
 
 TEST(float128, test_hard_coded_values) {
 
-  using traits_t    = teju::traits_t<float128_t>;
-  using decimal_t   = teju::decimal_t<float128_t>;
-  using test_case_t = teju::test::test_case_t<float128_t>;
+  using traits_t  = teju::traits_t<float128_t>;
+  using decimal_t = teju::decimal_t<float128_t>;
 
   static auto constexpr teju_size = std::uint32_t{128};
 
@@ -352,10 +347,10 @@ TEST(float128, test_hard_coded_values) {
   };
 
   for (std::size_t i = 0; i < std::size(data); ++i) {
-    auto const value     = data[i].value;
-    auto const test_case = test_case_t{value, data[i].decimal};
-    auto const actual    = traits_t::teju(test_case.value());
-    ASSERT_EQ(test_case.expected(), actual) <<
+    auto const value    = data[i].value;
+    auto const expected = data[i].decimal;
+    auto const actual   = traits_t::teju(value);
+    ASSERT_EQ(expected, actual) <<
       "    Note: test case line = " << data[i].line;
   }
 }

@@ -363,7 +363,7 @@ to_decimal_uncentred(int32_t const e) {
     return make_fields(f, c + !pick_left);
   }
 
-  if (is_tie_uncentred(f, m_a))
+  if (is_tie_uncentred(f, m_a) && wins_tiebreak(m))
     return remove_trailing_zeros(f, a);
 
   teju_u1_t const m_c       = 40u * m << r;

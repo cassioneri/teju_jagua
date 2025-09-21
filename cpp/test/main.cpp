@@ -125,6 +125,161 @@ TEST(float, exhaustive_comparison_to_others) {
   }
 }
 
+TEST(float, hard_coded_values) {
+
+  using traits_t  = teju::traits_t<float>;
+  using decimal_t = teju::decimal_t<float>;
+
+  using limits_t  = std::numeric_limits<float>;
+  auto constexpr denorm_min = limits_t::denorm_min();
+  auto constexpr min        = limits_t::min();
+  auto constexpr max        = limits_t::max();
+  auto constexpr epsilon    = limits_t::epsilon();
+
+  struct test_data_t {
+    float     value;
+    decimal_t decimal;
+    int       line;
+  };
+
+  test_data_t data[] = {
+
+    //--------------------------------------------------------------------------
+    // Special values: denorm_min, min, max and epsilon.
+    //--------------------------------------------------------------------------
+
+    // !shortest: is_centred && !allows_ties && s <= a
+    //  closest : !is_tie && is_closer_to_left
+    {     denorm_min, {      -45,        1 }, __LINE__ },
+
+    // !shortest: is_centred && !allows_ties && s <= a
+    //  closest : !is_tie && !is_closer_to_left
+    {            min, {      -45, 11754944 }, __LINE__ },
+
+    // !shortest: is_centred && !allows_ties && !(s > a)
+    //  closest :  !is_tie && !is_closer_to_left
+    {            max, {       31, 34028235 }, __LINE__ },
+
+    // !is_centred && a < b && !allows_ties && !(s > a) && c == a && !is_tie
+    {        epsilon, {      -14, 11920929 }, __LINE__ },
+
+    //--------------------------------------------------------------------------
+    // Small integers
+    //--------------------------------------------------------------------------
+
+    // is_small_integer
+    {            1.f, {        0,        1 }, __LINE__ },
+    {            2.f, {        0,        2 }, __LINE__ },
+    {            3.f, {        0,        3 }, __LINE__ },
+    {            4.f, {        0,        4 }, __LINE__ },
+    {            5.f, {        0,        5 }, __LINE__ },
+    {      1234567.f, {        0,  1234567 }, __LINE__ },
+    {      8388607.f, {        0,  8388607 }, __LINE__ },
+    {      8388608.f, {        0,  8388608 }, __LINE__ },
+
+    //--------------------------------------------------------------------------
+    // Centred
+    //--------------------------------------------------------------------------
+
+    //  shortest: allows_ties && s == b && !is_tie
+    {    134218000.f, {        3,   134218 }, __LINE__ },
+
+    //  shortest: allows_ties && s == b && is_tie && wins_tiebreak
+    {     33554450.f, {        1,  3355445 }, __LINE__ },
+
+    // !shortest: allows_ties && s == b && is_tie && !wins_tiebreak
+    //  closest : is_tie && wins_tiebreak
+    {     33554468.f, {        0, 33554468 }, __LINE__ },
+
+    //  shortest: allows_ties && s == a && !is_tie
+    {    134218020.f, {        1, 13421802 }, __LINE__ },
+
+    // !shortest: allows_ties && s == a && is_tie && !wins_tiebreak
+    //  closest : is_tie && wins_tiebreak
+    {     33554452.f, {        0, 33554452 }, __LINE__ },
+
+    //  shortest: allows_ties && s == a && is_tie && wins_tiebreak
+    {     33554470.f, {        1,  3355447 }, __LINE__ },
+
+    //  shortest: allows_ties && s > a
+    {     16777220.f, {        1,  1677722 }, __LINE__ },
+
+    // !shortest: allows_ties && s < a
+    //  closest : is_tie && wins_tiebreak
+    {     16777218.f, {        0, 16777218 }, __LINE__ },
+
+    //  shortest: !allows_ties && s > a
+    {       1.0e-44f, {      -44,        1 }, __LINE__ },
+
+    // !shortest: !allows_ties && s <= a
+    //  closest : is_tie && !wins_tiebreak && !is_closer_to_left
+    { 1.4648438e-03f, {      -10, 14648438 }, __LINE__ },
+
+    // !shortest: !allows_ties && s <= a
+    //  closest : is_tie && wins_tiebreak
+    { 2.4414062e-03f, {      -10, 24414062 }, __LINE__ },
+
+    // !shortest: !allows_ties && s <= a
+    //  closest : !is_tie && !is_closer_to_left
+    {        3.e-45f, {      -45,        3 }, __LINE__ },
+
+    //--------------------------------------------------------------------------
+    // Uncentred
+    //--------------------------------------------------------------------------
+
+    // !shortest: a < b && !allows_ties && s <= a
+    //  closest : c != a && !is_tie && is_closer_to_left
+    { 2.3509887e-38f, {      -45, 23509887 }, __LINE__ },
+
+    // !shortest: a >= b && !is_tie
+    //  closest : !is_tie && is_closer_to_left
+    { 9.8607613e-32f, {      -39, 98607613 }, __LINE__ },
+
+    // !shortest: a < b && allows_ties && s < a
+    //  closest : c != a && is_tie && wins_tiebreak
+    {     16777216.f, {        0, 16777216 }, __LINE__ },
+
+    //  shortest: a < b && allows_ties && s == b && !is_tie
+    {  1.717987e+10f, {        4,  1717987 }, __LINE__ },
+
+    //  shortest: a < b && allows_ties && s > a
+    {  5.368709e+08f, {        2,  5368709 }, __LINE__ },
+
+    //  shortest: a < b && !allows_ties && s > a
+    {  1.880791e-37f, {      -43,  1880791 }, __LINE__ },
+
+    // !shortest: a < b && !allows_ties && s <= a
+    //  closest : c == a && !is_tie
+    {  9.403955e-38f, {      -44,  9403955 }, __LINE__ },
+
+    // !shortest: a < b && !allows_ties && s <= a
+    //  closest : c != a && is_tie && wins_tiebreak
+    { 2.4414062e-04f, {      -11, 24414062 }, __LINE__ },
+
+    // !shortest: a < b && !allows_ties && s <= a
+    //  closest : c != a && is_tie && !wins_tiebreak
+    { 4.8828125e-04f, {      -11, 48828125 }, __LINE__ },
+
+    // !shortest: a < b && !allows_ties && s <= a
+    //  closest : c != a && !is_tie && !is_closer_to_left
+    { 4.9303807e-32f, {      -39, 49303807 }, __LINE__ },
+
+    // !shortest: a == b && !is_tie
+    //  closest : !is_tie && !is_closer_to_left
+    { 8.4703295e-22f, {      -29, 84703295 }, __LINE__ },
+  };
+
+  for (auto const [value, expected, line] : data) {
+
+    auto const actual = traits_t::teju(value);
+    auto const binary = traits_t::to_binary(value);
+
+    ASSERT_EQ(expected, actual) <<
+      "    Value = " << binary << " ~= " << value << "\n"
+      "    Note: test case line = " << line;
+  }
+}
+
 template <typename T>
 class typed_tests_t : public testing::Test {
 };

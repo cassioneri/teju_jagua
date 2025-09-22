@@ -11,7 +11,7 @@ using namespace teju::test;
 
 using impl_list_t = ::testing::Types<synthetic_1_t, built_in_2_t>;
 
-template <typename T>
+template <typename /*TFloat*/>
 class div10 : public testing::Test {
 };
 

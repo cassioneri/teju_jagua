@@ -25,14 +25,14 @@ namespace detail {
   /**
    * @brief Gets the value represented by a given binary field representation.
    *
-   * @tparam T              The floating-point type.
+   * @tparam TFloat         The floating-point number type.
    * @param  binary         The given binary field representation.
    *
    * @returns The value represented by a given binary field representation.
    */
-  template <typename T>
-  T
-  to_value(binary_t<T> binary);
+  template <typename TFloat>
+  TFloat
+  to_value(binary_t<TFloat> binary);
 
 } // namespace detail
 
@@ -73,9 +73,9 @@ namespace detail {
  * @li decimal_t ryu(T value)
  *   Returns the decimal field representation obtained by Ryu.
  *
- * @tparam T                The floating-point type.
+ * @tparam TFloat           The floating-point number type.
  */
-template <typename T>
+template <typename TFloat>
 struct traits_t;
 
 #if defined(teju_has_float16)

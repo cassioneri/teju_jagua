@@ -26,7 +26,7 @@ namespace teju {
  *
  * Instantiations are provided for float, double and float128_t (if supported).
  */
-template <typename T>
+template <typename /*TFloat*/>
 struct cpp_fields_t;
 
 #if defined(teju_has_float16)
@@ -53,56 +53,59 @@ struct cpp_fields_t<float128_t> : teju128_fields_t {
 };
 #endif // defined(teju_has_float128)
 
-template <typename T, unsigned base>
-struct fields_t : cpp_fields_t<T> {
+template <typename TFloat, unsigned base>
+struct fields_t : cpp_fields_t<TFloat> {
 };
 
-template <typename T>
-using binary_t = fields_t<T, 2>;
+template <typename TFloat>
+using binary_t = fields_t<TFloat, 2>;
 
-template <typename T>
-using decimal_t = fields_t<T, 10>;
+template <typename TFloat>
+using decimal_t = fields_t<TFloat, 10>;
 
 /**
- * @brief Equality operator for cpp_fields_t<T>.
+ * @brief Equality operator for cpp_fields_t<TFloat>.
  *
- * @tparam T                The type T.
+ * @tparam TFloat           The type TFloat.
  *
  * @param  left             The left operand.
  * @param  right            The right operand.
  */
-template <typename T, unsigned base>
-bool operator==(fields_t<T, base> const& left, fields_t<T, base> const& right) {
+template <typename TFloat, unsigned base>
+bool operator==(fields_t<TFloat, base> const& left,
+  fields_t<TFloat, base> const& right) {
   return left.exponent == right.exponent && left.mantissa == right.mantissa;
 }
 
 /**
- * @brief Inequality operator for cpp_fields_t<T>.
+ * @brief Inequality operator for cpp_fields_t<TFloat>.
  *
- * @tparam T                The type T.
+ * @tparam TFloat           The type TFloat.
  *
  * @param  left             The left operand.
  * @param  right            The right operand.
  */
-template <typename T, unsigned base>
-bool operator!=(fields_t<T, base> const& left, fields_t<T, base> const& right) {
+template <typename TFloat, unsigned base>
+bool operator!=(fields_t<TFloat, base> const& left,
+  fields_t<TFloat, base> const& right) {
   return !(left == right);
 }
 
 /**
- * @brief Stream operator for cpp_fields_t<T>.
+ * @brief Stream operator for cpp_fields_t<TFloat>.
  *
  * @tparam C                The char type.
  * @tparam CT               The char-traits type.
- * @tparam T                The type T.
+ * @tparam TFloat           The type TFloat.
  *
  * @param  os               The object that fields are streamed to.
  * @param  fields           The fields.
  */
-template <typename C, typename CT, typename T, unsigned base>
+template <typename C, typename CT, typename TFloat, unsigned base>
 std::basic_ostream<C, CT>&
-operator <<(std::basic_ostream<C, CT>& os, fields_t<T, base> const& fields) {
-  using streamable_t = typename cpp_fields_t<T>::streamable_t;
+operator <<(std::basic_ostream<C, CT>& os,
+  fields_t<TFloat, base> const& fields) {
+  using streamable_t = typename cpp_fields_t<TFloat>::streamable_t;
   auto const mantissa = streamable_t{fields.mantissa};
   return os << mantissa << " * " << base << "^(" << fields.exponent << ")";
 }

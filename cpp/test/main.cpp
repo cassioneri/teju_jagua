@@ -26,12 +26,12 @@ using namespace teju;
  * @tparam T                The type of the number to be generated.
  * @tparam Cs               The chars.
  */
-template <typename T, char... Cs>
+template <typename TUint, char... Cs>
 struct make_number;
 
 // Specialisation when the pack of chars is empty.
-template <typename T>
-struct make_number<T> {
+template <typename TUint>
+struct make_number<TUint> {
 
   /**
    * @brief Returns n.
@@ -41,15 +41,15 @@ struct make_number<T> {
    * @returns n.
    */
   static
-  T
-  value(T n) {
+  TUint
+  value(TUint n) {
     return n;
   }
 };
 
 // Generic implementation.
-template <typename T, char C, char... Cs>
-struct make_number<T, C, Cs...> {
+template <typename TUint, char C, char... Cs>
+struct make_number<TUint, C, Cs...> {
 
   /**
    * @brief Appends chars to n.
@@ -61,9 +61,9 @@ struct make_number<T, C, Cs...> {
    * @returns The number n appended with the given chars.
    */
   static
-  T
-  value(T n) {
-    return make_number<T, Cs...>::value(10 * n + (C - '0'));
+  TUint
+  value(TUint n) {
+    return make_number<TUint, Cs...>::value(10 * n + (C - '0'));
   }
 };
 

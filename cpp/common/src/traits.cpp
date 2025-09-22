@@ -14,11 +14,11 @@
 
 namespace teju::detail {
 
-  template <typename T>
-  T
-  to_value(binary_t<T> const binary) {
+  template <typename TFloat>
+  TFloat
+  to_value(binary_t<TFloat> const binary) {
 
-    using traits_t                = teju::traits_t<T>;
+    using traits_t                = teju::traits_t<TFloat>;
     using u1_t                    = typename traits_t::u1_t;
     auto constexpr exponent_min   = traits_t::exponent_min;
     auto constexpr mantissa_width = traits_t::mantissa_width;
@@ -28,7 +28,7 @@ namespace teju::detail {
         : (u1_t(binary.exponent - exponent_min + 1) << (mantissa_width - 1)) +
             teju_lsb(u1_t, binary.mantissa, mantissa_width - 1);
 
-    T value;
+    TFloat value;
     std::memcpy(&value, &bits, sizeof(value));
 
     return value;

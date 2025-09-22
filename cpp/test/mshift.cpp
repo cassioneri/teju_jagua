@@ -25,7 +25,7 @@ void check(teju_u1_t const m, teju_u1_t const u, teju_u1_t const l) {
 using impl_list_t = ::testing::Types<built_in_1_t, synthetic_1_t, built_in_2_t,
   synthetic_2_t, built_in_4_t>;
 
-template <typename T>
+template <typename /*TUint*/>
 class mshift : public testing::Test {
 };
 

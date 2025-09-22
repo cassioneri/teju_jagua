@@ -14,8 +14,8 @@
 
 namespace teju::dragonbox {
 
-template <typename T>
-using result_t = decltype(jkj::dragonbox::to_decimal(T{0},
+template <typename Float>
+using result_t = decltype(jkj::dragonbox::to_decimal(Float{0},
   jkj::dragonbox::policy::sign::ignore,
   jkj::dragonbox::policy::cache::full));
 

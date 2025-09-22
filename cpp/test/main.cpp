@@ -126,7 +126,7 @@ auto const to_chars_failure = teju::exception_t{"to_chars failed."};
 template <size_t N, typename TFloat>
 char const* value_to_chars(char (&chars)[N], TFloat const value) {
 
-  auto const result = std::to_chars(chars, chars + N - 1, value,
+  auto const result = std::to_chars(chars + 0, chars + N - 1, value,
     std::chars_format::scientific);
 
   if (result.ec == std::errc{}) {
@@ -170,7 +170,7 @@ TEST(float, exhaustive_comparison_to_others) {
   auto value    = std::numeric_limits<float>::denorm_min();
   auto exponent = std::numeric_limits<std::int32_t>::min();
 
-  while (std::isfinite(value) && !HasFailure()) {
+  while (0.f < value && std::isfinite(value) && !HasFailure()) {
 
     auto const binary = traits_t<float>::to_binary(value);
     if (binary.exponent != exponent) {
@@ -186,6 +186,7 @@ TEST(float, exhaustive_comparison_to_others) {
 TEST(float, hard_coded_values) {
 
   using traits_t  = teju::traits_t<float>;
+  using binary_t  = teju::binary_t<float>;
   using decimal_t = teju::decimal_t<float>;
 
   using limits_t  = std::numeric_limits<float>;
@@ -196,146 +197,173 @@ TEST(float, hard_coded_values) {
 
   struct test_data_t {
     float     value;
+    binary_t  binary;
     decimal_t decimal;
     int       line;
   };
-
   test_data_t data[] = {
 
     //--------------------------------------------------------------------------
     // Special values: denorm_min, min, max and epsilon.
     //--------------------------------------------------------------------------
 
-    // !shortest: is_centred && !allows_ties && s <= a
-    //  closest : !is_tie && is_closer_to_left
-    {     denorm_min, {      -45,        1 }, __LINE__ },
+    // value is centred, neither a nor b can be a tie, s <= a.
+    // value is closer to left decimal.
+    {     denorm_min, {  -149,        1 }, {   -45,        1 }, __LINE__ },
 
-    // !shortest: is_centred && !allows_ties && s <= a
-    //  closest : !is_tie && !is_closer_to_left
-    {            min, {      -45, 11754944 }, __LINE__ },
+    // value is centred, neither a nor b can be a tie, s <= a.
+    // value is closer to right decimal.
+    {            min, {  -149,  8388608 }, {   -45, 11754944 }, __LINE__ },
 
-    // !shortest: is_centred && !allows_ties && !(s > a)
-    //  closest :  !is_tie && !is_closer_to_left
-    {            max, {       31, 34028235 }, __LINE__ },
+    // value is centred, neither a nor b can be a tie, s <= a.
+    // value is closer to right decimal.
+    {            max, {  +104, 16777215 }, {   +31, 34028235 }, __LINE__ },
 
-    // !is_centred && a < b && !allows_ties && !(s > a) && c == a && !is_tie
-    {        epsilon, {      -14, 11920929 }, __LINE__ },
-
-    //--------------------------------------------------------------------------
-    // Small integers
-    //--------------------------------------------------------------------------
-
-    // is_small_integer
-    {            1.f, {        0,        1 }, __LINE__ },
-    {            2.f, {        0,        2 }, __LINE__ },
-    {            3.f, {        0,        3 }, __LINE__ },
-    {            4.f, {        0,        4 }, __LINE__ },
-    {            5.f, {        0,        5 }, __LINE__ },
-    {      1234567.f, {        0,  1234567 }, __LINE__ },
-    {      8388607.f, {        0,  8388607 }, __LINE__ },
-    {      8388608.f, {        0,  8388608 }, __LINE__ },
+    // value is uncentred, a < b, neither a nor b can be a tie, s <= a.
+    // c == a, a isn't a tie.
+    {        epsilon, {   -46,  8388608 }, {   -14, 11920929 }, __LINE__ },
 
     //--------------------------------------------------------------------------
-    // Centred
+    // Value is small integer.
     //--------------------------------------------------------------------------
 
-    //  shortest: allows_ties && s == b && !is_tie
-    {    134218000.f, {        3,   134218 }, __LINE__ },
-
-    //  shortest: allows_ties && s == b && is_tie && wins_tiebreak
-    {     33554450.f, {        1,  3355445 }, __LINE__ },
-
-    // !shortest: allows_ties && s == b && is_tie && !wins_tiebreak
-    //  closest : is_tie && wins_tiebreak
-    {     33554468.f, {        0, 33554468 }, __LINE__ },
-
-    //  shortest: allows_ties && s == a && !is_tie
-    {    134218020.f, {        1, 13421802 }, __LINE__ },
-
-    // !shortest: allows_ties && s == a && is_tie && !wins_tiebreak
-    //  closest : is_tie && wins_tiebreak
-    {     33554452.f, {        0, 33554452 }, __LINE__ },
-
-    //  shortest: allows_ties && s == a && is_tie && wins_tiebreak
-    {     33554470.f, {        1,  3355447 }, __LINE__ },
-
-    //  shortest: allows_ties && s > a
-    {     16777220.f, {        1,  1677722 }, __LINE__ },
-
-    // !shortest: allows_ties && s < a
-    //  closest : is_tie && wins_tiebreak
-    {     16777218.f, {        0, 16777218 }, __LINE__ },
-
-    //  shortest: !allows_ties && s > a
-    {       1.0e-44f, {      -44,        1 }, __LINE__ },
-
-    // !shortest: !allows_ties && s <= a
-    //  closest : is_tie && !wins_tiebreak && !is_closer_to_left
-    { 1.4648438e-03f, {      -10, 14648438 }, __LINE__ },
-
-    // !shortest: !allows_ties && s <= a
-    //  closest : is_tie && wins_tiebreak
-    { 2.4414062e-03f, {      -10, 24414062 }, __LINE__ },
-
-    // !shortest: !allows_ties && s <= a
-    //  closest : !is_tie && !is_closer_to_left
-    {        3.e-45f, {      -45,        3 }, __LINE__ },
+    {            1.f, {   -23,  8388608 }, {    +0,        1 }, __LINE__ },
+    {            2.f, {   -22,  8388608 }, {    +0,        2 }, __LINE__ },
+    {            3.f, {   -22, 12582912 }, {    +0,        3 }, __LINE__ },
+    {            4.f, {   -21,  8388608 }, {    +0,        4 }, __LINE__ },
+    {            5.f, {   -21, 10485760 }, {    +0,        5 }, __LINE__ },
+    {      1234567.f, {    -3,  9876536 }, {    +0,  1234567 }, __LINE__ },
+    {      8388607.f, {    -1, 16777214 }, {    +0,  8388607 }, __LINE__ },
+    {      8388608.f, {    +0,  8388608 }, {    +0,  8388608 }, __LINE__ },
 
     //--------------------------------------------------------------------------
-    // Uncentred
+    // Value is centred. Tests whether it can return shortest.
     //--------------------------------------------------------------------------
 
-    // !shortest: a < b && !allows_ties && s <= a
-    //  closest : c != a && !is_tie && is_closer_to_left
-    { 2.3509887e-38f, {      -45, 23509887 }, __LINE__ },
+    // a or b can be a tie, s == b, b isn't a tie.
+    {   1.34218e+08f, {    +4,  8388625 }, {    +3,   134218 }, __LINE__ },
 
-    // !shortest: a >= b && !is_tie
-    //  closest : !is_tie && is_closer_to_left
-    { 9.8607613e-32f, {      -39, 98607613 }, __LINE__ },
+    // a or b can be a tie, s == b, b is a tie, value wins tiebreak.
+    {  3.355445e+07f, {    +2,  8388612 }, {    +1,  3355445 }, __LINE__ },
 
-    // !shortest: a < b && allows_ties && s < a
-    //  closest : c != a && is_tie && wins_tiebreak
-    {     16777216.f, {        0, 16777216 }, __LINE__ },
+    // a or b can be a tie, s == b, b is tie, value loses tiebreak.
+    { 3.3554468e+07f, {    +2,  8388617 }, {    +0, 33554468 }, __LINE__ },
 
-    //  shortest: a < b && allows_ties && s == b && !is_tie
-    {  1.717987e+10f, {        4,  1717987 }, __LINE__ },
+    // a or b can be a tie, a < s < b.
+    {  1.677722e+07f, {    +1,  8388610 }, {    +1,  1677722 }, __LINE__ },
 
-    //  shortest: a < b && allows_ties && s > a
-    {  5.368709e+08f, {        2,  5368709 }, __LINE__ },
+    // a or b can be a tie, s == a, a isn't a tie.
+    { 1.3421802e+08f, {    +4,  8388626 }, {    +1, 13421802 }, __LINE__ },
 
-    //  shortest: a < b && !allows_ties && s > a
-    {  1.880791e-37f, {      -43,  1880791 }, __LINE__ },
+    // a or b can be a tie, s == a, a is a tie, value wins tiebreak.
+    {  3.355447e+07f, {    +2,  8388618 }, {    +1,  3355447 }, __LINE__ },
 
-    // !shortest: a < b && !allows_ties && s <= a
-    //  closest : c == a && !is_tie
-    {  9.403955e-38f, {      -44,  9403955 }, __LINE__ },
+    // a or b can be a tie, s == a, a is a tie, value loses tiebreak.
+    { 3.3554452e+07f, {    +2,  8388613 }, {    +0, 33554452 }, __LINE__ },
 
-    // !shortest: a < b && !allows_ties && s <= a
-    //  closest : c != a && is_tie && wins_tiebreak
-    { 2.4414062e-04f, {      -11, 24414062 }, __LINE__ },
+    // a or b can be a tie, s < a.
+    { 1.6777218e+07f, {    +1,  8388609 }, {    +0, 16777218 }, __LINE__ },
 
-    // !shortest: a < b && !allows_ties && s <= a
-    //  closest : c != a && is_tie && !wins_tiebreak
-    { 4.8828125e-04f, {      -11, 48828125 }, __LINE__ },
+    // neither a nor b can be a tie, s > a.
+    {  1.180592e+21f, {   +47,  8388611 }, {   +15,  1180592 }, __LINE__ },
+    { 1.0485759e+06f, {    -4, 16777214 }, {    -1, 10485759 }, __LINE__ },
 
-    // !shortest: a < b && !allows_ties && s <= a
-    //  closest : c != a && !is_tie && !is_closer_to_left
-    { 4.9303807e-32f, {      -39, 49303807 }, __LINE__ },
+    // neither a nor b can be a tie, s <= a.
+    { 1.1805918e+21f, {   +47,  8388609 }, {   +14, 11805918 }, __LINE__ },
+    { 8.3886075e+06f, {    -1, 16777215 }, {    -1, 83886075 }, __LINE__ },
 
-    // !shortest: a == b && !is_tie
-    //  closest : !is_tie && !is_closer_to_left
-    { 8.4703295e-22f, {      -29, 84703295 }, __LINE__ },
+    //--------------------------------------------------------------------------
+    // Value is centred. Return closest.
+    //--------------------------------------------------------------------------
+
+    // left decimal is closer.
+    {  1.3421774e+08, {    +4,  8388609 }, {    +1, 13421774 }, __LINE__ },
+
+    // right decimal is closer.
+    { 1.3421778e+08f, {    +4,  8388611 }, {    +1, 13421778 }, __LINE__ },
+    { 2.0971519e+06f, {    -3, 16777215 }, {    -1, 20971519 }, __LINE__ },
+
+    // value is a tie, left decimal wins tiebreak.
+    { 3.3554476e+07f, {    +2,  8388619 }, {    +0, 33554476 }, __LINE__ },
+    { 4.1943032e+06f, {    -2, 16777213 }, {    -1, 41943032 }, __LINE__ },
+
+    // value is a tie, right decimal wins tiebreak.
+    {  4.1943038e+06, {    -2, 16777215 }, {    -1, 41943038 }, __LINE__ },
+
+    //--------------------------------------------------------------------------
+    // Value is uncentred. Tests whether it can return shortest.
+    //--------------------------------------------------------------------------
+
+    // a < b, a or b can be a tie, s == b, b isn't a tie.
+    {  1.717987e+10f, {   +11,  8388608 }, {    +4,  1717987 }, __LINE__ },
+
+    // a < b, a or b can be a tie, s == b, b is a tie.
+    // ???
+
+    // a < b, a or b can be a tie, a < s < b.
+    {  5.368709e+08f, {    +6,  8388608 }, {    +2,  5368709 }, __LINE__ },
+
+    // a < b, a or b can be a tie, s == a.
+    // ???
+
+    // a < b, a or b can be a tie, s < a.
+    { 1.3421773e+08f, {    +4,  8388608 }, {    +1, 13421773 }, __LINE__ },
+
+    // a < b, neither a nor b can be a tie, s > a.
+    {  6.044629e+23f, {   +56,  8388608 }, {   +17,  6044629 }, __LINE__ },
+    {         5e-01f, {   -24,  8388608 }, {    -1,        5 }, __LINE__ },
+
+    //--------------------------------------------------------------------------
+    // Value is uncentred. Return closest.
+    //--------------------------------------------------------------------------
+
+    // a < b, c != a, value is exact.
+    {  9.765625e-04f, {   -33,  8388608 }, {   -10,  9765625 }, __LINE__ },
+
+    // a < b, c != a, left decimal is closer.
+    { 1.0737418e+09f, {    +7,  8388608 }, {    +2, 10737418 }, __LINE__ },
+    { 1.1805916e+21f, {   +47,  8388608 }, {   +14, 11805916 }, __LINE__ },
+    { 1.2207031e-04f, {   -36,  8388608 }, {   -11, 12207031 }, __LINE__ },
+
+    // a < b, c != a, right decimal is closer.
+    { 2.6843546e+08f, {    +5,  8388608 }, {    +1, 26843546 }, __LINE__ },
+    { 3.8146973e-06f, {   -41,  8388608 }, {   -13, 38146973 }, __LINE__ },
+
+    // a < b, c != a, value is a tie, left decimal wins tiebreak.
+    { 1.6777216e+07f, {    +1,  8388608 }, {    +0, 16777216 }, __LINE__ },
+    { 2.4414062e-04f, {   -35,  8388608 }, {   -11, 24414062 }, __LINE__ },
+
+    // a < b, c != a, value is a tie, right decimal wins tiebreak.
+    // ???
+
+    // a < b, c == a, a is a tie.
+    // ???
+
+    // a < b, c == a, a isn't a tie.
+    {  2.3841858e-07, {   -45,  8388608 }, {   -14,  23841858 }, __LINE__ },
+
+    // a == b, a isn't a tie, left decimal is closer.
+    { 9.9035203e+27f, {   +70,  8388608 }, {   +20, 99035203 }, __LINE__ },
+    { 9.8607613e-32f, {  -126,  8388608 }, {   -39, 98607613 }, __LINE__ },
+
+    // a == b, a isn't a tie, right decimal is closer.
+    { 8.6736174e-19f, {   -83,  8388608 }, {   -26, 86736174 }, __LINE__ },
   };
 
-  for (auto const [value, expected, line] : data) {
+  char chars[100]{};
 
-    auto const actual = traits_t::teju(value);
-    auto const binary = traits_t::to_binary(value);
+  for (auto const [value, binary, decimal, line] : data) {
 
-    if (expected != actual) {
+    auto const binary_actual  = traits_t::to_binary(value);
+    auto const decimal_actual = traits_t::teju(value);
+
+    if (binary_actual != binary || decimal_actual != decimal) {
       value_to_chars(chars, value);
-      ASSERT_EQ(expected, actual) <<
-        "    Value = " << binary << " ~= " << chars << "\n"
+      ASSERT_EQ(binary_actual, binary) <<
+        "    Value = " << chars << " ~= " << decimal << "\n"
+        "    Note: test case line = " << line;
+      ASSERT_EQ(decimal_actual, decimal) <<
+        "    Value = " << chars << " ~= " << binary  << "\n"
         "    Note: test case line = " << line;
     }
   }

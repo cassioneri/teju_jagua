@@ -52,14 +52,14 @@ auto constexpr str_csv       = std::string_view{
 auto const to_chars_failure = teju::exception_t{"to_chars failed."};
 
 /**
- * @brief Converts an integer into chars.
+ * @brief Converts an integer into chars. (Does not write a null terminator.)
  *
  * Simply delegates to std::to_chars and throws in case of failure.
  *
  * @tparam TInt             The type of integer to be converted.
  *
- * @param  begin            Pointer to beginning of the buffer.
- * @param  end              Pointer to one-past-the-end of the buffer.
+ * @param  begin            Pointer to beginning of the chars buffer.
+ * @param  end              Pointer to one-past-the-end of the chars buffer.
  * @param  value            The integer to be converted.
  *
  * @returns Pointer to one-past-the-end of characters written.
@@ -77,14 +77,12 @@ integer_to_chars(char* const begin, char* const end, TInt const& value) {
 }
 
 /**
- * @brief Converts fields to chars.
- *
- * A buffer for the chars must be provided by the caller.
+ * @brief Converts fields to chars. (Does not write a null terminator.)
  *
  * @tparam TFields          The type of fields.
  *
- * @param  begin            Pointer to beginning of the buffer.
- * @param  end              Pointer to one-past-the-end of the buffer.
+ * @param  begin            Pointer to beginning of the chars buffer.
+ * @param  end              Pointer to one-past-the-end of the chars buffer.
  * @param  fields           The fields to be converted.
  * @param  base             The base for the exponent, either 2 or 10.
  *
@@ -106,6 +104,26 @@ fields_to_chars(char* const begin, char* const end, TFields const& fields,
     throw to_chars_failure;
 
   return integer_to_chars(ptr, end, fields.exponent);
+}
+
+/**
+ * @brief Converts fields to chars. (Writes a null terminator.)
+ *
+ * @tparam N                The buffer size.
+ * @tparam TFields          The type of fields.
+ *
+ * @param  chars            The chars buffer.
+ * @param  fields           The fields to be converted.
+ * @param  base             The base for the exponent, either 2 or 10.
+ *
+ * @returns Pointer to one-past-the-end of characters written.
+ */
+template <size_t N, typename TFields>
+char*
+fields_to_chars(char (&chars)[N], TFields const& fields, int const base) {
+  const auto end = fields_to_chars(chars, chars + N - 1, fields, base);
+  *end = '\0';
+  return end + 1;
 }
 
 namespace nanobench = ankerl::nanobench;
@@ -142,12 +160,10 @@ benchmark(nanobench::Bench& bench, TFloat const value) {
   auto const decimal  = traits_t::teju(value);
 
   buffer_t binary_chars{};
-  fields_to_chars(std::begin(binary_chars), std::prev(std::end(binary_chars)),
-    binary, 2);
+  fields_to_chars(binary_chars, binary, 2);
 
   buffer_t decimal_chars{};
-  fields_to_chars(std::begin(decimal_chars), std::prev(std::end(decimal_chars)),
-    decimal, 10);
+  fields_to_chars(decimal_chars, decimal, 10);
 
   if constexpr (run_teju)
     bench

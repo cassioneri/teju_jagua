@@ -343,8 +343,8 @@ to_decimal_uncentred(int32_t const e) {
 
     if (allows_ties(f)) {
       bool const shortest =
-        s == a ?  is_tie_uncentred(f, m_a) && wins_tiebreak(m) :
         s == b ? !is_tie_uncentred(f, m_b) || wins_tiebreak(m) :
+        s == a ?  is_tie_uncentred(f, m_a) && wins_tiebreak(m) :
         /*else*/ s > a;
       if (shortest)
         return remove_trailing_zeros(f + 1, q);

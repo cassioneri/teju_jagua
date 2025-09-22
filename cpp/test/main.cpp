@@ -141,13 +141,13 @@ char const* value_to_chars(char (&chars)[N], TFloat const value) {
  * @brief Converts a given value from binary to decimal using Tejú Jaguá and a
  *        third part-library and check whether they match.
  *
- * @tparam T                The floating-point value type.
+ * @tparam TFloat           The floating-point value type.
  * @param  value            The given value.
  */
-template <typename T>
-void compare_to_others(T const value) {
+template <typename TFloat>
+void compare_to_others(TFloat const value) {
 
-  using      traits_t  = teju::traits_t<T>;
+  using      traits_t  = teju::traits_t<TFloat>;
 
   auto const teju      = traits_t::teju(value);
   auto const ryu       = traits_t::ryu(value);
@@ -369,7 +369,7 @@ TEST(float, hard_coded_values) {
   }
 }
 
-template <typename T>
+template <typename /*TFloat*/>
 class typed_tests_t : public testing::Test {
 };
 

@@ -380,15 +380,15 @@ TYPED_TEST_SUITE_P(typed_tests_t);
 // and double.
 TYPED_TEST_P(typed_tests_t, mantissa_min_all_exponents) {
 
-  using fp_t     = TypeParam;
-  using traits_t = teju::traits_t<fp_t>;
+  using float_t  = TypeParam;
+  using traits_t = teju::traits_t<float_t>;
   using u1_t     = typename traits_t::u1_t;
 
   for (std::uint32_t exponent = traits_t::exponent_min; !this->HasFailure() &&
     exponent <= traits_t::exponent_max; ++exponent) {
 
     auto const bits = teju_pow2(u1_t, traits_t::mantissa_width - 1);
-    fp_t value;
+    float_t value;
     std::memcpy(&value, &bits, sizeof(bits));
     compare_to_others(value);
   }
@@ -396,25 +396,26 @@ TYPED_TEST_P(typed_tests_t, mantissa_min_all_exponents) {
 
 TYPED_TEST_P(typed_tests_t, integers) {
 
-  using fp_t = TypeParam;
+  using float_t = TypeParam;
 
-  auto test = [this](fp_t const min, fp_t const max) {
-    for (fp_t value = min; value < max && !this->HasFailure(); ++value) {
+  auto test = [this](float_t const min, float_t const max) {
+    for (float_t value = min; value < max && !this->HasFailure(); ++value) {
       compare_to_others(value);
       ASSERT_NE(value + 1.0, value);
     }
   };
 
-  auto const max   = std::pow(fp_t{2}, fp_t{traits_t<fp_t>::mantissa_width - 1});
-  auto const limit = fp_t{10'000'000};
+  auto const max   = std::pow(float_t{2},
+    float_t{traits_t<float_t>::mantissa_width - 1});
+  auto const limit = float_t{10'000'000};
 
   if (max <= limit) {
     // Tests all small integers.
-    test(fp_t{1}, max);
+    test(float_t{1}, max);
   }
   else {
     // Tests first small integers.
-    test(fp_t{1}, limit);
+    test(float_t{1}, limit);
     // Tests last  small integers.
     test(std::max(limit, max - limit), max);
   }
@@ -425,8 +426,8 @@ REGISTER_TYPED_TEST_SUITE_P(typed_tests_t,
   integers
 );
 
-using fp_types_t = ::testing::Types<float, double>;
-INSTANTIATE_TYPED_TEST_SUITE_P(typed_tests_t, typed_tests_t, fp_types_t);
+using float_types_t = ::testing::Types<float, double>;
+INSTANTIATE_TYPED_TEST_SUITE_P(typed_tests_t, typed_tests_t, float_types_t);
 
 // Test results for a large number of random double values.
 TEST(double, random_comparison_to_other) {

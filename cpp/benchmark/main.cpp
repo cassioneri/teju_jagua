@@ -68,10 +68,10 @@ template <typename TInt>
 char*
 integer_to_chars(char* const begin, char* const end, TInt const& value) {
 
-  auto result = std::to_chars(begin, end, value);
+  auto const result = std::to_chars(begin, end, value);
 
   if (result.ec == std::errc{})
-    return const_cast<char*>(result.ptr);
+    return result.ptr;
 
   throw to_chars_failure;
 }

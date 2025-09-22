@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: APACHE-2.0
 // SPDX-FileCopyrightText: 2021-2025 Cassio Neri <cassio.neri@gmail.com>
 
+#include <charconv>
+
+#include "common/exception.hpp"
 #include "common/traits.hpp"
 #include "teju/src/common.h"
 #include "teju/src/config.h"
@@ -84,6 +87,36 @@ get_next(T value) {
   return value;
 }
 
+auto const to_chars_failure = teju::exception_t{"to_chars failed."};
+
+/**
+ * @brief Converts a floating-point number into chars in scientific format.
+ *        (Writes a null terminator.)
+ *
+ * Simply delegates to std::to_chars and throws in case of failure.
+ *
+ * @tparam N                The buffer size.
+ * @tparam TFloat           The floating-point number type.
+ *
+ * @param  chars            The chars buffer.
+ * @param  value            The value to be converted.
+ *
+ * @returns Pointer to one-past-the-end of characters written.
+ */
+template <size_t N, typename TFloat>
+char const* value_to_chars(char (&chars)[N], TFloat const value) {
+
+  auto const result = std::to_chars(chars, chars + N - 1, value,
+    std::chars_format::scientific);
+
+  if (result.ec == std::errc{}) {
+    *result.ptr = '\0';
+    return result.ptr + 1;
+  }
+
+  throw to_chars_failure;
+}
+
 /**
  * @brief Converts a given value from binary to decimal using Tejú Jaguá and a
  *        third part-library and check whether they match.
@@ -100,10 +133,15 @@ void compare_to_others(T const value) {
   auto const ryu       = traits_t::ryu(value);
   auto const dragonbox = traits_t::dragonbox(value);
 
-  auto const binary    = traits_t::to_binary(value);
+  if (teju != ryu || teju != dragonbox) {
 
-  EXPECT_EQ(ryu      , teju) << "Value = " << binary << " ~= " << value << '.';
-  EXPECT_EQ(dragonbox, teju) << "Value = " << binary << " ~= " << value << '.';
+    auto const binary = traits_t::to_binary(value);
+    char chars[100];
+    value_to_chars(chars, value);
+
+    EXPECT_EQ(ryu      , teju) << "Value = " << binary << " ~= " << chars << '.';
+    EXPECT_EQ(dragonbox, teju) << "Value = " << binary << " ~= " << chars << '.';
+  }
 }
 
 // Test results for all possible strictly positive finite float values.
@@ -274,9 +312,12 @@ TEST(float, hard_coded_values) {
     auto const actual = traits_t::teju(value);
     auto const binary = traits_t::to_binary(value);
 
-    ASSERT_EQ(expected, actual) <<
-      "    Value = " << binary << " ~= " << value << "\n"
-      "    Note: test case line = " << line;
+    if (expected != actual) {
+      value_to_chars(chars, value);
+      ASSERT_EQ(expected, actual) <<
+        "    Value = " << binary << " ~= " << chars << "\n"
+        "    Note: test case line = " << line;
+    }
   }
 }
 

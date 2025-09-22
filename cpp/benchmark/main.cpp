@@ -54,8 +54,7 @@ auto const to_chars_failure = teju::exception_t{"to_chars failed."};
 /**
  * @brief Converts an integer into chars.
  *
- * Simply delegates to std::to_chars and throws in case of failure. A buffer for
- * the chars must be provided by the caller.
+ * Simply delegates to std::to_chars and throws in case of failure.
  *
  * @tparam TInt             The type of integer to be converted.
  *
@@ -94,8 +93,8 @@ integer_to_chars(char* const begin, char* const end, TInt const& value) {
 template <typename TFields>
 char*
 fields_to_chars(char* const begin, char* const end, TFields const& fields,
-  int const base)
-{
+  int const base) {
+
   auto       ptr  = integer_to_chars(begin, end, fields.mantissa);
   auto const size = end - ptr;
 
@@ -127,16 +126,16 @@ auto get_bench() {
  * @brief Benchmarks conversion of a given floating-point number to its decimal
  *        representation.
  *
- * @tparam T                The floating-point number type.
+ * @tparam TFloat           The floating-point number type.
  *
  * @param  bench            The benchmark object recording the results.
  * @param  value            The given floating-point number.
  */
-template <typename T>
+template <typename TFloat>
 void
-benchmark(nanobench::Bench& bench, T const value) {
+benchmark(nanobench::Bench& bench, TFloat const value) {
 
-  using      traits_t = teju::traits_t<T>;
+  using      traits_t = teju::traits_t<TFloat>;
   using      buffer_t = char[40];
 
   auto const binary   = traits_t::to_binary(value);
@@ -266,28 +265,28 @@ output(nanobench::Bench const& bench, std::string_view const filename) {
  * The set of values comprises the smallest and largest 1,000 integral values (a
  * maximum of 2,000 values) which Tejú Jaguá treats as special cases.
  *
- * @tparam T                The floating-point number type.
+ * @tparam TFloat           The floating-point number type.
  *
  * @param  filename         The name of the output file.
  */
-template <typename T>
+template <typename TFloat>
 void
 benchmark_integers(std::string_view const filename) {
 
   auto bench = get_bench();
 
-  auto test  = [&](T const min, T const max) {
-    for (T value = min; value < max; ++value)
+  auto test  = [&](TFloat const min, TFloat const max) {
+    for (TFloat value = min; value < max; ++value)
       benchmark(bench, value);
   };
 
-  using traits_t                = teju::traits_t<T>;
+  using traits_t                = teju::traits_t<TFloat>;
   using u1_t                    = typename traits_t::u1_t;
   auto constexpr mantissa_width = traits_t::mantissa_width;
   auto constexpr max            = teju_pow2(u1_t, mantissa_width - 1);
 
-  test(T{1}, T{1'000});
-  test(T{max} - T{1'000}, T{max});
+  test(TFloat{1}, TFloat{1'000});
+  test(TFloat{max} - TFloat{1'000}, TFloat{max});
 
   output(bench, filename);
 }
@@ -305,14 +304,16 @@ TEST(double, integers) {
  *        their decimal representations. Streams out detailed benchmarks results
  *        to a given file and a summary to std::cout.
  *
+ * @tparam TFloat           The floating-point number type.
+ *
  * @param  filename         The name of the output file.
  * @param  n_samples        The number of samples.
  */
-template <typename T>
+template <typename TFloat>
 void
 benchmark_centred(std::string_view const filename, unsigned n_samples) {
 
-  using traits_t = teju::traits_t<T>;
+  using traits_t = teju::traits_t<TFloat>;
   using u1_t     = typename traits_t::u1_t;
 
   auto device = std::mt19937_64{};
@@ -333,7 +334,7 @@ benchmark_centred(std::string_view const filename, unsigned n_samples) {
   while (n_samples--) {
     auto const mantissa = mantissa_distribution(device);
     auto const exponent = exponent_distribution(device);
-    auto const binary   = teju::binary_t<T>{exponent, mantissa};
+    auto const binary   = teju::binary_t<TFloat>{exponent, mantissa};
     auto const value    = traits_t::to_value(binary);
     benchmark(bench, value);
   }
@@ -356,13 +357,15 @@ TEST(double, centred) {
  *
  * The set of values comprises all uncentred values.
  *
+ * @tparam TFloat           The floating-point number type.
+ *
  * @param  filename         The name of the output file.
  */
-template <typename T>
+template <typename TFloat>
 void
 benchmark_uncentred(std::string_view const filename) {
 
-  using traits_t = teju::traits_t<T>;
+  using traits_t = teju::traits_t<TFloat>;
   using u1_t     = typename traits_t::u1_t;
 
   auto bench = get_bench();
@@ -374,7 +377,7 @@ benchmark_uncentred(std::string_view const filename) {
 
   for (std::int32_t exponent = exponent_min; exponent <= exponent_max;
     ++exponent) {
-    auto const binary = teju::binary_t<T>{exponent, mantissa_uncentred};
+    auto const binary = teju::binary_t<TFloat>{exponent, mantissa_uncentred};
     auto const value  = traits_t::to_value(binary);
     benchmark(bench, value);
   }
@@ -390,7 +393,8 @@ TEST(double, uncentred) {
   benchmark_uncentred<double>("double_uncentred.csv");
 }
 
-template <typename T>
+// TODO (CN): Document.
+template <typename TFloat>
 void
 benchmark_simple(unsigned n_samples) {
 
@@ -399,12 +403,12 @@ benchmark_simple(unsigned n_samples) {
     .unit("run")
     .epochs(11);
 
-  using          traits_t = teju::traits_t<T>;
+  using          traits_t = teju::traits_t<TFloat>;
   using          u1_t     = typename traits_t::u1_t;
-  auto constexpr min      = std::numeric_limits<T>::denorm_min();
-  auto constexpr max      = std::numeric_limits<T>::max();
+  auto constexpr min      = std::numeric_limits<TFloat>::denorm_min();
+  auto constexpr max      = std::numeric_limits<TFloat>::max();
 
-  auto to_bits = [](T value) {
+  auto to_bits = [](TFloat value) {
     u1_t bits{};
     std::memcpy(&bits, &value, sizeof(value));
     return bits;
@@ -417,12 +421,12 @@ benchmark_simple(unsigned n_samples) {
   auto distribution = std::uniform_int_distribution<u1_t>{min_bits, max_bits};
 
   auto to_value = [](u1_t bits) {
-    T value{};
+    TFloat value{};
     std::memcpy(&value, &bits, sizeof(value));
     return value;
   };
 
-  std::vector<T> values;
+  std::vector<TFloat> values;
   values.reserve(n_samples);
 
   while (n_samples--)

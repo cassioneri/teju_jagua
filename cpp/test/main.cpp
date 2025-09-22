@@ -23,7 +23,7 @@ using namespace teju;
 /**
  * @brief Creates an integer number from chars.
  *
- * @tparam T                The type of the number to be generated.
+ * @tparam TUint            The type of the number to be generated.
  * @tparam Cs               The chars.
  */
 template <typename TUint, char... Cs>
@@ -138,8 +138,8 @@ char const* value_to_chars(char (&chars)[N], TFloat const value) {
 }
 
 /**
- * @brief Converts a given value from binary to decimal using Tejú Jaguá and a
- *        third part-library and check whether they match.
+ * @brief Converts a given value from binary to decimal using Tejú Jaguá,
+ *        Dragonbox and Ryu, and check whether they match.
  *
  * @tparam TFloat           The floating-point value type.
  * @param  value            The given value.
@@ -164,7 +164,8 @@ void compare_to_others(TFloat const value) {
   }
 }
 
-// Test results for all possible strictly positive finite float values.
+// Compare results from Tejú Jaguá against Dragonbox and Ryu for all possible
+// strictly positive finite float values.
 TEST(float, exhaustive_comparison_to_others) {
 
   auto value    = std::numeric_limits<float>::denorm_min();
@@ -183,6 +184,7 @@ TEST(float, exhaustive_comparison_to_others) {
   }
 }
 
+// Test hard-coded values covering most (all?) code paths used by floats.
 TEST(float, hard_coded_values) {
 
   using traits_t  = teju::traits_t<float>;
@@ -394,6 +396,8 @@ TYPED_TEST_P(typed_tests_t, mantissa_min_all_exponents) {
   }
 }
 
+// Test results for a large number of small integers. This test is parameterized
+// on the floating-point number type and is instantiated for float and double.
 TYPED_TEST_P(typed_tests_t, integers) {
 
   using float_t = TypeParam;

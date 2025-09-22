@@ -87,6 +87,26 @@ get_next(TFloat value) {
   return value;
 }
 
+/**
+ * @brief Gets the floating-point value that precedes a given one.
+ *
+ * @tparam TFloat           The floating-point value type.
+ * @param  value            The given value.
+ *
+ * @pre std::isfinite(value) && value >= 0.
+ *
+ * @returns The previous value.
+ */
+template <typename TFloat>
+TFloat
+get_previous(TFloat value) {
+  typename traits_t<TFloat>::u1_t i;
+  std::memcpy(&i, &value, sizeof(value));
+  --i;
+  std::memcpy(&value, &i, sizeof(value));
+  return value;
+}
+
 auto const to_chars_failure = teju::exception_t{"to_chars failed."};
 
 /**

@@ -68,19 +68,19 @@ struct make_number<T, C, Cs...> {
 };
 
 /**
- * @brief Gets the next value of type T following a given one.
+ * @brief Gets the floating-point value that follows a given one.
  *
- * @tparam T                The floating-point value type.
+ * @tparam TFloat           The floating-point value type.
  * @param  value            The given value.
  *
- * @pre std::isfinite(value) && value > 0.
+ * @pre std::isfinite(value) && value >= 0.
  *
  * @returns The next value.
  */
-template <typename T>
-T
-get_next(T value) {
-  typename traits_t<T>::u1_t i;
+template <typename TFloat>
+TFloat
+get_next(TFloat value) {
+  typename traits_t<TFloat>::u1_t i;
   std::memcpy(&i, &value, sizeof(value));
   ++i;
   std::memcpy(&value, &i, sizeof(value));

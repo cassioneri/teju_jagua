@@ -409,7 +409,15 @@ TEST(double, uncentred) {
   benchmark_uncentred<double>("double_uncentred.csv");
 }
 
-// TODO (CN): Document.
+/**
+ * @brief Benchmarks conversion of a given quantity of floating-point numbers to
+ *        their decimal representation.
+ *
+ * @tparam TFloat           The floating-point number type.
+ *
+ * @param  n_samples        The quantity of floating-point numbers to be
+ *                          converted.
+ */
 template <typename TFloat>
 void
 benchmark_simple(unsigned n_samples) {

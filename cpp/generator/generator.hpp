@@ -113,7 +113,7 @@ private:
   storage_split() const;
 
   /**
-   * @brief Returns the endianess of the storage.
+   * @brief Returns the endianness of the storage.
    */
   [[nodiscard]] std::string const&
   storage_endianness() const;
@@ -155,7 +155,7 @@ private:
   dot_c() const;
 
   /**
-   * @brief Streams out the license information.
+   * @brief Streams out the licence information.
    *
    * @param  stream         Output stream to receive the content.
    *
@@ -181,8 +181,8 @@ private:
   generate_dot_c(std::ostream& stream) const;
 
   /**
-   * @brief Check whether Tejú Jaguá can use the algorithm of Theorem 4 of [1]
-   *        to perform division by 10.
+   * @brief Check whether Tejú Jaguá can use the algorithm of Theorem 4 [1] to
+   *        perform division by 10.
    * [1] Neri C, Schneider L. "Euclidean affine functions and their application
    * to calendar algorithms." Softw Pract Exper. 2023; 53(4):937-970.
    * https://onlinelibrary.wiley.com/doi/full/10.1002/spe.3172
@@ -223,7 +223,7 @@ private:
    *        works on a set of relevant values of n.
    *
    * The binary exponent e_0 must be such that 10^(e_0 - 1) < 10^f <= 10^e_0 for
-   * some integer f. (This f is unique and it's the exponent of the EAF's
+   * some integer f. (This f is unique, and it's the exponent of the EAF's
    * denominator.)
    *
    * This function returns an integer U such that

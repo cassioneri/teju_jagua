@@ -58,7 +58,7 @@ auto const to_chars_failure = teju::exception_t{"to_chars failed."};
  *
  * @tparam TInt             The type of integer to be converted.
  *
- * @param  begin            Pointer to beginning of the chars buffer.
+ * @param  begin            Pointer to the beginning of the chars buffer.
  * @param  end              Pointer to one-past-the-end of the chars buffer.
  * @param  value            The integer to be converted.
  *
@@ -81,7 +81,7 @@ integer_to_chars(char* const begin, char* const end, TInt const& value) {
  *
  * @tparam TFields          The type of fields.
  *
- * @param  begin            Pointer to beginning of the chars buffer.
+ * @param  begin            Pointer to the beginning of the chars buffer.
  * @param  end              Pointer to one-past-the-end of the chars buffer.
  * @param  fields           The fields to be converted.
  * @param  base             The base for the exponent, either 2 or 10.
@@ -203,7 +203,7 @@ benchmark(nanobench::Bench& bench, TFloat const value) {
 void
 output(nanobench::Bench const& bench, std::string_view const filename) {
 
-  // Save detailed results in csv file.
+  // Save detailed results in a csv file.
   {
     auto out = std::ofstream{filename.data()};
     render(str_csv.data(), bench, out);
@@ -316,9 +316,9 @@ TEST(double, integers) {
 }
 
 /**
- * @brief Benchmarks conversion of a sample of centred floating-point numbers to
- *        their decimal representations. Streams out detailed benchmarks results
- *        to a given file and a summary to std::cout.
+ * @brief Benchmarks conversion centred floating-point numbers to their decimal
+ *        representations. Streams out detailed benchmarks results to a given
+ *        file and a summary to std::cout.
  *
  * @tparam TFloat           The floating-point number type.
  *
@@ -410,8 +410,8 @@ TEST(double, uncentred) {
 }
 
 /**
- * @brief Benchmarks conversion of a given quantity of floating-point numbers to
- *        their decimal representation.
+ * @brief Benchmarks conversion floating-point numbers to their decimal
+ *        representation.
  *
  * @tparam TFloat           The floating-point number type.
  *

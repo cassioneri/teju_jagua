@@ -18,7 +18,7 @@ namespace teju {
 /**
  * @brief Online mean and standard deviation calculator.
  *
- * @warning Sample values must be small numbers of type std::uint64_t.
+ * @warning Sample values must be small std::uint64_t numbers.
  */
 struct stats_t {
 

@@ -40,12 +40,12 @@ namespace detail {
  * @brief Traits for floating-point number types.
  *
  * Tejú Jaguá (and possibly other third-party libraries with the same purpose)
- * are supposed to be called in C which doesn't support overloading and
+ * are supposed to be called in C, which doesn't support overloading and
  * templates. This class serves to wrap C functions (and data) referring to
  * specific types into a generic interface. For instance,
- * teju_double_to_decimal is wrapped by traits_t<double>::teju, making easier to
- * call it in generic tests. Specialisations are provided for float, double and
- * some other floating-point types. For float and double they contain the all
+ * teju_double_to_decimal is wrapped by traits_t<double>::teju, making it easier
+ * to call it in generic tests. Specialisations are provided for float, double
+ * and some other floating-point types. For float and double they contain all
  * the following members. (Other types might not implement them all.)
  *
  * Types:

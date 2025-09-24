@@ -17,14 +17,13 @@ namespace teju {
 /**
  * @brief Splits a large literal into smaller pieces.
  *
- * Generated sources might need to hardcode large numbers but the platform might
- * lack support for literals of the required size. This class helps splitting
- * such number into smaller pieces which can be given to macros teju_literal2
- * or teju_literal4 for the large number to be reconstructed.
+ * Generated sources might need to hardcode large numbers, but the platform
+ * might lack support for literals of the required size. This class helps
+ * to split such a number into smaller pieces which can be given to macros
+ * teju_literal2 or teju_literal4 for the large number to be reconstructed.
  *
- * A typical usage looks like the following. Consider a 128-bits unsigned n
- * whose value is 0x0123456789abcdeffedcba9876543210. It can be split into two
- * parts:
+ * A typical usage looks like the following. Consider a 128-bit unsigned n whose
+ * value is 0x0123456789abcdeffedcba9876543210. It can be split into two parts:
  *
  *     splitter_t splitter{128, 2};
  *     std::cout << splitter(n) << '\n';

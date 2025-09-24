@@ -44,7 +44,7 @@ require(bool const condition, const char* const message) {
 /**
  * @brief Report an error to stderr.
  *
- * @param  program          The program that generates the error, i.e., argv[0].
+ * @param  program          The program that generates the error, i.e. argv[0].
  * @param  message          The error message.
  */
 static inline

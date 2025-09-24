@@ -445,7 +445,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
         "Can't use the selected algorithm for div10.");
     }
     stream <<
-    "#define teju_calculation_div10    teju_" << calculation_div10() << "\n";
+      "#define teju_calculation_div10    teju_" << calculation_div10() << "\n";
   }
 
   // The optimal runtime shift is twice the carrier width because it avoids

@@ -79,6 +79,9 @@ validate(config_t const& json) {
   require(json.exponent.maximum <= max,
     "Constraint violation: json.exponent.maximum <= max");
 
+  require(json.mantissa.width > 0u,
+    "Constraint violation: json.mantissa.width > 0");
+
   require(json.storage.split == 1 || json.storage.split == 2 ||
     json.storage.split == 4,
     "Constraint violation: storage.split in { 1, 2, 4 }");

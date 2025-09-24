@@ -180,7 +180,7 @@ rational_t
 get_maximum_1(integer_t const& alpha_1, integer_t const& delta_1,
   integer_t const& L_1, integer_t const& U_1) {
 
-  auto const maximum_1  = phi_1(alpha_1, delta_1, U_1);
+  auto maximum_1  = phi_1(alpha_1, delta_1, U_1);
 
   if (alpha_1 == 0 || L_1 == U_1)
     return maximum_1;
@@ -209,7 +209,7 @@ get_maximum_2(integer_t const& alpha_2,
   if (alpha_2 == 0)
     return U_2;
 
-  auto const maximum_1 = phi_2(alpha_2, delta_2, L_2);
+  auto maximum_1 = phi_2(alpha_2, delta_2, L_2);
 
   if (L_2 == U_2)
     return maximum_1;

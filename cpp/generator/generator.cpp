@@ -254,15 +254,20 @@ generator_t::generate() const {
 
   auto const p2width      = pow2(width());
   auto       dot_h_stream = std::ofstream{directory() + dot_h()};
+  require(dot_h_stream.good(), "Failed to open header output file.");
+
   auto       dot_c_stream = std::ofstream{directory() + dot_c()};
+  require(dot_c_stream.good(), "Failed to open source output file.");
 
   std::cout << "Generation started.\n";
 
   std::cout << "  Generating \"" << dot_h() << "\".\n";
   generate_dot_h(dot_h_stream);
+  dot_h_stream.flush();
 
   std::cout << "  Generating \"" << dot_c() << "\".\n";
   generate_dot_c(dot_c_stream);
+  dot_c_stream.flush();
 
   std::cout << "Generation finished.\n";
 }

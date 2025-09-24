@@ -43,115 +43,115 @@ private:
   /**
    * @brief Returns the identifier for the floating-point number type.
    */
-  std::string const&
+  [[nodiscard]] std::string const&
   id() const;
 
   /**
    * @brief Returns the limb width (number of bits).
    */
-  std::uint32_t
+  [[nodiscard]] std::uint32_t
   width() const;
 
   /**
    * @brief Returns the SPDX identifier.
    */
-  std::string const&
+  [[nodiscard]] std::string const&
   spdx_identifier() const;
 
   /**
    * @brief Returns the SPDX identifier.
    */
-  std::vector<std::string> const&
+  [[nodiscard]] std::vector<std::string> const&
   spdx_copyright() const;
 
   /**
    * @brief Returns the type prefix corresponding to a given width.
    */
-  std::string const&
+  [[nodiscard]] std::string const&
   prefix() const;
 
   /**
    * @brief Returns the name of Tejú Jaguá's conversion function.
    */
-  std::string const&
+  [[nodiscard]] std::string const&
   function() const;
 
   /**
    * @brief Returns the minimum binary exponent.
    */
-  std::int32_t
+  [[nodiscard]] std::int32_t
   exponent_min() const;
 
   /**
    * @brief Returns maximum binary exponent.
    */
-  std::int32_t
+  [[nodiscard]] std::int32_t
   exponent_max() const;
 
   /**
    * @brief Returns the mantissa width (number of bits).
    */
-  std::uint32_t
+  [[nodiscard]] std::uint32_t
   mantissa_width() const;
 
   /**
    * @brief Returns the (normal) minimal mantissa.
    */
-  integer_t const&
+  [[nodiscard]] integer_t const&
   mantissa_min() const;
 
   /**
    * @brief Returns the maximal mantissa.
    */
-  integer_t const&
+  [[nodiscard]] integer_t const&
   mantissa_max() const;
 
   /**
    * @brief Returns the number of parts that each stored limb is split into.
    */
-  std::uint32_t
+  [[nodiscard]] std::uint32_t
   storage_split() const;
 
   /**
    * @brief Returns the endianess of the storage.
    */
-  std::string const&
+  [[nodiscard]] std::string const&
   storage_endianness() const;
 
   /**
    * @brief Returns the index offset.
    */
-  std::int32_t
+  [[nodiscard]] std::int32_t
   index_offset() const;
 
   /**
    * @brief Returns the calculation method for div10.
    */
-  std::string const&
+  [[nodiscard]] std::string const&
   calculation_div10() const;
 
   /**
    * @brief Returns the calculation method for mshift.
    */
-  std::string const&
+  [[nodiscard]] std::string const&
   calculation_mshift() const;
 
   /**
    * @brief Returns the directory where generated files are saved.
    */
-  std::string const&
+  [[nodiscard]] std::string const&
   directory() const;
 
   /**
    * @brief Returns the name of the generated .h file.
    */
-  std::string const&
+  [[nodiscard]] std::string const&
   dot_h() const;
 
   /**
    * @brief Returns the name of the generated .c file.
    */
-  std::string const&
+  [[nodiscard]] std::string const&
   dot_c() const;
 
   /**
@@ -161,7 +161,7 @@ private:
    *
    * @returns stream
    */
-  std::ostream&
+  [[nodiscard]] std::ostream&
   generate_license(std::ostream& stream) const;
 
   /**
@@ -189,7 +189,7 @@ private:
    *
    * @returns true if the algorithm can be used or false, otherwise.
    */
-  bool
+  [[nodiscard]] bool
   check_div10_algorithm() const;
 
   /**
@@ -197,7 +197,7 @@ private:
    *
    * @returns true if the calculations are safe or false, otherwise.
    */
-  bool
+  [[nodiscard]] bool
   check_centred_calculations() const;
 
   /**
@@ -206,7 +206,7 @@ private:
    *
    * @returns true if the calculations are safe or false, otherwise.
    */
-  bool
+  [[nodiscard]] bool
   check_uncentred_calculations() const;
 
   /**
@@ -215,7 +215,7 @@ private:
    *
    * @returns true if the calculations are safe or false, otherwise.
    */
-  bool
+  [[nodiscard]] bool
   check_uncentred_refined_calculations() const;
 
   /**
@@ -235,7 +235,7 @@ private:
    *
    * @returns The numerator of the fast EAF.
    */
-  integer_t
+  [[nodiscard]] integer_t
   get_fast_eaf_numerator(int32_t e_0, bool is_min) const;
 
   /**
@@ -254,7 +254,7 @@ private:
    *
    * @returns The maximum of phi_1(n) over the relevant set of values.
    */
-  rational_t
+  [[nodiscard]] rational_t
   get_maximum(integer_t alpha, integer_t const& delta, bool is_min) const;
 
   config_t     config_;

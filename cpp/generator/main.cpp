@@ -29,7 +29,7 @@ report_usage(const char* const prog) noexcept {
     prog);
 }
 
-generator_t
+[[nodiscard]] generator_t
 parse(const char* const filename, const char* const dir) {
 
   std::cout << "Parsing of " << filename << " started.\n";

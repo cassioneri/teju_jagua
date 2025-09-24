@@ -60,7 +60,7 @@ struct splitter_t {
    *
    * @returns The size.
    */
-  std::uint32_t
+  [[nodiscard]] std::uint32_t
   size() const;
 
   /**
@@ -68,7 +68,7 @@ struct splitter_t {
    *
    * @returns The number of parts.
    */
-  std::uint32_t
+  [[nodiscard]] std::uint32_t
   parts() const;
 
 private:
@@ -94,7 +94,7 @@ struct splitter_t::data_t {
   /**
    * @brief Gets the splitter.
    */
-  splitter_t const&
+  [[nodiscard]] splitter_t const&
   splitter() const;
 
   /**
@@ -102,7 +102,7 @@ struct splitter_t::data_t {
    *
    * @returns The value.
    */
-  integer_t&
+  [[nodiscard]] integer_t&
   value();
 
   /**
@@ -110,7 +110,7 @@ struct splitter_t::data_t {
    *
    * @returns The value.
    */
-  integer_t const&
+  [[nodiscard]] integer_t const&
   value() const;
 
 private:

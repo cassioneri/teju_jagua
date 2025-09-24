@@ -546,7 +546,7 @@ generator_t::generate_dot_c(std::ostream& stream) const {
   //     c_2 = ((40 * m    ) << r) * pow(2, e_0 - 1) / pow(10, f) < 40 * M * 8.
   //
   // Hence, n < 320 * M. Now, if pow(5, f) >= 320 * M, then n < pow(5, f). It
-  // follows that  n is not multiple of pow(5, f), that is,
+  // follows that n is not multiple of pow(5, f), that is,
   // is_multiple_of_pow5(n, f) == false.
 
   auto const bound      = 320 * mantissa_max();

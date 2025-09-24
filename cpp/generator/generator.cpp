@@ -679,7 +679,7 @@ generator_t::get_maximum(integer_t alpha, integer_t const& delta,
     auto const phi_1_m_c         = phi_1(alpha, delta, m_c);
     auto const phi_1_m_c_refined = phi_1(alpha, delta, m_c_refined);
 
-    return std::max({phi_1_m_a, phi_1_m_a, phi_1_m_c, phi_1_m_c_refined});
+    return std::max({phi_1_m_a, phi_1_m_b, phi_1_m_c, phi_1_m_c_refined});
   };
 
   return std::max({max_LU, extras(0), extras(1), extras(2), extras(3)});

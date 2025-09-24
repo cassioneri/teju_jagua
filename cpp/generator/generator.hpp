@@ -180,19 +180,41 @@ private:
   void
   generate_dot_c(std::ostream& stream) const;
 
-  // TODO (CN): Document
+  /**
+   * @brief Check whether Tejú Jaguá can use the algorithm of Theorem 4 of [1]
+   *        to perform division by 10.
+   * [1] Neri C, Schneider L. "Euclidean affine functions and their application
+   * to calendar algorithms." Softw Pract Exper. 2023; 53(4):937-970.
+   * https://onlinelibrary.wiley.com/doi/full/10.1002/spe.3172
+   *
+   * @returns true if the algorithm can be used or false, otherwise.
+   */
   bool
   check_div10_algorithm() const;
 
-  // TODO (CN): Document
+  /**
+   * @brief Checks whether the calculations done for the centred cases are safe.
+   *
+   * @returns true if the calculations are safe or false, otherwise.
+   */
   bool
   check_centred_calculations() const;
 
-  // TODO (CN): Document
+  /**
+   * @brief Checks whether the calculations done for the uncentred cases are
+   *        safe.
+   *
+   * @returns true if the calculations are safe or false, otherwise.
+   */
   bool
   check_uncentred_calculations() const;
 
-  // TODO (CN): Document
+  /**
+   * @brief Checks whether the calculations done for the uncentred refined cases
+   *        are safe.
+   *
+   * @returns true if the calculations are safe or false, otherwise.
+   */
   bool
   check_uncentred_refined_calculations() const;
 

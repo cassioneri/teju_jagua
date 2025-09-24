@@ -572,12 +572,6 @@ generator_t::generate_dot_c(std::ostream& stream) const {
 
 bool
 generator_t::check_div10_algorithm() const {
-
-  // Check whether Tejú Jaguá can use the algorithm of Theorem 4 of Neri C,
-  // Schneider L. "Euclidean affine functions and their application to calendar
-  // algorithms." Softw Pract Exper. 2023; 53(4):937-970.
-  // https://onlinelibrary.wiley.com/doi/full/10.1002/spe.3172
-
   auto const d       = integer_t{10};
   auto const k       = width();
   auto const p2k     = pow2(k);
@@ -593,7 +587,8 @@ generator_t::check_div10_algorithm() const {
 
 bool
 generator_t::check_centred_calculations() const {
-  // Calculations of m_a, m_b and m_c are safe if the carrier type can represent
+  // Calculations of m_a, m_b and m_c are safe if the payload unsigned integer
+  // type can represent m_c given by:
   // m_c = (4u * m << r) for all values of m and r, i.e.,
   //   (4 * mantissa_max() << 3) <  pow(2, width()) <=>
   //   32 * mantissa_max()       <  pow(2, width()).
@@ -604,7 +599,8 @@ generator_t::check_centred_calculations() const {
 
 bool
 generator_t::check_uncentred_calculations() const {
-  // Calculations of m_a and m_b are safe if the carrier type can represent
+  // Calculations of m_a and m_b are safe if the payload unsigned integer type
+  // can represent m_a given by:
   // m_a = (4u * m - 1u) << r for m = mantissa_min() and all values of r, i.e.,
   //   (4 * mantissa_min()  - 1) << 3 <  pow(2, width()) <=>
   //   32 * mantissa_min()  - 8       <  pow(2, width()) <=>
@@ -615,7 +611,8 @@ generator_t::check_uncentred_calculations() const {
 
 bool
 generator_t::check_uncentred_refined_calculations() const {
-  // Calculation of m_c is safe if the carrier type can represent
+  // Calculation of m_c is safe if the payload unsigned integer type can
+  // represent m_c given by:
   // m_c = 40u * m << r for m = mantissa_min() and all values of r, i.e.,
   //   40 * mantissa_min() << 3     <  pow(2, width()) <=>
   //  320 * mantissa_min()          <  pow(2, width()) <=>

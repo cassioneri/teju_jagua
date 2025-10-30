@@ -27,7 +27,7 @@ Tejú Jaguá only performs the main step of the conversion for **finite**, **str
 Tejú Jaguá, *i.e.* `teju_function`, only performs step 2 but this repository also provides implementations of step 1 for the most common IEEE-754 floating-point types.
 No implementation for step 3 is provided (yet).
 
-**WARN**: It's worth repeating that Tejú Jaguá only handles **finite**, **strictly positive** floating point values, i.e., it does not handle `NaN`, `+inf`, `-inf`, `0` and negative values. These can be handled as explained in a [comment](https://github.com/cassioneri/teju_jagua/issues/5#issuecomment-2869821061) to issue #5.
+**WARN**: It's worth repeating that Tejú Jaguá only handles **finite**, **strictly positive** floating point values, i.e. it does not handle `NaN`, `+inf`, `-inf`, `0` and negative values. These can be handled as explained in a [comment](https://github.com/cassioneri/teju_jagua/issues/5#issuecomment-2869821061) to issue #5.
 
 An academic paper will be written to provide proof of correctness.
 

@@ -221,7 +221,7 @@ is_tie(int32_t const f, teju_u1_t const m) {
 /**
  * @brief Checks whether mantissa m wins the tiebreak against its neighbour.
  *
- * Implements the ties-to-even rule, i.e., m wins the tiebreak if it's even.
+ * Implements the ties-to-even rule, i.e. m wins the tiebreak if it's even.
  * Contrarily to other tie-breaking rules, this one doesn't depend on the
  * neighbour that m is competing against or the sign of the floating-point
  * number.

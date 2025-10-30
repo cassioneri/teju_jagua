@@ -4,7 +4,7 @@
 /**
  * @file teju/src/common.h
  *
- * Common functionalities used by Tejú Jaguá and elsewhere (e.g., tests).
+ * Common functionalities used by Tejú Jaguá and elsewhere (e.g. tests).
  */
 
 #ifndef TEJU_TEJU_SRC_COMMON_H_

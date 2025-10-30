@@ -119,8 +119,8 @@ extern "C" {
 // Limbs
 //------------------------------------------------------------------------------
 
-// Macros teju<X>_u1_t, where <X> = teju_width (e.g., teju32_u1_t for
-// teju_width = 32), is set to the type of 1-limb unsigned integers, i.e., that
+// Macros teju<X>_u1_t, where <X> = teju_width (e.g. teju32_u1_t for
+// teju_width = 32), is set to the type of 1-limb unsigned integers, i.e. that
 // whose width is teju_width. When defined, teju<X>_u2_t and teju<X>_u4_t are,
 // respectively, set to the types of the 2- and 4-limb unsigned integers.
 
@@ -203,7 +203,7 @@ typedef struct {
 //------------------------------------------------------------------------------
 
 // One might want to disabled the provided implementations of teju_multiply to
-// be able to implement their own (e.g., for testing). For this, it suffices to
+// be able to implement their own (e.g. for testing). For this, it suffices to
 // define macro teju_do_not_define_teju_multiply prior to including this file.
 
 #if defined(_MSC_VER) && !defined(teju_do_not_define_teju_multiply)

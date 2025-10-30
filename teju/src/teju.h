@@ -28,14 +28,16 @@ extern "C" {
 //------------------------------------------------------------------------------
 
 /**
- * @brief Checks whether n is multiple of pow(2, e).
+ * @brief Checks whether n is multiple of 2^e.
+ *
+ * Note: here 2^e denotes 2 raised to e.
  *
  * @param  e                The exponent e.
  * @param  n                The number n.
  *
  * @pre 0 <= e && e < teju_width.
  *
- * @returns true if n is multiple of pow(2, e) and false, otherwise.
+ * @returns true if n is multiple of 2^e and false, otherwise.
  */
 static inline
 bool
@@ -52,7 +54,7 @@ is_multiple_of_pow2(int32_t const e, teju_u1_t const n) {
  *
  * @pre 0 <= f && f < sizeof(minverse) / sizeof(minverse[0]).
  *
- * @returns true if n is multiple of pow(5, f) and false, otherwise.
+ * @returns true if n is multiple of 5^f and false, otherwise.
  */
 static inline
 bool
@@ -102,15 +104,17 @@ make_fields(int32_t const e, teju_u1_t const m) {
 }
 
 /**
- * @brief Shortens the decimal representation of m * pow(10, f) by removing
- *        trailing zeros from m and increasing e accordingly.
+ * @brief Shortens the decimal representation of m * 10^f by removing trailing
+ *        zeros from m and increasing e accordingly.
+ *
+ * Note: here 10^f denotes 10 raised to f.
  *
  * @param  f                The exponent f.
  * @param  m                The mantissa m.
  *
- * @pre (pow(2, N) - 1) % 5 == 0, where N = sizeof(teju_u1_t) * CHAR_BIT is the
- *      number of bits of teju_u1_t. (This holds if N is in { 16, 32, 64, 128,
- *      256, } = { 16 * pow(2, k), k >= 0 is integer }.)
+ * @pre (2^N - 1) % 5 == 0, where N = teju_width_of(teju_u1_t) and 2^N denotes 2
+ *      raised to N. (This holds if N is in { 16, 32, 64, 128, 256, ... } =
+ *      { 2^k, k >= 4 integer }.)
  *
  * @returns The fields of the shortest close decimal representation.
  */
@@ -134,10 +138,9 @@ remove_trailing_zeros(int32_t f, teju_u1_t m) {
 //------------------------------------------------------------------------------
 
 /**
- * @brief Checks whether x = m * pow(2, e) is an integer in [0, U[ where U =
- *        pow(2, teju_mantissa_width).
+ * @brief Checks whether x = m * 2^e is integer in [0, 2^teju_mantissa_width[.
  *
- * For such x, a faster binary-to-decimal algorithm can be used.
+ * Note: here 2^e denotes 2 raised to e. (Similar for 2^teju_mantissa_width.)
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
@@ -152,8 +155,10 @@ is_small_integer(int32_t const e, teju_u1_t const m) {
 }
 
 /**
- * @brief Finds the shortest decimal representation of x = m * pow(2, e) when
+ * @brief Finds the shortest decimal representation of x = m * 2^e when
  *        is_small_integer(e, m) == true.
+ *
+ * Note: here 2^e denotes 2 raised to e.
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
@@ -177,7 +182,9 @@ teju_u1_t const mantissa_uncentred =
   teju_pow2(teju_u1_t, teju_mantissa_width - 1u);
 
 /**
- * @brief Checks whether x = m * pow(2, e) is centred.
+ * @brief Checks whether x = m * 2^e is centred.
+ *
+ * Note: here 2^e denotes 2 raised to e.
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
@@ -237,13 +244,14 @@ wins_tiebreak(teju_u1_t const m) {
 }
 
 /**
- * @brief Assuming m * pow(2, e) in [c * pow(10, f), (c + 1) * pow(10, f)], this
- *        function checks whether m * pow(2, e) is closer to c * pow(10, f) than
- *        to (c + 1) * pow(10, f).
+ * @brief Assuming m * 2^e in [c * 10^f, (c + 1) * 10^f], this function checks
+ *        whether m * 2^e is closer to c * 10^f than to (c + 1) * 10^f.
+ *
+ * Note: here 2^e denotes 2 raised to e and 10^f denotes 10 raised to f.
  *
  * @param  c_2               The number c_2, where c = c_2 / 2.
  *
- * @returns true if m * pow(2, e) is closer to the left and false, otherwise.
+ * @returns true if m * 2^e is closer to the c * 10^f and false, otherwise.
  */
 static inline
 bool
@@ -252,7 +260,9 @@ is_closer_to_left(teju_u1_t const c_2) {
 }
 
 /**
- * @brief Tejú Jaguá for x = m * pow(2, e) when x is centred.
+ * @brief Tejú Jaguá for x = m * 2^e when x is centred.
+ *
+ * Note: here 2^e denotes 2 raised to e.
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
@@ -317,8 +327,10 @@ is_tie_uncentred(int32_t const f, teju_u1_t const m) {
 }
 
 /**
- * @brief Tejú Jaguá for x = m * pow(2, e) when x is uncentred, i.e., m =
+ * @brief Tejú Jaguá for x = m * 2^e when x is uncentred, i.e. m =
  *        mantissa_uncentred.
+ *
+ * Note: here 2^e denotes 2 raised to e.
  *
  * @param  e                The exponent e.
  *
@@ -352,8 +364,8 @@ to_decimal_uncentred(int32_t const e) {
     else if (s > a)
       return remove_trailing_zeros(f + 1, q);
 
-    // m_c = 4 * m * pow(2, r) = pow(2, teju_mantissa_width + r + 1)
-    // c_2 = teju_mshift(m_c, upper, lower);
+    // m_c = 4 * m * 2^r = 2^(teju_mantissa_width + r + 1)
+    // c_2 = teju_mshift(m_c, M) = mshift_pow2(teju_mantissa_width + r + 1, M);
     uint32_t  const log2_m_c = teju_mantissa_width + r + 1u;
     teju_u1_t const c_2      = mshift_pow2(log2_m_c, M);
     teju_u1_t const c        = c_2 / 2u;
@@ -380,7 +392,9 @@ to_decimal_uncentred(int32_t const e) {
 }
 
 /**
- * @brief Finds the shortest decimal representation of x = m * pow(2, e).
+ * @brief Finds the shortest decimal representation of x = m * 2^e.
+ *
+ * Note: here 2^e denotes 2 raised to e.
  *
  * @param  binary           The binary representation of x.
  *

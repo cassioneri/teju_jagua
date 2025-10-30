@@ -16,8 +16,10 @@
 /**
  * @brief Constructs a number from its two halves.
  *
- * Let N = teju_width / 2. Given a_1, a_0 in [0, pow(2, N)[, this macro expands
- * to a_1 * pow(2, N) + a_0.
+ * Let N = teju_width / 2. Given a_1, a_0 in [0, 2^N[, this macro expands to
+ * a_1 * 2^N + a_0.
+ *
+ * Note: here 2^N denotes 2 raised to N.
  *
  * For instance, if teju_width == 128, then:
  * @code{.cpp}
@@ -39,9 +41,11 @@
 /**
  * @brief Constructs a number from its four quarters.
  *
- * Let N = teju_width / 4. Given a_3, a_2, a_1, a_0 in [0, pow(2, N)[, this
+ * Let N = teju_width / 4. Given a_3, a_2, a_1, a_0 in [0, 2^N[, this
  * macro expands to:
- *   a_3 * pow(2, 6 * N)) + a_2 * pow(2, 4 * N) + a_1 * pow(2, N) + a_0.
+ *   a_3 * 2^(6 * N) + a_2 * 2^(4 * N) + a_1 * 2^N + a_0.
+ *
+ * Note: here 2^N denotes 2 raised to N. (Similarly for other exponents.)
  *
  * For instance, if teju_width == 128, then:
  * @code{.cpp}

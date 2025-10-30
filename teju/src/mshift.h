@@ -59,8 +59,11 @@ teju_add_and_carry(teju_u1_t x, teju_u1_t y, teju_u1_t* c) {
 /**
  * @brief Gets M * m >> s, where N = teju_width and s = 2 * N.
  *
- * M is split into two parts, namely, upper = M / pow(2, N) and lower =
- * M % pow(2, N), so that M = pow(2, N) * upper + lower.
+ * M is split into two parts, namely, upper = M / 2^N and lower = M % 2^N, so
+ * that M = 2^N * upper + lower.
+ *
+ * Note: M * n is calculated (as if) in infinity precision and 2^N denotes 2
+ * raised to N.
  *
  * @param  m                The multiplicand m.
  * @param  M                The multiplicand M.
@@ -74,7 +77,7 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
   teju_u1_t const u = M.upper;
   teju_u1_t const l = M.lower;
 
-  // Let x := pow(2, N).
+  // Let x := 2^N.
 
   #if teju_calculation_mshift == teju_built_in_4
 
@@ -121,7 +124,7 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
 
   #elif teju_calculation_mshift == teju_built_in_1
 
-    // Let y := pow(2, N / 2), so that, x = y * y. Then:
+    // Let y := 2^(N / 2), so that, x = y * y. Then:
     // u := (n3 * y + n2) with n3 := u / y, n2 = u % y in [0, y[,
     // l := (n1 * y + n0) with n1 := l / y, n0 = l % y in [0, y[,
     // m := (m1 * y + m0) with m1 := m / y, m0 = m % y in [0, y[.
@@ -179,10 +182,13 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
 }
 
 /**
- * @brief Gets M * pow(2, k) >> s, where N = teju_width and s = 2 * N.
+ * @brief Gets (M * 2^k) >> s, where N = teju_width and s = 2 * N.
  *
- * M is split into two parts, namely, upper = M / pow(2, N) and lower =
- * M % pow(2, N), so that M = pow(2, N) * upper + lower.
+ * M is split into two parts, namely, upper = M / 2^N and lower = M % 2^N, so
+ * that M = 2^N * upper + lower.
+ *
+ * Note: M * 2^k is calculated (as if) in infinity precision and 2^k denotes 2
+ * raised to k. (Similarly for 2^N.)
  *
  * @param  k                The exponent k.
  * @param  M                The multiplicand M.

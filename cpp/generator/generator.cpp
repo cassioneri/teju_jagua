@@ -26,7 +26,7 @@ namespace teju {
 namespace {
 
 /**
- * @brief Returns the type prefix corresponding to a given width.
+ * @brief Gets the type prefix corresponding to a given width.
  *
  * @param  width            The width.
  *

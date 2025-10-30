@@ -18,11 +18,11 @@ extern "C" {
 #endif
 
 /**
- * @brief Width of a given type, i.e. its number of bits.
+ * @brief Gets the width (number of bits) of a given type.
  *
- * @tparam T                The given type.
+ * @tparam type             The given type.
  *
- * @returns The width of T.
+ * @returns The width.
  */
 #define teju_width_of(type) (sizeof(type) * CHAR_BIT)
 
@@ -61,7 +61,7 @@ extern "C" {
 
 /**
  * @brief Gets the largest exponent f such that 10^f <= 2^e, i.e. the integer
- *       part of log_10(2^e).
+ *        part of log_10(2^e).
  *
  * Note: here 10^f denotes 10 raised to f and 2^e denotes 2 raised to e.
  *

@@ -41,115 +41,115 @@ struct generator_t {
 private:
 
   /**
-   * @brief Returns the identifier for the floating-point number type.
+   * @brief Gets the identifier for the floating-point number type.
    */
   [[nodiscard]] std::string const&
   id() const;
 
   /**
-   * @brief Returns the limb width (number of bits).
+   * @brief Gets the limb width (number of bits).
    */
   [[nodiscard]] std::uint32_t
   width() const;
 
   /**
-   * @brief Returns the SPDX identifier.
+   * @brief Gets the SPDX identifier.
    */
   [[nodiscard]] std::string const&
   spdx_identifier() const;
 
   /**
-   * @brief Returns the SPDX identifier.
+   * @brief Gets the SPDX identifier.
    */
   [[nodiscard]] std::vector<std::string> const&
   spdx_copyright() const;
 
   /**
-   * @brief Returns the type prefix corresponding to a given width.
+   * @brief Gets the type prefix corresponding to a given width.
    */
   [[nodiscard]] std::string const&
   prefix() const;
 
   /**
-   * @brief Returns the name of Tejú Jaguá's conversion function.
+   * @brief Gets the name of Tejú Jaguá's conversion function.
    */
   [[nodiscard]] std::string const&
   function() const;
 
   /**
-   * @brief Returns the minimum binary exponent.
+   * @brief Gets the minimum binary exponent.
    */
   [[nodiscard]] std::int32_t
   exponent_min() const;
 
   /**
-   * @brief Returns maximum binary exponent.
+   * @brief Gets the maximum binary exponent.
    */
   [[nodiscard]] std::int32_t
   exponent_max() const;
 
   /**
-   * @brief Returns the mantissa width (number of bits).
+   * @brief Gets the mantissa width (number of bits).
    */
   [[nodiscard]] std::uint32_t
   mantissa_width() const;
 
   /**
-   * @brief Returns the (normal) minimal mantissa.
+   * @brief Gets the (normal) minimal mantissa.
    */
   [[nodiscard]] integer_t const&
   mantissa_min() const;
 
   /**
-   * @brief Returns the maximal mantissa.
+   * @brief Gets the maximal mantissa.
    */
   [[nodiscard]] integer_t const&
   mantissa_max() const;
 
   /**
-   * @brief Returns the number of parts that each stored limb is split into.
+   * @brief Gets the number of parts that each stored limb is split into.
    */
   [[nodiscard]] std::uint32_t
   storage_split() const;
 
   /**
-   * @brief Returns the endianness of the storage.
+   * @brief Gets the endianness of the storage.
    */
   [[nodiscard]] std::string const&
   storage_endianness() const;
 
   /**
-   * @brief Returns the index offset.
+   * @brief Gets the index offset.
    */
   [[nodiscard]] std::int32_t
   index_offset() const;
 
   /**
-   * @brief Returns the calculation method for div10.
+   * @brief Gets the calculation method for div10.
    */
   [[nodiscard]] std::string const&
   calculation_div10() const;
 
   /**
-   * @brief Returns the calculation method for mshift.
+   * @brief Gets the calculation method for mshift.
    */
   [[nodiscard]] std::string const&
   calculation_mshift() const;
 
   /**
-   * @brief Returns the directory where generated files are saved.
+   * @brief Gets the directory where generated files are saved.
    */
   [[nodiscard]] std::string const&
   directory() const;
 
   /**
-   * @brief Returns the name of the generated .h file.
+   * @brief Gets the name of the generated .h file.
    */
   [[nodiscard]] std::string const&
   dot_h() const;
 
   /**
-   * @brief Returns the name of the generated .c file.
+   * @brief Gets the name of the generated .c file.
    */
   [[nodiscard]] std::string const&
   dot_c() const;
@@ -181,7 +181,7 @@ private:
   generate_dot_c(std::ostream& stream) const;
 
   /**
-   * @brief Check whether Tejú Jaguá can use the algorithm of Theorem 4 [1] to
+   * @brief Checks whether Tejú Jaguá can use the algorithm of Theorem 4 [1] to
    *        perform division by 10.
    * [1] Neri C, Schneider L. "Euclidean affine functions and their application
    * to calendar algorithms." Softw Pract Exper. 2023; 53(4):937-970.

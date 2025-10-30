@@ -45,7 +45,7 @@ struct splitter_t {
   struct data_t;
 
   /**
-   * @brief Returns an object which, when streamed out, splits a given value.
+   * @brief Gets an object which, when streamed out, splits a given value.
    *
    * @param  value          The given value.
    *

@@ -39,11 +39,11 @@ extern "C" {
 // Flags indicating the platform's multiplication capability.
 //------------------------------------------------------------------------------
 
-// The the limb number of bits is teju_width. For instance, if teju_width == 32,
-// then 1-, 2- and 4-limb integers have widths 32, 64 and 128, respectively.
-// Similarly, if teju_width == 64, then 1-, 2- and 4-limb integers have widths
-// 64, 128 and 256 respectively. The platform is required to support 1-limb
-// integers but not necessarily 2- and 4-limb integers.
+// Macro teju_width is set to the limb's number of bits. For instance, if
+// teju_width == 32, then 1-, 2- and 4-limb integers have widths 32, 64 and 128,
+// respectively. Similarly, if teju_width == 64, then 1-, 2- and 4-limb integers
+// have widths 64, 128 and 256 respectively. The platform is required to support
+// 1-limb unsigned integers but not necessarily 2- and 4-limb unsigned integers.
 
 // Macros teju_calculation_div10 and teju_calculation_mshift define the
 // algorithm used in teju_div10 and teju_mshift, respectively. They are set to
@@ -202,8 +202,8 @@ typedef struct {
 // teju_multiply
 //------------------------------------------------------------------------------
 
-// One might want to disabled the provided implementations of teju_multiply to
-// be able to implement their own (e.g. for testing). For this, it suffices to
+// One might want to disable the provided implementations of teju_multiply to be
+// able to implement their own (e.g. for testing). For this, it suffices to
 // define macro teju_do_not_define_teju_multiply prior to including this file.
 
 #if defined(_MSC_VER) && !defined(teju_do_not_define_teju_multiply)

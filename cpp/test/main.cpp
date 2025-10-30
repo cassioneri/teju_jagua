@@ -34,7 +34,7 @@ template <typename TUint>
 struct make_number<TUint> {
 
   /**
-   * @brief Returns n.
+   * @brief Gets n.
    *
    * @param  n              The value of n.
    *

@@ -106,14 +106,15 @@ pow5(std::uint32_t const n) {
  */
 integer_t
 minverse5(std::uint32_t k) {
-  auto const n    = pow2(k) + 2;
+  auto const p2   = pow2(k);
+  auto const n    = p2 + 2;
   auto const mask = n - 3; // pow2(k) - 1
   auto m = integer_t{1};
   while (k > 1) {
     m  = (m * (n - ((5 * m) & mask))) & mask;
     k /= 2;
   }
-  return m;
+  return m % p2;
 }
 
 /**

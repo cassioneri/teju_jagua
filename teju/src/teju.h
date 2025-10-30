@@ -47,12 +47,29 @@ is_multiple_of_pow2(int32_t const e, teju_u1_t const n) {
 }
 
 /**
- * @brief Checks whether n is multiple of pow(5, f).
+ * @brief Checks whether divisibility by 5^f is implemented.
+ *
+ * Note: here 5^f denotes 5 raised to f.
+ *
+ * @param  f              The exponent f.
+ *
+ * @returns true if divisibility by 5^f is implemented and false, otherwise.
+ */
+static inline
+bool
+can_test_divisibility_by_pow5(int32_t const f) {
+  return 0 <= f && (uint32_t) f < sizeof(minverse) / sizeof(minverse[0]);
+}
+
+/**
+ * @brief Checks whether n is multiple of 5^f.
+ *
+ * Note: here 5^f denotes 5 raised to f.
  *
  * @param  f                The exponent f.
  * @param  n                The number n.
  *
- * @pre 0 <= f && f < sizeof(minverse) / sizeof(minverse[0]).
+ * @pre can_test_divisibility_by_pow5(f).
  *
  * @returns true if n is multiple of 5^f and false, otherwise.
  */
@@ -60,18 +77,23 @@ static inline
 bool
 is_multiple_of_pow5(int32_t const f, teju_u1_t const n) {
 
-  // There exists m of type teju_u1_t such that m * pow(5, f) == 1. Such m is
-  // called the modular inverse -- minverse for short -- of 5. Furthermore,
-  // there exist b of the same type such that:
+  // Let P be the value of 5 raised to f and assume this can fit in teju_u1_t.
+  // Then, there exists m of type teju_u1_t such that
   //
-  // n % pow(5, f) == 0 <=> n * m < b for all n of type teju_u1_t.
+  //   (teju_u1_t) (1u * m * P) == 1.
+  //
+  // Such m is called the modular inverse -- minverse for short -- of P.
+  // Furthermore, there exist b of type teju_u1_t such that for any n of the
+  // same type we have:
+  //
+  //   n % P == 0 <=> n * m < b.
   //
   // m and b are stored in minverse table.
   //
   // Neri C. "Quick Modular Calculations", Overload, 27(154):11-15, Dec 2019.
   // https://accu.org/journals/overload/27/154/neri_2722/
 
-  assert(0 <= f && (uint32_t) f < sizeof(minverse) / sizeof(minverse[0]));
+  assert(can_test_divisibility_by_pow5(f));
   return (teju_u1_t) (1u * n * minverse[f].multiplier) <= minverse[f].bound;
 }
 
@@ -207,7 +229,7 @@ is_centred(int32_t const e, teju_u1_t const m) {
 static inline
 bool
 allows_ties(int32_t const f) {
-  return 0 <= f && (uint32_t) f < sizeof(minverse) / sizeof(minverse[0]);
+  return can_test_divisibility_by_pow5(f);
 }
 
 /**

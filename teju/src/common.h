@@ -18,6 +18,14 @@ extern "C" {
 #endif
 
 /**
+ * @brief Width of a given type, i.e. its number of bits.
+ *
+ * @tparam T                The given type.
+ *
+ * @returns The width of T.
+ */
+#define teju_width_of(type) (sizeof(type) * CHAR_BIT)
+
 /**
  * @brief Gets 2^e as a given unsigned integer type.
  *
@@ -26,7 +34,7 @@ extern "C" {
  * @tparam type             The given type.
  * @param  e                The exponent e.
  *
- * @pre type is an unsigned integer type and e < sizeof(type) * CHAR_BIT.
+ * @pre type is an unsigned integer type and e < teju_width_of(type).
  *
  * @returns 2^e.
  */
@@ -41,7 +49,7 @@ extern "C" {
  * @param  n                The value of n.
  * @param  k                The value of k.
  *
- * @pre type is an unsigned integer type and k < sizeof(n) * CHAR_BIT.
+ * @pre type is an unsigned integer type and k < teju_width_of(type).
  *
  * @returns The k least-significant bits of n.
  */

@@ -22,13 +22,13 @@ extern "C" {
 #endif
 
 /**
- * @brief Returns x + y and sets a carry flag if the addition has wrapped up.
+ * @brief Gets x + y and sets a carry flag if the addition wrapped up.
  *
  * @param  x                The value of x.
  * @param  y                The value of y.
  * @param  c                The address of the carry flag to be set.
  *
- * @returns The sum x + y.
+ * @returns x + y.
  */
 static inline
 teju_u1_t

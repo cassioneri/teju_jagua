@@ -20,6 +20,7 @@
 #include <charconv>
 #include <cstring>
 #include <fstream>
+#include <iomanip>
 #include <limits>
 #include <random>
 #include <string>

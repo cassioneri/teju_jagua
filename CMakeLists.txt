@@ -160,7 +160,10 @@ FetchContent_MakeAvailable(dragonbox)
 
 FetchContent_Declare(
   googletest
-  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.tar.gz
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  # This revision contains a workaround for a bug discovered by clang.
+  # https://github.com/google/googletest/commit/fa8438ae6b70c57010177de47a9f13d7041a6328
+  GIT_TAG        fa8438ae6b70c57010177de47a9f13d7041a6328
   DOWNLOAD_EXTRACT_TIMESTAMP TRUE
   SOURCE_DIR ${third_party_dir}/googletest
 )

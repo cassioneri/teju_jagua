@@ -18,7 +18,7 @@ extern "C" {
 #define teju_calculation_div10    teju_built_in_2
 #define teju_calculation_mshift   teju_built_in_2
 
-#define teju_function             teju_ieee32_no_uint128
+#define teju_to_decimal           teju_ieee32_no_uint128
 #define teju_fields_t             teju32_fields_t
 #define teju_u1_t                 teju32_u1_t
 

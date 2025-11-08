@@ -62,7 +62,7 @@ teju_add_and_carry(teju_u1_t x, teju_u1_t y, teju_u1_t* c) {
  * M is split into two parts, namely, upper = M / 2^N and lower = M % 2^N, so
  * that M = 2^N * upper + lower.
  *
- * Note: M * n is calculated (as if) in infinity precision and 2^N denotes 2
+ * @note M * n is calculated (as if) in infinity precision, and 2^N denotes 2
  * raised to N.
  *
  * @param  m                The multiplicand m.
@@ -187,7 +187,7 @@ teju_mshift(teju_u1_t const m, teju_multiplier_t const M) {
  * M is split into two parts, namely, upper = M / 2^N and lower = M % 2^N, so
  * that M = 2^N * upper + lower.
  *
- * Note: M * 2^k is calculated (as if) in infinity precision and 2^k denotes 2
+ * @note M * 2^k is calculated (as if) in infinity precision, and 2^k denotes 2
  * raised to k. (Similarly for 2^N.)
  *
  * @param  k                The exponent k.

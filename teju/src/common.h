@@ -20,21 +20,21 @@ extern "C" {
 /**
  * @brief Gets the width (number of bits) of a given type.
  *
- * @tparam type             The given type.
+ * @tparam T                The given type.
  *
  * @returns The width.
  */
-#define teju_width_of(type) (sizeof(type) * CHAR_BIT)
+#define teju_width_of(T) (sizeof(T) * CHAR_BIT)
 
 /**
- * @brief Gets 2^e as a given unsigned integer type.
+ * @brief Gets 2^e as a given type.
  *
- * Note: here 2^e denotes 2 raised to e.
+ * @note Here ^ denotes exponentiation (not bit-wise xor).
  *
- * @tparam type             The given type.
+ * @tparam UInt             The given type.
  * @param  e                The exponent e.
  *
- * @pre type is an unsigned integer type and e < teju_width_of(type).
+ * @pre UInt is an unsigned integer type and e < teju_width_of(UInt).
  *
  * @returns 2^e.
  */
@@ -43,13 +43,13 @@ extern "C" {
  /**
  * @brief Gets the k least-significant bits of n (i.e. n % 2^k.)
  *
- * Note: here 2^e denotes 2 raised to e.
+ * @note Here ^ denotes exponentiation (not bit-wise xor).
  *
- * @tparam type             The type of n.
+ * @tparam UInt             The type of n.
  * @param  n                The value of n.
  * @param  k                The value of k.
  *
- * @pre type is an unsigned integer type and k < teju_width_of(type).
+ * @pre UInt is an unsigned integer type and k < teju_width_of(UInt).
  *
  * @returns The k least-significant bits of n.
  */
@@ -60,10 +60,10 @@ extern "C" {
 #define teju_log10_pow2_max   112815
 
 /**
- * @brief Gets the largest exponent f such that 10^f <= 2^e, i.e. the integer
+ * @brief Gets the largest integer f such that 10^f <= 2^e, i.e. the integer
  *        part of log_10(2^e).
  *
- * Note: here 10^f denotes 10 raised to f and 2^e denotes 2 raised to e.
+ * @note Here ^ denotes exponentiation (not bit-wise xor).
  *
  * @param  e                 The exponent e.
  *
@@ -79,10 +79,10 @@ teju_log10_pow2(int32_t const e) {
 }
 
 /**
- * @brief Gets the residual r = e - e_0, where e_0 is the smallest exponent such
+ * @brief Gets the residual r = e - e_0, where e_0 is the smallest integer such
  *        that teju_log10_pow2(e_0) == teju_log10_pow2(e).
  *
- * @param  e                The exponent e.
+ * @param  e                The value of e.
  *
  * @pre teju_log10_pow2_min <= e && e <= teju_log10_pow2_max.
  *

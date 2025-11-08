@@ -30,7 +30,7 @@ extern "C" {
 /**
  * @brief Checks whether n is multiple of 2^e.
  *
- * Note: here 2^e denotes 2 raised to e.
+ * @note Here ^ denotes exponentiation (not bit-wise xor).
  *
  * @param  e                The exponent e.
  * @param  n                The number n.
@@ -49,7 +49,7 @@ is_multiple_of_pow2(int32_t const e, teju_u1_t const n) {
 /**
  * @brief Checks whether divisibility by 5^f is implemented.
  *
- * Note: here 5^f denotes 5 raised to f.
+ * @note Here ^ denotes exponentiation (not bit-wise xor).
  *
  * @param  f              The exponent f.
  *
@@ -64,12 +64,12 @@ can_test_divisibility_by_pow5(int32_t const f) {
 /**
  * @brief Checks whether n is multiple of 5^f.
  *
- * Note: here 5^f denotes 5 raised to f.
+ * @note Here ^ denotes exponentiation (not bit-wise xor).
  *
  * @param  f                The exponent f.
  * @param  n                The number n.
  *
- * @pre can_test_divisibility_by_pow5(f).
+ * @pre can_test_divisibility_by_pow5(f) == true.
  *
  * @returns true if n is multiple of 5^f and false, otherwise.
  */
@@ -100,9 +100,9 @@ is_multiple_of_pow5(int32_t const f, teju_u1_t const n) {
 /**
  * @brief Rotates the bits of n by 1 position to the right.
  *
- * @param  n                The given number.
+ * @param  n                The value of n.
  *
- * @returns The value of m after the rotation.
+ * @returns The value of n after the rotation.
  */
 static inline
 teju_u1_t
@@ -127,18 +127,18 @@ make_fields(int32_t const e, teju_u1_t const m) {
 
 /**
  * @brief Shortens the decimal representation of m * 10^f by removing trailing
- *        zeros from m and increasing e accordingly.
+ *        zeros from m and increasing f accordingly.
  *
- * Note: here 10^f denotes 10 raised to f.
+ * @note Here ^ denotes exponentiation (not bit-wise xor).
  *
  * @param  f                The exponent f.
  * @param  m                The mantissa m.
  *
- * @pre (2^N - 1) % 5 == 0, where N = teju_width_of(teju_u1_t) and 2^N denotes 2
- *      raised to N. (This holds if N is in { 16, 32, 64, 128, 256, ... } =
+ * @pre ((teju_u1_t) (-1)) % 5 == 0. (This condition holds if
+ *      teju_width_of(teju_u1_t) is in { 16, 32, 64, 128, 256, ... } =
  *      { 2^k, k >= 4 integer }.)
  *
- * @returns The fields of the shortest close decimal representation.
+ * @returns The shortened representation.
  */
 static inline
 teju_fields_t
@@ -160,9 +160,10 @@ remove_trailing_zeros(int32_t f, teju_u1_t m) {
 //------------------------------------------------------------------------------
 
 /**
- * @brief Checks whether x = m * 2^e is integer in [0, 2^teju_mantissa_width[.
+ * @brief Checks whether x = m * 2^e is an integer less than
+ *        2^teju_mantissa_width.
  *
- * Note: here 2^e denotes 2 raised to e. (Similar for 2^teju_mantissa_width.)
+ * @note Here ^ denotes exponentiation (not bit-wise xor).
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
@@ -180,7 +181,7 @@ is_small_integer(int32_t const e, teju_u1_t const m) {
  * @brief Finds the shortest decimal representation of x = m * 2^e when
  *        is_small_integer(e, m) == true.
  *
- * Note: here 2^e denotes 2 raised to e.
+ * @note Here ^ denotes exponentiation (not bit-wise xor).
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
@@ -206,7 +207,7 @@ teju_u1_t const mantissa_uncentred =
 /**
  * @brief Checks whether x = m * 2^e is centred.
  *
- * Note: here 2^e denotes 2 raised to e.
+ * @note Here ^ denotes exponentiation (not bit-wise xor).
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
@@ -251,7 +252,7 @@ is_tie(int32_t const f, teju_u1_t const m) {
  * @brief Checks whether mantissa m wins the tiebreak against its neighbour.
  *
  * Implements the ties-to-even rule, i.e. m wins the tiebreak if it's even.
- * Contrarily to other tie-breaking rules, this one doesn't depend on the
+ * Contrarily to other tiebreak rules, this one doesn't depend on the
  * neighbour that m is competing against or the sign of the floating-point
  * number.
  *
@@ -269,11 +270,11 @@ wins_tiebreak(teju_u1_t const m) {
  * @brief Assuming m * 2^e in [c * 10^f, (c + 1) * 10^f], this function checks
  *        whether m * 2^e is closer to c * 10^f than to (c + 1) * 10^f.
  *
- * Note: here 2^e denotes 2 raised to e and 10^f denotes 10 raised to f.
+ * @note Here ^ denotes exponentiation (not bit-wise xor).
  *
  * @param  c_2               The number c_2, where c = c_2 / 2.
  *
- * @returns true if m * 2^e is closer to the c * 10^f and false, otherwise.
+ * @returns true if m * 2^e is closer to c * 10^f and false, otherwise.
  */
 static inline
 bool
@@ -284,7 +285,7 @@ is_closer_to_left(teju_u1_t const c_2) {
 /**
  * @brief Tejú Jaguá for x = m * 2^e when x is centred.
  *
- * Note: here 2^e denotes 2 raised to e.
+ * @note Here ^ denotes exponentiation (not bit-wise xor).
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
@@ -352,7 +353,7 @@ is_tie_uncentred(int32_t const f, teju_u1_t const m) {
  * @brief Tejú Jaguá for x = m * 2^e when x is uncentred, i.e. m =
  *        mantissa_uncentred.
  *
- * Note: here 2^e denotes 2 raised to e.
+ * @note Here ^ denotes exponentiation (not bit-wise xor).
  *
  * @param  e                The exponent e.
  *
@@ -416,7 +417,7 @@ to_decimal_uncentred(int32_t const e) {
 /**
  * @brief Finds the shortest decimal representation of x = m * 2^e.
  *
- * Note: here 2^e denotes 2 raised to e.
+ * @note Here ^ denotes exponentiation (not bit-wise xor).
  *
  * @param  binary           The binary representation of x.
  *

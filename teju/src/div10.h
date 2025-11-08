@@ -17,9 +17,9 @@ extern "C" {
 #endif
 
 /**
- * @brief Gets the quotient n / 10.
+ * @brief Gets n / 10.
  *
- * @param  n                The dividend.
+ * @param  n                The value of n.
  *
  * @returns n / 10.
  */

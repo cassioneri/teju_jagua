@@ -19,7 +19,7 @@
  * Let N = teju_width / 2. Given a_1, a_0 in [0, 2^N[, this macro expands to
  * a_1 * 2^N + a_0.
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * For instance, if teju_width == 128, then:
  * @code{.cpp}
@@ -45,7 +45,7 @@
  * macro expands to:
  *   a_3 * 2^(6 * N) + a_2 * 2^(4 * N) + a_1 * 2^N + a_0.
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * For instance, if teju_width == 128, then:
  * @code{.cpp}

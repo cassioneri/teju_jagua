@@ -29,7 +29,7 @@ extern "C" {
 /**
  * @brief Gets 2^e as a given type.
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * @tparam UInt             The given type.
  * @param  e                The exponent e.
@@ -43,7 +43,7 @@ extern "C" {
  /**
  * @brief Gets the k least-significant bits of n (i.e. n % 2^k.)
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * @tparam UInt             The type of n.
  * @param  n                The value of n.
@@ -63,7 +63,7 @@ extern "C" {
  * @brief Gets the largest integer f such that 10^f <= 2^e, i.e. the integer
  *        part of log_10(2^e).
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * @param  e                 The exponent e.
  *

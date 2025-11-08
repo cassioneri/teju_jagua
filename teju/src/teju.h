@@ -30,7 +30,7 @@ extern "C" {
 /**
  * @brief Checks whether n is multiple of 2^e.
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * @param  e                The exponent e.
  * @param  n                The number n.
@@ -49,7 +49,7 @@ is_multiple_of_pow2(int32_t const e, teju_u1_t const n) {
 /**
  * @brief Checks whether divisibility by 5^f is implemented.
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * @param  f              The exponent f.
  *
@@ -64,7 +64,7 @@ can_test_divisibility_by_pow5(int32_t const f) {
 /**
  * @brief Checks whether n is multiple of 5^f.
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * @param  f                The exponent f.
  * @param  n                The number n.
@@ -129,7 +129,7 @@ make_fields(int32_t const e, teju_u1_t const m) {
  * @brief Shortens the decimal representation of m * 10^f by removing trailing
  *        zeros from m and increasing f accordingly.
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * @param  f                The exponent f.
  * @param  m                The mantissa m.
@@ -163,7 +163,7 @@ remove_trailing_zeros(int32_t f, teju_u1_t m) {
  * @brief Checks whether x = m * 2^e is an integer less than
  *        2^teju_mantissa_width.
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
@@ -181,7 +181,7 @@ is_small_integer(int32_t const e, teju_u1_t const m) {
  * @brief Finds the shortest decimal representation of x = m * 2^e when
  *        is_small_integer(e, m) == true.
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
@@ -207,7 +207,7 @@ teju_u1_t const mantissa_uncentred =
 /**
  * @brief Checks whether x = m * 2^e is centred.
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
@@ -270,7 +270,7 @@ wins_tiebreak(teju_u1_t const m) {
  * @brief Assuming m * 2^e in [c * 10^f, (c + 1) * 10^f], this function checks
  *        whether m * 2^e is closer to c * 10^f than to (c + 1) * 10^f.
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * @param  c_2               The number c_2, where c = c_2 / 2.
  *
@@ -285,7 +285,7 @@ is_closer_to_left(teju_u1_t const c_2) {
 /**
  * @brief Tejú Jaguá for x = m * 2^e when x is centred.
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * @param  e                The exponent e.
  * @param  m                The mantissa m.
@@ -353,7 +353,7 @@ is_tie_uncentred(int32_t const f, teju_u1_t const m) {
  * @brief Tejú Jaguá for x = m * 2^e when x is uncentred, i.e. m =
  *        mantissa_uncentred.
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * @param  e                The exponent e.
  *
@@ -417,7 +417,7 @@ to_decimal_uncentred(int32_t const e) {
 /**
  * @brief Finds the shortest decimal representation of x = m * 2^e.
  *
- * @note Here ^ denotes exponentiation (not bit-wise xor).
+ * @note Here ^ denotes exponentiation (not bitwise xor).
  *
  * @param  binary           The binary representation of x.
  *

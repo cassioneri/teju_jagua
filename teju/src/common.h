@@ -38,7 +38,7 @@ extern "C" {
  *
  * @returns 2^e.
  */
-#define teju_pow2(type, e) ((type) ((type) 1u << (e)))
+#define teju_pow2(UInt, e) ((UInt) ((UInt) 1u << (e)))
 
  /**
  * @brief Gets the k least-significant bits of n (i.e. n % 2^k.)
@@ -53,7 +53,7 @@ extern "C" {
  *
  * @returns The k least-significant bits of n.
  */
-#define teju_lsb(type, n, k) ((n) % teju_pow2(type, k))
+#define teju_lsb(UInt, n, k) ((n) % teju_pow2(UInt, k))
 
 // Argument bounds of teju_log10_pow2.
 #define teju_log10_pow2_min (-112815)

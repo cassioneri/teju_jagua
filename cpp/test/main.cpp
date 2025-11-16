@@ -215,7 +215,7 @@ TEST(float, hard_coded_values) {
     {  3.355445e+07f, {     2,  8388612 }, {     1,  3355445 }, __LINE__ },
     // is_centred, allows_ties, s == b, is_tie(b), !wins_tiebreak(b),
     //   is_tie(c), wins_tiebreak(c).
-    { 3.3554468e+08f, {     2,  8388617 }, {     1, 33554468 }, __LINE__ },
+    { 3.3554468e+07f, {     2,  8388617 }, {     0, 33554468 }, __LINE__ },
     // is_centred, allows_ties, s == b, is_tie(b), !wins_tiebreak(b),
     //   is_tie(c), !wins_tiebreak(c).
     // N.A.
@@ -229,7 +229,7 @@ TEST(float, hard_coded_values) {
     {  3.355447e+07f, {     2,  8388618 }, {     1,  3355447 }, __LINE__ },
     // is_centred, allows_ties, s == a, is_tie(a), !wins_tiebreak(a),
     //   is_tie(c), wins_tiebreak(c).
-    { 3.3554452e+08f, {     2,  8388613 }, {     1, 33554452 }, __LINE__ },
+    { 3.3554452e+07f, {     2,  8388613 }, {     0, 33554452 }, __LINE__ },
     // is_centred, allows_ties, s == a, is_tie(a), !wins_tiebreak(a),
     //   !is_tie(c), is_closer_to_left.
     { 5.3687123e+08f, {     6,  8388613 }, {     1, 53687123 }, __LINE__ },
@@ -300,10 +300,10 @@ TEST(float, hard_coded_values) {
     {         5e-01f, {   -24,  8388608 }, {    -1,        5 }, __LINE__ },
     // is_uncentred, a < b, !allows_ties, s <= a,
     //   c == a, !is_tie(a).
-    { 2.3841858e-06f, {   -45,  8388608 }, {   -14, 23841858 }, __LINE__ },
+    { 2.3841858e-07f, {   -45,  8388608 }, {   -14, 23841858 }, __LINE__ },
     // is_uncentred, a < b, !allows_ties, s <= a,
     //   c > a, is_tie(c), wins_tiebreak.
-    { 2.4414062e-03f, {   -35,  8388608 }, {   -11, 24414062 }, __LINE__ },
+    { 2.4414062e-04f, {   -35,  8388608 }, {   -11, 24414062 }, __LINE__ },
     // is_uncentred, a < b, !allows_ties, s <= a,
     //   c > a, is_tie(c), !wins_tiebreak, is_closer_to_left.
     {  9.765625e-04f, {   -33,  8388608 }, {   -10,  9765625 }, __LINE__ },

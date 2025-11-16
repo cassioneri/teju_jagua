@@ -93,7 +93,8 @@ get_next(TFloat value) {
  * @tparam TFloat           The floating-point value type.
  * @param  value            The given value.
  *
- * @pre std::isfinite(value) && value >= 0.
+ * @pre TFloat is an IEEE-754 format and std::isfinite(value) == true and
+ *      value >= 0
  *
  * @returns The previous value.
  */

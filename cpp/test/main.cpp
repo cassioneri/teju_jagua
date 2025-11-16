@@ -73,7 +73,8 @@ struct make_number<TUint, C, Cs...> {
  * @tparam TFloat           The floating-point value type.
  * @param  value            The given value.
  *
- * @pre std::isfinite(value) && value >= 0.
+ * @pre TFloat is an IEEE-754 format and std::isfinite(value) == true and
+ *      value >= 0.
  *
  * @returns The next value.
  */
@@ -94,7 +95,7 @@ get_next(TFloat value) {
  * @param  value            The given value.
  *
  * @pre TFloat is an IEEE-754 format and std::isfinite(value) == true and
- *      value >= 0
+ *      value >= 0.
  *
  * @returns The previous value.
  */
@@ -185,7 +186,7 @@ TEST(float, exhaustive_comparison_to_others) {
   }
 }
 
-// Test hard-coded values covering most (all?) code paths used by floats.
+// Test hard-coded values covering all code paths for float inputs.
 TEST(float, hard_coded_values) {
 
   using traits_t  = teju::traits_t<float>;
@@ -379,7 +380,7 @@ class typed_tests_t : public testing::Test {
 TYPED_TEST_SUITE_P(typed_tests_t);
 
 // Test results for the minimum mantissa and all exponents. This test is
-// parameterized on the floating-point number type and is instantiated for float
+// parameterised on the floating-point number type and is instantiated for float
 // and double.
 TYPED_TEST_P(typed_tests_t, mantissa_min_all_exponents) {
 

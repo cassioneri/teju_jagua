@@ -208,7 +208,7 @@ TEST(float, hard_coded_values) {
 
   test_data_t data[] = {
     // is_small_integer.
-    {            1.f, {   -23,  8388608 }, {     0,        1 }, __LINE__ },
+    {         1e+00f, {   -23,  8388608 }, {     0,        1 }, __LINE__ },
     // is_centred, allows_ties, s == b, !is_tie(b).
     {   1.34218e+08f, {     4,  8388625 }, {     3,   134218 }, __LINE__ },
     // is_centred, allows_ties, s == b, is_tie(b), wins_tiebreak(b).
